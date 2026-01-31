@@ -6,9 +6,6 @@ package-lock.json
 .env
 .env.local
 
-# Config files with sensitive data
-config.js
-
 # IDE
 .vscode/
 .idea/
