@@ -92,17 +92,19 @@ function setupEventListeners() {
         }, CONFIG.UI.SEARCH_DEBOUNCE_MS);
     });
 
-    // Tab Filtering - handle both click and touch for mobile compatibility
-    document.querySelectorAll('[data-tab]').forEach(tab => {
-        const handleTabClick = (e) => {
+    // Tab Filtering - using event delegation for better mobile compatibility
+    const tabContainer = document.getElementById('statusTabs');
+    if (tabContainer) {
+        const handleTabChange = (e) => {
+            // Find the clicked tab button
+            const clickedTab = e.target.closest('[data-tab]');
+            if (!clickedTab) return;
+
             e.preventDefault();
             e.stopPropagation();
 
-            // Use currentTarget to get the actual link element, not the child span
-            const clickedTab = e.currentTarget;
-
             // Activate Tab UI
-            document.querySelectorAll('[data-tab]').forEach(t => t.classList.remove('active'));
+            tabContainer.querySelectorAll('[data-tab]').forEach(t => t.classList.remove('active'));
             clickedTab.classList.add('active');
 
             // Apply Filter
@@ -110,8 +112,19 @@ function setupEventListeners() {
             renderTable();
         };
 
-        tab.addEventListener('click', handleTabClick);
-    });
+        // Use both click and touchend for maximum compatibility
+        tabContainer.addEventListener('click', handleTabChange);
+        tabContainer.addEventListener('touchend', (e) => {
+            // Prevent double-firing with click
+            const clickedTab = e.target.closest('[data-tab]');
+            if (clickedTab) {
+                e.preventDefault();
+                handleTabChange(e);
+            }
+        }, {
+            passive: false
+        });
+    }
 
     // Dark Mode Toggle
     if (cachedDOM.darkModeToggle) {
