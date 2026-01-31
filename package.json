@@ -1,0 +1,18 @@
+{
+  "name": "univisacheck",
+  "version": "1.0.0",
+  "description": "Visa Status Checker Application",
+  "main": "proxy.js",
+  "scripts": {
+    "dev": "node proxy.js",
+    "start": "node proxy.js"
+  },
+  "keywords": [
+    "visa",
+    "checker",
+    "proxy"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

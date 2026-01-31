@@ -6,8 +6,11 @@
 const CONFIG = {
     // API Configuration
     API: {
-        // Proxy endpoint - Change this for production deployment
-        PROXY_URL: 'http://localhost:3000/check-status',
+        // Proxy endpoint - Vercel serverless function
+        PROXY_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ?
+            'http://localhost:3000/check-status' // Local development
+            :
+            '/api/check-status', // Production (Vercel)
 
         // Polling settings for visa status checks
         POLL_INTERVAL_MS: 2000, // Wait 2 seconds between polls
