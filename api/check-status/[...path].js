@@ -1,4 +1,5 @@
-// Vercel Serverless Function for CORS Proxy
+// Vercel Serverless Function - Catch-all for /api/check-status/*
+// This file handles requests to /api/check-status/[...path]
 const https = require('https');
 
 const API_HOST = 'visadoctors.uz';
@@ -33,35 +34,21 @@ module.exports = async (req, res) => {
         return;
     }
 
-    // Parse the URL to get the path after /api/check-status
-    // Vercel rewrites /api/check-status/:path* to /api/check-status with query.path
+    // Get the dynamic path from Vercel's query params
+    // For /api/check-status/[...path], Vercel provides req.query.path as an array
     let relativePath = '';
 
-    // Check if Vercel passed the path as a query parameter
     if (req.query && req.query.path) {
-        // Handle array of path segments
         if (Array.isArray(req.query.path)) {
             relativePath = req.query.path.join('/');
         } else {
             relativePath = req.query.path;
         }
-    } else {
-        // Fallback: Parse from URL
-        const urlPath = req.url || '';
-        if (urlPath.includes('/api/check-status/')) {
-            relativePath = urlPath.split('/api/check-status/')[1] || '';
-        } else if (urlPath.includes('/check-status/')) {
-            relativePath = urlPath.split('/check-status/')[1] || '';
-        }
-
-        // Remove query parameters if any
-        relativePath = relativePath.split('?')[0];
     }
 
     const targetPath = API_PATH + relativePath;
 
-
-    console.log(`[Vercel Proxy] ${req.method} ${req.url} -> https://${API_HOST}${targetPath}`);
+    console.log(`[Vercel Proxy] ${req.method} /api/check-status/${relativePath} -> https://${API_HOST}${targetPath}`);
 
     return new Promise((resolve) => {
         const options = {
@@ -86,7 +73,6 @@ module.exports = async (req, res) => {
             });
 
             proxyRes.on('end', () => {
-                // Set response status
                 res.status(proxyRes.statusCode);
 
                 // Forward relevant headers
@@ -97,7 +83,6 @@ module.exports = async (req, res) => {
                     }
                 });
 
-                // Send the response
                 res.send(data);
                 resolve();
             });
@@ -116,7 +101,6 @@ module.exports = async (req, res) => {
         if (req.method === 'POST') {
             let body = '';
 
-            // Check if body is already parsed (Vercel does this automatically)
             if (req.body && typeof req.body === 'object') {
                 body = JSON.stringify(req.body);
             } else if (req.body && typeof req.body === 'string') {
