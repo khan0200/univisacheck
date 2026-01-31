@@ -139,16 +139,24 @@ body {
         white-space: nowrap;
         transition: all 0.2s ease;
         gap: 2px;
+        background: transparent !important;
+        color: var(--text-main) !important;
+        border: none !important;
     }
     
     .nav-tabs-wrapper .nav-link.active {
-        background: var(--card-bg);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        background: #fff !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+        color: var(--primary-color) !important;
+    }
+    
+    [data-theme="dark"] .nav-tabs-wrapper .nav-link.active {
+        background: var(--card-bg) !important;
     }
     
     .nav-tabs-wrapper .nav-link:active {
         transform: scale(0.95);
-        background: var(--card-bg);
+        background: rgba(255,255,255,0.5) !important;
     }
     
     .nav-tabs-wrapper .nav-link .tab-title {
@@ -158,6 +166,11 @@ body {
         opacity: 0.7;
         text-transform: uppercase;
         letter-spacing: 0.2px;
+    }
+    
+    .nav-tabs-wrapper .nav-link.active .tab-title {
+        opacity: 1;
+        color: var(--primary-color) !important;
     }
     
     .nav-tabs-wrapper .nav-link .badge-count {

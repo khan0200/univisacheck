@@ -92,10 +92,11 @@ function setupEventListeners() {
         }, CONFIG.UI.SEARCH_DEBOUNCE_MS);
     });
 
-    // Tab Filtering
+    // Tab Filtering - handle both click and touch for mobile compatibility
     document.querySelectorAll('[data-tab]').forEach(tab => {
-        tab.addEventListener('click', (e) => {
+        const handleTabClick = (e) => {
             e.preventDefault();
+            e.stopPropagation();
 
             // Use currentTarget to get the actual link element, not the child span
             const clickedTab = e.currentTarget;
@@ -107,7 +108,9 @@ function setupEventListeners() {
             // Apply Filter
             currentFilter = clickedTab.getAttribute('data-tab');
             renderTable();
-        });
+        };
+
+        tab.addEventListener('click', handleTabClick);
     });
 
     // Dark Mode Toggle
