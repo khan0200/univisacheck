@@ -1,0 +1,682 @@
+:root {
+    --primary-color: #007AFF;
+    --primary-light: rgba(0, 122, 255, 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.06);
+    --glass-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --text-main: #1c1c1e;
+    --text-secondary: #8e8e93;
+    --card-bg: #fff;
+    --divider: rgba(0, 0, 0, 0.06);
+    --bg-color: #f2f2f7;
+    --success: #34c759;
+    --danger: #ff3b30;
+    --warning: #ff9500;
+    --info: #5856d6;
+}
+
+[data-theme="dark"] {
+    --primary-color: #0a84ff;
+    --primary-light: rgba(10, 132, 255, 0.15);
+    --glass-bg: rgba(28, 28, 30, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    --text-main: #f5f5f7;
+    --text-secondary: #98989f;
+    --card-bg: #1c1c1e;
+    --divider: rgba(255, 255, 255, 0.08);
+    --bg-color: #000;
+    --success: #30d158;
+    --danger: #ff453a;
+    --warning: #ff9f0a;
+    --info: #5e5ce6;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Hide blobs on mobile for performance */
+.background-blobs { display: none; }
+
+/* Main Container */
+.main-wrapper {
+    padding: 12px !important;
+    max-width: 100%;
+}
+
+@media (min-width: 768px) {
+    .main-wrapper { 
+        padding: 20px 10% !important; 
+    }
+}
+
+/* iOS Glass Panel */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: var(--glass-shadow);
+}
+
+/* Compact Toolbar */
+.toolbar-section {
+    padding: 12px !important;
+    gap: 10px !important;
+}
+
+@media (max-width: 767px) {
+    .toolbar-section {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        padding: 16px !important;
+    }
+    
+    /* Search first on mobile */
+    .search-box {
+        order: 1;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    /* Add button second, full width */
+    .toolbar-section > .btn-primary {
+        order: 2;
+        width: 100%;
+        height: 50px;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+    }
+    
+    /* Tabs section last */
+    .nav-tabs-wrapper {
+        order: 3;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        width: 100%;
+        margin: 0 !important;
+    }
+    
+    .nav-tabs-wrapper .nav-glass {
+        width: 100%;
+        justify-content: center;
+        padding: 3px;
+        border-radius: 12px;
+    }
+    
+    .nav-tabs-wrapper .nav-link {
+        flex: 1;
+        text-align: center;
+        padding: 10px 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+    
+    .nav-tabs-wrapper .nav-link .badge-count {
+        font-size: 10px;
+        padding: 2px 6px;
+        margin-left: 4px;
+        font-weight: 700;
+    }
+    
+    .nav-tabs-wrapper > span {
+        text-align: center;
+        margin: 0 !important;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+}
+
+/* iOS-style Search */
+.search-box input {
+    background: var(--bg-color);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px 10px 36px;
+    font-size: 15px;
+    height: 38px;
+    transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+    background: var(--bg-color);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    outline: none;
+}
+
+/* Mobile search improvements */
+@media (max-width: 767px) {
+    .search-box input {
+        height: 50px;
+        font-size: 16px;
+        padding: 12px 14px 12px 44px;
+        border-radius: 14px;
+    }
+    
+    .search-box i {
+        font-size: 16px !important;
+        left: 16px !important;
+    }
+}
+
+/* Compact Button */
+.btn-primary {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 16px;
+    height: 38px;
+}
+
+.btn-primary:hover {
+    background: #0066d6;
+}
+
+/* iOS Segmented Control Style Tabs */
+.nav-glass {
+    background: var(--bg-color);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 0 !important;
+}
+
+.nav-glass .nav-link {
+    color: var(--text-main);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    white-space: nowrap;
+}
+
+.nav-glass .nav-link.active {
+    background: var(--card-bg);
+    color: var(--primary-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.nav-glass .nav-link .badge-count {
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-left: 4px;
+}
+
+/* Compact Table */
+.custom-table {
+    font-size: 14px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.custom-table thead th {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--divider);
+    background: transparent;
+    white-space: nowrap;
+}
+
+.custom-table tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--divider);
+    vertical-align: middle;
+}
+
+.custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.custom-table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .custom-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Desktop table cell styles */
+.td-name {
+    width: 30%;
+    padding-left: 16px !important;
+}
+
+.td-name .student-name { 
+    font-weight: 600; 
+    font-size: 14px;
+    color: var(--text-main);
+    line-height: 1.3;
+    margin-bottom: 3px;
+}
+
+.td-name .student-id { 
+    font-size: 11px; 
+    color: var(--text-secondary);
+    opacity: 0.65;
+    font-weight: 500;
+}
+
+.td-passport {
+    width: 18%;
+}
+
+.td-passport .passport-num { 
+    background: var(--primary-light); 
+    color: var(--primary-color);
+    padding: 5px 10px; 
+    border-radius: 8px; 
+    font-size: 12px; 
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 3px;
+    letter-spacing: 0.3px;
+}
+
+.td-passport .passport-divider { 
+    display: none; 
+}
+
+.td-passport .birthday { 
+    display: block; 
+    font-size: 11px; 
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.td-status {
+    width: 18%;
+}
+
+.td-applied { 
+    width: 12%;
+    font-size: 13px; 
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.td-applied .applied-label { 
+    display: none; 
+}
+
+.td-checked { 
+    width: 10%;
+    font-size: 12px; 
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.td-actions { 
+    width: 12%;
+    text-align: right;
+    padding-right: 16px !important;
+}
+
+.td-actions .d-flex {
+    justify-content: flex-end;
+}
+
+/* Mobile Card View - Clean & Simple */
+@media (max-width: 767px) {
+    .table-responsive {
+        overflow: visible;
+    }
+    
+    .custom-table thead {
+        display: none;
+    }
+    
+    .custom-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 0;
+    }
+    
+    .custom-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        border: 1px solid var(--divider);
+        transition: all 0.2s ease;
+    }
+    
+    .custom-table tbody tr:active {
+        transform: scale(0.98);
+    }
+    
+    .custom-table tbody tr:hover {
+        background: var(--card-bg);
+    }
+    
+    .custom-table tbody td {
+        display: block;
+        padding: 0 !important;
+        border: none;
+        width: 100% !important;
+    }
+    
+    /* Student Name */
+    .td-name {
+        margin-bottom: 8px;
+    }
+    
+    .td-name .student-name {
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 4px;
+        line-height: 1.3;
+        color: var(--text-main);
+    }
+    
+    .td-name .student-id {
+        font-size: 12px;
+        opacity: 0.4;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Passport & Birthday */
+    .td-passport {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .td-passport .passport-num {
+        background: var(--bg-color);
+        padding: 6px 12px;
+        font-weight: 700;
+        color: var(--text-main);
+        font-size: 14px;
+        border-radius: 8px;
+        letter-spacing: 0.3px;
+    }
+    
+    .td-passport .passport-divider {
+        display: inline;
+        color: var(--text-secondary);
+        opacity: 0.3;
+    }
+    
+    .td-passport .birthday {
+        display: inline;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    /* Status Badge */
+    .td-status {
+        margin-bottom: 12px;
+    }
+    
+    .td-status .badge {
+        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    
+    /* Application & Last Checked - Compact */
+    .td-applied {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: var(--text-secondary);
+    }
+    
+    .td-applied .applied-label {
+        display: inline;
+        opacity: 0.7;
+        font-weight: 500;
+    }
+    
+    .td-applied .applied-date {
+        font-weight: 600;
+        color: var(--text-main);
+        margin-left: 4px;
+    }
+    
+    .td-checked {
+        font-size: 11px;
+        opacity: 0.5;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+    
+    /* Action Buttons */
+    .td-actions {
+        padding-top: 16px !important;
+        margin-top: 4px;
+        border-top: 1px solid var(--divider);
+    }
+    
+    .td-actions .d-flex {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px !important;
+    }
+    
+    .td-actions .btn-icon {
+        width: 100%;
+        height: 48px;
+        font-size: 18px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+        background: var(--bg-color);
+        border: 1px solid var(--divider);
+    }
+    
+    .td-actions .btn-icon:active {
+        transform: scale(0.95);
+    }
+    
+    .td-actions .btn-ghost-primary:active {
+        background: var(--primary-light);
+    }
+    
+    .td-actions .btn-ghost-secondary:active {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .td-actions .btn-ghost-danger:active {
+        background: rgba(255, 59, 48, 0.1);
+    }
+}
+
+/* Compact Status Badges */
+.badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: none;
+}
+
+.bg-success-subtle { background: rgba(52, 199, 89, 0.15) !important; }
+.text-success { color: var(--success) !important; }
+
+.bg-danger-subtle { background: rgba(255, 59, 48, 0.15) !important; }
+.text-danger { color: var(--danger) !important; }
+
+.bg-warning-subtle { background: rgba(255, 149, 0, 0.15) !important; }
+.text-warning-emphasis { color: var(--warning) !important; }
+
+.bg-info-subtle { background: rgba(88, 86, 214, 0.15) !important; }
+.text-info-emphasis { color: var(--info) !important; }
+
+/* Compact Action Buttons */
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.btn-ghost-primary { color: var(--primary-color); }
+.btn-ghost-primary:hover { background: var(--primary-light); }
+
+.btn-ghost-secondary { color: var(--text-secondary); }
+.btn-ghost-secondary:hover { background: rgba(0,0,0,0.05); }
+
+.btn-ghost-danger { color: var(--danger); }
+.btn-ghost-danger:hover { background: rgba(255,59,48,0.1); }
+
+/* Passport Badge */
+.badge.bg-light {
+    background: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    border: none !important;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+/* iOS Modal */
+.modal-content {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--divider);
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* Form Controls */
+.form-control-glass {
+    background: var(--bg-color);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 15px;
+    height: auto;
+}
+
+.form-control-glass:focus {
+    background: var(--bg-color);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    border: none;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+/* Empty State */
+#emptyState {
+    padding: 40px 20px;
+}
+
+#emptyState i {
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+/* Student Count */
+#studentCount {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Toast Notifications */
+.toast {
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Spin Animation for Refresh Button - must be inline-block for transform to work */
+.spin-animation {
+    display: inline-block !important;
+    animation: spin 0.8s linear infinite !important;
+}
+
+@keyframes spin { 
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Dark mode specific */
+[data-theme="dark"] body {
+    background-color: var(--bg-color);
+}
+
+[data-theme="dark"] .custom-table tbody tr {
+    background: var(--card-bg);
+}
+
+[data-theme="dark"] .modal-content {
+    background: var(--card-bg);
+}
+
+/* Hide checkAll column header on desktop too if not needed */
+.custom-table th:first-child,
+.custom-table td:first-child {
+    width: 40px;
+    padding-left: 12px !important;
+}
+
+@media (max-width: 767px) {
+    .custom-table th:first-child { display: none; }
+}
