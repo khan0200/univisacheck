@@ -97,12 +97,15 @@ function setupEventListeners() {
         tab.addEventListener('click', (e) => {
             e.preventDefault();
 
+            // Use currentTarget to get the actual link element, not the child span
+            const clickedTab = e.currentTarget;
+
             // Activate Tab UI
             document.querySelectorAll('[data-tab]').forEach(t => t.classList.remove('active'));
-            e.target.classList.add('active');
+            clickedTab.classList.add('active');
 
             // Apply Filter
-            currentFilter = e.target.getAttribute('data-tab');
+            currentFilter = clickedTab.getAttribute('data-tab');
             renderTable();
         });
     });
