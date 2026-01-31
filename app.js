@@ -303,21 +303,28 @@ function updateTabCounts() {
             // Check if badge already exists
             let badge = tabLink.querySelector('.badge-count');
             if (!badge) {
-                // Create badge on first use
+                // Create stacked layout: title on top, count below
                 const title = tabName.charAt(0).toUpperCase() + tabName.slice(1);
-                badge = document.createElement('span');
-                badge.className = 'badge bg-white text-primary ms-1 badge-count rounded-pill';
-                badge.style.fontSize = '0.75em';
-                badge.style.opacity = '0.8';
 
-                // Clear and rebuild content
-                tabLink.textContent = title + ' ';
+                // Create title span
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'tab-title';
+                titleSpan.textContent = title;
+
+                // Create count badge
+                badge = document.createElement('span');
+                badge.className = 'badge-count';
+
+                // Clear and rebuild content with stacked layout
+                tabLink.textContent = '';
+                tabLink.appendChild(titleSpan);
                 tabLink.appendChild(badge);
             }
             // Update count using textContent (safer than innerHTML)
             badge.textContent = count;
         }
     };
+
 
     updateTabCount('pending', counts.pending);
     updateTabCount('application', counts.application);
