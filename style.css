@@ -142,6 +142,19 @@ body {
         background: transparent !important;
         color: var(--text-main) !important;
         border: none !important;
+        /* Critical for mobile touch */
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-user-select: none;
+        user-select: none;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Make child spans non-interactive so clicks go to parent nav-link */
+    .nav-tabs-wrapper .nav-link .tab-title,
+    .nav-tabs-wrapper .nav-link .badge-count {
+        pointer-events: none;
     }
     
     .nav-tabs-wrapper .nav-link.active {
