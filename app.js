@@ -725,7 +725,7 @@ async function checkVisaStatus(student) {
 
             try {
                 // Poll via proxy
-                const pollResponse = await fetch(`${API_BASE}/${taskId}/`, {
+                const pollResponse = await fetch(`${API_BASE}/${taskId}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
