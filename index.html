@@ -44,22 +44,14 @@
                         <input type="text" id="searchInput" class="form-control form-control-glass ps-5 w-100" placeholder="Search...">
                     </div>
 
-                    <!-- Tabs -->
+                    <!-- Tabs - Using buttons for better mobile touch support -->
                     <div class="nav-tabs-wrapper ms-auto d-flex align-items-center gap-2">
-                        <ul class="nav nav-pills nav-glass gap-0" id="statusTabs">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#" data-tab="pending">Pending</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-tab="application">Application</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-tab="cancelled">Cancelled</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-tab="approved">Approved</a>
-                            </li>
-                        </ul>
+                        <div class="nav nav-pills nav-glass gap-0" id="statusTabs">
+                            <button type="button" class="nav-link active" data-tab="pending">Pending</button>
+                            <button type="button" class="nav-link" data-tab="application">Application</button>
+                            <button type="button" class="nav-link" data-tab="cancelled">Cancelled</button>
+                            <button type="button" class="nav-link" data-tab="approved">Approved</button>
+                        </div>
                         <span class="text-secondary small fw-medium text-nowrap ms-2" id="studentCount">0</span>
                     </div>
                 </div>
