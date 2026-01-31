@@ -34,20 +34,32 @@ module.exports = async (req, res) => {
     }
 
     // Parse the URL to get the path after /api/check-status
-    // Example: /api/check-status/uuid-here -> uuid-here
+    // Vercel rewrites /api/check-status/:path* to /api/check-status with query.path
     let relativePath = '';
 
-    // Handle different URL formats
-    if (req.url.includes('/api/check-status/')) {
-        relativePath = req.url.split('/api/check-status/')[1] || '';
-    } else if (req.url.includes('/check-status/')) {
-        relativePath = req.url.split('/check-status/')[1] || '';
+    // Check if Vercel passed the path as a query parameter
+    if (req.query && req.query.path) {
+        // Handle array of path segments
+        if (Array.isArray(req.query.path)) {
+            relativePath = req.query.path.join('/');
+        } else {
+            relativePath = req.query.path;
+        }
+    } else {
+        // Fallback: Parse from URL
+        const urlPath = req.url || '';
+        if (urlPath.includes('/api/check-status/')) {
+            relativePath = urlPath.split('/api/check-status/')[1] || '';
+        } else if (urlPath.includes('/check-status/')) {
+            relativePath = urlPath.split('/check-status/')[1] || '';
+        }
+
+        // Remove query parameters if any
+        relativePath = relativePath.split('?')[0];
     }
 
-    // Remove query parameters if any
-    relativePath = relativePath.split('?')[0];
-
     const targetPath = API_PATH + relativePath;
+
 
     console.log(`[Vercel Proxy] ${req.method} ${req.url} -> https://${API_HOST}${targetPath}`);
 

@@ -1,11 +1,8 @@
 {
-    "version": 2,
-    "builds": [{
-        "src": "api/**/*.js",
-        "use": "@vercel/node"
-    }],
-    "routes": [{
-        "src": "/api/check-status/(.*)",
-        "dest": "/api/check-status.js"
-    }]
+  "rewrites": [
+    {
+      "source": "/api/check-status/:path*",
+      "destination": "/api/check-status"
+    }
+  ]
 }
