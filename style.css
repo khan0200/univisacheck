@@ -546,6 +546,9 @@ body {
 .bg-info-subtle { background: rgba(88, 86, 214, 0.15) !important; }
 .text-info-emphasis { color: var(--info) !important; }
 
+.bg-secondary-subtle { background: rgba(142, 142, 147, 0.15) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+
 /* Compact Action Buttons */
 .btn-icon {
     width: 32px;

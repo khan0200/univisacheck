@@ -30,8 +30,8 @@ const STUDENTS_COLLECTION = CONFIG.FIRESTORE.STUDENTS_COLLECTION;
 
 // State
 let studentsData = [];
-// Default filter is now 'application' (active pending applications)
-let currentFilter = 'application';
+// Default filter is now 'pending' (students without visa application yet)
+let currentFilter = 'pending';
 let searchQuery = '';
 let tooltips = [];
 let searchDebounceTimer = null;
@@ -261,6 +261,7 @@ function updateSingleRow(student) {
 function updateTabCounts() {
     // Calculate specific counts for tabs
     const counts = {
+        pending: 0,
         application: 0,
         cancelled: 0,
         approved: 0
@@ -278,14 +279,18 @@ function updateTabCounts() {
         if (matchesSearch) {
             const status = (student.status || '').toLowerCase();
             const isApproved = status.includes('approved');
-            const isCancelled = status.includes('cancel') || status.includes('reject') || status.includes('error');
+            const isCancelled = status.includes('cancel') || status.includes('reject');
+            // Pending: students with pending/unknown/error status or no application found
+            const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
 
             if (isApproved) {
                 counts.approved++;
             } else if (isCancelled) {
                 counts.cancelled++;
+            } else if (isPending) {
+                counts.pending++;
             } else {
-                // Application (everything else)
+                // Application (everything else: Received, Under Review, etc.)
                 counts.application++;
             }
         }
@@ -314,6 +319,7 @@ function updateTabCounts() {
         }
     };
 
+    updateTabCount('pending', counts.pending);
     updateTabCount('application', counts.application);
     updateTabCount('cancelled', counts.cancelled);
     updateTabCount('approved', counts.approved);
@@ -340,24 +346,27 @@ function renderTable() {
         // Tab Filter Logic
         let status = (student.status || '').toLowerCase();
 
-        if (currentFilter === 'application') {
-            // "Statuses except Cancelled, Approved"
-            // So: Pending, Under Review, App/Received, Unknown, etc.
-            // Exclude: Cancelled, Rejected, Error, Approved
+        if (currentFilter === 'pending') {
+            // Pending: students with pending/unknown/error status or no application found
+            const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
+            if (!isPending) return false;
 
-            // Check exclusions
-            const isCancelled = status.includes('cancel') || status.includes('reject') || status.includes('error');
+        } else if (currentFilter === 'application') {
+            // Application: students with actual application statuses (Received, Under Review, etc.)
+            // Exclude: Pending, Unknown, Cancelled, Rejected, Approved
+            const isCancelled = status.includes('cancel') || status.includes('reject');
             const isApproved = status.includes('approved');
+            const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
 
-            if (isCancelled || isApproved) return false;
+            if (isCancelled || isApproved || isPending) return false;
 
         } else if (currentFilter === 'cancelled') {
-            // "Cancelled: Cancelled" (and rejected/error)
-            const isCancelled = status.includes('cancel') || status.includes('reject') || status.includes('error');
+            // Cancelled: Cancelled and rejected
+            const isCancelled = status.includes('cancel') || status.includes('reject');
             if (!isCancelled) return false;
 
         } else if (currentFilter === 'approved') {
-            // "Approved: Approved"
+            // Approved: Approved
             if (!status.includes('approved')) return false;
         }
 
@@ -616,6 +625,45 @@ function extractVisaStatus(data) {
     let foundStatus = null;
     let applicationDate = '';
 
+    // FIRST: Check for API error responses indicating no visa application found
+    // These should NOT be treated as cancelled visas
+    const errorIndicators = [
+        data.error,
+        (data.response_data && data.response_data.error) || null,
+        (data.response_data && data.response_data.message) || null,
+        data.message
+    ];
+
+    for (const errorMsg of errorIndicators) {
+        if (errorMsg && typeof errorMsg === 'string') {
+            const lowerMsg = errorMsg.toLowerCase();
+            // Check for "not found", "no data", "no application" type messages
+            if (lowerMsg.includes('not found') ||
+                lowerMsg.includes('no data') ||
+                lowerMsg.includes('topilmadi') || // Uzbek: not found
+                lowerMsg.includes('mavjud emas') || // Uzbek: doesn't exist
+                lowerMsg.includes('no application') ||
+                lowerMsg.includes('no record')) {
+                debug('API indicates no visa application found:', errorMsg);
+                return {
+                    status: 'Pending',
+                    applicationDate: ''
+                };
+            }
+        }
+    }
+
+    // Check if response_data is empty or null (indicates no application)
+    if (data.response_data === null ||
+        (data.response_data && Object.keys(data.response_data).length === 0) ||
+        (data.response_data && data.response_data.visa_data === null)) {
+        debug('Empty response_data - no visa application found');
+        return {
+            status: 'Pending',
+            applicationDate: ''
+        };
+    }
+
     // Priority 1: Check response_data.visa_data (most reliable)
     if (data.response_data && data.response_data.visa_data) {
         const visaData = data.response_data.visa_data;
@@ -646,16 +694,21 @@ function extractVisaStatus(data) {
         }
     }
 
-    // Priority 5: Check data.status (but filter technical statuses)
+    // Priority 5: Check data.status (but filter technical statuses AND error statuses)
     else if (data.status) {
         const status = data.status;
-        if (!CONFIG.TECHNICAL_STATUSES.includes(String(status).toUpperCase())) {
+        const upperStatus = String(status).toUpperCase();
+        // Skip technical statuses AND error-like statuses that indicate API failure, not visa status
+        if (!CONFIG.TECHNICAL_STATUSES.includes(upperStatus) &&
+            upperStatus !== 'ERROR' &&
+            upperStatus !== 'FAILED' &&
+            upperStatus !== 'FAILURE') {
             foundStatus = status;
             debug('Found status in data.status:', foundStatus);
         }
     }
 
-    // If nothing found, return Unknown
+    // If nothing found, return Unknown (not applied or API issue)
     if (!foundStatus) {
         debug('No visa status found in API response');
         return {
@@ -781,17 +834,22 @@ async function checkVisaStatus(student) {
 
 // Helpers
 function getStatusBadge(status) {
-    status = (status || 'Unknown').toLowerCase();
+    status = (status || 'Pending').toLowerCase();
 
     if (status.includes('approved')) {
         return `<span class="badge bg-success-subtle text-success">
                     <i class="bi bi-check-circle-fill me-1"></i>Approved
                 </span>`;
-    } else if (status.includes('cancel') || status.includes('reject') || status.includes('error')) {
+    } else if (status.includes('cancel') || status.includes('reject')) {
         return `<span class="badge bg-danger-subtle text-danger">
                     <i class="bi bi-x-circle-fill me-1"></i>Cancelled
                 </span>`;
-    } else if (status.includes('received') || status.includes('app')) {
+    } else if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) {
+        // Pending: students whose visa application hasn't been found yet (includes API errors)
+        return `<span class="badge bg-secondary-subtle text-secondary">
+                    <i class="bi bi-clock-history me-1"></i>Pending
+                </span>`;
+    } else if (status.includes('received') || status.includes('app/')) {
         return `<span class="badge bg-warning-subtle text-warning-emphasis">
                     <i class="bi bi-hourglass-split me-1"></i>Received
                 </span>`;
