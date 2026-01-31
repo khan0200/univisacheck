@@ -1,8 +1,12 @@
 {
-  "functions": {
-    "api/check-status.js": {
-      "memory": 1024,
-      "maxDuration": 30
+  "rewrites": [
+    {
+      "source": "/api/check-status",
+      "destination": "/api/check-status/index.js"
+    },
+    {
+      "source": "/api/check-status/:path*",
+      "destination": "/api/check-status/[...path].js"
     }
-  }
+  ]
 }
