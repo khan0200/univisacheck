@@ -44,6 +44,7 @@ const CONFIG = {
     // Status Mappings (Uzbek to English)
     STATUS_MAP: {
         'TASDIQLANGAN': 'APPROVED',
+        'ISHLATILGAN': 'APPROVED',
         'BEKOR QILINGAN': 'CANCELLED',
         'RAD ETILGAN': 'REJECTED',
         'KO\'RIB CHIQILMOQDA': 'UNDER REVIEW',
