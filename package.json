@@ -14,5 +14,7 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "firebase-admin": "^13.0.2"
+  }
 }

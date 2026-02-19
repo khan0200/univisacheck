@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron-auto-check",
+      "schedule": "*/30 * * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/check-status",

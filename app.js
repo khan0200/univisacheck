@@ -265,6 +265,11 @@ function updateSingleRow(student) {
         appliedCell.textContent = student.applicationDate;
     }
 
+    const autoCheckInput = row.querySelector('.auto-check-toggle');
+    if (autoCheckInput) {
+        autoCheckInput.checked = Boolean(student.autoCheck);
+    }
+
     // Update tab counts (status might have changed)
     updateTabCounts();
 
@@ -456,6 +461,16 @@ function renderTable() {
             <td class="td-checked">
                 ${formatTimestampCompact(student.lastChecked)}
             </td>
+            <td class="text-center">
+                <input
+                    class="form-check-input auto-check-toggle action-btn"
+                    type="checkbox"
+                    data-action="toggle-auto"
+                    data-id="${student.passport}"
+                    title="Auto check every 30 minutes"
+                    ${student.autoCheck ? 'checked' : ''}
+                >
+            </td>
             <td class="td-actions">
                 <div class="d-flex justify-content-end gap-1">
                     <button class="btn btn-sm btn-icon btn-ghost-primary action-btn" data-action="refresh" data-id="${student.passport}" title="Refresh">
@@ -554,6 +569,7 @@ async function handleFormSubmit(e) {
 
     if (!isEdit) {
         studentData.status = "Pending";
+        studentData.autoCheck = false;
         // Application date will be set by API response
     }
 
@@ -642,6 +658,22 @@ async function handleAction(action, passport, btnElement) {
                 icon.classList.remove('spin-animation');
             }
             btn.disabled = false;
+        }
+    } else if (action === 'toggle-auto') {
+        const checkbox = btnElement;
+        const enabled = Boolean(checkbox && checkbox.checked);
+
+        try {
+            await updateDoc(doc(db, STUDENTS_COLLECTION, passport), {
+                autoCheck: enabled,
+                autoCheckUpdatedAt: serverTimestamp()
+            });
+        } catch (error) {
+            debug('Failed to toggle auto check:', error);
+            if (checkbox) {
+                checkbox.checked = !enabled;
+            }
+            showError('Failed to update auto-check setting.');
         }
     }
 }
