@@ -54,17 +54,13 @@ module.exports = async (req, res) => {
     const applicationDate = escapeTelegramText(body.applicationDate);
     const text = [
         '📢 Visa Status Update',
-        '',
         `👤 Name: ${fullName}`,
-        '',
-        studentId ? `🎓 Student ID: ${studentId}` : null,
-        '',
+        studentId ? `🎓 Student ID: ${studentId}` : '🎓 Student ID: --',
         applicationDate ? `📅 Application Date: ${applicationDate}` : '📅 Application Date: --',
         '',
         `🔄 Visa status: ✅ ${newStatus}`,
-        '',
         '🎉 Congratulations!'
-    ].filter((line) => line !== null).join('\n');
+    ].join('\n');
 
     try {
         const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
