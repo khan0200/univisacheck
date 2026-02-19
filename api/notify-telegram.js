@@ -40,6 +40,43 @@ function getStatusEmoji(status) {
     return '🔷';
 }
 
+function getMessageTone(status) {
+    const normalized = String(status || '').toLowerCase();
+
+    if (normalized.includes('approved')) {
+        return {
+            header: '🟢 Visa Status Update',
+            footer: '🎉 Congratulations!'
+        };
+    }
+
+    if (normalized.includes('cancel') || normalized.includes('reject')) {
+        return {
+            header: '🔴 Visa Status Update',
+            footer: ''
+        };
+    }
+
+    if (normalized.includes('received') || normalized.includes('app/')) {
+        return {
+            header: '🟠 Visa Status Update',
+            footer: '⏳ Your application is in process.'
+        };
+    }
+
+    if (normalized.includes('under review')) {
+        return {
+            header: '🔵 Visa Status Update',
+            footer: '🔎 Your application is under review.'
+        };
+    }
+
+    return {
+        header: '🔷 Visa Status Update',
+        footer: 'ℹ️ Status updated.'
+    };
+}
+
 module.exports = async (req, res) => {
     setCors(req, res);
 
@@ -71,15 +108,16 @@ module.exports = async (req, res) => {
     const newStatus = escapeTelegramText(body.newStatus);
     const applicationDate = escapeTelegramText(body.applicationDate);
     const statusEmoji = getStatusEmoji(newStatus);
+    const messageTone = getMessageTone(newStatus);
     const text = [
-        '🟢 Visa Status Update',
+        messageTone.header,
         '',
         `👤 Name: ${fullName}`,
         studentId ? `🎓 Student ID: ${studentId}` : '🎓 Student ID: --',
         applicationDate ? `📅 Application Date: ${applicationDate}` : '📅 Application Date: --',
         '',
         `🔄 Visa status: ${statusEmoji} ${newStatus}`,
-        '🎉 Congratulations!'
+        messageTone.footer
     ].join('\n');
 
     try {
