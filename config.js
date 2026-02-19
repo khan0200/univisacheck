@@ -17,6 +17,7 @@ const CONFIG = {
         POLL_INTERVAL_MS: 2000, // Wait 2 seconds between polls
         MAX_POLL_RETRIES: 10, // Maximum 10 retry attempts
         REQUEST_TIMEOUT_MS: 30000, // 30 second timeout for requests
+        BATCH_CHECK_CONCURRENCY: 3, // Number of students to check in parallel
     },
 
     // Development/Debug Settings

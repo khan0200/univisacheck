@@ -411,6 +411,26 @@ body {
     font-weight: 500;
 }
 
+.th-select,
+.td-select {
+    width: 35px;
+    min-width: 35px;
+    max-width: 35px;
+    text-align: center;
+}
+
+.custom-table:not(.show-select-column) .th-select,
+.custom-table:not(.show-select-column) .td-select {
+    display: none;
+}
+
+.td-select .form-check-input {
+    width: 18px;
+    height: 18px;
+    border: 0.5px solid rgba(0, 122, 255, 0.7);
+    box-shadow: none;
+}
+
 .td-actions { 
     width: 12%;
     text-align: right;
@@ -556,12 +576,29 @@ body {
         opacity: 0.5;
         font-weight: 500;
         color: var(--text-secondary);
-        margin-bottom: 16px;
+        margin-bottom: 8px;
     }
-    
+
+    .td-select {
+        display: flex !important;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 12px;
+        width: 100% !important;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .td-select .form-check-input {
+        width: 22px;
+        height: 22px;
+        margin: 0;
+        border: 0.5px solid rgba(0, 122, 255, 0.7);
+    }
+
     /* Action Buttons */
     .td-actions {
-        padding-top: 16px !important;
+        padding-top: 12px !important;
         margin-top: 4px;
         border-top: 1px solid var(--divider);
     }

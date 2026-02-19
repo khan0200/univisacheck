@@ -47,7 +47,7 @@ let cachedDOM = {
     modalElement: null,
     searchInput: null,
     darkModeToggle: null,
-    checkAll: null,
+    checkSelectedBtn: null,
 };
 
 
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cachedDOM.modalElement = document.getElementById('addStudentModal');
     cachedDOM.searchInput = document.getElementById('searchInput');
     cachedDOM.darkModeToggle = document.getElementById('darkModeToggle');
-    cachedDOM.checkAll = document.getElementById('checkAll');
+    cachedDOM.checkSelectedBtn = document.getElementById('checkSelectedBtn');
 
     // Init Bootstrap Modal
     bootstrapModal = new bootstrap.Modal(cachedDOM.modalElement);
@@ -109,6 +109,7 @@ function setupEventListeners() {
 
             // Apply Filter
             currentFilter = clickedTab.getAttribute('data-tab');
+            updateCheckSelectedButton();
             renderTable();
         };
 
@@ -131,14 +132,8 @@ function setupEventListeners() {
         cachedDOM.darkModeToggle.addEventListener('click', toggleDarkMode);
     }
 
-    // Check All Checkbox
-    if (cachedDOM.checkAll) {
-        cachedDOM.checkAll.addEventListener('change', function () {
-            const checkboxes = document.querySelectorAll('tbody .form-check-input');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-        });
+    if (cachedDOM.checkSelectedBtn) {
+        cachedDOM.checkSelectedBtn.addEventListener('click', handleBatchCheck);
     }
 
     // Modal Events to reset form
@@ -265,9 +260,9 @@ function updateSingleRow(student) {
         appliedCell.textContent = student.applicationDate;
     }
 
-    const autoCheckInput = row.querySelector('.auto-check-toggle');
-    if (autoCheckInput) {
-        autoCheckInput.checked = Boolean(student.autoCheck);
+    const selectInput = row.querySelector('.batch-select-toggle');
+    if (selectInput) {
+        selectInput.checked = Boolean(student.batchSelected);
     }
 
     // Update tab counts (status might have changed)
@@ -357,6 +352,8 @@ function updateTabCounts() {
 }
 
 function renderTable() {
+    updateSelectColumnVisibility();
+
     // Hide loading state when data is ready
     if (cachedDOM.loadingState) {
         cachedDOM.loadingState.classList.add('d-none');
@@ -461,14 +458,15 @@ function renderTable() {
             <td class="td-checked">
                 ${formatTimestampCompact(student.lastChecked)}
             </td>
-            <td class="text-center">
+            <td class="text-center td-select">
                 <input
-                    class="form-check-input auto-check-toggle action-btn"
+                    class="form-check-input batch-select-toggle action-btn"
                     type="checkbox"
-                    data-action="toggle-auto"
+                    data-action="toggle-batch"
                     data-id="${student.passport}"
-                    title="Auto check every 30 minutes"
-                    ${student.autoCheck ? 'checked' : ''}
+                    title="Select for batch check"
+                    ${currentFilter === 'application' ? '' : 'disabled'}
+                    ${student.batchSelected ? 'checked' : ''}
                 >
             </td>
             <td class="td-actions">
@@ -501,6 +499,14 @@ function renderTable() {
             handleAction(action, id, e.currentTarget);
         });
     });
+
+    updateCheckSelectedButton();
+}
+
+function updateSelectColumnVisibility() {
+    const table = document.querySelector('.custom-table');
+    if (!table) return;
+    table.classList.toggle('show-select-column', currentFilter === 'application');
 }
 
 async function handleFormSubmit(e) {
@@ -569,7 +575,6 @@ async function handleFormSubmit(e) {
 
     if (!isEdit) {
         studentData.status = "Pending";
-        studentData.autoCheck = false;
         // Application date will be set by API response
     }
 
@@ -659,23 +664,89 @@ async function handleAction(action, passport, btnElement) {
             }
             btn.disabled = false;
         }
-    } else if (action === 'toggle-auto') {
+    } else if (action === 'toggle-batch') {
         const checkbox = btnElement;
-        const enabled = Boolean(checkbox && checkbox.checked);
+        if (!checkbox || checkbox.disabled) return;
+        const enabled = Boolean(checkbox.checked);
+        const index = studentsData.findIndex(s => s.passport === passport);
+
+        if (index !== -1) {
+            studentsData[index].batchSelected = enabled;
+        }
 
         try {
             await updateDoc(doc(db, STUDENTS_COLLECTION, passport), {
-                autoCheck: enabled,
-                autoCheckUpdatedAt: serverTimestamp()
+                batchSelected: enabled,
+                batchSelectedUpdatedAt: serverTimestamp()
             });
+            updateCheckSelectedButton();
         } catch (error) {
-            debug('Failed to toggle auto check:', error);
-            if (checkbox) {
-                checkbox.checked = !enabled;
+            debug('Failed to update batch selection:', error);
+            if (checkbox) checkbox.checked = !enabled;
+            if (index !== -1) {
+                studentsData[index].batchSelected = !enabled;
             }
-            showError('Failed to update auto-check setting.');
+            showError('Failed to save selection.');
         }
     }
+}
+
+function updateCheckSelectedButton() {
+    if (!cachedDOM.checkSelectedBtn) return;
+    const count = studentsData.filter(student =>
+        Boolean(student.batchSelected) && isApplicationStatus(student.status)
+    ).length;
+    const shouldShow = currentFilter === 'application' && count > 0;
+    cachedDOM.checkSelectedBtn.classList.toggle('d-none', !shouldShow);
+    cachedDOM.checkSelectedBtn.querySelector('span').textContent = count > 0 ? `Check Students (${count})` : 'Check Students';
+}
+
+async function handleBatchCheck() {
+    const studentsToCheck = studentsData.filter(student =>
+        Boolean(student.batchSelected) && isApplicationStatus(student.status)
+    );
+    if (studentsToCheck.length === 0) return;
+
+    const button = cachedDOM.checkSelectedBtn;
+    const originalHtml = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>Checking...</span>';
+
+    try {
+        const concurrency = Math.max(1, Number(CONFIG.API.BATCH_CHECK_CONCURRENCY || 3));
+        let currentIndex = 0;
+
+        const runWorker = async () => {
+            while (currentIndex < studentsToCheck.length) {
+                const index = currentIndex;
+                currentIndex += 1;
+                const student = studentsToCheck[index];
+                await checkVisaStatus(student);
+            }
+        };
+
+        const workers = Array.from({
+            length: Math.min(concurrency, studentsToCheck.length)
+        }, () => runWorker());
+
+        await Promise.all(workers);
+        updateCheckSelectedButton();
+        renderTable();
+    } catch (error) {
+        debug('Batch check failed:', error);
+        showError('Batch check failed. Please try again.');
+    } finally {
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    }
+}
+
+function isApplicationStatus(statusValue) {
+    const status = String(statusValue || '').toLowerCase();
+    const isCancelled = status.includes('cancel') || status.includes('reject');
+    const isApproved = status.includes('approved');
+    const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
+    return !isCancelled && !isApproved && !isPending;
 }
 
 // Helper function to extract visa status from API response
