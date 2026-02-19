@@ -830,6 +830,7 @@ async function checkVisaStatus(student) {
         // NOTIFICATION LOGIC
         if (oldStatus !== "Unknown" && oldStatus.toLowerCase() !== newStatus.toLowerCase()) {
             showNotification(student.fullName, oldStatus, newStatus);
+            await sendTelegramNotification(student, oldStatus, newStatus, applicationDate);
         }
 
         // 4. Update Firestore
@@ -855,6 +856,36 @@ async function checkVisaStatus(student) {
             showError('Cannot connect to proxy server. Please make sure proxy.js is running (node proxy.js).');
         }
         return null;
+    }
+}
+
+async function sendTelegramNotification(student, oldStatus, newStatus, applicationDate) {
+    try {
+        const payload = {
+            fullName: student.fullName || '',
+            passport: student.passport || '',
+            studentId: student.studentId || '',
+            birthday: student.birthday || '',
+            oldStatus,
+            newStatus,
+            applicationDate: applicationDate || '',
+            changedAt: new Date().toISOString()
+        };
+
+        const response = await fetch(CONFIG.API.TELEGRAM_NOTIFY_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            debug('Telegram notify failed:', response.status);
+        }
+    } catch (error) {
+        debug('Telegram notify error:', error);
     }
 }
 

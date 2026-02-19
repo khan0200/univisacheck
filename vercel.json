@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/check-status",
-      "destination": "/api/check-status/index.js"
+      "destination": "/api/index.js"
     },
     {
       "source": "/api/check-status/:path*",
-      "destination": "/api/check-status/[...path].js"
+      "destination": "/api/[...path].js"
     }
   ]
 }

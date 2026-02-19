@@ -11,6 +11,7 @@ const CONFIG = {
             'http://localhost:3000/check-status' // Local development with Live Server + standalone proxy.js
             :
             '/api/check-status', // Vercel Dev or Production (Vercel)
+        TELEGRAM_NOTIFY_URL: '/api/notify-telegram',
 
         // Polling settings for visa status checks
         POLL_INTERVAL_MS: 2000, // Wait 2 seconds between polls
