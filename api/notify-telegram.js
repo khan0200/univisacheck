@@ -22,6 +22,24 @@ function escapeTelegramText(value) {
     return String(value || '').replace(/[<>&]/g, '');
 }
 
+function getStatusEmoji(status) {
+    const normalized = String(status || '').toLowerCase();
+
+    if (normalized.includes('cancel') || normalized.includes('reject')) {
+        return '🔴';
+    }
+
+    if (normalized.includes('received') || normalized.includes('app/')) {
+        return '🟠';
+    }
+
+    if (normalized.includes('under review')) {
+        return '🔵';
+    }
+
+    return '🔷';
+}
+
 module.exports = async (req, res) => {
     setCors(req, res);
 
@@ -52,13 +70,15 @@ module.exports = async (req, res) => {
     const birthday = escapeTelegramText(body.birthday);
     const newStatus = escapeTelegramText(body.newStatus);
     const applicationDate = escapeTelegramText(body.applicationDate);
+    const statusEmoji = getStatusEmoji(newStatus);
     const text = [
-        '📢 Visa Status Update',
+        '🟢 Visa Status Update',
+        '',
         `👤 Name: ${fullName}`,
         studentId ? `🎓 Student ID: ${studentId}` : '🎓 Student ID: --',
         applicationDate ? `📅 Application Date: ${applicationDate}` : '📅 Application Date: --',
         '',
-        `🔄 Visa status: ✅ ${newStatus}`,
+        `🔄 Visa status: ${statusEmoji} ${newStatus}`,
         '🎉 Congratulations!'
     ].join('\n');
 
