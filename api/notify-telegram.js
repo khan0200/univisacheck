@@ -25,6 +25,10 @@ function escapeTelegramText(value) {
 function getStatusEmoji(status) {
     const normalized = String(status || '').toLowerCase();
 
+    if (normalized.includes('approved')) {
+        return '🟢';
+    }
+
     if (normalized.includes('cancel') || normalized.includes('reject')) {
         return '🔴';
     }
