@@ -248,6 +248,12 @@ function updateSingleRow(student) {
         statusCell.innerHTML = getStatusBadge(student.status);
     }
 
+    // Update student ID (and inline reason)
+    const idCell = row.querySelector('.td-name .student-id');
+    if (idCell) {
+        idCell.innerHTML = `${student.studentId ? '#' + student.studentId : ''} ${getInlineRejectionReasonHtml(student)}`;
+    }
+
     // Update last checked timestamp
     const checkedCell = row.querySelector('.td-checked');
     if (checkedCell) {
@@ -441,7 +447,7 @@ function renderTable() {
         tr.innerHTML = `
             <td class="td-name">
                 <div class="student-name">${student.fullName}</div>
-                <div class="student-id">${student.studentId ? '#' + student.studentId : ''}</div>
+                <div class="student-id">${student.studentId ? '#' + student.studentId : ''} ${getInlineRejectionReasonHtml(student)}</div>
             </td>
             <td class="td-passport">
                 <span class="passport-num">${student.passport}</span>
@@ -632,7 +638,7 @@ async function handleAction(action, passport, btnElement) {
         const idDisplay = student.studentId ? `ID: ${student.studentId} | ` : '';
         document.getElementById('detailsPassport').textContent = `${idDisplay}${student.passport}`;
 
-        document.getElementById('detailsStatus').innerHTML = getStatusBadge(student.status);
+        document.getElementById('detailsStatus').innerHTML = getStatusBadge(student.status) + getRejectionReasonHtml(student);
         document.getElementById('detailsBirthday').textContent = formatDate(student.birthday);
         document.getElementById('detailsAppDate').textContent = student.applicationDate || '--';
         document.getElementById('detailsLastChecked').textContent = formatTimestamp(student.lastChecked);
@@ -1018,6 +1024,78 @@ function getStatusBadge(status) {
                     <i class="bi bi-clock me-1"></i>${status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>`;
     }
+}
+
+function getRejectionReasonHtml(student) {
+    const status = (student.status || '').toLowerCase();
+    const isCancelled = status.includes('cancel') || status.includes('reject');
+    if (!isCancelled) return '';
+
+    let reason = '';
+    if (student.apiResponse) {
+        const data = student.apiResponse;
+        reason =
+            (data.response_data?.visa_data?.rejection_reason) ||
+            (data.response_data?.visa_data?.reject_reason) ||
+            (data.response_data?.visa_data?.reason) ||
+            (data.response_data?.rejection_reason) ||
+            (data.response_data?.reject_reason) ||
+            (data.visa_data?.rejection_reason) ||
+            (data.visa_data?.reject_reason) ||
+            (data.visa_data?.reason) ||
+            (data.rejection_reason) ||
+            (data.reject_reason) ||
+            (data.reason) ||
+            '';
+    }
+
+    if (!reason && student.rejectReason) {
+        reason = student.rejectReason;
+    }
+
+    if (!reason) return '';
+
+    // ghost text in red
+    return `<div class="text-danger opacity-75 mt-1 rejection-reason" style="font-size: 0.75rem; max-width: 250px; white-space: normal; line-height: 1.3;">
+                ${reason}
+            </div>`;
+}
+
+// Inline version for table ID row
+function getInlineRejectionReasonHtml(student) {
+    const status = (student.status || '').toLowerCase();
+    const isCancelled = status.includes('cancel') || status.includes('reject');
+    if (!isCancelled) return '';
+
+    let reason = '';
+    if (student.apiResponse) {
+        const data = student.apiResponse;
+        reason =
+            (data.response_data?.visa_data?.rejection_reason) ||
+            (data.response_data?.visa_data?.reject_reason) ||
+            (data.response_data?.visa_data?.reason) ||
+            (data.response_data?.rejection_reason) ||
+            (data.response_data?.reject_reason) ||
+            (data.visa_data?.rejection_reason) ||
+            (data.visa_data?.reject_reason) ||
+            (data.visa_data?.reason) ||
+            (data.rejection_reason) ||
+            (data.reject_reason) ||
+            (data.reason) ||
+            '';
+    }
+
+    if (!reason && student.rejectReason) {
+        reason = student.rejectReason;
+    }
+
+    if (!reason) return '';
+
+    const formattedReason = reason.replace(/\s+(?=\d+\.)/g, '<br>');
+
+    return `<div class="text-danger mt-1 fw-medium" style="font-size: 0.85rem; white-space: normal; line-height: 1.5;">
+                Rejected: ${formattedReason}
+            </div>`;
 }
 
 // Notification Helper
