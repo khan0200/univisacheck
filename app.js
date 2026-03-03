@@ -871,15 +871,14 @@ function extractVisaStatus(data) {
     };
 }
 
-// API Integration
+// API Integration — uses visamasters.uz via local proxy
 async function checkVisaStatus(student) {
     try {
         debug("Checking status for:", student.passport);
 
-        // Use configured API endpoint
         const API_BASE = CONFIG.API.PROXY_URL;
 
-        // 1. Initial POST Request
+        // Single POST — proxy handles CSRF + multipart and returns JSON
         const response = await fetch(API_BASE, {
             method: 'POST',
             headers: {
@@ -889,9 +888,7 @@ async function checkVisaStatus(student) {
             body: JSON.stringify({
                 passport_number: student.passport,
                 english_name: student.fullName,
-                birth_date: student.birthday,
-                website: "",
-                _form_start_time: new Date().getTime() / 1000
+                birth_date: student.birthday
             })
         });
 
@@ -899,59 +896,39 @@ async function checkVisaStatus(student) {
             throw new Error(`API Error: ${response.status}. Is the proxy server running? Run 'node proxy.js' in terminal.`);
         }
 
-        let data = await response.json();
-        debug(`Initial API Result for ${student.passport}:`, data);
+        const data = await response.json();
+        debug(`API Result for ${student.passport}:`, data);
 
-        // 2. Poll if PENDING
-        const taskId = data.id;
-        let retryCount = 0;
-        const maxRetries = CONFIG.API.MAX_POLL_RETRIES;
-
-        while (data.status === "PENDING" && retryCount < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, CONFIG.API.POLL_INTERVAL_MS));
-            retryCount++;
-
-            try {
-                // Poll via proxy
-                const pollResponse = await fetch(`${API_BASE}/${taskId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (pollResponse.ok) {
-                    data = await pollResponse.json();
-                    debug(`Poll attempt ${retryCount}:`, data);
-                }
-            } catch (e) {
-                debug("Poll error:", e);
-            }
-        }
-
-        // 3. Extract visa status using helper function
-        const {
-            status: newStatus,
-            applicationDate
-        } = extractVisaStatus(data);
-        const oldStatus = student.status || "Unknown";
+        // Proxy returns { status, detail, applicationDate, rejectionReason, rawHtml }
+        const newStatus = data.status || 'Unknown';
+        const applicationDate = data.applicationDate || '';
+        const rejectionReason = data.rejectionReason || '';
+        const oldStatus = student.status || 'Unknown';
 
         // NOTIFICATION LOGIC
-        if (oldStatus !== "Unknown" && oldStatus.toLowerCase() !== newStatus.toLowerCase()) {
+        if (oldStatus !== 'Unknown' && oldStatus.toLowerCase() !== newStatus.toLowerCase()) {
             showNotification(student.fullName, oldStatus, newStatus);
             await sendTelegramNotification(student, oldStatus, newStatus, applicationDate);
         }
 
-        // 4. Update Firestore
+        // Update Firestore
         const docRef = doc(db, STUDENTS_COLLECTION, student.passport);
         const updatePayload = {
             status: newStatus,
             lastChecked: serverTimestamp(),
-            apiResponse: data
+            apiResponse: { status: newStatus, detail: data.detail || '' }
         };
 
         if (applicationDate) {
             updatePayload.applicationDate = applicationDate;
+        }
+
+        // Save rejection reason so getRejectionReasonHtml() / getInlineRejectionReasonHtml() can display it
+        if (rejectionReason) {
+            updatePayload.rejectReason = rejectionReason;
+        } else if (newStatus !== 'CANCELLED') {
+            // Clear old rejection reason if status is no longer cancelled
+            updatePayload.rejectReason = '';
         }
 
         await updateDoc(docRef, updatePayload);

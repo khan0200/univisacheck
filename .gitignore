@@ -5,6 +5,7 @@ package-lock.json
 # Environment variables
 .env
 .env.local
+telegram.config.js
 
 # IDE
 .vscode/
