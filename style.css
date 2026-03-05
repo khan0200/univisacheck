@@ -1,799 +1,928 @@
 :root {
-    --primary-color: #007AFF;
-    --primary-light: rgba(0, 122, 255, 0.1);
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(0, 0, 0, 0.06);
-    --glass-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    --text-main: #1c1c1e;
-    --text-secondary: #8e8e93;
-    --card-bg: #fff;
-    --divider: rgba(0, 0, 0, 0.06);
-    --bg-color: #f2f2f7;
-    --success: #34c759;
-    --danger: #ff3b30;
-    --warning: #ff9500;
-    --info: #5856d6;
+  --primary-color: #007aff;
+  --primary-light: rgba(0, 122, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --text-main: #1c1c1e;
+  --text-secondary: #8e8e93;
+  --card-bg: #fff;
+  --divider: rgba(0, 0, 0, 0.06);
+  --bg-color: #f2f2f7;
+  --success: #34c759;
+  --danger: #ff3b30;
+  --warning: #ff9500;
+  --info: #5856d6;
 }
 
 [data-theme="dark"] {
-    --primary-color: #0a84ff;
-    --primary-light: rgba(10, 132, 255, 0.15);
-    --glass-bg: rgba(28, 28, 30, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-    --text-main: #f5f5f7;
-    --text-secondary: #98989f;
-    --card-bg: #1c1c1e;
-    --divider: rgba(255, 255, 255, 0.08);
-    --bg-color: #000;
-    --success: #30d158;
-    --danger: #ff453a;
-    --warning: #ff9f0a;
-    --info: #5e5ce6;
+  --primary-color: #0a84ff;
+  --primary-light: rgba(10, 132, 255, 0.15);
+  --glass-bg: rgba(28, 28, 30, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --text-main: #f5f5f7;
+  --text-secondary: #98989f;
+  --card-bg: #1c1c1e;
+  --divider: rgba(255, 255, 255, 0.08);
+  --bg-color: #000;
+  --success: #30d158;
+  --danger: #ff453a;
+  --warning: #ff9f0a;
+  --info: #5e5ce6;
 }
 
 * {
-    -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: var(--text-main);
-    background-color: var(--bg-color);
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.4;
-    -webkit-font-smoothing: antialiased;
+  font-family:
+    "Montserrat",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: var(--text-main);
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Hide blobs on mobile for performance */
-.background-blobs { display: none; }
+.background-blobs {
+  display: none;
+}
 
 /* Main Container */
 .main-wrapper {
-    padding: 12px !important;
-    max-width: 100%;
+  padding: 12px !important;
+  max-width: 100%;
 }
 
 @media (min-width: 768px) {
-    .main-wrapper { 
-        padding: 20px 10% !important; 
-    }
+  .main-wrapper {
+    padding: 20px 10% !important;
+  }
 }
 
 /* iOS Glass Panel */
 .glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    box-shadow: var(--glass-shadow);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--glass-shadow);
 }
 
 /* Compact Toolbar */
 .toolbar-section {
-    padding: 12px !important;
-    gap: 10px !important;
+  padding: 12px !important;
+  gap: 10px !important;
 }
 
 @media (max-width: 767px) {
-    .toolbar-section {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 14px !important;
-        padding: 16px !important;
-    }
-    
-    /* Search first on mobile */
-    .search-box {
-        order: 1;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
-    
-    /* Add button second, full width */
-    .toolbar-section > .btn-primary {
-        order: 2;
-        width: 100%;
-        height: 50px;
-        font-size: 15px;
-        font-weight: 600;
-        border-radius: 14px;
-        box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
-    }
-    
-    /* Tabs section - 4-column grid for mobile */
-    .nav-tabs-wrapper {
-        order: 3;
-        width: 100%;
-        margin: 0 !important;
-    }
-    
-    .nav-tabs-wrapper .nav-glass {
-        display: grid !important;
-        grid-template-columns: repeat(4, 1fr);
-        width: 100%;
-        padding: 4px;
-        border-radius: 12px;
-        gap: 4px !important;
-        background: var(--bg-color);
-    }
-    
-    .nav-tabs-wrapper .nav-item {
-        width: 100%;
-    }
-    
-    .nav-tabs-wrapper .nav-link {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        min-height: 56px;
-        padding: 8px 4px;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 10px;
-        text-align: center;
-        white-space: nowrap;
-        transition: all 0.2s ease;
-        gap: 2px;
-        background: transparent !important;
-        color: var(--text-main) !important;
-        border: none !important;
-        /* Critical for mobile touch */
-        cursor: pointer;
-        touch-action: manipulation;
-        -webkit-user-select: none;
-        user-select: none;
-        position: relative;
-        z-index: 1;
-    }
-    
-    /* Make child spans non-interactive so clicks go to parent nav-link */
-    .nav-tabs-wrapper .nav-link .tab-title,
-    .nav-tabs-wrapper .nav-link .badge-count {
-        pointer-events: none;
-    }
-    
-    .nav-tabs-wrapper .nav-link.active {
-        background: #fff !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
-        color: var(--primary-color) !important;
-    }
-    
-    [data-theme="dark"] .nav-tabs-wrapper .nav-link.active {
-        background: var(--card-bg) !important;
-    }
-    
-    .nav-tabs-wrapper .nav-link:active {
-        transform: scale(0.95);
-        background: rgba(255,255,255,0.5) !important;
-    }
-    
-    .nav-tabs-wrapper .nav-link .tab-title {
-        display: block;
-        font-size: 9px;
-        font-weight: 600;
-        opacity: 0.7;
-        text-transform: uppercase;
-        letter-spacing: 0.2px;
-    }
-    
-    .nav-tabs-wrapper .nav-link.active .tab-title {
-        opacity: 1;
-        color: var(--primary-color) !important;
-    }
-    
-    .nav-tabs-wrapper .nav-link .badge-count {
-        display: block;
-        font-size: 18px;
-        font-weight: 700;
-        padding: 0;
-        margin: 0;
-        margin-top: 2px;
-        background: transparent !important;
-        color: inherit !important;
-        opacity: 1;
-    }
-    
-    .nav-tabs-wrapper .nav-link.active .badge-count {
-        color: var(--primary-color) !important;
-    }
-    
-    .nav-tabs-wrapper > span {
-        display: none; /* Hide student count on mobile - shown in badge */
-    }
+  .toolbar-section {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    padding: 16px !important;
+  }
+
+  /* Search first on mobile */
+  .search-box {
+    order: 1;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Add button second, full width */
+  .toolbar-section > .btn-primary {
+    order: 2;
+    width: 100%;
+    height: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+  }
+
+  /* Tabs section - 4-column grid for mobile */
+  .nav-tabs-wrapper {
+    order: 3;
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  .nav-tabs-wrapper .nav-glass {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px !important;
+    background: var(--bg-color);
+  }
+
+  .nav-tabs-wrapper .nav-item {
+    width: 100%;
+  }
+
+  .nav-tabs-wrapper .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 56px;
+    padding: 8px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 10px;
+    text-align: center;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    gap: 2px;
+    background: transparent !important;
+    color: var(--text-main) !important;
+    border: none !important;
+    /* Critical for mobile touch */
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Make child spans non-interactive so clicks go to parent nav-link */
+  .nav-tabs-wrapper .nav-link .tab-title,
+  .nav-tabs-wrapper .nav-link .badge-count {
+    pointer-events: none;
+  }
+
+  .nav-tabs-wrapper .nav-link.active {
+    background: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+    color: var(--primary-color) !important;
+  }
+
+  [data-theme="dark"] .nav-tabs-wrapper .nav-link.active {
+    background: var(--card-bg) !important;
+  }
+
+  .nav-tabs-wrapper .nav-link:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .nav-tabs-wrapper .nav-link .tab-title {
+    display: block;
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+  }
+
+  .nav-tabs-wrapper .nav-link.active .tab-title {
+    opacity: 1;
+    color: var(--primary-color) !important;
+  }
+
+  .nav-tabs-wrapper .nav-link .badge-count {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 0;
+    margin: 0;
+    margin-top: 2px;
+    background: transparent !important;
+    color: inherit !important;
+    opacity: 1;
+  }
+
+  .nav-tabs-wrapper .nav-link.active .badge-count {
+    color: var(--primary-color) !important;
+  }
+
+  .nav-tabs-wrapper > span {
+    display: none; /* Hide student count on mobile - shown in badge */
+  }
 }
 
 /* iOS-style Search */
 .search-box input {
-    background: var(--bg-color);
-    border: none;
-    border-radius: 10px;
-    padding: 10px 12px 10px 36px;
-    font-size: 15px;
-    height: 38px;
-    transition: all 0.2s ease;
+  background: var(--bg-color);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px 10px 36px;
+  font-size: 15px;
+  height: 38px;
+  transition: all 0.2s ease;
 }
 
 .search-box input:focus {
-    background: var(--bg-color);
-    box-shadow: 0 0 0 3px var(--primary-light);
-    outline: none;
+  background: var(--bg-color);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  outline: none;
 }
 
 /* Mobile search improvements */
 @media (max-width: 767px) {
-    .search-box input {
-        height: 50px;
-        font-size: 16px;
-        padding: 12px 14px 12px 44px;
-        border-radius: 14px;
-    }
-    
-    .search-box i {
-        font-size: 16px !important;
-        left: 16px !important;
-    }
+  .search-box input {
+    height: 50px;
+    font-size: 16px;
+    padding: 12px 14px 12px 44px;
+    border-radius: 14px;
+  }
+
+  .search-box i {
+    font-size: 16px !important;
+    left: 16px !important;
+  }
 }
 
 /* Compact Button */
 .btn-primary {
-    background: var(--primary-color);
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14px;
-    padding: 8px 16px;
-    height: 38px;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 16px;
+  height: 38px;
 }
 
 .btn-primary:hover {
-    background: #0066d6;
+  background: #0066d6;
 }
 
 /* iOS Segmented Control Style Tabs */
 .nav-glass {
-    background: var(--bg-color);
-    border-radius: 8px;
-    padding: 2px;
-    gap: 0 !important;
+  background: var(--bg-color);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 0 !important;
 }
 
 .nav-glass .nav-link {
-    color: var(--text-main);
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 6px 12px;
-    white-space: nowrap;
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  white-space: nowrap;
 }
 
 .nav-glass .nav-link.active {
-    background: var(--card-bg);
-    color: var(--primary-color);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background: var(--card-bg);
+  color: var(--primary-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Tab title and count styling */
 .nav-glass .nav-link .tab-title {
-    display: inline;
+  display: inline;
 }
 
 .nav-glass .nav-link .badge-count {
-    display: inline;
-    font-size: 11px;
-    padding: 2px 6px;
-    margin-left: 4px;
-    background: rgba(0, 122, 255, 0.1);
-    color: var(--primary-color);
-    border-radius: 10px;
-    font-weight: 600;
+  display: inline;
+  font-size: 11px;
+  padding: 2px 6px;
+  margin-left: 4px;
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--primary-color);
+  border-radius: 10px;
+  font-weight: 600;
 }
 
 .nav-glass .nav-link.active .badge-count {
-    background: var(--primary-light);
+  background: var(--primary-light);
 }
-
 
 /* Compact Table */
 .custom-table {
-    font-size: 14px;
-    border-collapse: separate;
-    border-spacing: 0;
+  font-size: 14px;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .custom-table thead th {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-secondary);
-    padding: 9px 10px;
-    border-bottom: 2px solid var(--divider);
-    background: transparent;
-    white-space: nowrap;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  padding: 9px 10px;
+  border-bottom: 2px solid var(--divider);
+  background: transparent;
+  white-space: nowrap;
 }
 
 .custom-table tbody td {
-    padding: 10px 10px;
-    border-bottom: 1px solid var(--divider);
-    vertical-align: middle;
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--divider);
+  vertical-align: middle;
 }
 
 .custom-table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .custom-table tbody tr {
-    transition: background 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .custom-table tbody tr:hover {
-    background: rgba(0, 0, 0, 0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 [data-theme="dark"] .custom-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* Desktop table cell styles */
 .td-name {
-    width: 34%;
-    padding-left: 12px !important;
+  width: 34%;
+  padding-left: 12px !important;
 }
 
-.td-name .student-name { 
-    font-weight: 600; 
-    font-size: 14px;
-    color: var(--text-main);
-    line-height: 1.3;
-    margin-bottom: 3px;
+.td-name .student-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-main);
+  line-height: 1.3;
+  margin-bottom: 3px;
 }
 
-.td-name .student-id { 
-    font-size: 11px; 
-    color: var(--text-secondary);
-    opacity: 0.65;
-    font-weight: 500;
+.td-name .student-id {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.65;
+  font-weight: 500;
 }
 
 .td-passport {
-    width: 11%;
+  width: 11%;
 }
 
-.td-passport .passport-num { 
-    background: var(--primary-light); 
-    color: var(--primary-color);
-    padding: 5px 10px; 
-    border-radius: 8px; 
-    font-size: 12px; 
-    font-weight: 700;
-    display: inline-block;
-    margin-bottom: 3px;
-    letter-spacing: 0.3px;
+.td-passport .passport-num {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-block;
+  margin-bottom: 3px;
+  letter-spacing: 0.3px;
 }
 
-.td-passport .passport-divider { 
-    display: none; 
+.td-passport .passport-divider {
+  display: none;
 }
 
-.td-passport .birthday { 
-    display: block; 
-    font-size: 11px; 
-    color: var(--text-secondary);
-    font-weight: 500;
+.td-passport .birthday {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .td-status {
-    width: 11%;
+  width: 11%;
 }
 
-.td-applied { 
-    width: 11%;
-    font-size: 13px; 
-    color: var(--text-secondary);
-    font-weight: 500;
+.td-applied {
+  width: 11%;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
-.td-applied .applied-label { 
-    display: none; 
+.td-applied .applied-label {
+  display: none;
 }
 
-.td-checked { 
-    width: 11%;
-    font-size: 12px; 
-    color: var(--text-secondary);
-    font-weight: 500;
+.td-checked {
+  width: 11%;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .th-select,
 .td-select {
-    width: 11%;
-    min-width: 11%;
-    max-width: 11%;
-    text-align: center;
+  width: 11%;
+  min-width: 11%;
+  max-width: 11%;
+  text-align: center;
 }
 
 .custom-table:not(.show-select-column) .th-select,
 .custom-table:not(.show-select-column) .td-select {
-    display: none;
+  display: none;
+}
+
+.th-pdf,
+.td-pdf {
+  width: 7%;
+  min-width: 7%;
+  max-width: 7%;
+  text-align: center;
+}
+
+.custom-table:not(.show-pdf-column) .th-pdf,
+.custom-table:not(.show-pdf-column) .td-pdf {
+  display: none;
+}
+
+/* PDF Download Button */
+.btn-pdf-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 15px;
+  background: rgba(52, 199, 89, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(52, 199, 89, 0.25);
+  transition: all 0.18s ease;
+}
+
+.btn-pdf-download:hover {
+  background: rgba(52, 199, 89, 0.22);
+  color: var(--success);
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.15);
+  transform: scale(1.08);
+  border-color: rgba(52, 199, 89, 0.4);
+}
+
+.btn-pdf-download:active {
+  transform: scale(0.95);
+  background: rgba(52, 199, 89, 0.3);
+}
+
+.btn-pdf-download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .td-select .form-check-input {
-    width: 18px;
-    height: 18px;
-    border: 0.5px solid rgba(0, 122, 255, 0.7);
-    box-shadow: none;
+  width: 18px;
+  height: 18px;
+  border: 0.5px solid rgba(0, 122, 255, 0.7);
+  box-shadow: none;
 }
 
-.td-actions { 
-    width: 11%;
-    text-align: right;
-    padding-right: 12px !important;
+.td-actions {
+  width: 11%;
+  text-align: right;
+  padding-right: 12px !important;
 }
 
 .td-actions .d-flex {
-    justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 /* Mobile Card View - Clean & Simple */
 @media (max-width: 767px) {
-    .table-responsive {
-        overflow: visible;
-    }
-    
-    .custom-table thead {
-        display: none;
-    }
-    
-    .custom-table tbody {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 0;
-    }
-    
-    .custom-table tbody tr {
-        display: flex;
-        flex-direction: column;
-        background: var(--card-bg);
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        border: 1px solid var(--divider);
-        transition: all 0.2s ease;
-    }
-    
-    .custom-table tbody tr:active {
-        transform: scale(0.98);
-    }
-    
-    .custom-table tbody tr:hover {
-        background: var(--card-bg);
-    }
-    
-    .custom-table tbody td {
-        display: block;
-        padding: 0 !important;
-        border: none;
-        width: 100% !important;
-    }
-    
-    /* Student Name */
-    .td-name {
-        margin-bottom: 8px;
-    }
-    
-    .td-name .student-name {
-        font-size: 17px;
-        font-weight: 700;
-        margin-bottom: 4px;
-        line-height: 1.3;
-        color: var(--text-main);
-    }
-    
-    .td-name .student-id {
-        font-size: 12px;
-        opacity: 0.4;
-        font-weight: 500;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    /* Passport & Birthday */
-    .td-passport {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
-        flex-wrap: wrap;
-    }
-    
-    .td-passport .passport-num {
-        background: var(--bg-color);
-        padding: 6px 12px;
-        font-weight: 700;
-        color: var(--text-main);
-        font-size: 14px;
-        border-radius: 8px;
-        letter-spacing: 0.3px;
-    }
-    
-    .td-passport .passport-divider {
-        display: inline;
-        color: var(--text-secondary);
-        opacity: 0.3;
-    }
-    
-    .td-passport .birthday {
-        display: inline;
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-weight: 500;
-    }
-    
-    /* Status Badge */
-    .td-status {
-        margin-bottom: 12px;
-    }
-    
-    .td-status .badge {
-        font-size: 12px;
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-    
-    /* Application & Last Checked - Compact */
-    .td-applied {
-        display: block;
-        font-size: 12px;
-        margin-bottom: 4px;
-        color: var(--text-secondary);
-    }
-    
-    .td-applied .applied-label {
-        display: inline;
-        opacity: 0.7;
-        font-weight: 500;
-    }
-    
-    .td-applied .applied-date {
-        font-weight: 600;
-        color: var(--text-main);
-        margin-left: 4px;
-    }
-    
-    .td-checked {
-        font-size: 11px;
-        opacity: 0.5;
-        font-weight: 500;
-        color: var(--text-secondary);
-        margin-bottom: 8px;
-    }
+  .table-responsive {
+    overflow: visible;
+  }
 
-    .td-select {
-        display: flex !important;
-        justify-content: flex-end;
-        align-items: center;
-        margin-bottom: 12px;
-        width: 100% !important;
-        min-width: 0;
-        max-width: none;
-    }
+  .custom-table thead {
+    display: none;
+  }
 
-    .td-select .form-check-input {
-        width: 22px;
-        height: 22px;
-        margin: 0;
-        border: 0.5px solid rgba(0, 122, 255, 0.7);
-    }
+  .custom-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+  }
 
-    /* Action Buttons */
-    .td-actions {
-        padding-top: 12px !important;
-        margin-top: 4px;
-        border-top: 1px solid var(--divider);
-    }
-    
-    .td-actions .d-flex {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px !important;
-    }
-    
-    .td-actions .btn-icon {
-        width: 100%;
-        height: 48px;
-        font-size: 18px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.15s ease;
-        background: var(--bg-color);
-        border: 1px solid var(--divider);
-    }
-    
-    .td-actions .btn-icon:active {
-        transform: scale(0.95);
-    }
-    
-    .td-actions .btn-ghost-primary:active {
-        background: var(--primary-light);
-    }
-    
-    .td-actions .btn-ghost-secondary:active {
-        background: rgba(0, 0, 0, 0.05);
-    }
-    
-    .td-actions .btn-ghost-danger:active {
-        background: rgba(255, 59, 48, 0.1);
-    }
+  .custom-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--divider);
+    transition: all 0.2s ease;
+  }
+
+  .custom-table tbody tr:active {
+    transform: scale(0.98);
+  }
+
+  .custom-table tbody tr:hover {
+    background: var(--card-bg);
+  }
+
+  .custom-table tbody td {
+    display: block;
+    padding: 0 !important;
+    border: none;
+    width: 100% !important;
+  }
+
+  /* Student Name */
+  .td-name {
+    margin-bottom: 8px;
+  }
+
+  .td-name .student-name {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.3;
+    color: var(--text-main);
+  }
+
+  .td-name .student-id {
+    font-size: 12px;
+    opacity: 0.4;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Passport & Birthday */
+  .td-passport {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .td-passport .passport-num {
+    background: var(--bg-color);
+    padding: 6px 12px;
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 14px;
+    border-radius: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .td-passport .passport-divider {
+    display: inline;
+    color: var(--text-secondary);
+    opacity: 0.3;
+  }
+
+  .td-passport .birthday {
+    display: inline;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* Status Badge */
+  .td-status {
+    margin-bottom: 12px;
+  }
+
+  .td-status .badge {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* Application & Last Checked - Compact */
+  .td-applied {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+  }
+
+  .td-applied .applied-label {
+    display: inline;
+    opacity: 0.7;
+    font-weight: 500;
+  }
+
+  .td-applied .applied-date {
+    font-weight: 600;
+    color: var(--text-main);
+    margin-left: 4px;
+  }
+
+  .td-checked {
+    font-size: 11px;
+    opacity: 0.5;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .td-select {
+    display: flex !important;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100% !important;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .td-select .form-check-input {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    border: 0.5px solid rgba(0, 122, 255, 0.7);
+  }
+
+  /* Action Buttons */
+  .td-actions {
+    padding-top: 12px !important;
+    margin-top: 4px;
+    border-top: 1px solid var(--divider);
+  }
+
+  .td-actions .d-flex {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px !important;
+  }
+
+  .td-actions .btn-icon {
+    width: 100%;
+    height: 48px;
+    font-size: 18px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    background: var(--bg-color);
+    border: 1px solid var(--divider);
+  }
+
+  .td-actions .btn-icon:active {
+    transform: scale(0.95);
+  }
+
+  .td-actions .btn-ghost-primary:active {
+    background: var(--primary-light);
+  }
+
+  .td-actions .btn-ghost-secondary:active {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .td-actions .btn-ghost-danger:active {
+    background: rgba(255, 59, 48, 0.1);
+  }
+
+  /* PDF column on mobile */
+  .td-pdf {
+    display: none !important;
+    width: 100% !important;
+    min-width: 0;
+    max-width: none;
+    padding-top: 8px !important;
+  }
+
+  .custom-table.show-pdf-column .td-pdf {
+    display: flex !important;
+    justify-content: flex-start;
+  }
+
+  .custom-table.show-pdf-column .btn-pdf-download {
+    width: 100%;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 15px;
+    padding: 0 16px;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .custom-table.show-pdf-column .btn-pdf-download::after {
+    content: 'Download PDF';
+    font-size: 13px;
+    font-weight: 600;
+  }
 }
 
 /* Compact Status Badges */
 .badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: none;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
 }
 
-.bg-success-subtle { background: rgba(52, 199, 89, 0.15) !important; }
-.text-success { color: var(--success) !important; }
+.bg-success-subtle {
+  background: rgba(52, 199, 89, 0.15) !important;
+}
+.text-success {
+  color: var(--success) !important;
+}
 
-.bg-danger-subtle { background: rgba(255, 59, 48, 0.15) !important; }
-.text-danger { color: var(--danger) !important; }
+.bg-danger-subtle {
+  background: rgba(255, 59, 48, 0.15) !important;
+}
+.text-danger {
+  color: var(--danger) !important;
+}
 
-.bg-warning-subtle { background: rgba(255, 149, 0, 0.15) !important; }
-.text-warning-emphasis { color: var(--warning) !important; }
+.bg-warning-subtle {
+  background: rgba(255, 149, 0, 0.15) !important;
+}
+.text-warning-emphasis {
+  color: var(--warning) !important;
+}
 
-.bg-info-subtle { background: rgba(88, 86, 214, 0.15) !important; }
-.text-info-emphasis { color: var(--info) !important; }
+.bg-info-subtle {
+  background: rgba(88, 86, 214, 0.15) !important;
+}
+.text-info-emphasis {
+  color: var(--info) !important;
+}
 
-.bg-secondary-subtle { background: rgba(142, 142, 147, 0.15) !important; }
-.text-secondary { color: var(--text-secondary) !important; }
+.bg-secondary-subtle {
+  background: rgba(142, 142, 147, 0.15) !important;
+}
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
 
 /* Compact Action Buttons */
 .btn-icon {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border-radius: 8px;
-    font-size: 14px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
-.btn-ghost-primary { color: var(--primary-color); }
-.btn-ghost-primary:hover { background: var(--primary-light); }
+.btn-ghost-primary {
+  color: var(--primary-color);
+}
+.btn-ghost-primary:hover {
+  background: var(--primary-light);
+}
 
-.btn-ghost-secondary { color: var(--text-secondary); }
-.btn-ghost-secondary:hover { background: rgba(0,0,0,0.05); }
+.btn-ghost-secondary {
+  color: var(--text-secondary);
+}
+.btn-ghost-secondary:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
 
-.btn-ghost-danger { color: var(--danger); }
-.btn-ghost-danger:hover { background: rgba(255,59,48,0.1); }
+.btn-ghost-danger {
+  color: var(--danger);
+}
+.btn-ghost-danger:hover {
+  background: rgba(255, 59, 48, 0.1);
+}
 
 /* Passport Badge */
 .badge.bg-light {
-    background: var(--bg-color) !important;
-    color: var(--text-main) !important;
-    border: none !important;
-    font-weight: 500;
-    font-size: 12px;
+  background: var(--bg-color) !important;
+  color: var(--text-main) !important;
+  border: none !important;
+  font-weight: 500;
+  font-size: 12px;
 }
 
 /* iOS Modal */
 .modal-content {
-    border: none;
-    border-radius: 14px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
 }
 
 .modal-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--divider);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--divider);
 }
 
 .modal-title {
-    font-size: 17px;
-    font-weight: 600;
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .modal-body {
-    padding: 20px;
+  padding: 20px;
 }
 
 /* Form Controls */
 .form-control-glass {
-    background: var(--bg-color);
-    border: none;
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 15px;
-    height: auto;
+  background: var(--bg-color);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  height: auto;
 }
 
 .form-control-glass:focus {
-    background: var(--bg-color);
-    box-shadow: 0 0 0 3px var(--primary-light);
-    border: none;
+  background: var(--bg-color);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  border: none;
 }
 
 .form-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
 }
 
 /* Empty State */
 #emptyState {
-    padding: 40px 20px;
+  padding: 40px 20px;
 }
 
 #emptyState i {
-    font-size: 48px;
-    opacity: 0.3;
+  font-size: 48px;
+  opacity: 0.3;
 }
 
 /* Student Count */
 #studentCount {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 /* Toast Notifications */
 .toast {
-    border-radius: 12px;
-    font-size: 14px;
+  border-radius: 12px;
+  font-size: 14px;
 }
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Spin Animation for Refresh Button - must be inline-block for transform to work */
 .spin-animation {
-    display: inline-block !important;
-    animation: spin 0.8s linear infinite !important;
+  display: inline-block !important;
+  animation: spin 0.8s linear infinite !important;
 }
 
-@keyframes spin { 
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Dark mode specific */
 [data-theme="dark"] body {
-    background-color: var(--bg-color);
+  background-color: var(--bg-color);
 }
 
 [data-theme="dark"] .custom-table tbody tr {
-    background: var(--card-bg);
+  background: var(--card-bg);
 }
 
 [data-theme="dark"] .modal-content {
-    background: var(--card-bg);
+  background: var(--card-bg);
 }
 
 /* Hide checkAll column header on desktop too if not needed */
 .custom-table th:first-child,
 .custom-table td:first-child {
-    width: 40px;
-    padding-left: 12px !important;
+  width: 40px;
+  padding-left: 12px !important;
 }
 
 @media (max-width: 767px) {
-    .custom-table th:first-child { display: none; }
+  .custom-table th:first-child {
+    display: none;
+  }
 }

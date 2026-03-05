@@ -475,6 +475,12 @@ function renderTable() {
                     ${student.batchSelected ? 'checked' : ''}
                 >
             </td>
+            <td class="text-center td-pdf">
+                ${currentFilter === 'approved' ? `
+                <button class="btn btn-sm btn-pdf-download action-btn" data-action="download-pdf" data-id="${student.passport}" title="Download Visa PDF">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                </button>` : ''}
+            </td>
             <td class="td-actions">
                 <div class="d-flex justify-content-end gap-1">
                     <button class="btn btn-sm btn-icon btn-ghost-primary action-btn" data-action="refresh" data-id="${student.passport}" title="Refresh">
@@ -513,6 +519,7 @@ function updateSelectColumnVisibility() {
     const table = document.querySelector('.custom-table');
     if (!table) return;
     table.classList.toggle('show-select-column', currentFilter === 'application');
+    table.classList.toggle('show-pdf-column', currentFilter === 'approved');
 }
 
 async function handleFormSubmit(e) {
@@ -670,6 +677,8 @@ async function handleAction(action, passport, btnElement) {
             }
             btn.disabled = false;
         }
+    } else if (action === 'download-pdf') {
+        await downloadVisaPdf(student, btnElement);
     } else if (action === 'toggle-batch') {
         const checkbox = btnElement;
         if (!checkbox || checkbox.disabled) return;
@@ -871,6 +880,71 @@ function extractVisaStatus(data) {
     };
 }
 
+// ── PDF Download ─────────────────────────────────────────────────────────────
+async function downloadVisaPdf(student, btnElement) {
+    const btn = btnElement || document.querySelector(`button[data-action="download-pdf"][data-id="${student.passport}"]`);
+    const icon = btn ? btn.querySelector('i') : null;
+
+    if (btn) btn.disabled = true;
+    if (icon) {
+        icon.classList.remove('bi-file-earmark-pdf-fill');
+        icon.classList.add('bi-arrow-repeat', 'spin-animation');
+    }
+
+    try {
+        // The PDF URL was extracted from visamasters.uz HTML during last status check
+        const storedPdfUrl = student.pdfUrl || '';
+        if (!storedPdfUrl) {
+            throw new Error('No PDF link found for this student. Please refresh their status first (click the ↻ button), then try again.');
+        }
+
+        const isLocal = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.hostname === '' ||
+                        window.location.protocol === 'file:';
+
+        const proxyBase = isLocal ? 'http://localhost:3000' : '';
+        const pdfUrl = `${proxyBase}/download-visa-pdf?url=${encodeURIComponent(storedPdfUrl)}&passport=${encodeURIComponent(student.passport)}`;
+
+        const response = await fetch(pdfUrl);
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `Server error ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const contentType = response.headers.get('Content-Type') || '';
+
+        if (!blob.size) throw new Error('Received empty file from server');
+        if (contentType.includes('application/json')) {
+            const text = await blob.text();
+            const parsed = JSON.parse(text);
+            throw new Error(parsed.error || 'Failed to retrieve PDF');
+        }
+
+        const objUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objUrl;
+        a.download = `visa_${student.passport}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(objUrl);
+
+        debug(`PDF downloaded for ${student.passport}`);
+    } catch (error) {
+        debug('PDF download error:', error);
+        showError(`Could not download PDF: ${error.message}`);
+    } finally {
+        if (btn) btn.disabled = false;
+        if (icon) {
+            icon.classList.remove('bi-arrow-repeat', 'spin-animation');
+            icon.classList.add('bi-file-earmark-pdf-fill');
+        }
+    }
+}
+
 // API Integration — uses visamasters.uz via local proxy
 async function checkVisaStatus(student) {
     try {
@@ -903,6 +977,7 @@ async function checkVisaStatus(student) {
         const newStatus = data.status || 'Unknown';
         const applicationDate = data.applicationDate || '';
         const rejectionReason = data.rejectionReason || '';
+        const pdfUrl = data.pdfUrl || '';
         const oldStatus = student.status || 'Unknown';
 
         // NOTIFICATION LOGIC
@@ -921,6 +996,11 @@ async function checkVisaStatus(student) {
 
         if (applicationDate) {
             updatePayload.applicationDate = applicationDate;
+        }
+
+        // Save PDF URL so the download button can use the exact link
+        if (pdfUrl) {
+            updatePayload.pdfUrl = pdfUrl;
         }
 
         // Save rejection reason so getRejectionReasonHtml() / getInlineRejectionReasonHtml() can display it

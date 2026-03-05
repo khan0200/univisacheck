@@ -295,10 +295,87 @@ function parseVisaStatusHtml(html) {
 
     detail = additionalText || rawTitle;
 
-    console.log(`[Parser] visaCode=${visaStatusCode} | title="${rawTitle}" | bg="${bgColor}" | status→${status}${rejectionReason ? ' | reason: ' + rejectionReason.substring(0, 60) + '...' : ''}`);
+    // ── 8. Extract PDF download URL ───────────────────────────────────────────
+    let pdfUrl = '';
 
-    return { status, detail, applicationDate, rejectionReason, rawHtml: html };
+    // DEBUG: log every href found in the HTML so we know what pattern to match
+    const allHrefs = [...html.matchAll(/href="([^"]+)"/gi)].map(m => m[1]);
+    console.log('[Parser] All hrefs in response:', allHrefs.filter(h => !h.startsWith('#') && !h.includes('cdn') && !h.includes('font')).slice(0, 20));
+
+    // Pattern A: plain anchor href containing "download"
+    const hrefMatch =
+        html.match(/href="([^"]*download[^"]*)\"/i) ||
+        html.match(/href="([^"]*\.pdf[^"]*)"/i);
+    if (hrefMatch) {
+        const raw = hrefMatch[1];
+        pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+        console.log('[Parser] PDF URL found via href pattern:', pdfUrl);
+    }
+
+    // Pattern B: onclick="window.location=..." or onclick="downloadVisa(...)" etc.
+    if (!pdfUrl) {
+        const onclickMatch = html.match(/onclick="[^"]*(?:location(?:\.href)?\s*=\s*|window\.open\s*\()\s*['"]([^'"]+)['"]/i);
+        if (onclickMatch) {
+            const raw = onclickMatch[1];
+            pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+            console.log('[Parser] PDF URL found via onclick pattern:', pdfUrl);
+        }
+    }
+
+    // Pattern C: data-url / data-href / data-download attribute on download button
+    if (!pdfUrl) {
+        const dataMatch = html.match(/class="[^"]*download[^"]*"[^>]*data-(?:url|href|src|download)="([^"]+)"/i)
+                       || html.match(/data-(?:url|href|src|download)="([^"]+)"[^>]*class="[^"]*download[^"]*"/i);
+        if (dataMatch) {
+            const raw = dataMatch[1];
+            pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+            console.log('[Parser] PDF URL found via data-* attribute:', pdfUrl);
+        }
+    }
+
+    // Pattern D: <script> block containing fetch('/site/...') or location.href near "Download"
+    if (!pdfUrl) {
+        // Find the <!-- Scripts for Download --> section and everything after it in script tags
+        const downloadScriptMatch = html.match(/<!--[^-]*[Dd]ownload[^-]*-->([\s\S]*?)<\/script>/i)
+                                  || html.match(/<script>([\s\S]*?(?:download|pdf)[\s\S]*?)<\/script>/i);
+        if (downloadScriptMatch) {
+            const scriptContent = downloadScriptMatch[1];
+            console.log('[Parser] Download script content:', scriptContent.substring(0, 500));
+            // Look for URL strings inside the script
+            const urlInScript = scriptContent.match(/['"](\/?site\/[^'"]+)['"]/i)
+                             || scriptContent.match(/fetch\(['"]([^'"]+)['"]/i)
+                             || scriptContent.match(/location(?:\.href)?\s*=\s*['"]([^'"]+)['"]/i)
+                             || scriptContent.match(/['"]([^'"]*download[^'"]*)['"]/i);
+            if (urlInScript) {
+                const raw = urlInScript[1];
+                pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+                console.log('[Parser] PDF URL found in download script:', pdfUrl);
+            }
+        }
+    }
+
+    // Pattern E: any URL in ALL script blocks containing 'download' or 'pdf'
+    if (!pdfUrl) {
+        const allScripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(m => m[1]);
+        for (const script of allScripts) {
+            if (!script.toLowerCase().includes('download') && !script.toLowerCase().includes('pdf')) continue;
+            console.log('[Parser] Checking script block for PDF URL:', script.substring(0, 300));
+            const urlMatch = script.match(/['"](\/?(?:site|api|uploads)\/[^'"]*(?:download|pdf|visa)[^'"]*)['"]/i)
+                          || script.match(/fetch\(['"]([^'"]+)['"]/i);
+            if (urlMatch) {
+                const raw = urlMatch[1];
+                pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+                console.log('[Parser] PDF URL found in script block:', pdfUrl);
+                break;
+            }
+        }
+    }
+
+    console.log(`[Parser] visaCode=${visaStatusCode} | title="${rawTitle}" | bg="${bgColor}" | status→${status}${rejectionReason ? ' | reason: ' + rejectionReason.substring(0, 60) + '...' : ''}${pdfUrl ? ' | pdfUrl: ' + pdfUrl : ' | pdfUrl: NOT FOUND IN HTML'}`);
+
+    return { status, detail, applicationDate, rejectionReason, pdfUrl, rawHtml: html };
 }
+
 
 
 const server = http.createServer(async (req, res) => {
@@ -492,6 +569,167 @@ const server = http.createServer(async (req, res) => {
                 res.end(JSON.stringify({ error: err.message }));
             }
         });
+
+    } else if (req.url.startsWith('/debug-visa-html') && req.method === 'POST') {
+        // ── DEBUG: return raw HTML from visamasters.uz for an approved passport ──
+        // Usage: POST /debug-visa-html  body: { passport, full_name, birth_date }
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', async () => {
+            try {
+                const payload = JSON.parse(body);
+                const passport  = payload.passport_number || payload.passport || '';
+                const fullName  = payload.english_name   || payload.full_name  || '';
+                const birthDate = payload.birth_date     || '';
+                if (!passport || !fullName || !birthDate) {
+                    res.writeHead(400); res.end(JSON.stringify({ error: 'Missing fields' })); return;
+                }
+                let csrf = await getCSRF();
+                const boundary = '----FormBoundary' + Math.random().toString(36).substr(2, 16);
+                const formFields = { '_csrf-frontend': csrf.token, passport: passport.toUpperCase(), full_name: fullName.toUpperCase(), date_of_birth: birthDate };
+                const multipartBody = buildMultipartBody(formFields, boundary);
+                const postHeaders = {
+                    'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                    'Content-Length': Buffer.byteLength(multipartBody),
+                    'X-CSRF-Token': csrf.token, 'X-PJAX': 'true',
+                    'X-PJAX-Container': '#visa-result', 'X-Requested-With': 'XMLHttpRequest',
+                    'Referer': 'https://visamasters.uz/visa-status',
+                    'Origin': 'https://visamasters.uz', 'Cookie': csrf.cookies,
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                };
+                const apiRes = await httpsPost('/site/check-visa', postHeaders, multipartBody);
+                // Return the raw HTML + all hrefs found
+                const rawHtml = apiRes.body;
+                const allHrefs = [...rawHtml.matchAll(/href="([^"]+)"/gi)].map(m => m[1]);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ rawHtml, allHrefs, statusCode: apiRes.statusCode }));
+            } catch (err) {
+                res.writeHead(500); res.end(JSON.stringify({ error: err.message }));
+            }
+        });
+
+    } else if (req.url.startsWith('/download-visa-pdf') && req.method === 'GET') {
+        // ── Download Visa PDF ─────────────────────────────────────────────────
+        // The frontend passes the exact PDF URL that was extracted from the
+        // visamasters.uz HTML during the last visa check.  We proxy it with
+        // the session cookies so the browser can download it directly.
+        const urlParsed = new URL(req.url, `http://localhost:${PORT}`);
+        const pdfUrlParam  = (urlParsed.searchParams.get('url') || '').trim();
+        const passportParam = (urlParsed.searchParams.get('passport') || '').trim().toUpperCase();
+
+        if (!pdfUrlParam) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Missing url parameter. Refresh the student status first so a PDF link can be found.' }));
+            return;
+        }
+
+        // Validate it's a visamasters.uz URL so we can't be used as an open proxy
+        let parsedTarget;
+        try {
+            parsedTarget = new URL(pdfUrlParam);
+        } catch {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid PDF URL' }));
+            return;
+        }
+        if (!parsedTarget.hostname.endsWith('visamasters.uz')) {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Forbidden: URL must be from visamasters.uz' }));
+            return;
+        }
+
+        try {
+            // Get/reuse session cookies
+            let csrf;
+            try { csrf = await getCSRF(); } catch (e) {
+                csrfCache.token = null;
+                csrf = await getCSRF();
+            }
+
+            console.log(`[PDF] Fetching: ${pdfUrlParam}`);
+
+            const options = {
+                hostname: parsedTarget.hostname,
+                port: 443,
+                path: parsedTarget.pathname + parsedTarget.search,
+                method: 'GET',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'application/pdf,*/*;q=0.8',
+                    'Referer': 'https://visamasters.uz/visa-status',
+                    'Cookie': csrf.cookies,
+                }
+            };
+
+            const pdfReq = https.request(options, (pdfRes) => {
+                const contentType = pdfRes.headers['content-type'] || '';
+                const statusCode  = pdfRes.statusCode;
+
+                console.log(`[PDF] Response: ${statusCode} | Content-Type: ${contentType}`);
+
+                // Follow a single redirect if the server sends one
+                if ((statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) && pdfRes.headers.location) {
+                    pdfRes.resume();
+                    const redirectUrl = pdfRes.headers.location.startsWith('http')
+                        ? pdfRes.headers.location
+                        : `https://visamasters.uz${pdfRes.headers.location}`;
+                    console.log(`[PDF] Redirecting to: ${redirectUrl}`);
+                    const rParsed = new URL(redirectUrl);
+                    const rOptions = { ...options, hostname: rParsed.hostname, path: rParsed.pathname + rParsed.search };
+                    const rReq = https.request(rOptions, (rRes) => {
+                        const rct = rRes.headers['content-type'] || '';
+                        if (!rct.includes('pdf') && !rct.includes('octet-stream')) {
+                            let body = ''; rRes.on('data', c => { body += c; });
+                            rRes.on('end', () => {
+                                console.warn('[PDF] Redirect response is not PDF:', body.substring(0, 300));
+                                res.writeHead(404, { 'Content-Type': 'application/json' });
+                                res.end(JSON.stringify({ error: 'PDF not available from the server after redirect.' }));
+                            });
+                            return;
+                        }
+                        const filename = passportParam ? `visa_${passportParam}.pdf` : 'visa.pdf';
+                        res.writeHead(200, { 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${filename}"` });
+                        rRes.pipe(res);
+                    });
+                    rReq.on('error', err => { if (!res.headersSent) { res.writeHead(500, {'Content-Type':'application/json'}); res.end(JSON.stringify({error:err.message})); } });
+                    rReq.end();
+                    return;
+                }
+
+                if (statusCode !== 200) {
+                    pdfRes.resume();
+                    res.writeHead(502, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: `Upstream returned HTTP ${statusCode}. Try refreshing the student status first.` }));
+                    return;
+                }
+
+                if (!contentType.includes('pdf') && !contentType.includes('octet-stream')) {
+                    let body = ''; pdfRes.on('data', c => { body += c; });
+                    pdfRes.on('end', () => {
+                        console.warn('[PDF] Non-PDF response body:', body.substring(0, 300));
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'The server did not return a PDF file. The visa document may not be ready yet.' }));
+                    });
+                    return;
+                }
+
+                const filename = passportParam ? `visa_${passportParam}.pdf` : 'visa.pdf';
+                res.writeHead(200, { 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${filename}"` });
+                pdfRes.pipe(res);
+            });
+
+            pdfReq.on('error', (err) => {
+                console.error('[PDF] Request error:', err.message);
+                if (!res.headersSent) { res.writeHead(500, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: err.message })); }
+            });
+            pdfReq.end();
+
+        } catch (err) {
+            console.error('[PDF] Error:', err.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        }
 
     } else {
         res.writeHead(404);
