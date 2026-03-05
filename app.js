@@ -903,8 +903,9 @@ async function downloadVisaPdf(student, btnElement) {
                         window.location.hostname === '' ||
                         window.location.protocol === 'file:';
 
-        const proxyBase = isLocal ? 'http://localhost:3000' : '';
-        const pdfUrl = `${proxyBase}/download-visa-pdf?url=${encodeURIComponent(storedPdfUrl)}&passport=${encodeURIComponent(student.passport)}`;
+        const pdfUrl = isLocal 
+            ? `http://localhost:3000/download-visa-pdf?url=${encodeURIComponent(storedPdfUrl)}&passport=${encodeURIComponent(student.passport)}`
+            : `/api/download-visa-pdf?url=${encodeURIComponent(storedPdfUrl)}&passport=${encodeURIComponent(student.passport)}`;
 
         const response = await fetch(pdfUrl);
 

@@ -182,9 +182,65 @@ function parseVisaStatusHtml(html) {
         }
     }
 
+    // ── Extract PDF download URL ───────────────────────────────────────────────
+    let pdfUrl = '';
+
+    const hrefMatch = html.match(/href="([^"]*download[^"]*)\"/i) || html.match(/href="([^"]*\.pdf[^"]*)"/i);
+    if (hrefMatch) {
+        const raw = hrefMatch[1];
+        pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+    }
+
+    if (!pdfUrl) {
+        const onclickMatch = html.match(/onclick="[^"]*(?:location(?:\.href)?\s*=\s*|window\.open\s*\()\s*['"]([^'"]+)['"]/i);
+        if (onclickMatch) {
+            const raw = onclickMatch[1];
+            pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+        }
+    }
+
+    if (!pdfUrl) {
+        const dataMatch = html.match(/class="[^"]*download[^"]*"[^>]*data-(?:url|href|src|download)="([^"]+)"/i)
+                       || html.match(/data-(?:url|href|src|download)="([^"]+)"[^>]*class="[^"]*download[^"]*"/i);
+        if (dataMatch) {
+            const raw = dataMatch[1];
+            pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+        }
+    }
+
+    if (!pdfUrl) {
+        const downloadScriptMatch = html.match(/<!--[^-]*[Dd]ownload[^-]*-->([\s\S]*?)<\/script>/i)
+                                  || html.match(/<script>([\s\S]*?(?:download|pdf)[\s\S]*?)<\/script>/i);
+        if (downloadScriptMatch) {
+            const scriptContent = downloadScriptMatch[1];
+            const urlInScript = scriptContent.match(/['"](\/?site\/[^'"]+)['"]/i)
+                             || scriptContent.match(/fetch\(['"]([^'"]+)['"]/i)
+                             || scriptContent.match(/location(?:\.href)?\s*=\s*['"]([^'"]+)['"]/i)
+                             || scriptContent.match(/['"]([^'"]*download[^'"]*)['"]/i);
+            if (urlInScript) {
+                const raw = urlInScript[1];
+                pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+            }
+        }
+    }
+
+    if (!pdfUrl) {
+        const allScripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(m => m[1]);
+        for (const script of allScripts) {
+            if (!script.toLowerCase().includes('download') && !script.toLowerCase().includes('pdf')) continue;
+            const urlMatch = script.match(/['"](\/?(?:site|api|uploads)\/[^'"]*(?:download|pdf|visa)[^'"]*)['"]/i)
+                          || script.match(/fetch\(['"]([^'"]+)['"]/i);
+            if (urlMatch) {
+                const raw = urlMatch[1];
+                pdfUrl = raw.startsWith('http') ? raw : `https://visamasters.uz${raw.startsWith('/') ? '' : '/'}${raw}`;
+                break;
+            }
+        }
+    }
+
     detail = additionalText || rawTitle;
-    console.log(`[Vercel] title="${rawTitle}" bg="${bgColor}" → ${status}${rejectionReason ? ' | reason: ' + rejectionReason.substring(0, 60) : ''}`);
-    return { status, detail, applicationDate, rejectionReason };
+    console.log(`[Vercel] title="${rawTitle}" bg="${bgColor}" → ${status}${rejectionReason ? ' | reason: ' + rejectionReason.substring(0, 60) : ''}${pdfUrl ? ' | pdfUrl: ' + pdfUrl : ' | pdfUrl: NOT FOUND'}`);
+    return { status, detail, applicationDate, rejectionReason, pdfUrl };
 }
 
 module.exports = async (req, res) => {
