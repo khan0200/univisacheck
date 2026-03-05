@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import CONFIG from "./config.js";
 
 const firebaseConfig = {
@@ -60,10 +60,53 @@ form.addEventListener('submit', async (e) => {
             return;
         }
 
-        const student = querySnapshot.docs[0].data();
+        const studentDoc = querySnapshot.docs[0];
+        const student = studentDoc.data();
         
-        // Map Status
-        let displayStatus = student.status || 'Pending';
+        // ── Real-time Check Logic ──
+        // Instead of just relying on the database value, we perform a real-time fetch
+        // using the fullName and birthday we have in the database for this passport.
+        const fullName = student.fullName || '';
+        const birthday = student.birthday || student.dateOfBirth || '';
+
+        if (!fullName || !birthday) {
+            showError("Talaba ma'lumotlari to'liq emas. Iltimos ofisga murojaat qiling.");
+            return;
+        }
+
+        // Show "Checking..." on the badge while we hit the API
+        statusBadge.className = 'status-badge status-Pending';
+        statusBadge.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Tekshirilmoqda...';
+        resultSection.style.display = 'block';
+        resName.textContent = fullName;
+        resDob.textContent = birthday;
+
+        const apiBase = CONFIG.API.PROXY_URL;
+        const apiResponse = await fetch(apiBase, {
+            method: 'POST',
+            body: JSON.stringify({ passport, full_name: fullName, birth_date: birthday }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!apiResponse.ok) {
+            throw new Error(`Real-time check failed: ${apiResponse.statusText}`);
+        }
+
+        const freshData = await apiResponse.json();
+        
+        // Update Firestore with the fresh data (so admin also sees it)
+        const updatePayload = {
+            status: freshData.status || 'Pending',
+            applicationDate: freshData.applicationDate || '',
+            rejectionReason: freshData.rejectionReason || '',
+            pdfUrl: freshData.pdfUrl || '',
+            apiResponse: freshData, // Store raw response for debugging reasons
+            lastChecked: serverTimestamp()
+        };
+        await updateDoc(doc(db, CONFIG.FIRESTORE.STUDENTS_COLLECTION, passport), updatePayload);
+
+        // Map fresh status for UI
+        let displayStatus = freshData.status || 'Pending';
         let statusClass = 'Pending';
         let statusText = 'Kutilmoqda (Pending)';
 
@@ -73,42 +116,19 @@ form.addEventListener('submit', async (e) => {
         else if (displayStatus === 'UNDER REVIEW') { statusClass = 'UNDER'; statusText = "Ko'rib Chiqilmoqda (Under Review)"; }
         else if (displayStatus === 'holat noma\'lum' || displayStatus === 'Noma\'lum') { statusClass = 'Pending'; statusText = 'Noma\'lum (Unknown)'; }
 
-        // Format dates
-        const appDate = student.applicationDate || student.submissionDate || '--';
-
-        // Update UI
+        // Update UI with fresh results
         statusBadge.className = `status-badge status-${statusClass}`;
         statusBadge.innerHTML = `<i class="bi ${statusClass==='APPROVED' ? 'bi-check-circle-fill' : 'bi-info-circle-fill'} me-1"></i> ${statusText}`;
-        resName.textContent = student.fullName || '--';
-        resDob.textContent = student.birthday || student.dateOfBirth || '--';
 
-        if (appDate && appDate !== '--') {
-            resAppDate.textContent = appDate;
+        if (freshData.applicationDate) {
+            resAppDate.textContent = freshData.applicationDate;
             dateWrapper.classList.remove('d-none');
         } else {
             dateWrapper.classList.add('d-none');
         }
 
-        let rejectionReason = student.rejectionReason || student.rejectReason || '';
-        if (!rejectionReason && student.apiResponse) {
-            const data = student.apiResponse;
-            rejectionReason =
-                (data.response_data?.visa_data?.rejection_reason) ||
-                (data.response_data?.visa_data?.reject_reason) ||
-                (data.response_data?.visa_data?.reason) ||
-                (data.response_data?.rejection_reason) ||
-                (data.response_data?.reject_reason) ||
-                (data.visa_data?.rejection_reason) ||
-                (data.visa_data?.reject_reason) ||
-                (data.visa_data?.reason) ||
-                (data.rejection_reason) ||
-                (data.reject_reason) ||
-                (data.reason) ||
-                '';
-        }
-
-        if (rejectionReason) {
-            resReason.innerHTML = rejectionReason.replace(/\s+(?=\d+\.)/g, '<br>'); // Matches line breaks for numbered lists
+        if (freshData.rejectionReason) {
+            resReason.innerHTML = freshData.rejectionReason.replace(/\s+(?=\d+\.)/g, '<br>');
             reasonWrapper.classList.remove('d-none');
         } else {
             reasonWrapper.classList.add('d-none');
@@ -116,11 +136,11 @@ form.addEventListener('submit', async (e) => {
 
         // Handle Download PDF Button
         if (displayStatus === 'APPROVED') {
-            if (student.pdfUrl) {
+            if (freshData.pdfUrl) {
                 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-                const pdfUrl = isLocal 
-                    ? `http://localhost:3000/download-visa-pdf?url=${encodeURIComponent(student.pdfUrl)}&passport=${encodeURIComponent(passport)}&full_name=${encodeURIComponent(student.fullName || '')}&birth_date=${encodeURIComponent(student.birthday || '')}`
-                    : `/api/download-visa-pdf?url=${encodeURIComponent(student.pdfUrl)}&passport=${encodeURIComponent(passport)}&full_name=${encodeURIComponent(student.fullName || '')}&birth_date=${encodeURIComponent(student.birthday || '')}`;
+                const pdfFetchUrl = isLocal 
+                    ? `http://localhost:3000/download-visa-pdf?url=${encodeURIComponent(freshData.pdfUrl)}&passport=${encodeURIComponent(passport)}&full_name=${encodeURIComponent(fullName)}&birth_date=${encodeURIComponent(birthday)}`
+                    : `/api/download-visa-pdf?url=${encodeURIComponent(freshData.pdfUrl)}&passport=${encodeURIComponent(passport)}&full_name=${encodeURIComponent(fullName)}&birth_date=${encodeURIComponent(birthday)}`;
 
                 downloadBtn.href = "#";
                 downloadBtn.onclick = async (ev) => {
@@ -129,7 +149,7 @@ form.addEventListener('submit', async (e) => {
                     downloadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Yuklanmoqda...';
                     
                     try {
-                        const dlRes = await fetch(pdfUrl);
+                        const dlRes = await fetch(pdfFetchUrl);
                         if (!dlRes.ok) {
                             const errData = await dlRes.json().catch(() => ({}));
                             throw new Error(errData.error || `Server HTTP ${dlRes.status} xato qaytardi`);
@@ -157,8 +177,6 @@ form.addEventListener('submit', async (e) => {
                 downloadError.classList.remove('d-none');
             }
         }
-
-        resultSection.style.display = 'block';
 
     } catch (err) {
         showError(`Tizim xatosi: ${err.message}`);
