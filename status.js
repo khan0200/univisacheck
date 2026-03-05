@@ -89,8 +89,26 @@ form.addEventListener('submit', async (e) => {
             dateWrapper.classList.add('d-none');
         }
 
-        if (student.rejectionReason) {
-            resReason.textContent = student.rejectionReason;
+        let rejectionReason = student.rejectionReason || student.rejectReason || '';
+        if (!rejectionReason && student.apiResponse) {
+            const data = student.apiResponse;
+            rejectionReason =
+                (data.response_data?.visa_data?.rejection_reason) ||
+                (data.response_data?.visa_data?.reject_reason) ||
+                (data.response_data?.visa_data?.reason) ||
+                (data.response_data?.rejection_reason) ||
+                (data.response_data?.reject_reason) ||
+                (data.visa_data?.rejection_reason) ||
+                (data.visa_data?.reject_reason) ||
+                (data.visa_data?.reason) ||
+                (data.rejection_reason) ||
+                (data.reject_reason) ||
+                (data.reason) ||
+                '';
+        }
+
+        if (rejectionReason) {
+            resReason.innerHTML = rejectionReason.replace(/\s+(?=\d+\.)/g, '<br>'); // Matches line breaks for numbered lists
             reasonWrapper.classList.remove('d-none');
         } else {
             reasonWrapper.classList.add('d-none');
