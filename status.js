@@ -93,10 +93,17 @@ form.addEventListener('submit', async (e) => {
         }
 
         const freshData = await apiResponse.json();
+        const oldStatus = student.status || 'Unknown';
+        const newStatus = freshData.status || 'Pending';
         
+        // Notify if status changed
+        if (oldStatus !== 'Unknown' && oldStatus.toLowerCase() !== newStatus.toLowerCase()) {
+            sendTelegramNotification(student, oldStatus, newStatus, freshData.applicationDate);
+        }
+
         // Update Firestore with the fresh data (so admin also sees it)
         const updatePayload = {
-            status: freshData.status || 'Pending',
+            status: newStatus,
             applicationDate: freshData.applicationDate || '',
             rejectionReason: freshData.rejectionReason || '',
             pdfUrl: freshData.pdfUrl || '',
@@ -186,6 +193,32 @@ form.addEventListener('submit', async (e) => {
         checkBtn.disabled = false;
     }
 });
+
+async function sendTelegramNotification(student, oldStatus, newStatus, applicationDate) {
+    try {
+        const payload = {
+            fullName: student.fullName || '',
+            passport: student.passport || '',
+            studentId: student.studentId || '',
+            birthday: student.birthday || student.dateOfBirth || '',
+            oldStatus,
+            newStatus,
+            applicationDate: applicationDate || '',
+            changedAt: new Date().toISOString()
+        };
+
+        await fetch(CONFIG.API.TELEGRAM_NOTIFY_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+    } catch (error) {
+        console.error('Telegram notify error:', error);
+    }
+}
 
 function showError(msg) {
     errorMsg.textContent = msg;
