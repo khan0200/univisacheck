@@ -615,12 +615,14 @@ const server = http.createServer(async (req, res) => {
         // visamasters.uz HTML during the last visa check.  We proxy it with
         // the session cookies so the browser can download it directly.
         const urlParsed = new URL(req.url, `http://localhost:${PORT}`);
-        const pdfUrlParam  = (urlParsed.searchParams.get('url') || '').trim();
+        const pdfUrlParam   = (urlParsed.searchParams.get('url') || '').trim();
         const passportParam = (urlParsed.searchParams.get('passport') || '').trim().toUpperCase();
+        const fullNameParam = (urlParsed.searchParams.get('full_name') || '').trim().toUpperCase();
+        const birthParam    = (urlParsed.searchParams.get('birth_date') || '').trim();
 
-        if (!pdfUrlParam) {
+        if (!pdfUrlParam || !passportParam || !fullNameParam || !birthParam) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Missing url parameter. Refresh the student status first so a PDF link can be found.' }));
+            res.end(JSON.stringify({ error: 'Missing required parameters (url, passport, full_name, birth_date). Refresh the student status first.' }));
             return;
         }
 
@@ -640,15 +642,43 @@ const server = http.createServer(async (req, res) => {
         }
 
         try {
-            // Get/reuse session cookies
+            // 1. Get/reuse initial session cookies
             let csrf;
             try { csrf = await getCSRF(); } catch (e) {
                 csrfCache.token = null;
                 csrf = await getCSRF();
             }
 
-            console.log(`[PDF] Fetching: ${pdfUrlParam}`);
+            // 2. The critical fix: visamasters.uz requires the session to be populated
+            // with the visa check result BEFORE it allows downloading the PDF.
+            // If we just hit the PDF url with a fresh session, it returns HTTP 500.
+            const boundary = '----FormBoundary' + Math.random().toString(36).substr(2, 16);
+            const formFields = { '_csrf-frontend': csrf.token, passport: passportParam, full_name: fullNameParam, date_of_birth: birthParam };
+            const multipartBody = buildMultipartBody(formFields, boundary);
+            
+            const postHeaders = {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                'Content-Length': Buffer.byteLength(multipartBody),
+                'X-CSRF-Token': csrf.token, 'X-PJAX': 'true',
+                'X-PJAX-Container': '#visa-result', 'X-Requested-With': 'XMLHttpRequest',
+                'Referer': 'https://visamasters.uz/visa-status',
+                'Origin': 'https://visamasters.uz', 'Cookie': csrf.cookies,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            };
+            
+            console.log(`[PDF] Pre-populating session for ${passportParam}...`);
+            const checkRes = await httpsPost('/site/check-visa', postHeaders, multipartBody);
+            
+            // Extract the session cookies that now contain the authorized visa record
+            let downloadCookies = csrf.cookies;
+            const newCookies = checkRes.headers['set-cookie'];
+            if (newCookies && newCookies.length > 0) {
+                downloadCookies = newCookies.map(c => c.split(';')[0]).join('; ');
+            }
 
+            console.log(`[PDF] Fetching PDF: ${pdfUrlParam}`);
+
+            // 3. Guarantee we download the exact PDF requested using the populated session cookies
             const options = {
                 hostname: parsedTarget.hostname,
                 port: 443,
@@ -658,7 +688,7 @@ const server = http.createServer(async (req, res) => {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'application/pdf,*/*;q=0.8',
                     'Referer': 'https://visamasters.uz/visa-status',
-                    'Cookie': csrf.cookies,
+                    'Cookie': downloadCookies,
                 }
             };
 

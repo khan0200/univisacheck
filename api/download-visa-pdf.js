@@ -57,6 +57,17 @@ async function getCSRF() {
     return csrfCache;
 }
 
+function buildMultipartBody(fields, boundary) {
+    let body = '';
+    for (const [name, value] of Object.entries(fields)) {
+        body += `--${boundary}\r\n`;
+        body += `Content-Disposition: form-data; name="${name}"\r\n\r\n`;
+        body += `${value}\r\n`;
+    }
+    body += `--${boundary}--\r\n`;
+    return body;
+}
+
 module.exports = async (req, res) => {
     // CORS
     const origin = req.headers.origin || '*';
@@ -71,9 +82,11 @@ module.exports = async (req, res) => {
     try {
         const pdfUrlParam = (req.query.url || '').trim();
         const passportParam = (req.query.passport || '').trim().toUpperCase();
+        const fullNameParam = (req.query.full_name || '').trim().toUpperCase();
+        const birthParam = (req.query.birth_date || '').trim();
 
-        if (!pdfUrlParam) {
-            res.status(400).json({ error: 'Missing url parameter. Refresh the student status first so a PDF link can be found.' });
+        if (!pdfUrlParam || !passportParam || !fullNameParam || !birthParam) {
+            res.status(400).json({ error: 'Missing required parameters (url, passport, full_name, birth_date). Refresh the student status first.' });
             return;
         }
 
@@ -96,7 +109,34 @@ module.exports = async (req, res) => {
             csrf = await getCSRF();
         }
 
-        console.log(`[Vercel PDF] Fetching: ${pdfUrlParam}`);
+        const boundary = '----VercelBoundary' + Math.random().toString(36).substr(2, 16);
+        const formFields = { '_csrf-frontend': csrf.token, passport: passportParam, full_name: fullNameParam, date_of_birth: birthParam };
+        const multipartBody = buildMultipartBody(formFields, boundary);
+
+        const postOptions = {
+            hostname: API_HOST, port: 443, path: '/site/check-visa', method: 'POST',
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                'Content-Length': Buffer.byteLength(multipartBody),
+                'X-CSRF-Token': csrf.token, 'X-PJAX': 'true',
+                'X-PJAX-Container': '#visa-result', 'X-Requested-With': 'XMLHttpRequest',
+                'Referer': 'https://visamasters.uz/visa-status',
+                'Origin': 'https://visamasters.uz', 'Cookie': csrf.cookies,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            }
+        };
+
+        console.log(`[Vercel PDF] Pre-populating session for ${passportParam}...`);
+        const checkRes = await httpsRequest(postOptions, multipartBody);
+
+        let downloadCookies = csrf.cookies;
+        const newCookies = checkRes.headers['set-cookie'];
+        if (newCookies && newCookies.length > 0) {
+            downloadCookies = newCookies.map(c => c.split(';')[0]).join('; ');
+        }
+
+        console.log(`[Vercel PDF] Fetching PDF: ${pdfUrlParam}`);
 
         const options = {
             hostname: parsedTarget.hostname,
@@ -107,7 +147,7 @@ module.exports = async (req, res) => {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': 'application/pdf,*/*;q=0.8',
                 'Referer': 'https://visamasters.uz/visa-status',
-                'Cookie': csrf.cookies,
+                'Cookie': downloadCookies,
             }
         };
 
