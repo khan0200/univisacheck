@@ -25,7 +25,23 @@
         <div class="blob blob-3"></div>
     </div>
 
-    <div class="container-fluid main-wrapper p-4">
+    
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-overlay d-flex align-items-center justify-content-center">
+        <div class="glass-panel p-5 text-center" style="max-width: 400px; width: 90%; z-index: 1050; animation: slideUp 0.5s ease-out;">
+            <div class="mb-4">
+                <i class="bi bi-shield-lock text-primary" style="font-size: 3rem;"></i>
+            </div>
+            <h3 class="mb-4 fw-bold">Login Required</h3>
+            <div class="mb-4">
+                <input type="password" id="loginPassword" class="form-control form-control-glass text-center fs-5 py-2" placeholder="Enter Password" autocomplete="current-password">
+                <div id="loginError" class="text-danger small mt-2 fw-medium" style="display: none;">Incorrect password</div>
+            </div>
+            <button id="loginBtn" class="btn btn-primary w-100 fs-5 py-2">Login</button>
+        </div>
+    </div>
+
+    <div id="mainAppWrapper" class="container-fluid main-wrapper p-4" style="display: none;">
 
         <!-- Main Content -->
         <div class="row g-3">

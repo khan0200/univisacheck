@@ -55,6 +55,49 @@ let bootstrapModal = null; // Will be initialized on load
 
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Authentication Logic ---
+    const loginScreen = document.getElementById('loginScreen');
+    const mainAppWrapper = document.getElementById('mainAppWrapper');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    const checkAuth = () => {
+        if (sessionStorage.getItem('authenticated') === '1198') {
+            if (loginScreen) loginScreen.classList.add('d-none');
+            if (mainAppWrapper) mainAppWrapper.style.display = 'block';
+            return true;
+        }
+        return false;
+    };
+
+    if (!checkAuth()) {
+        const attemptLogin = () => {
+            if (loginPassword.value === '1198') {
+                sessionStorage.setItem('authenticated', '1198');
+                loginError.classList.add('d-none');
+                loginScreen.classList.add('d-none');
+                mainAppWrapper.style.display = 'block';
+            } else {
+                loginError.classList.remove('d-none');
+                loginPassword.value = '';
+                loginPassword.focus();
+            }
+        };
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', attemptLogin);
+        }
+        if (loginPassword) {
+            loginPassword.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') attemptLogin();
+            });
+            loginPassword.focus();
+        }
+    }
+    // --- End Authentication ---
+
     // Cache DOM elements
     cachedDOM.tableBody = document.getElementById('studentsTableBody');
     cachedDOM.emptyState = document.getElementById('emptyState');
