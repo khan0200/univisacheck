@@ -559,10 +559,9 @@ function renderTable() {
     }
 
     // Create Rows
-    filteredStudents.forEach((student, index) => {
+    filteredStudents.forEach((student) => {
         const tr = document.createElement('tr');
-        // Animation delay from config
-        tr.style.animation = `fadeIn 0.3s ease forwards ${index * (CONFIG.UI.ANIMATION_DELAY_PER_ROW / 1000)}s`;
+        tr.style.animation = `fadeIn 0.15s ease forwards`;
         tr.style.opacity = '0'; // Start invisible for animation
 
         tr.innerHTML = `
