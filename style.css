@@ -1084,6 +1084,14 @@ body {
   box-shadow: var(--shadow-xl);
 }
 
+/* Bootstrap's default modal width is 500px — widened 10% for the Add
+   Student form specifically. */
+@media (min-width: 576px) {
+  #addStudentModal .modal-dialog {
+    max-width: 550px;
+  }
+}
+
 .modal-header {
   padding: 16px 20px;
   border-bottom: 1px solid var(--divider);
