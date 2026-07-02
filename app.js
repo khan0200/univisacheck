@@ -696,7 +696,7 @@ async function handleFormSubmit(e) {
 
     // Show Loading
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> <span id="submitBtnText">Saving...</span>`;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span id="submitBtnText">Saving...</span>`;
 
     const studentData = {
         fullName,
@@ -869,7 +869,7 @@ async function handleBatchCheck() {
     const button = cachedDOM.checkSelectedBtn;
     const originalHtml = button.innerHTML;
     button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>Checking...</span>';
+    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span>Checking...</span>';
 
     try {
         const concurrency = Math.max(1, Number(CONFIG.API.BATCH_CHECK_CONCURRENCY || 3));
