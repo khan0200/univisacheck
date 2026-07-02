@@ -1366,25 +1366,54 @@ function formatTimestampMultiline(timestamp) {
             </div>`;
 }
 
-// Compact timestamp for mobile-friendly display
+// Compact timestamp for mobile-friendly display with detailed relative time
 function formatTimestampCompact(timestamp) {
     if (!timestamp) return 'Never';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const now = new Date();
     const diffMs = now - date;
+
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    // Show relative time for recent checks
-    if (diffHours < 1) return 'Just now';
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffMinutes < 1) {
+        return 'Just now';
+    }
 
-    // Show date for older
-    return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-    });
+    if (diffDays >= 7) {
+        // Show date for older checks
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    if (diffDays > 0) {
+        const remainingHours = diffHours % 24;
+        const remainingMinutes = diffMinutes % 60;
+        const dayLabel = diffDays === 1 ? 'day' : 'days';
+        
+        let label = `${diffDays} ${dayLabel}`;
+        if (remainingHours > 0) {
+            label += ` ${remainingHours} h.`;
+        }
+        if (remainingMinutes > 0) {
+            label += ` ${remainingMinutes} min.`;
+        }
+        return label + ' ago';
+    }
+
+    if (diffHours > 0) {
+        const remainingMinutes = diffMinutes % 60;
+        let label = `${diffHours} h.`;
+        if (remainingMinutes > 0) {
+            label += ` ${remainingMinutes} min.`;
+        }
+        return label + ' ago';
+    }
+
+    return `${diffMinutes} min. ago`;
 }
 
 function initDarkMode() {
