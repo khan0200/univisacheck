@@ -857,7 +857,11 @@ function updateCheckSelectedButton() {
     ).length;
     const shouldShow = currentFilter === 'application' && count > 0;
     cachedDOM.checkSelectedBtn.classList.toggle('d-none', !shouldShow);
-    cachedDOM.checkSelectedBtn.querySelector('span').textContent = count > 0 ? `Check Students (${count})` : 'Check Students';
+    
+    const btnText = cachedDOM.checkSelectedBtn.querySelector('.btn-text');
+    if (btnText) {
+        btnText.textContent = count > 0 ? `Check Students (${count})` : 'Check Students';
+    }
 }
 
 async function handleBatchCheck() {
@@ -867,9 +871,22 @@ async function handleBatchCheck() {
     if (studentsToCheck.length === 0) return;
 
     const button = cachedDOM.checkSelectedBtn;
-    const originalHtml = button.innerHTML;
+    const icon = button.querySelector('i');
+    const textSpan = button.querySelector('.btn-text');
+    
+    // Save original layout
+    const originalText = textSpan ? textSpan.textContent : 'Check Students';
+    const originalIconClasses = icon ? icon.className : 'bi bi-arrow-repeat';
+
     button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span>Checking...</span>';
+    
+    // Set loading state by converting icon to spinner and changing text
+    if (icon) {
+        icon.className = 'spinner-border spinner-border-sm';
+    }
+    if (textSpan) {
+        textSpan.textContent = 'Checking...';
+    }
 
     try {
         const concurrency = Math.max(1, Number(CONFIG.API.BATCH_CHECK_CONCURRENCY || 3));
@@ -896,7 +913,15 @@ async function handleBatchCheck() {
         showError('Batch check failed. Please try again.');
     } finally {
         button.disabled = false;
-        button.innerHTML = originalHtml;
+        // Restore original layout
+        if (icon) {
+            icon.className = originalIconClasses;
+        }
+        if (textSpan) {
+            textSpan.textContent = originalText;
+        }
+        // Force refresh count
+        updateCheckSelectedButton();
     }
 }
 
