@@ -53,7 +53,7 @@ const CONFIG = {
   UI: {
     TOAST_DURATION_MS: 5000, // Toast notification duration
     SEARCH_DEBOUNCE_MS: 300, // Debounce search input
-    ANIMATION_DELAY_PER_ROW: 50, // Stagger row animations (ms)
+    ANIMATION_DELAY_PER_ROW: 10, // Stagger row animations (ms)
   },
 
   // Validation Rules

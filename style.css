@@ -311,6 +311,11 @@ body {
   background: var(--primary-light);
 }
 
+/* Prevent layout shift vertical scrollbar flicker during table renders */
+.table-responsive {
+  overflow-y: hidden !important;
+}
+
 /* Compact Table */
 .custom-table {
   font-size: 14px;
