@@ -14,5 +14,9 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3"
+  }
 }

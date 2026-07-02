@@ -1,32 +1,34 @@
-import {
-    initializeApp
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-    getFirestore,
-    collection,
-    doc,
-    setDoc,
-    deleteDoc,
-    onSnapshot,
-    serverTimestamp,
-    updateDoc
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import CONFIG from "./config.js";
+const STUDENTS_URL = CONFIG.API.STUDENTS_URL;
+const AUTH_URL = CONFIG.API.AUTH_URL;
 
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyBPF5_HYIGuqDNZQQ1V1rGsow3IDkQpO6s",
-    authDomain: "omadbek-ef47a.firebaseapp.com",
-    projectId: "omadbek-ef47a",
-    storageBucket: "omadbek-ef47a.firebasestorage.app",
-    messagingSenderId: "355866151538",
-    appId: "1:355866151538:web:4bb0cc8251bdf8c15c50eb"
+// ── Auth Token (set on login, used for all API requests) ──────────────────
+let authToken = localStorage.getItem('authToken') || '';
+
+/**
+ * Fetch wrapper that automatically injects the Bearer token.
+ * @param {string} url
+ * @param {RequestInit} [options]
+ */
+async function authFetch(url, options = {}) {
+    options.headers = options.headers || {};
+    if (authToken) options.headers['Authorization'] = `Bearer ${authToken}`;
+    const res = await fetch(url, options);
+    if (res.status === 401) {
+        // Token expired / invalid — force re-login
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        window.location.replace('auth.html');
+    }
+    return res;
+}
+
+/** Signs the user out and redirects to the login page. */
+window.handleLogout = function() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    window.location.replace('auth.html');
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const STUDENTS_COLLECTION = CONFIG.FIRESTORE.STUDENTS_COLLECTION;
 
 // State
 let studentsData = [];
@@ -56,47 +58,25 @@ let bootstrapModal = null; // Will be initialized on load
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Authentication Logic ---
-    const loginScreen = document.getElementById('loginScreen');
-    const mainAppWrapper = document.getElementById('mainAppWrapper');
-    const loginPassword = document.getElementById('loginPassword');
-    const loginBtn = document.getElementById('loginBtn');
-    const loginError = document.getElementById('loginError');
-
-    const checkAuth = () => {
-        if (sessionStorage.getItem('authenticated') === '1198') {
-            if (loginScreen) loginScreen.classList.add('d-none');
-            if (mainAppWrapper) mainAppWrapper.style.display = 'block';
-            return true;
-        }
-        return false;
-    };
-
-    if (!checkAuth()) {
-        const attemptLogin = () => {
-            if (loginPassword.value === '1198') {
-                sessionStorage.setItem('authenticated', '1198');
-                loginError.classList.add('d-none');
-                loginScreen.classList.add('d-none');
-                mainAppWrapper.style.display = 'block';
-            } else {
-                loginError.classList.remove('d-none');
-                loginPassword.value = '';
-                loginPassword.focus();
-            }
-        };
-
-        if (loginBtn) {
-            loginBtn.addEventListener('click', attemptLogin);
-        }
-        if (loginPassword) {
-            loginPassword.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') attemptLogin();
-            });
-            loginPassword.focus();
-        }
+    // ── JWT Authentication ────────────────────────────────────────────────
+    if (!authToken) {
+        // No token — redirect to login page immediately
+        window.location.replace('auth.html');
+        return;
     }
-    // --- End Authentication ---
+
+    // Show user badge
+    try {
+        const userRaw = localStorage.getItem('authUser');
+        const user = userRaw ? JSON.parse(userRaw) : null;
+        if (user) {
+            const avatar = document.getElementById('userAvatar');
+            const nameEl = document.getElementById('userName');
+            if (avatar) avatar.textContent = (user.username || user.email || 'U').charAt(0).toUpperCase();
+            if (nameEl) nameEl.textContent = user.username || user.email || 'Account';
+        }
+    } catch (_) {}
+    // ── End Auth ──────────────────────────────────────────────────────────
 
     // Cache DOM elements
     cachedDOM.tableBody = document.getElementById('studentsTableBody');
@@ -115,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup Listeners
     setupEventListeners();
 
-    // Setup Realtime Data Sync
-    setupRealtimeListener();
+    // Setup Data Load
+    loadStudents();
 
     // Init Dark Mode
     initDarkMode();
@@ -221,59 +201,157 @@ function setupEventListeners() {
             e.target.value = value;
         });
     }
+
+    // ── Profile Settings Modal Init & Forms ───────────────────────────────
+    const profileModalElement = document.getElementById('profileModal');
+    if (profileModalElement) {
+        profileModalElement.addEventListener('show.bs.modal', () => {
+            // Fill current username
+            try {
+                const user = JSON.parse(localStorage.getItem('authUser') || '{}');
+                const usernameInput = document.getElementById('profileUsername');
+                if (usernameInput && user.username) {
+                    usernameInput.value = user.username;
+                }
+            } catch (_) {}
+            // Reset fields & alerts
+            document.getElementById('profilePasswordForm')?.reset();
+            document.getElementById('profileModalError')?.classList.add('d-none');
+            document.getElementById('profileModalSuccess')?.classList.add('d-none');
+        });
+    }
+
+    // General Profile Settings (Consulting Name) Submit
+    const generalForm = document.getElementById('profileGeneralForm');
+    if (generalForm) {
+        generalForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usernameInput = document.getElementById('profileUsername');
+            const submitBtn = document.getElementById('saveGeneralBtn');
+            if (!usernameInput || !submitBtn) return;
+
+            const username = usernameInput.value.trim();
+            if (username.length < 2) {
+                showProfileAlert('error', 'Consulting name must be at least 2 characters.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+            showProfileAlert('error', ''); // Clear previous alerts
+
+            try {
+                const response = await authFetch(`${AUTH_URL}?action=update-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to update consulting name.');
+                }
+
+                // Update tokens
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('authUser', JSON.stringify(data.user));
+
+                // Refresh UI badge immediately
+                const avatar = document.getElementById('userAvatar');
+                const nameEl = document.getElementById('userName');
+                if (avatar) avatar.textContent = username.charAt(0).toUpperCase();
+                if (nameEl) nameEl.textContent = username;
+
+                showProfileAlert('success', 'Consulting name updated successfully!');
+            } catch (err) {
+                showProfileAlert('error', err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+            }
+        });
+    }
+
+    // Password Settings Form Submit
+    const passwordForm = document.getElementById('profilePasswordForm');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPwInput = document.getElementById('profileNewPw');
+            const confirmPwInput = document.getElementById('profileConfirmPw');
+            const submitBtn = document.getElementById('changePasswordBtn');
+            if (!newPwInput || !confirmPwInput || !submitBtn) return;
+
+            const newPassword = newPwInput.value;
+            const confirmPassword = confirmPwInput.value;
+
+            if (newPassword.length < 6) {
+                showProfileAlert('error', 'New password must be at least 6 characters.');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showProfileAlert('error', 'New passwords do not match.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Changing...';
+            showProfileAlert('error', '');
+
+            try {
+                const response = await authFetch(`${AUTH_URL}?action=change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPassword, confirmPassword })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to change password.');
+                }
+
+                passwordForm.reset();
+                showProfileAlert('success', 'Password updated successfully!');
+            } catch (err) {
+                showProfileAlert('error', err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Change Password';
+            }
+        });
+    }
 }
 
-function setupRealtimeListener() {
-    onSnapshot(collection(db, STUDENTS_COLLECTION), (snapshot) => {
-        // Check if this is the initial load or an update
-        const isInitialLoad = studentsData.length === 0;
+// Helper to render success/error alerts in Profile Modal
+function showProfileAlert(type, message) {
+    const errorEl = document.getElementById('profileModalError');
+    const successEl = document.getElementById('profileModalSuccess');
+    if (!errorEl || !successEl) return;
 
-        if (isInitialLoad) {
-            // Initial load - rebuild entire array
-            studentsData = [];
-            snapshot.forEach((doc) => {
-                studentsData.push({
-                    ...doc.data()
-                });
-            });
-            renderTable();
-        } else {
-            // Incremental update - only update changed documents
-            let hasChanges = false;
+    errorEl.classList.add('d-none');
+    successEl.classList.add('d-none');
 
-            snapshot.docChanges().forEach((change) => {
-                const docData = change.doc.data();
-                const passport = docData.passport;
-
-                if (change.type === 'added') {
-                    // New student added
-                    studentsData.push(docData);
-                    hasChanges = true;
-                } else if (change.type === 'modified') {
-                    // Student data updated - find and update in array
-                    const index = studentsData.findIndex(s => s.passport === passport);
-                    if (index !== -1) {
-                        studentsData[index] = docData;
-                        // Update only this specific row in the DOM
-                        updateSingleRow(docData);
-                    }
-                } else if (change.type === 'removed') {
-                    // Student deleted
-                    const index = studentsData.findIndex(s => s.passport === passport);
-                    if (index !== -1) {
-                        studentsData.splice(index, 1);
-                        hasChanges = true;
-                    }
-                }
-            });
-
-            // Only re-render entire table if students were added or removed
-            // Modified students are updated individually via updateSingleRow
-            if (hasChanges) {
-                renderTable();
-            }
+    if (type === 'error') {
+        if (message) {
+            errorEl.textContent = message;
+            errorEl.classList.remove('d-none');
         }
-    });
+    } else {
+        if (message) {
+            successEl.textContent = message;
+            successEl.classList.remove('d-none');
+        }
+    }
+}
+
+async function loadStudents() {
+    try {
+        const response = await authFetch(STUDENTS_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        studentsData = await response.json();
+        renderTable();
+    } catch (error) {
+        debug('Failed to load students:', error);
+        showError('Failed to load students. Make sure the proxy server is running.');
+    }
 }
 
 // Update a single row in the DOM without re-rendering entire table
@@ -626,7 +704,7 @@ async function handleFormSubmit(e) {
         passport,
         birthday,
         studentId,
-        lastChecked: serverTimestamp()
+        lastChecked: new Date().toISOString()
     };
 
     if (!isEdit) {
@@ -635,9 +713,18 @@ async function handleFormSubmit(e) {
     }
 
     try {
-        await setDoc(doc(db, STUDENTS_COLLECTION, passport), studentData, {
-            merge: true
+        const response = await authFetch(STUDENTS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(studentData)
         });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        // Reload data
+        await loadStudents();
 
         // Stop Animation & Reset Button immediately
         submitBtn.disabled = false;
@@ -665,7 +752,16 @@ async function handleAction(action, passport, btnElement) {
 
     if (action === 'delete') {
         if (confirm(`Are you sure you want to delete ${student.fullName}?`)) {
-            await deleteDoc(doc(db, STUDENTS_COLLECTION, passport));
+            try {
+                const response = await authFetch(`${STUDENTS_URL}?passport=${encodeURIComponent(passport)}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                await loadStudents();
+            } catch (err) {
+                debug('Failed to delete student:', err);
+                showError('Failed to delete student.');
+            }
         }
     } else if (action === 'edit') {
         document.getElementById('editMode').value = "true";
@@ -733,10 +829,16 @@ async function handleAction(action, passport, btnElement) {
         }
 
         try {
-            await updateDoc(doc(db, STUDENTS_COLLECTION, passport), {
-                batchSelected: enabled,
-                batchSelectedUpdatedAt: serverTimestamp()
+            const response = await authFetch(STUDENTS_URL, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    passport,
+                    batchSelected: enabled,
+                    batchSelectedUpdatedAt: true
+                })
             });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             updateCheckSelectedButton();
         } catch (error) {
             debug('Failed to update batch selection:', error);
@@ -1030,32 +1132,19 @@ async function checkVisaStatus(student) {
             await sendTelegramNotification(student, oldStatus, newStatus, applicationDate);
         }
 
-        // Update Firestore
-        const docRef = doc(db, STUDENTS_COLLECTION, student.passport);
-        const updatePayload = {
-            status: newStatus,
-            lastChecked: serverTimestamp(),
-            apiResponse: { status: newStatus, detail: data.detail || '' }
-        };
+        // Update local object
+        student.status = newStatus;
+        student.lastChecked = new Date().toISOString(); // Local approximate lastChecked
+        student.applicationDate = applicationDate;
+        student.pdfUrl = pdfUrl;
+        student.rejectReason = rejectionReason;
+        
+        // Construct the apiResponse field for UI reason parsing
+        student.apiResponse = { status: newStatus, detail: data.detail || '' };
 
-        if (applicationDate) {
-            updatePayload.applicationDate = applicationDate;
-        }
+        // Update DOM row
+        updateSingleRow(student);
 
-        // Save PDF URL so the download button can use the exact link
-        if (pdfUrl) {
-            updatePayload.pdfUrl = pdfUrl;
-        }
-
-        // Save rejection reason so getRejectionReasonHtml() / getInlineRejectionReasonHtml() can display it
-        if (rejectionReason) {
-            updatePayload.rejectReason = rejectionReason;
-        } else if (newStatus !== 'CANCELLED') {
-            // Clear old rejection reason if status is no longer cancelled
-            updatePayload.rejectReason = '';
-        }
-
-        await updateDoc(docRef, updatePayload);
         return newStatus;
 
     } catch (error) {
@@ -1322,3 +1411,18 @@ function toggleDarkMode() {
         icon.classList.add('bi-sun');
     }
 }
+
+// Global helper to toggle password input visibility in Profile Settings Modal
+window.toggleProfilePw = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (!input || !icon) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+};

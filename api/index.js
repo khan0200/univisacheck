@@ -3,6 +3,7 @@
 // Returns JSON: { status, detail, applicationDate, rejectionReason }
 
 const https = require('https');
+const db = require('./db');
 
 const API_HOST = 'visamasters.uz';
 
@@ -315,6 +316,35 @@ module.exports = async (req, res) => {
         }
 
         const parsed = parseVisaStatusHtml(apiRes.body);
+
+        try {
+            // Update Turso database with the fresh check results
+            const lastChecked = new Date().toISOString();
+            await db.execute({
+                sql: `
+                    UPDATE students 
+                    SET status = ?, 
+                        applicationDate = ?, 
+                        rejectReason = ?, 
+                        pdfUrl = ?, 
+                        apiResponse = ?, 
+                        lastChecked = ?
+                    WHERE passport = ?
+                `,
+                args: [
+                    parsed.status || 'Pending',
+                    parsed.applicationDate || '',
+                    parsed.rejectionReason || '',
+                    parsed.pdfUrl || '',
+                    JSON.stringify({ status: parsed.status, detail: parsed.detail }),
+                    lastChecked,
+                    passport
+                ]
+            });
+        } catch (dbErr) {
+            console.error('[Vercel DB Update] Error updating student visa status:', dbErr.message);
+        }
+
         res.status(200).json(parsed);
 
     } catch (err) {

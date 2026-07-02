@@ -1,6 +1,8 @@
 const http = require('http');
 const https = require('https');
 const path = require('path');
+const db = require('./api/db');
+const authHandler = require('./api/auth');
 
 const PORT = 3000;
 const API_HOST = 'visamasters.uz';
@@ -376,7 +378,35 @@ function parseVisaStatusHtml(html) {
     return { status, detail, applicationDate, rejectionReason, pdfUrl, rawHtml: html };
 }
 
-
+async function updateStudentDb(passport, parsed) {
+    try {
+        const lastChecked = new Date().toISOString();
+        await db.execute({
+            sql: `
+                UPDATE students 
+                SET status = ?, 
+                    applicationDate = ?, 
+                    rejectReason = ?, 
+                    pdfUrl = ?, 
+                    apiResponse = ?, 
+                    lastChecked = ?
+                WHERE passport = ?
+            `,
+            args: [
+                parsed.status || 'Pending',
+                parsed.applicationDate || '',
+                parsed.rejectionReason || '',
+                parsed.pdfUrl || '',
+                JSON.stringify({ status: parsed.status, detail: parsed.detail }),
+                lastChecked,
+                passport
+            ]
+        });
+        console.log(`[Proxy DB Update] Saved status for ${passport} to Turso`);
+    } catch (dbErr) {
+        console.error(`[Proxy DB Update] Failed to update Turso for ${passport}:`, dbErr.message);
+    }
+}
 
 const server = http.createServer(async (req, res) => {
     const origin = req.headers.origin || req.headers.referer || 'file://';
@@ -391,8 +421,8 @@ const server = http.createServer(async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
     }
 
-    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
@@ -476,6 +506,7 @@ const server = http.createServer(async (req, res) => {
 
                     const parsed = parseVisaStatusHtml(retryRes.body);
                     console.log(`[Proxy] Retry result for ${passport}: ${parsed.status}`);
+                    await updateStudentDb(passport, parsed);
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(parsed));
                     return;
@@ -490,6 +521,7 @@ const server = http.createServer(async (req, res) => {
 
                 const parsed = parseVisaStatusHtml(apiRes.body);
                 console.log(`[Proxy] Result for ${passport}: ${parsed.status} | ${parsed.detail}`);
+                await updateStudentDb(passport, parsed);
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(parsed));
@@ -608,6 +640,52 @@ const server = http.createServer(async (req, res) => {
                 res.writeHead(500); res.end(JSON.stringify({ error: err.message }));
             }
         });
+
+    } else if (req.url.startsWith('/api/auth')) {
+        // ── Auth route (signup / login / me) ─────────────────────────────────
+        const urlParsed = new URL(req.url, `http://localhost:${PORT}`);
+        req.query = Object.fromEntries(urlParsed.searchParams.entries());
+
+        res.status = (statusCode) => { res.statusCode = statusCode; return res; };
+        res.json = (data) => { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(data)); };
+
+        if (req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+                try { req.body = JSON.parse(body || '{}'); } catch { req.body = {}; }
+                authHandler(req, res);
+            });
+        } else {
+            authHandler(req, res);
+        }
+
+    } else if (req.url.startsWith('/api/students')) {
+        // ── Students CRUD route ───────────────────────────────────────────────
+        const urlParsed = new URL(req.url, `http://localhost:${PORT}`);
+        req.query = Object.fromEntries(urlParsed.searchParams.entries());
+
+        res.status = (statusCode) => {
+            res.statusCode = statusCode;
+            return res;
+        };
+        res.json = (data) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(data));
+        };
+
+        if (req.method === 'POST' || req.method === 'PATCH') {
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+                try { req.body = JSON.parse(body || '{}'); } catch { req.body = body; }
+                const studentsHandler = require('./api/students');
+                studentsHandler(req, res);
+            });
+        } else {
+            const studentsHandler = require('./api/students');
+            studentsHandler(req, res);
+        }
 
     } else if (req.url.startsWith('/download-visa-pdf') && req.method === 'GET') {
         // ── Download Visa PDF ─────────────────────────────────────────────────

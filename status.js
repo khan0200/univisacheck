@@ -1,18 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import CONFIG from "./config.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyBPF5_HYIGuqDNZQQ1V1rGsow3IDkQpO6s",
-    authDomain: "omadbek-ef47a.firebaseapp.com",
-    projectId: "omadbek-ef47a",
-    storageBucket: "omadbek-ef47a.firebasestorage.app",
-    messagingSenderId: "355866151538",
-    appId: "1:355866151538:web:4bb0cc8251bdf8c15c50eb"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 // DOM Elements
 const form = document.getElementById('checkForm');
@@ -49,19 +35,18 @@ form.addEventListener('submit', async (e) => {
     downloadError.classList.add('d-none');
 
     try {
-        const q = query(
-            collection(db, CONFIG.FIRESTORE.STUDENTS_COLLECTION),
-            where("passport", "==", passport)
-        );
-        const querySnapshot = await getDocs(q);
+        const response = await fetch(`${CONFIG.API.STUDENTS_URL}?passport=${encodeURIComponent(passport)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP Error ${response.status}`);
+        }
+        const querySnapshot = await response.json();
 
-        if (querySnapshot.empty) {
+        if (!querySnapshot || querySnapshot.length === 0) {
             showError("Ushbu pasport raqami bazadan topilmadi.");
             return;
         }
 
-        const studentDoc = querySnapshot.docs[0];
-        const student = studentDoc.data();
+        const student = querySnapshot[0];
         
         // ── Real-time Check Logic ──
         // Instead of just relying on the database value, we perform a real-time fetch
@@ -101,16 +86,7 @@ form.addEventListener('submit', async (e) => {
             sendTelegramNotification(student, oldStatus, newStatus, freshData.applicationDate);
         }
 
-        // Update Firestore with the fresh data (so admin also sees it)
-        const updatePayload = {
-            status: newStatus,
-            applicationDate: freshData.applicationDate || '',
-            rejectionReason: freshData.rejectionReason || '',
-            pdfUrl: freshData.pdfUrl || '',
-            apiResponse: freshData, // Store raw response for debugging reasons
-            lastChecked: serverTimestamp()
-        };
-        await updateDoc(doc(db, CONFIG.FIRESTORE.STUDENTS_COLLECTION, passport), updatePayload);
+        // Update locally (No longer needed client-side: the check-status backend now updates the database directly)
 
         // Map fresh status for UI
         let displayStatus = freshData.status || 'Pending';

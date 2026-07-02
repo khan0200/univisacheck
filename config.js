@@ -22,6 +22,22 @@ const CONFIG = {
         window.location.protocol === "file:"
       ) ? "http://localhost:3000/notify-telegram"   // local proxy handles it
         : "/api/notify-telegram",                   // Vercel serverless function
+    
+    STUDENTS_URL: (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname === "" ||
+        window.location.protocol === "file:"
+      ) ? "http://localhost:3000/api/students"      // local proxy handles it
+        : "/api/students",                          // Vercel serverless function
+
+    AUTH_URL: (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname === "" ||
+        window.location.protocol === "file:"
+      ) ? "http://localhost:3000/api/auth"          // local proxy handles it
+        : "/api/auth",                              // Vercel serverless function
 
     // Polling settings for visa status checks
     POLL_INTERVAL_MS: 2000, // Wait 2 seconds between polls
@@ -32,11 +48,6 @@ const CONFIG = {
 
   // Development/Debug Settings
   DEBUG_MODE: true, // Set to false in production to disable console logs
-
-  // Firebase Collection Name
-  FIRESTORE: {
-    STUDENTS_COLLECTION: "unibridge",
-  },
 
   // UI Settings
   UI: {

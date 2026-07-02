@@ -26,23 +26,10 @@
         <div class="blob blob-3"></div>
     </div>
 
-    
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-overlay d-flex align-items-center justify-content-center">
-        <div class="glass-panel p-5 text-center" style="max-width: 400px; width: 90%; z-index: 1050; animation: slideUp 0.5s ease-out;">
-            <div class="mb-4">
-                <i class="bi bi-shield-lock text-primary" style="font-size: 3rem;"></i>
-            </div>
-            <h3 class="mb-4 fw-bold">Login Required</h3>
-            <div class="mb-4">
-                <input type="password" id="loginPassword" class="form-control form-control-glass text-center fs-5 py-2" placeholder="Enter Password" autocomplete="current-password">
-                <div id="loginError" class="text-danger small mt-2 fw-medium" style="display: none;">Incorrect password</div>
-            </div>
-            <button id="loginBtn" class="btn btn-primary w-100 fs-5 py-2">Login</button>
-        </div>
-    </div>
 
-    <div id="mainAppWrapper" class="container-fluid main-wrapper p-4" style="display: none;">
+
+    <div id="mainAppWrapper" class="container-fluid main-wrapper p-4">
+
 
         <!-- Main Content -->
         <div class="row g-3">
@@ -74,6 +61,20 @@
                             <button type="button" class="nav-link" data-tab="approved">Approved</button>
                         </div>
                         <span class="text-secondary small fw-medium text-nowrap ms-2" id="studentCount">0</span>
+                    </div>
+
+                    <!-- User Badge + Dark Mode + Logout -->
+                    <div class="d-flex align-items-center gap-2 ms-2">
+                        <div class="user-badge d-flex align-items-center gap-2 px-3 py-1" id="userBadge" title="Profile Settings" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#profileModal">
+                            <div class="user-avatar" id="userAvatar">A</div>
+                            <span class="user-name d-none d-md-inline" id="userName">Account</span>
+                        </div>
+                        <button id="darkModeToggle" class="btn-header-icon" title="Toggle dark mode" aria-label="Toggle dark mode">
+                            <i class="bi bi-moon-stars-fill"></i>
+                        </button>
+                        <button id="logoutBtn" class="btn-header-icon btn-header-icon-danger" title="Sign out" aria-label="Sign out" onclick="handleLogout()">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -199,6 +200,78 @@
                                 <small class="text-secondary d-block mb-1">Last Checked</small>
                                 <p class="mb-0 fw-medium" id="detailsLastChecked">--</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Settings Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-2">
+                    <h5 class="modal-title fw-bold">Profile Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-pills nav-glass mb-4" id="profileModalTabs" role="tablist">
+                        <li class="nav-item flex-grow-1 text-center" role="presentation">
+                            <button class="nav-link w-100 active" id="profile-general-tab" data-bs-toggle="pill" data-bs-target="#profile-general" type="button" role="tab" aria-selected="true">General</button>
+                        </li>
+                        <li class="nav-item flex-grow-1 text-center" role="presentation">
+                            <button class="nav-link w-100" id="profile-security-tab" data-bs-toggle="pill" data-bs-target="#profile-security" type="button" role="tab" aria-selected="false">Security</button>
+                        </li>
+                    </ul>
+
+                    <!-- Alerts inside Modal -->
+                    <div class="alert alert-danger d-none" id="profileModalError" role="alert"></div>
+                    <div class="alert alert-success d-none" id="profileModalSuccess" role="alert"></div>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="profileModalTabContent">
+                        <!-- General Settings Panel -->
+                        <div class="tab-pane fade show active" id="profile-general" role="tabpanel" aria-labelledby="profile-general-tab">
+                            <form id="profileGeneralForm">
+                                <div class="mb-3">
+                                    <label for="profileUsername" class="form-label small fw-semibold text-secondary">Consulting Name</label>
+                                    <input type="text" class="form-control form-control-glass rounded-3" id="profileUsername" required placeholder="Enter consulting name">
+                                </div>
+                                <div class="d-grid mt-4">
+                                    <button type="submit" class="btn btn-primary rounded-pill py-2" id="saveGeneralBtn">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Security Settings Panel (Password Change) -->
+                        <div class="tab-pane fade" id="profile-security" role="tabpanel" aria-labelledby="profile-security-tab">
+                            <form id="profilePasswordForm">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-secondary" for="profileNewPw">New Password</label>
+                                    <div class="input-wrap">
+                                        <i class="bi bi-lock-fill me-2"></i>
+                                        <input type="password" class="field-input" id="profileNewPw" required placeholder="Minimum 6 characters">
+                                        <button class="pw-toggle" type="button" onclick="toggleProfilePw('profileNewPw', this)" aria-label="Toggle password visibility">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-secondary" for="profileConfirmPw">Confirm New Password</label>
+                                    <div class="input-wrap">
+                                        <i class="bi bi-lock-fill me-2"></i>
+                                        <input type="password" class="field-input" id="profileConfirmPw" required placeholder="••••••••">
+                                        <button class="pw-toggle" type="button" onclick="toggleProfilePw('profileConfirmPw', this)" aria-label="Toggle password visibility">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="d-grid mt-4">
+                                    <button type="submit" class="btn btn-primary rounded-pill py-2" id="changePasswordBtn">Change Password</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

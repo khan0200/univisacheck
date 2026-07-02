@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In — UniVisa Check</title>
+    <meta name="description" content="Log in or create an account to manage your students' visa status tracking." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <style>
+        :root {
+            --primary: #007aff;
+            --primary-dark: #0056d6;
+            --primary-light: rgba(0, 122, 255, 0.12);
+            --bg: #f2f2f7;
+            --card-bg: rgba(255, 255, 255, 0.82);
+            --text: #1c1c1e;
+            --text-sub: #636366;
+            --border: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(120, 120, 128, 0.08);
+            --input-focus: rgba(0, 122, 255, 0.15);
+            --danger: #ff3b30;
+            --success: #34c759;
+            --blob1: rgba(0, 122, 255, 0.18);
+            --blob2: rgba(88, 86, 214, 0.14);
+            --blob3: rgba(52, 199, 89, 0.10);
+        }
+        [data-theme="dark"] {
+            --primary: #0a84ff;
+            --primary-dark: #409cff;
+            --primary-light: rgba(10, 132, 255, 0.18);
+            --bg: #000;
+            --card-bg: rgba(28, 28, 30, 0.88);
+            --text: #f5f5f7;
+            --text-sub: #98989f;
+            --border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.07);
+            --input-focus: rgba(10, 132, 255, 0.2);
+            --blob1: rgba(10, 132, 255, 0.15);
+            --blob2: rgba(94, 92, 230, 0.12);
+            --blob3: rgba(48, 209, 88, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.3s;
+        }
+
+        /* ── Animated background blobs ──────────────────────────────── */
+        .blobs {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: drift 14s ease-in-out infinite alternate;
+        }
+        .blob-1 { width: 600px; height: 600px; background: var(--blob1); top: -150px; left: -100px; animation-delay: 0s; }
+        .blob-2 { width: 500px; height: 500px; background: var(--blob2); bottom: -120px; right: -80px; animation-delay: -4s; animation-duration: 18s; }
+        .blob-3 { width: 350px; height: 350px; background: var(--blob3); top: 40%; left: 40%; animation-delay: -8s; animation-duration: 12s; }
+
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(40px, 30px) scale(1.08); }
+            100% { transform: translate(-30px, 50px) scale(0.95); }
+        }
+
+        /* ── Auth card ───────────────────────────────────────────────── */
+        .auth-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 16px;
+            animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(32px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 32px 32px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        /* ── Logo ────────────────────────────────────────────────────── */
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary) 0%, #5856d6 100%);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.35);
+        }
+        .logo-icon i { font-size: 28px; color: #fff; }
+        .auth-logo h1 { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+        .auth-logo p  { font-size: 13px; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
+
+        /* ── Tab switcher ────────────────────────────────────────────── */
+        .tab-bar {
+            display: flex;
+            background: var(--input-bg);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+            position: relative;
+        }
+        .tab-bar button {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+            transition: color 0.25s;
+        }
+        .tab-bar button.active { color: var(--text); }
+        .tab-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            height: calc(100% - 8px);
+            width: calc(50% - 4px);
+            background: var(--card-bg);
+            border-radius: 9px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .tab-bar[data-tab="signup"] .tab-slider { transform: translateX(calc(100% + 0px)); }
+
+        /* ── Form panels ─────────────────────────────────────────────── */
+        .form-panel { display: none; }
+        .form-panel.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ── Input group ─────────────────────────────────────────────── */
+        .field-group { margin-bottom: 14px; }
+        .field-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .input-wrap {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 0 14px;
+            height: 48px;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+        .input-wrap:focus-within {
+            border-color: var(--primary);
+            background: var(--input-focus);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+        }
+        .input-wrap i.bi {
+            font-size: 16px;
+            color: var(--text-sub);
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .input-wrap:focus-within i.bi {
+            color: var(--primary);
+        }
+        .field-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 10px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            outline: none;
+            width: 100%;
+        }
+        .field-input::placeholder { color: var(--text-sub); opacity: 0.7; }
+
+        /* password toggle */
+        .pw-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-sub);
+            padding: 4px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            font-size: 17px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .pw-toggle:hover { color: var(--primary); }
+
+        /* Hide native browser password reveal, caps lock & clear buttons */
+        input::-ms-reveal,
+        input::-ms-clear,
+        input::-webkit-contacts-auto-fill-button,
+        input::-webkit-credentials-auto-fill-button {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* ── Error / success banners ─────────────────────────────────── */
+        .alert-msg {
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-msg.show { display: flex; animation: fadeIn 0.2s ease; }
+        .alert-msg.error   { background: rgba(255, 59, 48, 0.1);  color: var(--danger); }
+        .alert-msg.success { background: rgba(52, 199, 89, 0.12); color: var(--success); }
+
+        /* ── Submit button ───────────────────────────────────────────── */
+        .btn-auth {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, #5856d6 100%);
+            color: #fff;
+            border: none;
+            border-radius: 13px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.2px;
+        }
+        .btn-auth:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 28px rgba(0, 122, 255, 0.45);
+        }
+        .btn-auth:active:not(:disabled) { transform: translateY(0); }
+        .btn-auth:disabled { opacity: 0.65; cursor: not-allowed; }
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        .btn-auth.loading .spinner { display: block; }
+        .btn-auth.loading .btn-text { opacity: 0.7; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Divider / footer ────────────────────────────────────────── */
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* ── Dark mode toggle ────────────────────────────────────────── */
+        .dark-toggle {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text);
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+        }
+        .dark-toggle:hover { transform: rotate(20deg); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+
+        /* ── Password strength ───────────────────────────────────────── */
+        .pw-strength {
+            margin-top: 8px;
+            display: none;
+        }
+        .pw-strength.show { display: block; }
+        .pw-bars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .pw-bar {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background: var(--border);
+            transition: background 0.3s;
+        }
+        .pw-bar.filled-weak   { background: var(--danger); }
+        .pw-bar.filled-medium { background: #ff9500; }
+        .pw-bar.filled-strong { background: var(--success); }
+        .pw-label { font-size: 11px; font-weight: 600; color: var(--text-sub); }
+
+        @media (max-width: 480px) {
+            .auth-card { padding: 28px 20px 24px; border-radius: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="blobs" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
+<!-- Dark mode toggle -->
+<button class="dark-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+    <i class="bi bi-moon-stars-fill" id="darkIcon"></i>
+</button>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="logo-icon"><i class="bi bi-shield-check"></i></div>
+            <h1>UniVisa Check</h1>
+            <p>Visa status tracking for your students</p>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="tab-bar" id="tabBar" data-tab="login">
+            <div class="tab-slider"></div>
+            <button id="tabLogin" class="active" onclick="switchTab('login')">Sign In</button>
+            <button id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- ── LOGIN PANEL ──────────────────────────────────────────── -->
+        <div class="form-panel active" id="panelLogin">
+            <div class="alert-msg error" id="loginError" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span id="loginErrorText">Invalid email or password.</span>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="loginEmail">Email or Consulting Name</label>
+                <div class="input-wrap">
+                    <i class="bi bi-envelope"></i>
+                    <input type="text" id="loginEmail" class="field-input" placeholder="Enter email or consulting name" autocomplete="username" />
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="loginPassword">Password</label>
+                <div class="input-wrap">
+                    <i class="bi bi-lock"></i>
+                    <input type="password" id="loginPassword" class="field-input has-toggle" placeholder="••••••••" autocomplete="current-password" />
+                    <button class="pw-toggle" type="button" onclick="togglePw('loginPassword', this)" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-auth" id="loginBtn" onclick="handleLogin()">
+                <div class="spinner"></div>
+                <span class="btn-text">Sign In</span>
+            </button>
+        </div>
+
+        <!-- ── SIGNUP PANEL ─────────────────────────────────────────── -->
+        <div class="form-panel" id="panelSignup">
+            <div class="alert-msg error" id="signupError" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span id="signupErrorText">Something went wrong.</span>
+            </div>
+            <div class="alert-msg success" id="signupSuccess" role="status">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Account created! Redirecting…</span>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="signupUsername">Consulting Name</label>
+                <div class="input-wrap">
+                    <i class="bi bi-person"></i>
+                    <input type="text" id="signupUsername" class="field-input" placeholder="Enter consulting name" autocomplete="name" />
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="signupEmail">Email</label>
+                <div class="input-wrap">
+                    <i class="bi bi-envelope"></i>
+                    <input type="email" id="signupEmail" class="field-input" placeholder="you@example.com" autocomplete="email" />
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="signupPassword">Password</label>
+                <div class="input-wrap">
+                    <i class="bi bi-lock"></i>
+                    <input type="password" id="signupPassword" class="field-input has-toggle" placeholder="••••••••" autocomplete="new-password" oninput="checkPwStrength(this.value)" />
+                    <button class="pw-toggle" type="button" onclick="togglePw('signupPassword', this)" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <!-- Password strength meter -->
+                <div class="pw-strength" id="pwStrength">
+                    <div class="pw-bars">
+                        <div class="pw-bar" id="bar1"></div>
+                        <div class="pw-bar" id="bar2"></div>
+                        <div class="pw-bar" id="bar3"></div>
+                    </div>
+                    <div class="pw-label" id="pwLabel">Weak</div>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="signupConfirm">Confirm Password</label>
+                <div class="input-wrap">
+                    <i class="bi bi-lock-fill"></i>
+                    <input type="password" id="signupConfirm" class="field-input has-toggle" placeholder="••••••••" autocomplete="new-password" />
+                    <button class="pw-toggle" type="button" onclick="togglePw('signupConfirm', this)" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-auth" id="signupBtn" onclick="handleSignup()">
+                <div class="spinner"></div>
+                <span class="btn-text">Create Account</span>
+            </button>
+        </div>
+
+        <!-- Footer switch hint -->
+        <div class="auth-footer" id="authFooter">
+            Don't have an account? <a href="#" style="color:var(--primary);font-weight:700;text-decoration:none;" onclick="switchTab('signup');return false;">Sign up</a>
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+import CONFIG from './config.js';
+const AUTH_URL = CONFIG.API.AUTH_URL;
+
+// ── Dark Mode ──────────────────────────────────────────────────────────────
+const html = document.documentElement;
+const darkToggle = document.getElementById('darkToggle');
+const darkIcon = document.getElementById('darkIcon');
+
+function applyTheme(isDark) {
+    html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    darkIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+}
+
+const savedTheme = localStorage.getItem('theme') || 'light';
+applyTheme(savedTheme === 'dark');
+
+darkToggle.addEventListener('click', () => {
+    const isDark = html.getAttribute('data-theme') !== 'dark';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    applyTheme(isDark);
+});
+
+// ── Redirect if already logged in ────────────────────────────────────────
+const existingToken = localStorage.getItem('authToken');
+if (existingToken) {
+    // Quick validation
+    fetch(`${AUTH_URL}?action=me`, {
+        headers: { 'Authorization': `Bearer ${existingToken}` }
+    }).then(r => {
+        if (r.ok) window.location.replace('index.html');
+        else localStorage.removeItem('authToken');
+    }).catch(() => {});
+}
+
+// ── Tab Switching ──────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+    const tabBar = document.getElementById('tabBar');
+    const loginPanel = document.getElementById('panelLogin');
+    const signupPanel = document.getElementById('panelSignup');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabSignup = document.getElementById('tabSignup');
+    const footer = document.getElementById('authFooter');
+
+    tabBar.setAttribute('data-tab', tab);
+
+    if (tab === 'login') {
+        loginPanel.classList.add('active');
+        signupPanel.classList.remove('active');
+        tabLogin.classList.add('active');
+        tabSignup.classList.remove('active');
+        footer.innerHTML = 'Don\'t have an account? <a href="#" style="color:var(--primary);font-weight:700;text-decoration:none;" onclick="switchTab(\'signup\');return false;">Sign up</a>';
+        document.getElementById('loginEmail').focus();
+    } else {
+        signupPanel.classList.add('active');
+        loginPanel.classList.remove('active');
+        tabSignup.classList.add('active');
+        tabLogin.classList.remove('active');
+        footer.innerHTML = 'Already have an account? <a href="#" style="color:var(--primary);font-weight:700;text-decoration:none;" onclick="switchTab(\'login\');return false;">Sign in</a>';
+        document.getElementById('signupUsername').focus();
+    }
+};
+
+// ── Password visibility toggle ────────────────────────────────────────────
+window.togglePw = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+};
+
+// ── Password strength ─────────────────────────────────────────────────────
+window.checkPwStrength = function(val) {
+    const el = document.getElementById('pwStrength');
+    const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
+    const label = document.getElementById('pwLabel');
+
+    if (!val) { el.classList.remove('show'); return; }
+    el.classList.add('show');
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val) || /[0-9]/.test(val)) score++;
+    if (/[!@#$%^&*]/.test(val) && val.length >= 10) score++;
+
+    bars.forEach(b => b.className = 'pw-bar');
+    if (score === 1) {
+        bars[0].classList.add('filled-weak');
+        label.textContent = 'Weak'; label.style.color = 'var(--danger)';
+    } else if (score === 2) {
+        bars[0].classList.add('filled-medium'); bars[1].classList.add('filled-medium');
+        label.textContent = 'Medium'; label.style.color = '#ff9500';
+    } else {
+        bars.forEach(b => b.classList.add('filled-strong'));
+        label.textContent = 'Strong'; label.style.color = 'var(--success)';
+    }
+};
+
+// ── Show error helper ─────────────────────────────────────────────────────
+function showError(panelId, message) {
+    const el = document.getElementById(panelId + 'Error');
+    document.getElementById(panelId + 'ErrorText').textContent = message;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.classList.toggle('loading', loading);
+}
+
+// ── Login ─────────────────────────────────────────────────────────────────
+window.handleLogin = async function() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showError('login', 'Please fill in all fields.'); return; }
+
+    setLoading('loginBtn', true);
+    try {
+        const res = await fetch(`${AUTH_URL}?action=login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) { showError('login', data.error || 'Login failed.'); return; }
+
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('authUser', JSON.stringify(data.user));
+        window.location.replace('index.html');
+    } catch (e) {
+        showError('login', 'Network error. Is the server running?');
+    } finally {
+        setLoading('loginBtn', false);
+    }
+};
+
+// ── Signup ────────────────────────────────────────────────────────────────
+window.handleSignup = async function() {
+    const username        = document.getElementById('signupUsername').value.trim();
+    const email           = document.getElementById('signupEmail').value.trim();
+    const password        = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('signupConfirm').value;
+
+    if (!username || !email || !password || !confirmPassword) {
+        showError('signup', 'Please fill in all fields.'); return;
+    }
+    if (password !== confirmPassword) {
+        showError('signup', 'Passwords do not match.'); return;
+    }
+    if (password.length < 6) {
+        showError('signup', 'Password must be at least 6 characters.'); return;
+    }
+
+    setLoading('signupBtn', true);
+    try {
+        const res = await fetch(`${AUTH_URL}?action=signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password, confirmPassword })
+        });
+        const data = await res.json();
+        if (!res.ok) { showError('signup', data.error || 'Signup failed.'); return; }
+
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('authUser', JSON.stringify(data.user));
+
+        document.getElementById('signupSuccess').classList.add('show');
+        setTimeout(() => window.location.replace('index.html'), 1000);
+    } catch (e) {
+        showError('signup', 'Network error. Is the server running?');
+    } finally {
+        setLoading('signupBtn', false);
+    }
+};
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const activePanel = document.querySelector('.form-panel.active');
+        if (activePanel?.id === 'panelLogin') handleLogin();
+        else if (activePanel?.id === 'panelSignup') handleSignup();
+    }
+});
+
+// Focus first input on load
+document.getElementById('loginEmail').focus();
+</script>
+</body>
+</html>

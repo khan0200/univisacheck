@@ -7,6 +7,10 @@
     {
       "source": "/api/check-status/:path*",
       "destination": "/api/[...path].js"
+    },
+    {
+      "source": "/api/auth",
+      "destination": "/api/auth.js"
     }
   ]
 }
