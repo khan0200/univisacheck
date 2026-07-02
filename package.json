@@ -1,7 +1,7 @@
 {
-  "name": "univisacheck",
+  "name": "visacheck",
   "version": "1.0.0",
-  "description": "Visa Status Checker Application",
+  "description": "VisaCheck — Visa Status Checker Application",
   "main": "proxy.js",
   "scripts": {
     "dev": "node proxy.js",

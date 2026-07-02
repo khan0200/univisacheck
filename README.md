@@ -1,4 +1,4 @@
-# UniVisaCheck
+# VisaCheck
 
 A modern, real-time visa status tracking application for university students applying for Korean visas.
 
@@ -24,8 +24,8 @@ A modern, real-time visa status tracking application for university students app
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/univisacheck.git
-cd univisacheck
+git clone https://github.com/yourusername/visacheck.git
+cd visacheck
 ```
 
 1. Install dependencies:
@@ -49,7 +49,7 @@ node proxy.js
 ## Project Structure
 
 ```
-univisacheck/
+visacheck/
 ├── index.html          # Main application page
 ├── app.js              # Application logic
 ├── style.css           # Styles and responsive design
