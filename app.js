@@ -563,23 +563,27 @@ function renderTable() {
         const tr = document.createElement('tr');
         tr.style.animation = `fadeIn 0.15s ease forwards`;
         tr.style.opacity = '0'; // Start invisible for animation
+        const cancellationReason = getCancellationReason(student);
 
         tr.innerHTML = `
             <td class="td-name">
-                <div class="student-name">${student.fullName}</div>
-                <div class="student-id">${student.studentId ? '#' + student.studentId : ''} ${getInlineRejectionReasonHtml(student)}</div>
+                <div class="student-name">${getCopyFieldHtml(escapeHtml(student.fullName || ''), student.fullName, 'Copy full name')}</div>
+                <div class="student-id">
+                    ${student.studentId ? getCopyFieldHtml('#' + escapeHtml(student.studentId), student.studentId, 'Copy student ID') : ''}
+                    ${cancellationReason ? getCopyFieldHtml(`Rejected: ${escapeHtml(formatCancellationReason(cancellationReason))}`, cancellationReason, 'Copy cancellation reason', 'copy-field-reason') : ''}
+                </div>
             </td>
             <td class="td-passport">
-                <span class="passport-num">${student.passport}</span>
+                <span class="passport-num">${getCopyFieldHtml(escapeHtml(student.passport || ''), student.passport, 'Copy passport number')}</span>
                 <span class="passport-divider">|</span>
-                <span class="birthday">${student.birthday || ''}</span>
+                <span class="birthday">${getCopyFieldHtml(escapeHtml(student.birthday || ''), student.birthday || '', 'Copy birthdate')}</span>
             </td>
             <td class="td-status">
-                ${getStatusBadge(student.status)}
+                ${getCopyFieldHtml(getStatusBadge(student.status), getDisplayStatusText(student.status), 'Copy status')}
             </td>
             <td class="td-applied">
                 <span class="applied-label">Applied:</span>
-                <span class="applied-date">${student.applicationDate || '--'}</span>
+                <span class="applied-date">${getCopyFieldHtml(escapeHtml(student.applicationDate || '--'), student.applicationDate || '', 'Copy applied date')}</span>
             </td>
             <td class="td-checked">
                 ${formatTimestampCompact(student.lastChecked)}
@@ -640,6 +644,48 @@ function updateSelectColumnVisibility() {
     if (!table) return;
     table.classList.toggle('show-select-column', currentFilter === 'application');
     table.classList.toggle('show-pdf-column', currentFilter === 'approved');
+}
+
+function getCopyFieldHtml(displayHtml, copyValue, title, extraClass = '') {
+    const text = String(copyValue || '').trim();
+    const copyButton = text && text !== '--'
+        ? `<button class="btn-copy-inline action-btn" type="button" data-action="copy" data-copy="${escapeAttr(text)}" title="${title}" aria-label="${title}">
+                <i class="bi bi-copy"></i>
+           </button>`
+        : '';
+
+    return `<span class="copy-field ${extraClass}">
+                <span class="copy-field-value">${displayHtml || '--'}</span>
+                ${copyButton}
+            </span>`;
+}
+
+function getDisplayStatusText(statusValue) {
+    const status = (statusValue || '').toLowerCase();
+
+    if (status.includes('approved')) return 'Approved';
+    if (status.includes('cancel') || status.includes('reject')) return 'Cancelled';
+    if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) return 'Pending';
+    if (status.includes('received') || status.includes('app/')) return 'Received';
+
+    return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function formatCancellationReason(reason) {
+    return String(reason || '').replace(/\s+(?=\d+\.)/g, ' ');
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function escapeAttr(value) {
+    return escapeHtml(value).replace(/`/g, '&#096;');
 }
 
 async function handleFormSubmit(e) {
@@ -745,7 +791,48 @@ function showError(message) {
     alert(message);
 }
 
+async function copyValue(value, btnElement) {
+    const text = String(value || '').trim();
+    if (!text || text === '--') return;
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            textarea.remove();
+        }
+
+        if (btnElement) {
+            const icon = btnElement.querySelector('i');
+            const previousClass = icon?.className || 'bi bi-copy';
+            btnElement.classList.add('copied');
+            if (icon) icon.className = 'bi bi-check2';
+
+            setTimeout(() => {
+                btnElement.classList.remove('copied');
+                if (icon) icon.className = previousClass;
+            }, 900);
+        }
+    } catch (err) {
+        debug('Copy failed:', err);
+        showError('Could not copy this value.');
+    }
+}
+
 async function handleAction(action, passport, btnElement) {
+    if (action === 'copy') {
+        await copyValue(btnElement?.getAttribute('data-copy') || '', btnElement);
+        return;
+    }
+
     const student = studentsData.find(s => s.passport === passport);
     if (!student) return;
 
@@ -852,9 +939,7 @@ async function handleAction(action, passport, btnElement) {
 
 function updateCheckSelectedButton() {
     if (!cachedDOM.checkSelectedBtn) return;
-    const count = studentsData.filter(student =>
-        Boolean(student.batchSelected) && isApplicationStatus(student.status)
-    ).length;
+    const count = getSelectedApplicationPassports().length;
     const shouldShow = currentFilter === 'application' && count > 0;
     cachedDOM.checkSelectedBtn.classList.toggle('d-none', !shouldShow);
     
@@ -864,9 +949,18 @@ function updateCheckSelectedButton() {
     }
 }
 
+function getSelectedApplicationPassports() {
+    if (currentFilter !== 'application') return [];
+
+    return [...document.querySelectorAll('.batch-select-toggle:checked:not(:disabled)')]
+        .map(checkbox => checkbox.getAttribute('data-id'))
+        .filter(Boolean);
+}
+
 async function handleBatchCheck() {
+    const selectedPassports = new Set(getSelectedApplicationPassports());
     const studentsToCheck = studentsData.filter(student =>
-        Boolean(student.batchSelected) && isApplicationStatus(student.status)
+        selectedPassports.has(student.passport) && isApplicationStatus(student.status)
     );
     if (studentsToCheck.length === 0) return;
 
@@ -1241,42 +1335,28 @@ function getStatusBadge(status) {
 }
 
 function getRejectionReasonHtml(student) {
-    const status = (student.status || '').toLowerCase();
-    const isCancelled = status.includes('cancel') || status.includes('reject');
-    if (!isCancelled) return '';
-
-    let reason = '';
-    if (student.apiResponse) {
-        const data = student.apiResponse;
-        reason =
-            (data.response_data?.visa_data?.rejection_reason) ||
-            (data.response_data?.visa_data?.reject_reason) ||
-            (data.response_data?.visa_data?.reason) ||
-            (data.response_data?.rejection_reason) ||
-            (data.response_data?.reject_reason) ||
-            (data.visa_data?.rejection_reason) ||
-            (data.visa_data?.reject_reason) ||
-            (data.visa_data?.reason) ||
-            (data.rejection_reason) ||
-            (data.reject_reason) ||
-            (data.reason) ||
-            '';
-    }
-
-    if (!reason && student.rejectReason) {
-        reason = student.rejectReason;
-    }
-
+    const reason = getCancellationReason(student);
     if (!reason) return '';
 
     // ghost text in red
     return `<div class="text-danger opacity-75 mt-1 rejection-reason" style="font-size: 0.75rem; max-width: 250px; white-space: normal; line-height: 1.3;">
-                ${reason}
+                ${escapeHtml(reason)}
             </div>`;
 }
 
 // Inline version for table ID row
 function getInlineRejectionReasonHtml(student) {
+    const reason = getCancellationReason(student);
+    if (!reason) return '';
+
+    const formattedReason = escapeHtml(reason).replace(/\s+(?=\d+\.)/g, '<br>');
+
+    return `<div class="text-danger mt-1 fw-medium" style="font-size: 0.85rem; white-space: normal; line-height: 1.5;">
+                Rejected: ${formattedReason}
+            </div>`;
+}
+
+function getCancellationReason(student) {
     const status = (student.status || '').toLowerCase();
     const isCancelled = status.includes('cancel') || status.includes('reject');
     if (!isCancelled) return '';
@@ -1303,13 +1383,7 @@ function getInlineRejectionReasonHtml(student) {
         reason = student.rejectReason;
     }
 
-    if (!reason) return '';
-
-    const formattedReason = reason.replace(/\s+(?=\d+\.)/g, '<br>');
-
-    return `<div class="text-danger mt-1 fw-medium" style="font-size: 0.85rem; white-space: normal; line-height: 1.5;">
-                Rejected: ${formattedReason}
-            </div>`;
+    return String(reason || '').trim();
 }
 
 // Notification Helper
