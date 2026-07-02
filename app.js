@@ -180,6 +180,31 @@ function setupEventListeners() {
         document.getElementById('passport').disabled = false;
     });
 
+    // Force uppercase as-you-type for Student ID and Full Name
+    const uppercaseWhileTyping = (input) => {
+        input.addEventListener('input', (e) => {
+            const { selectionStart, selectionEnd } = e.target;
+            e.target.value = e.target.value.toUpperCase();
+            e.target.setSelectionRange(selectionStart, selectionEnd);
+        });
+    };
+    const studentIdInputEl = document.getElementById('studentId');
+    if (studentIdInputEl) uppercaseWhileTyping(studentIdInputEl);
+    const fullNameInputEl = document.getElementById('fullName');
+    if (fullNameInputEl) uppercaseWhileTyping(fullNameInputEl);
+
+    // Auto-format Passport Number (SSDDDDDDD — 2 letters + 7 digits, matches
+    // CONFIG.VALIDATION.PASSPORT_REGEX)
+    const passportInputEl = document.getElementById('passport');
+    if (passportInputEl) {
+        passportInputEl.addEventListener('input', (e) => {
+            const value = e.target.value.toUpperCase();
+            const letters = value.slice(0, 2).replace(/[^A-Z]/g, '');
+            const digits = value.slice(2).replace(/\D/g, '').slice(0, 7);
+            e.target.value = letters + digits;
+        });
+    }
+
     // Auto-format Birthday Input (YYYY-MM-DD)
     const birthdayInput = document.getElementById('birthday');
     if (birthdayInput) {
