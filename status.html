@@ -24,11 +24,11 @@
     />
     <style>
       :root {
-        --primary-color: #007aff;
-        --bg-color: #f8f9fa;
+        --primary-color: #2563eb;
+        --bg-color: #f7f7f8;
         --card-bg: rgba(255, 255, 255, 0.9);
-        --text-main: #1c1c1e;
-        --text-muted: #8e8e93;
+        --text-main: #16181d;
+        --text-muted: #71717a;
       }
 
       body {
@@ -37,17 +37,9 @@
           -apple-system,
           sans-serif;
         background-color: var(--bg-color);
-        background-image:
-          radial-gradient(
-            circle at 15% 50%,
-            rgba(0, 122, 255, 0.05),
-            transparent 25%
-          ),
-          radial-gradient(
-            circle at 85% 30%,
-            rgba(52, 199, 89, 0.05),
-            transparent 25%
-          );
+        /* Quiet Luxury: a single neutral dot-grid, no colored glow */
+        background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
         color: var(--text-main);
         min-height: 100vh;
         display: flex;
@@ -126,24 +118,24 @@
       }
 
       .status-APPROVED {
-        background-color: rgba(52, 199, 89, 0.15);
-        color: #248a3d;
+        background-color: rgba(22, 163, 74, 0.1);
+        color: #16a34a;
       }
       .status-CANCELLED {
-        background-color: rgba(255, 59, 48, 0.15);
-        color: #d70015;
+        background-color: rgba(220, 38, 38, 0.1);
+        color: #dc2626;
       }
       .status-RECEIVED {
-        background-color: rgba(255, 149, 0, 0.15);
-        color: #b05c00;
+        background-color: rgba(217, 119, 6, 0.1);
+        color: #d97706;
       }
       .status-UNDER {
-        background-color: rgba(0, 122, 255, 0.15);
-        color: #0056b3;
+        background-color: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
       }
       .status-Pending {
-        background-color: rgba(142, 142, 147, 0.15);
-        color: #636366;
+        background-color: rgba(113, 113, 122, 0.1);
+        color: #71717a;
       }
 
       .info-row {
@@ -165,11 +157,11 @@
       .info-value {
         font-size: 1.05rem;
         font-weight: 600;
-        color: #000;
+        color: var(--text-main);
       }
 
       .btn-download {
-        background-color: #34c759;
+        background-color: #16a34a;
         color: white;
         border: none;
         border-radius: 12px;
@@ -185,7 +177,7 @@
       }
 
       .btn-download:hover {
-        background-color: #2eb350;
+        background-color: #15803d;
         color: white;
       }
 

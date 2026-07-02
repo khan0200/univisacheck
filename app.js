@@ -106,6 +106,18 @@ function setupEventListeners() {
     // Form Submit (Add/Edit)
     cachedDOM.form.addEventListener('submit', handleFormSubmit);
 
+    // Select-column checkboxes: tie Check button visibility directly to the
+    // live DOM checkbox state via native 'change' (delegated, since rows are
+    // rebuilt on every render). This is independent of the toggle-batch
+    // click handler / its network save, so the button reacts instantly and
+    // correctly even if that save is slow, fails, or the click handler
+    // doesn't fire for some reason (keyboard toggles, etc.).
+    cachedDOM.tableBody.addEventListener('change', (e) => {
+        if (e.target.classList && e.target.classList.contains('batch-select-toggle')) {
+            updateCheckSelectedButton();
+        }
+    });
+
     // Search Input with Debouncing
     cachedDOM.searchInput.addEventListener('input', (e) => {
         clearTimeout(searchDebounceTimer);
@@ -608,7 +620,7 @@ function renderTable() {
             <td class="td-actions">
                 <div class="d-flex justify-content-end gap-1">
                     <button class="btn btn-sm btn-icon btn-ghost-primary action-btn" data-action="refresh" data-id="${student.passport}" title="Refresh">
-                        <i class="bi bi-arrow-repeat"></i>
+                        <i class="bi bi-arrow-clockwise"></i>
                     </button>
                     <button class="btn btn-sm btn-icon btn-ghost-secondary action-btn" data-action="edit" data-id="${student.passport}" title="Edit">
                         <i class="bi bi-pencil"></i>
@@ -914,6 +926,10 @@ async function handleAction(action, passport, btnElement) {
             studentsData[index].batchSelected = enabled;
         }
 
+        // React to the checkbox state immediately — don't wait on the network
+        // round-trip to show/hide the Check button.
+        updateCheckSelectedButton();
+
         try {
             const response = await authFetch(STUDENTS_URL, {
                 method: 'PATCH',
@@ -925,13 +941,13 @@ async function handleAction(action, passport, btnElement) {
                 })
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            updateCheckSelectedButton();
         } catch (error) {
             debug('Failed to update batch selection:', error);
             if (checkbox) checkbox.checked = !enabled;
             if (index !== -1) {
                 studentsData[index].batchSelected = !enabled;
             }
+            updateCheckSelectedButton();
             showError('Failed to save selection.');
         }
     }
@@ -945,7 +961,7 @@ function updateCheckSelectedButton() {
     
     const btnText = cachedDOM.checkSelectedBtn.querySelector('.btn-text');
     if (btnText) {
-        btnText.textContent = count > 0 ? `Check Students (${count})` : 'Check Students';
+        btnText.textContent = count > 0 ? `Check (${count})` : 'Check';
     }
 }
 
@@ -969,8 +985,8 @@ async function handleBatchCheck() {
     const textSpan = button.querySelector('.btn-text');
     
     // Save original layout
-    const originalText = textSpan ? textSpan.textContent : 'Check Students';
-    const originalIconClasses = icon ? icon.className : 'bi bi-arrow-repeat';
+    const originalText = textSpan ? textSpan.textContent : 'Check';
+    const originalIconClasses = icon ? icon.className : 'bi bi-arrow-clockwise';
 
     button.disabled = true;
     
@@ -1151,7 +1167,7 @@ async function downloadVisaPdf(student, btnElement) {
     if (btn) btn.disabled = true;
     if (icon) {
         icon.classList.remove('bi-file-earmark-pdf-fill');
-        icon.classList.add('bi-arrow-repeat', 'spin-animation');
+        icon.classList.add('bi-arrow-clockwise', 'spin-animation');
     }
 
     try {
@@ -1203,7 +1219,7 @@ async function downloadVisaPdf(student, btnElement) {
     } finally {
         if (btn) btn.disabled = false;
         if (icon) {
-            icon.classList.remove('bi-arrow-repeat', 'spin-animation');
+            icon.classList.remove('bi-arrow-clockwise', 'spin-animation');
             icon.classList.add('bi-file-earmark-pdf-fill');
         }
     }

@@ -1,47 +1,69 @@
+/* ── Quiet Luxury design system ──────────────────────────────────────────
+   Near-monochrome neutrals, ONE accent color reserved for the single most
+   important action (primary button, active tab, focus rings, links).
+   Everything else — badges, avatars, secondary buttons — stays neutral or
+   uses soft tinted text rather than solid/gradient fills. Shadows are very
+   soft at rest; restraint is the premium signal, not decoration. */
 :root {
-  --primary-color: #007aff;
-  --primary-strong: #0057d9;
-  --primary-light: rgba(0, 122, 255, 0.1);
-  --primary-soft: #e8f2ff;
-  --accent-cyan: #00a7c7;
-  --accent-violet: #6254e8;
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(0, 122, 255, 0.12);
-  --glass-shadow: 0 8px 28px rgba(31, 78, 145, 0.12);
-  --text-main: #1c1c1e;
-  --text-secondary: #8e8e93;
+  --primary-color: #2563eb;
+  --primary-strong: #1d4ed8;
+  --primary-light: rgba(37, 99, 235, 0.08);
+  --primary-soft: rgba(37, 99, 235, 0.05);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(15, 23, 42, 0.06);
+  --glass-shadow: 0 1px 2px rgba(15, 23, 42, 0.02), 0 10px 28px -12px rgba(15, 23, 42, 0.1);
+  --text-main: #16181d;
+  --text-secondary: #71717a;
   --card-bg: #fff;
-  --divider: rgba(27, 78, 145, 0.1);
-  --bg-color: #f2f2f7;
-  --success: #34c759;
-  --danger: #ff3b30;
-  --warning: #ff9500;
-  --info: #5856d6;
-  --input-bg: rgba(120, 120, 128, 0.08);
-  --input-focus: rgba(0, 122, 255, 0.12);
+  --divider: rgba(15, 23, 42, 0.07);
+  --bg-color: #f7f7f8;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --info: #6366f1;
+  --input-bg: rgba(15, 23, 42, 0.035);
+  --input-focus: rgba(37, 99, 235, 0.07);
+
+  /* ── Elevation scale — soft, barely-there at rest ── */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 1px rgba(15, 23, 42, 0.03), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 16px -8px rgba(15, 23, 42, 0.09);
+  --shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.03), 0 12px 28px -12px rgba(15, 23, 42, 0.12);
+  --shadow-xl: 0 4px 8px rgba(15, 23, 42, 0.04), 0 20px 44px -16px rgba(15, 23, 42, 0.16);
+
+  /* Reserved for the one primary accent action only */
+  --shadow-primary-sm: 0 1px 2px rgba(37, 99, 235, 0.15), 0 2px 8px -2px rgba(37, 99, 235, 0.2);
+  --shadow-primary-md: 0 4px 12px -4px rgba(37, 99, 235, 0.3);
 }
 
 [data-theme="dark"] {
-  --primary-color: #0a84ff;
-  --primary-strong: #48a7ff;
-  --primary-light: rgba(10, 132, 255, 0.15);
-  --primary-soft: rgba(10, 132, 255, 0.18);
-  --accent-cyan: #38d6f4;
-  --accent-violet: #7b72ff;
-  --glass-bg: rgba(25, 29, 38, 0.9);
-  --glass-border: rgba(87, 169, 255, 0.16);
-  --glass-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
-  --text-main: #f5f5f7;
-  --text-secondary: #98989f;
-  --card-bg: #1c1c1e;
-  --divider: rgba(255, 255, 255, 0.08);
-  --bg-color: #000;
-  --success: #30d158;
-  --danger: #ff453a;
-  --warning: #ff9f0a;
-  --info: #5e5ce6;
-  --input-bg: rgba(255, 255, 255, 0.07);
-  --input-focus: rgba(10, 132, 255, 0.18);
+  --primary-color: #3b82f6;
+  --primary-strong: #60a5fa;
+  --primary-light: rgba(59, 130, 246, 0.14);
+  --primary-soft: rgba(59, 130, 246, 0.1);
+  --glass-bg: rgba(22, 24, 29, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 14px 34px -14px rgba(0, 0, 0, 0.55);
+  --text-main: #f2f2f4;
+  --text-secondary: #8f8f97;
+  --card-bg: #1a1b1f;
+  --divider: rgba(255, 255, 255, 0.075);
+  --bg-color: #0b0c0f;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #818cf8;
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-focus: rgba(59, 130, 246, 0.14);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 3px 8px -3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 20px -8px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 16px 36px -12px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 4px 10px rgba(0, 0, 0, 0.45), 0 26px 56px -18px rgba(0, 0, 0, 0.65);
+
+  --shadow-primary-sm: 0 1px 2px rgba(59, 130, 246, 0.25), 0 2px 10px -2px rgba(59, 130, 246, 0.3);
+  --shadow-primary-md: 0 6px 16px -4px rgba(59, 130, 246, 0.4);
 }
 
 * {
@@ -58,14 +80,11 @@ body {
     sans-serif;
   color: var(--text-main);
   background-color: var(--bg-color);
-  background-image:
-    linear-gradient(115deg, rgba(0, 122, 255, 0.055) 0 1px, transparent 1px 44%),
-    linear-gradient(155deg, transparent 0 58%, rgba(88, 86, 214, 0.045) 58% calc(58% + 1px), transparent calc(58% + 1px)),
-    linear-gradient(rgba(0, 122, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 122, 255, 0.035) 1px, transparent 1px),
-    radial-gradient(rgba(0, 122, 255, 0.12) 1px, transparent 1px);
-  background-size: 760px 520px, 920px 620px, 48px 48px, 48px 48px, 24px 24px;
-  background-position: -120px -80px, right -180px top 40px, 0 0, 0 0, 0 0;
+  /* A single, quiet neutral dot-grid — texture without color noise.
+     Quiet Luxury means the background should recede, not compete with
+     the content sitting on top of it. */
+  background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
   background-attachment: fixed;
   min-height: 100vh;
   font-size: 15px;
@@ -75,51 +94,8 @@ body {
 }
 
 [data-theme="dark"] body {
-  background-image:
-    linear-gradient(115deg, rgba(10, 132, 255, 0.12) 0 1px, transparent 1px 44%),
-    linear-gradient(155deg, transparent 0 58%, rgba(94, 92, 230, 0.1) 58% calc(58% + 1px), transparent calc(58% + 1px)),
-    linear-gradient(rgba(10, 132, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10, 132, 255, 0.06) 1px, transparent 1px),
-    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 760px 520px, 920px 620px, 48px 48px, 48px 48px, 24px 24px;
-  background-position: -120px -80px, right -180px top 40px, 0 0, 0 0, 0 0;
-}
-
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-body::before {
-  background:
-    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgba(0, 122, 255, 0.16) calc(100% - 1px) 100%) 9% 18% / 180px 1px no-repeat,
-    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgba(0, 122, 255, 0.14) calc(100% - 1px) 100%) 76% 30% / 240px 1px no-repeat,
-    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(88, 86, 214, 0.12) calc(100% - 1px) 100%) 22% 62% / 1px 220px no-repeat,
-    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(0, 122, 255, 0.12) calc(100% - 1px) 100%) 87% 58% / 1px 180px no-repeat;
-}
-
-body::after {
-  background:
-    linear-gradient(135deg, transparent 0 48%, rgba(0, 122, 255, 0.11) 48% calc(48% + 1px), transparent calc(48% + 1px) 100%) left 14% top 17% / 220px 220px no-repeat,
-    linear-gradient(135deg, transparent 0 48%, rgba(88, 86, 214, 0.1) 48% calc(48% + 1px), transparent calc(48% + 1px) 100%) right 11% top 48% / 280px 280px no-repeat,
-    linear-gradient(45deg, transparent 0 49%, rgba(0, 122, 255, 0.08) 49% calc(49% + 1px), transparent calc(49% + 1px) 100%) left 40% bottom 12% / 260px 260px no-repeat;
-  opacity: 0.85;
-}
-
-[data-theme="dark"] body::before {
-  background:
-    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgba(10, 132, 255, 0.28) calc(100% - 1px) 100%) 9% 18% / 180px 1px no-repeat,
-    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgba(10, 132, 255, 0.22) calc(100% - 1px) 100%) 76% 30% / 240px 1px no-repeat,
-    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(94, 92, 230, 0.2) calc(100% - 1px) 100%) 22% 62% / 1px 220px no-repeat,
-    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(10, 132, 255, 0.2) calc(100% - 1px) 100%) 87% 58% / 1px 180px no-repeat;
-}
-
-[data-theme="dark"] body::after {
-  opacity: 1;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Main Container */
@@ -130,7 +106,7 @@ body::after {
 
 @media (min-width: 768px) {
   .main-wrapper {
-    padding: 20px 10% !important;
+    padding: 20px 9% !important;
   }
 }
 
@@ -148,9 +124,7 @@ body::after {
 .toolbar-section {
   padding: 12px !important;
   gap: 10px !important;
-  background:
-    linear-gradient(135deg, rgba(0, 122, 255, 0.08), rgba(98, 84, 232, 0.06) 42%, rgba(0, 167, 199, 0.07)),
-    var(--glass-bg);
+  background: var(--glass-bg);
 }
 
 #checkSelectedBtn:not(.d-none) {
@@ -180,7 +154,7 @@ body::after {
     font-size: 15px;
     font-weight: 600;
     border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+    box-shadow: var(--shadow-primary-sm);
   }
 
   /* Tabs section - 4-column grid for mobile */
@@ -239,7 +213,7 @@ body::after {
 
   .nav-tabs-wrapper .nav-link.active {
     background: var(--primary-color) !important;
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.22) !important;
+    box-shadow: var(--shadow-xs) !important;
     color: #fff !important;
   }
 
@@ -268,17 +242,23 @@ body::after {
 
   .nav-tabs-wrapper .nav-link .badge-count {
     display: block;
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     padding: 0;
     margin: 0;
     margin-top: 2px;
     background: transparent !important;
-    color: inherit !important;
+    color: var(--text-secondary) !important;
     opacity: 1;
   }
 
+  /* The active tab is the one the eye should land on first, so its count
+     is allowed to be bold — inactive tabs stay quiet so the count doesn't
+     out-compete the label above it (a big bold number with no label was
+     reading as the primary content). */
   .nav-tabs-wrapper .nav-link.active .badge-count {
+    font-size: 18px;
+    font-weight: 700;
     color: #fff !important;
   }
 
@@ -289,17 +269,19 @@ body::after {
 
 /* iOS-style Search */
 .search-box input {
-  background: var(--bg-color);
-  border: none;
+  background: var(--card-bg);
+  border: 1.5px solid var(--divider);
   border-radius: 10px;
   padding: 10px 12px 10px 36px;
   font-size: 15px;
   height: 38px;
+  box-shadow: var(--shadow-xs);
   transition: all 0.2s ease;
 }
 
 .search-box input:focus {
-  background: var(--bg-color);
+  background: var(--card-bg);
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px var(--primary-light);
   outline: none;
 }
@@ -327,12 +309,22 @@ body::after {
   gap: 0.5rem;
 }
 
+/* .btn's display:inline-flex !important above has the same specificity as
+   Bootstrap's .d-none { display:none !important } and loads later, so it
+   silently won the tie and made d-none a no-op on any button (e.g. the
+   Check-selected button never actually hid, no matter what JS toggled).
+   This compound selector has higher specificity than either single-class
+   rule, so it wins regardless of source order. */
+.btn.d-none {
+  display: none !important;
+}
+
 .btn .spinner-border {
   margin: 0 !important;
   flex-shrink: 0;
 }
 
-/* Compact Button */
+/* Compact Button — the one place the accent color is allowed to be bold */
 .btn-primary {
   background: var(--primary-color);
   border: none;
@@ -341,18 +333,32 @@ body::after {
   font-size: 14px;
   padding: 8px 16px;
   height: 38px;
+  box-shadow: var(--shadow-primary-sm);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .btn-primary:hover {
-  background: #0066d6;
+  background: var(--primary-strong);
+  box-shadow: var(--shadow-primary-md);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-primary-sm);
 }
 
 /* iOS Segmented Control Style Tabs */
 .nav-glass {
   background: var(--bg-color);
+  border: 1px solid rgba(15, 23, 42, 0.15);
   border-radius: 8px;
   padding: 2px;
   gap: 0 !important;
+}
+
+[data-theme="dark"] .nav-glass {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .nav-glass .nav-link {
@@ -369,7 +375,7 @@ body::after {
 .nav-glass .nav-link.active {
   background: var(--primary-color);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.22);
+  box-shadow: var(--shadow-xs);
 }
 
 /* Tab title and count styling */
@@ -382,7 +388,7 @@ body::after {
   font-size: 11px;
   padding: 2px 6px;
   margin-left: 4px;
-  background: rgba(0, 122, 255, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--primary-color);
   border-radius: 10px;
   font-weight: 600;
@@ -488,11 +494,19 @@ body::after {
   display: flex;
   align-items: flex-start;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(220, 38, 38, 0.07);
   color: var(--danger);
-  opacity: 0.9;
+  font-size: 12px;
+  font-weight: 500;
   white-space: normal;
   line-height: 1.45;
+}
+
+[data-theme="dark"] .copy-field-reason {
+  background: rgba(239, 68, 68, 0.12);
 }
 
 .btn-copy-inline {
@@ -522,7 +536,7 @@ body::after {
 .btn-copy-inline:hover {
   color: var(--primary-color);
   background: var(--primary-light);
-  border-color: rgba(0, 122, 255, 0.16);
+  border-color: rgba(37, 99, 235, 0.16);
 }
 
 .btn-copy-inline:active {
@@ -540,8 +554,8 @@ body::after {
 }
 
 .td-passport .passport-num {
-  background: var(--primary-color);
-  color: #fff;
+  background: var(--text-main);
+  color: var(--card-bg);
   padding: 5px 10px;
   border-radius: 8px;
   font-size: 12px;
@@ -549,17 +563,18 @@ body::after {
   display: inline-block;
   margin-bottom: 3px;
   letter-spacing: 0.3px;
+  box-shadow: var(--shadow-xs);
 }
 
 .td-passport .passport-num .btn-copy-inline {
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, var(--card-bg) 85%, transparent);
 }
 
 .td-passport .passport-num .btn-copy-inline:hover,
 .td-passport .passport-num .btn-copy-inline.copied {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--card-bg);
+  background: color-mix(in srgb, var(--card-bg) 18%, transparent);
+  border-color: color-mix(in srgb, var(--card-bg) 22%, transparent);
 }
 
 .td-passport .passport-divider {
@@ -638,11 +653,11 @@ body::after {
 }
 
 .btn-pdf-download:hover {
-  background: rgba(52, 199, 89, 0.22);
+  background: rgba(22, 163, 74, 0.2);
   color: var(--success);
-  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.15);
-  transform: scale(1.08);
-  border-color: rgba(52, 199, 89, 0.4);
+  box-shadow: var(--shadow-xs);
+  transform: scale(1.05);
+  border-color: rgba(22, 163, 74, 0.35);
 }
 
 .btn-pdf-download:active {
@@ -659,7 +674,7 @@ body::after {
 .td-select .form-check-input {
   width: 18px;
   height: 18px;
-  border: 0.5px solid rgba(0, 122, 255, 0.7);
+  border: 0.5px solid rgba(37, 99, 235, 0.7);
   box-shadow: none;
 }
 
@@ -691,18 +706,20 @@ body::after {
   }
 
   .custom-table tbody tr {
+    position: relative;
     display: flex;
     flex-direction: column;
     background: var(--card-bg);
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sm);
     border: 1px solid var(--divider);
-    transition: all 0.2s ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
   }
 
   .custom-table tbody tr:active {
     transform: scale(0.98);
+    box-shadow: var(--shadow-xs);
   }
 
   .custom-table tbody tr:hover {
@@ -721,6 +738,16 @@ body::after {
     margin-bottom: 8px;
   }
 
+  /* Reserve room so the name/copy-icon never runs under the absolutely
+     positioned select checkbox anchored to the card's top-right corner
+     (Application tab only). Needs !important: the generic
+     ".custom-table tbody td { padding: 0 !important }" rule otherwise
+     wins regardless of specificity, since a non-important declaration
+     never beats an important one. */
+  .show-select-column .td-name {
+    padding-right: 40px !important;
+  }
+
   .copy-field {
     gap: 8px;
   }
@@ -734,6 +761,15 @@ body::after {
     background: var(--bg-color);
     border-color: var(--divider);
     font-size: 14px;
+  }
+
+  /* The generic rule above gives every copy button a light box — but the
+     one living inside the dark passport chip needs to stay transparent, or
+     its white-on-white icon (see .td-passport .passport-num .btn-copy-inline)
+     disappears into a blank light square instead of showing the glyph. */
+  .td-passport .passport-num .btn-copy-inline {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--card-bg) 30%, transparent);
   }
 
   .copy-field-reason {
@@ -768,10 +804,10 @@ body::after {
   }
 
   .td-passport .passport-num {
-    background: var(--primary-color);
+    background: var(--text-main);
     padding: 6px 12px;
     font-weight: 700;
-    color: #fff;
+    color: var(--card-bg);
     font-size: 14px;
     border-radius: 8px;
     letter-spacing: 0.3px;
@@ -830,21 +866,33 @@ body::after {
     margin-bottom: 8px;
   }
 
-  .td-select {
-    display: flex !important;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 12px;
-    width: 100% !important;
+  /* An always-empty full-width row (just a lone checkbox in a sea of
+     whitespace) reads as broken. Anchoring it to the card's own top-right
+     corner instead — like a standard list-selection overlay — removes it
+     from the vertical flow entirely so the card's real content stays
+     contiguous.
+     NOTE: needs the extra "td.td-select" specificity bump — the generic
+     ".custom-table tbody td { width: 100% !important }" rule above has
+     higher specificity than ".td-select" alone, so even with !important
+     on both sides, that rule was winning and stretching this absolutely
+     positioned box back out to the card's full width, which is why the
+     checkbox was rendering nowhere near the actual top-right corner. */
+  .custom-table tbody td.td-select {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    left: auto;
+    width: auto !important;
     min-width: 0;
     max-width: none;
+    margin: 0;
   }
 
   .td-select .form-check-input {
     width: 22px;
     height: 22px;
     margin: 0;
-    border: 0.5px solid rgba(0, 122, 255, 0.7);
+    border: 0.5px solid rgba(37, 99, 235, 0.7);
   }
 
   /* Action Buttons */
@@ -920,7 +968,10 @@ body::after {
   }
 }
 
-/* Compact Status Badges */
+/* Compact Status Badges — soft tinted text on a near-transparent fill,
+   not solid/gradient pills. Restraint here is deliberate: this is the
+   highest-frequency element on the page, so it's the one place a "loud"
+   treatment would read as noise rather than premium. */
 .badge {
   font-size: 11px;
   font-weight: 600;
@@ -930,47 +981,62 @@ body::after {
 }
 
 .bg-success-subtle {
-  background: var(--success) !important;
+  background: rgba(22, 163, 74, 0.1) !important;
 }
 .badge.text-success {
-  color: #fff !important;
+  color: var(--success) !important;
 }
 
 .bg-danger-subtle {
-  background: var(--danger) !important;
+  background: rgba(220, 38, 38, 0.1) !important;
 }
 .badge.text-danger {
-  color: #fff !important;
+  color: var(--danger) !important;
 }
 
 .bg-warning-subtle {
-  background: var(--warning) !important;
+  background: rgba(217, 119, 6, 0.1) !important;
 }
 .badge.text-warning-emphasis {
-  color: #fff !important;
+  color: var(--warning) !important;
 }
 
 .bg-info-subtle {
-  background: var(--info) !important;
+  background: rgba(99, 102, 241, 0.1) !important;
 }
 .badge.text-info-emphasis {
-  color: #fff !important;
+  color: var(--info) !important;
 }
 
 .bg-secondary-subtle {
-  background: var(--text-secondary) !important;
+  background: rgba(113, 113, 122, 0.1) !important;
 }
 .badge.text-secondary {
-  color: #fff !important;
+  color: var(--text-secondary) !important;
 }
+
+/* Dark-mode tint values — the light-mode rgba()s above are too faint
+   against a near-black surface, so they're restated with the dark theme's
+   brighter status hues at slightly higher opacity. */
+[data-theme="dark"] .bg-success-subtle { background: rgba(34, 197, 94, 0.16) !important; }
+[data-theme="dark"] .bg-danger-subtle  { background: rgba(239, 68, 68, 0.16) !important; }
+[data-theme="dark"] .bg-warning-subtle { background: rgba(245, 158, 11, 0.16) !important; }
+[data-theme="dark"] .bg-info-subtle    { background: rgba(129, 140, 248, 0.16) !important; }
+[data-theme="dark"] .bg-secondary-subtle { background: rgba(143, 143, 151, 0.16) !important; }
 
 /* Compact Action Buttons */
 .btn-icon {
   width: 32px;
   height: 32px;
   padding: 0;
+  border: 1px solid rgba(15, 23, 42, 0.04);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+[data-theme="dark"] .btn-icon {
+  border-color: rgba(255, 255, 255, 0.04);
 }
 
 .btn-ghost-primary {
@@ -978,6 +1044,8 @@ body::after {
 }
 .btn-ghost-primary:hover {
   background: var(--primary-light);
+  box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-ghost-secondary {
@@ -985,6 +1053,7 @@ body::after {
 }
 .btn-ghost-secondary:hover {
   background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 [data-theme="dark"] .btn-ghost-secondary:hover {
   background: rgba(255, 255, 255, 0.08) !important;
@@ -995,6 +1064,8 @@ body::after {
 }
 .btn-ghost-danger:hover {
   background: rgba(255, 59, 48, 0.1);
+  box-shadow: 0 2px 8px -2px rgba(255, 59, 48, 0.3);
+  transform: translateY(-1px);
 }
 
 /* Passport Badge */
@@ -1010,7 +1081,7 @@ body::after {
 .modal-content {
   border: none;
   border-radius: 14px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-xl);
 }
 
 .modal-header {
@@ -1085,21 +1156,31 @@ body::after {
   }
 }
 
-/* Spin Animation for Refresh Button - resets line-height and vertical-align to avoid font baseline wobble */
+/* Spin Animation for Refresh Button
+   Flexbox-centering a font-icon's ::before glyph is unreliable across
+   browsers (transform-box: fill-box, tried previously, is spec'd for SVG
+   and is a no-op on HTML elements — it never actually did anything here).
+   The bulletproof, browser-independent technique: lock the icon to an
+   exact square box, rotate THAT box (an unambiguous geometric center,
+   since nothing inside it affects its own border-box), and center the
+   glyph inside it the old-fashioned way — line-height equal to the box's
+   height plus text-align: center — which sidesteps font ascent/descent
+   metrics entirely instead of fighting them. */
 .spin-animation {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
+  display: inline-block !important;
+  position: relative;
   width: 1em;
   height: 1em;
-  line-height: 1;
   animation: spin 0.8s linear infinite !important;
-  transform-origin: center center;
+  transform-origin: 50% 50%;
 }
 
 .spin-animation::before {
+  position: absolute !important;
+  inset: 0;
   display: block !important;
-  line-height: 1 !important;
+  line-height: 1em !important;
+  text-align: center;
   vertical-align: 0 !important;
 }
 
@@ -1141,16 +1222,16 @@ body::after {
 
 /* ------------- User Badge (new auth) -------------- */
 .user-badge {
-    background: var(--primary-light);
-    border: 1px solid rgba(0, 122, 255, 0.15);
+    background: var(--input-bg);
+    border: 1px solid var(--divider);
     border-radius: 999px;
     cursor: default;
 }
 .user-avatar {
     width: 26px;
     height: 26px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #5856d6 100%);
-    color: #fff;
+    background: var(--text-main);
+    color: var(--card-bg);
     font-size: 12px;
     font-weight: 700;
     border-radius: 50%;
@@ -1189,12 +1270,31 @@ body::after {
 }
 .btn-header-icon:hover {
     transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    box-shadow: var(--shadow-md);
 }
 .btn-header-icon-danger:hover {
     color: var(--danger);
     border-color: rgba(255, 59, 48, 0.3);
     background: rgba(255, 59, 48, 0.08);
+}
+
+/* On mobile the username is hidden, leaving the badge as just a padded
+   pill around a small circle — a mismatched shape/size next to the two
+   34px icon buttons beside it. Collapse it to the same 34px circle so all
+   three header controls read as one consistent cluster. */
+@media (max-width: 767px) {
+    .user-badge {
+        padding: 0 !important;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        justify-content: center;
+    }
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
 }
 
 /* ------------- Legacy login overlay (keep animation) -------------- */
@@ -1217,7 +1317,7 @@ body::after {
 .input-wrap:focus-within {
     border-color: var(--primary-color);
     background: var(--input-focus);
-    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
 }
 .input-wrap i.bi {
     font-size: 16px;

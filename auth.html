@@ -11,36 +11,33 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <style>
         :root {
-            --primary: #007aff;
-            --primary-dark: #0056d6;
-            --primary-light: rgba(0, 122, 255, 0.12);
-            --bg: #f2f2f7;
-            --card-bg: rgba(255, 255, 255, 0.82);
-            --text: #1c1c1e;
-            --text-sub: #636366;
-            --border: rgba(0, 0, 0, 0.08);
-            --input-bg: rgba(120, 120, 128, 0.08);
-            --input-focus: rgba(0, 122, 255, 0.15);
-            --danger: #ff3b30;
-            --success: #34c759;
-            --blob1: rgba(0, 122, 255, 0.18);
-            --blob2: rgba(88, 86, 214, 0.14);
-            --blob3: rgba(52, 199, 89, 0.10);
+            /* Quiet Luxury: near-monochrome, one restrained accent */
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: rgba(37, 99, 235, 0.08);
+            --bg: #f7f7f8;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text: #16181d;
+            --text-sub: #71717a;
+            --border: rgba(15, 23, 42, 0.07);
+            --input-bg: rgba(15, 23, 42, 0.035);
+            --input-focus: rgba(37, 99, 235, 0.07);
+            --danger: #dc2626;
+            --success: #16a34a;
         }
         [data-theme="dark"] {
-            --primary: #0a84ff;
-            --primary-dark: #409cff;
-            --primary-light: rgba(10, 132, 255, 0.18);
-            --bg: #000;
-            --card-bg: rgba(28, 28, 30, 0.88);
-            --text: #f5f5f7;
-            --text-sub: #98989f;
-            --border: rgba(255, 255, 255, 0.1);
-            --input-bg: rgba(255, 255, 255, 0.07);
-            --input-focus: rgba(10, 132, 255, 0.2);
-            --blob1: rgba(10, 132, 255, 0.15);
-            --blob2: rgba(94, 92, 230, 0.12);
-            --blob3: rgba(48, 209, 88, 0.08);
+            --primary: #3b82f6;
+            --primary-dark: #60a5fa;
+            --primary-light: rgba(59, 130, 246, 0.14);
+            --bg: #0b0c0f;
+            --card-bg: rgba(26, 27, 31, 0.9);
+            --text: #f2f2f4;
+            --text-sub: #8f8f97;
+            --border: rgba(255, 255, 255, 0.075);
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-focus: rgba(59, 130, 246, 0.14);
+            --danger: #ef4444;
+            --success: #22c55e;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,31 +54,18 @@
             position: relative;
             -webkit-font-smoothing: antialiased;
             transition: background 0.3s;
+            background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        [data-theme="dark"] body {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
         }
 
-        /* ── Animated background blobs ──────────────────────────────── */
-        .blobs {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            animation: drift 14s ease-in-out infinite alternate;
-        }
-        .blob-1 { width: 600px; height: 600px; background: var(--blob1); top: -150px; left: -100px; animation-delay: 0s; }
-        .blob-2 { width: 500px; height: 500px; background: var(--blob2); bottom: -120px; right: -80px; animation-delay: -4s; animation-duration: 18s; }
-        .blob-3 { width: 350px; height: 350px; background: var(--blob3); top: 40%; left: 40%; animation-delay: -8s; animation-duration: 12s; }
-
-        @keyframes drift {
-            0%   { transform: translate(0, 0) scale(1); }
-            50%  { transform: translate(40px, 30px) scale(1.08); }
-            100% { transform: translate(-30px, 50px) scale(0.95); }
-        }
+        /* Quiet Luxury: no animated colored blobs — a still, neutral dot-grid
+           (matching the rest of the app) recedes instead of competing for
+           attention on the one screen that most needs to feel trustworthy. */
+        .blobs { display: none; }
 
         /* ── Auth card ───────────────────────────────────────────────── */
         .auth-wrapper {
@@ -116,15 +100,18 @@
         .logo-icon {
             width: 64px;
             height: 64px;
-            background: linear-gradient(135deg, var(--primary) 0%, #5856d6 100%);
+            /* Same neutral "chip" treatment as the passport badge / avatar in
+               the main app — one consistent identity mark, accent color
+               reserved for actions, not branding. */
+            background: var(--text);
             border-radius: 18px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 14px;
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.35);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.15);
         }
-        .logo-icon i { font-size: 28px; color: #fff; }
+        .logo-icon i { font-size: 28px; color: var(--bg); }
         .auth-logo h1 { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
         .auth-logo p  { font-size: 13px; color: var(--text-sub); margin-top: 4px; font-weight: 500; }
 
@@ -195,7 +182,7 @@
         .input-wrap:focus-within {
             border-color: var(--primary);
             background: var(--input-focus);
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
         }
         .input-wrap i.bi {
             font-size: 16px;
@@ -267,7 +254,7 @@
         .btn-auth {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--primary) 0%, #5856d6 100%);
+            background: var(--primary);
             color: #fff;
             border: none;
             border-radius: 13px;
@@ -276,8 +263,8 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 6px;
-            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.35);
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s, background 0.15s;
+            box-shadow: 0 2px 10px -2px rgba(37, 99, 235, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -285,8 +272,9 @@
             letter-spacing: 0.2px;
         }
         .btn-auth:hover:not(:disabled) {
+            background: var(--primary-dark);
             transform: translateY(-1px);
-            box-shadow: 0 6px 28px rgba(0, 122, 255, 0.45);
+            box-shadow: 0 4px 16px -2px rgba(37, 99, 235, 0.4);
         }
         .btn-auth:active:not(:disabled) { transform: translateY(0); }
         .btn-auth:disabled { opacity: 0.65; cursor: not-allowed; }
@@ -350,7 +338,7 @@
             transition: background 0.3s;
         }
         .pw-bar.filled-weak   { background: var(--danger); }
-        .pw-bar.filled-medium { background: #ff9500; }
+        .pw-bar.filled-medium { background: #d97706; }
         .pw-bar.filled-strong { background: var(--success); }
         .pw-label { font-size: 11px; font-weight: 600; color: var(--text-sub); }
 
@@ -590,7 +578,7 @@ window.checkPwStrength = function(val) {
         label.textContent = 'Weak'; label.style.color = 'var(--danger)';
     } else if (score === 2) {
         bars[0].classList.add('filled-medium'); bars[1].classList.add('filled-medium');
-        label.textContent = 'Medium'; label.style.color = '#ff9500';
+        label.textContent = 'Medium'; label.style.color = '#d97706';
     } else {
         bars.forEach(b => b.classList.add('filled-strong'));
         label.textContent = 'Strong'; label.style.color = 'var(--success)';
