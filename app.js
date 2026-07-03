@@ -1559,23 +1559,26 @@ function initDarkMode() {
     const isDark = localStorage.getItem('theme') === 'dark';
     if (isDark) {
         document.body.setAttribute('data-theme', 'dark');
-        document.querySelector('.bi-moon-stars').classList.replace('bi-moon-stars', 'bi-sun');
+        const icon = document.querySelector('.bi-moon-stars-fill');
+        if (icon) icon.classList.replace('bi-moon-stars-fill', 'bi-sun');
     }
 }
 
 function toggleDarkMode() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
-    const icon = document.getElementById('darkModeToggle').querySelector('i');
+    const toggleBtn = document.getElementById('darkModeToggle');
+    const icon = toggleBtn ? toggleBtn.querySelector('i') : null;
+    if (!icon) return;
 
     if (isDark) {
         document.body.removeAttribute('data-theme');
         localStorage.setItem('theme', 'light');
         icon.classList.remove('bi-sun');
-        icon.classList.add('bi-moon-stars');
+        icon.classList.add('bi-moon-stars-fill');
     } else {
         document.body.setAttribute('data-theme', 'dark');
         localStorage.setItem('theme', 'dark');
-        icon.classList.remove('bi-moon-stars');
+        icon.classList.remove('bi-moon-stars-fill');
         icon.classList.add('bi-sun');
     }
 }
