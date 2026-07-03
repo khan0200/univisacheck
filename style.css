@@ -1317,6 +1317,35 @@ body {
         height: 34px;
         font-size: 14px;
     }
+
+    /* Group avatar + dark-toggle + logout into one cohesive pill instead
+       of three separately bordered/shadowed floating circles, and anchor
+       it to the top-right corner — the standard spot for account/settings
+       controls, instead of sitting flush left. */
+    .header-actions {
+        align-self: flex-end;
+        margin-left: 0 !important;
+        gap: 2px !important;
+        padding: 4px;
+        background: var(--card-bg);
+        border: 1px solid var(--divider);
+        border-radius: 999px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .header-actions .user-badge,
+    .header-actions .btn-header-icon {
+        border: none;
+        background: transparent;
+        backdrop-filter: none;
+        box-shadow: none;
+    }
+
+    .header-actions .btn-header-icon:hover {
+        background: var(--input-bg);
+        transform: none;
+        box-shadow: none;
+    }
 }
 
 /* ------------- Legacy login overlay (keep animation) -------------- */
