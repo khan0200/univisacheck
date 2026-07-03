@@ -1,7 +1,25 @@
 // Shared JWT utilities for auth
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'visacheck-secret-key-2026-change-in-production';
+// JWT_SECRET comes from an environment variable in production (set it in
+// Vercel). turso.config.js (gitignored) supplies it locally so dev works
+// without exporting env vars. No secret is hardcoded in this tracked file —
+// a committed JWT secret would let anyone forge a login token for any user.
+let localConfig = {};
+try {
+    localConfig = require(path.join(__dirname, '..', 'turso.config.js'));
+} catch (_) {
+    // Not present — expected in production.
+}
+
+const JWT_SECRET = process.env.JWT_SECRET || localConfig.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error(
+        'Missing JWT_SECRET. Set the JWT_SECRET environment variable (Vercel), ' +
+        'or provide it in turso.config.js for local development.'
+    );
+}
 const JWT_EXPIRES = '7d';
 
 /**
