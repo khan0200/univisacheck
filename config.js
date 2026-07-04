@@ -51,7 +51,7 @@ const CONFIG = {
 
   // UI Settings
   UI: {
-    TOAST_DURATION_MS: 5000, // Toast notification duration
+    TOAST_DURATION_MS: 2000, // Toast notification duration
     SEARCH_DEBOUNCE_MS: 300, // Debounce search input
     ANIMATION_DELAY_PER_ROW: 10, // Stagger row animations (ms)
   },
@@ -67,7 +67,7 @@ const CONFIG = {
   // Status Mappings (Uzbek to English)
   STATUS_MAP: {
     TASDIQLANGAN: "APPROVED",
-    ISHLATILGAN: "APPROVED",
+    ISHLATILGAN: "VISA USED",
     "BEKOR QILINGAN": "CANCELLED",
     "RAD ETILGAN": "REJECTED",
     "KO'RIB CHIQILMOQDA": "UNDER REVIEW",

@@ -1,4 +1,5 @@
 const https = require('https');
+const { checkVisaDirect, getSession } = require('../direct-visa-check');
 
 const API_HOST = 'visamasters.uz';
 
@@ -85,24 +86,178 @@ module.exports = async (req, res) => {
         const fullNameParam = (req.query.full_name || '').trim().toUpperCase();
         const birthParam = (req.query.birth_date || '').trim();
 
-        if (!pdfUrlParam || !passportParam || !fullNameParam || !birthParam) {
-            res.status(400).json({ error: 'Missing required parameters (url, passport, full_name, birth_date). Refresh the student status first.' });
+        if (!passportParam || !fullNameParam || !birthParam) {
+            res.status(400).json({ error: 'Missing required parameters (passport, full_name, birth_date).' });
             return;
         }
 
-        let parsedTarget;
-        try {
-            parsedTarget = new URL(pdfUrlParam);
-        } catch {
-            res.status(400).json({ error: 'Invalid PDF URL' });
+        // Validate target URL if provided
+        let parsedTarget = null;
+        if (pdfUrlParam) {
+            try {
+                parsedTarget = new URL(pdfUrlParam);
+            } catch {
+                res.status(400).json({ error: 'Invalid PDF URL' });
+                return;
+            }
+            if (!parsedTarget.hostname.endsWith('visamasters.uz') && !parsedTarget.hostname.endsWith('visa.go.kr')) {
+                res.status(403).json({ error: 'Forbidden: URL must be from visamasters.uz or visa.go.kr' });
+                return;
+            }
+        }
+
+        if (!parsedTarget || parsedTarget.hostname.endsWith('visa.go.kr')) {
+                // ── Direct visa.go.kr PDF Download ────────────────────────────
+                console.log(`[Vercel PDF] Requesting direct download from visa.go.kr for ${passportParam}...`);
+                
+                // 1. Format date to YYYYMMDD
+                const birthYmd = birthParam.replace(/-/g, '');
+                
+                let evSeq = '';
+                let invSeq = '0';
+                let applNo = '';
+
+                // 2. Retrieve dynamic variables. If parsedTarget exists, use searchParams.
+                // Otherwise, perform direct status check to populate session and get parameters!
+                let cookies;
+
+                if (parsedTarget) {
+                    evSeq = parsedTarget.searchParams.get('evSeq') || '';
+                    invSeq = parsedTarget.searchParams.get('invSeq') || '0';
+                    applNo = parsedTarget.searchParams.get('applNo') || '';
+                    cookies = await getSession(true);
+                } else {
+                    console.log(`[Vercel PDF] No pdfUrl provided. Fetching fresh status check first for ${passportParam}...`);
+                    const directResult = await checkVisaDirect(passportParam, fullNameParam, birthParam);
+                    if (!directResult.found || !directResult.pdfUrl) {
+                        res.status(404).json({ error: 'No visa record or PDF download parameters found on visa.go.kr.' });
+                        return;
+                    }
+                    const resultUrl = new URL(directResult.pdfUrl);
+                    evSeq = resultUrl.searchParams.get('evSeq') || '';
+                    invSeq = resultUrl.searchParams.get('invSeq') || '0';
+                    applNo = resultUrl.searchParams.get('applNo') || '';
+                    cookies = await getSession();
+                }
+
+                // 4. Pre-populate the session by performing the search POST request
+                const querystring = require('querystring');
+                const checkBody = querystring.stringify({
+                    pRADIOSEARCH: 'gb03',
+                    sBUSI_GB:     'PASS_NO',
+                    sBUSI_GBNO:   passportParam,
+                    ssBUSI_GBNO:  passportParam,
+                    sEK_NM:       fullNameParam,
+                    sFROMDATE:    birthParam, // YYYY-MM-DD format as expected by search form
+                    sMainPopUpGB: 'main',
+                });
+
+            const checkOptions = {
+                hostname: 'www.visa.go.kr',
+                port: 443,
+                path: '/openPage.do?MENU_ID=10301',
+                method: 'POST',
+                headers: {
+                    'User-Agent':    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
+                    'Referer':       'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
+                    'Origin':        'https://www.visa.go.kr',
+                    'Accept':        'text/html,application/xhtml+xml,*/*;q=0.9',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Content-Type':  'application/x-www-form-urlencoded',
+                    'Content-Length': String(Buffer.byteLength(checkBody)),
+                    'Cookie':         cookies,
+                }
+            };
+
+            const checkRes = await new Promise((resolve, reject) => {
+                const req = https.request(checkOptions, res => {
+                    const chunks = [];
+                    res.on('data', c => chunks.push(c));
+                    res.on('end', () => resolve({ statusCode: res.statusCode, headers: res.headers }));
+                });
+                req.on('error', reject);
+                req.write(checkBody);
+                req.end();
+            });
+
+            let downloadCookies = cookies;
+            if (checkRes.headers['set-cookie']) {
+                downloadCookies = checkRes.headers['set-cookie'].map(c => c.split(';')[0]).join('; ');
+            }
+
+            // 5. Send POST to print servlet to download the PDF
+            const printBody = querystring.stringify({
+                sBUSI_GB: 'PASS_NO',
+                sBUSI_GBNO: passportParam,
+                EV_SEQ: evSeq,
+                INVITEE_SEQ: invSeq,
+                APPL_NO: applNo,
+                ENG_NM: fullNameParam,
+                BIRTH_YMD: birthYmd,
+                IN_PHOTO: '/biz/ap/ev/selectInviteeXvarmImage.do',
+                TRAN_TYPE: 'ComSubmit',
+                SE_FLAG_YN: '',
+                LANG_TYPE: 'KO',
+                CMM_TEST_VAL: 'test'
+            });
+
+            console.log(`[Vercel PDF] Downloading PDF from visa.go.kr using evSeq: ${evSeq}...`);
+            const printOptions = {
+                hostname: 'www.visa.go.kr',
+                port: 443,
+                path: '/biz/ap/ev/selectElectronicVisaPrint3.do',
+                method: 'POST',
+                headers: {
+                    'User-Agent':    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
+                    'Referer':       'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
+                    'Origin':        'https://www.visa.go.kr',
+                    'Accept':        'text/html,application/xhtml+xml,application/pdf,*/*;q=0.9',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Content-Type':  'application/x-www-form-urlencoded',
+                    'Content-Length': String(Buffer.byteLength(printBody)),
+                    'Cookie':         downloadCookies,
+                }
+            };
+
+            const printReq = https.request(printOptions, (printRes) => {
+                const contentType = printRes.headers['content-type'] || '';
+                const statusCode  = printRes.statusCode;
+
+                console.log(`[Vercel PDF] visa.go.kr print response: ${statusCode} | Content-Type: ${contentType}`);
+
+                if (statusCode !== 200) {
+                    printRes.resume();
+                    res.status(502).json({ error: `visa.go.kr print service returned HTTP ${statusCode}.` });
+                    return;
+                }
+
+                if (!contentType.includes('pdf') && !contentType.includes('octet-stream')) {
+                    let body = ''; printRes.on('data', c => { body += c; });
+                    printRes.on('end', () => {
+                        console.warn('[Vercel PDF] Non-PDF print response body:', body.substring(0, 300));
+                        res.status(404).json({ error: 'visa.go.kr did not return a PDF file.' });
+                    });
+                    return;
+                }
+
+                const filename = passportParam ? `visa_${passportParam}.pdf` : 'visa.pdf';
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+                printRes.pipe(res);
+            });
+
+            printReq.on('error', (err) => {
+                console.error('[Vercel PDF] Direct print request error:', err.message);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: err.message });
+                }
+            });
+            printReq.write(printBody);
+            printReq.end();
             return;
         }
 
-        if (!parsedTarget.hostname.endsWith('visamasters.uz')) {
-            res.status(403).json({ error: 'Forbidden: URL must be from visamasters.uz' });
-            return;
-        }
-
+        // ── visamasters.uz Fallback ──
         let csrf;
         try { csrf = await getCSRF(); } catch (e) {
             csrfCache.token = null;

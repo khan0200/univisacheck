@@ -25,7 +25,7 @@ function escapeTelegramText(value) {
 function getStatusEmoji(status) {
     const normalized = String(status || '').toLowerCase();
 
-    if (normalized.includes('approved')) {
+    if (normalized.includes('approved') || normalized.includes('visa used')) {
         return '🟢';
     }
 
@@ -47,7 +47,7 @@ function getStatusEmoji(status) {
 function getMessageTone(status) {
     const normalized = String(status || '').toLowerCase();
 
-    if (normalized.includes('approved')) {
+    if (normalized.includes('approved') || normalized.includes('visa used')) {
         return {
             header: '🟢 Visa Status Update',
             footer: '🎉 Congratulations!'

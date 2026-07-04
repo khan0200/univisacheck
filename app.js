@@ -406,6 +406,29 @@ function updateSingleRow(student) {
         statusCell.innerHTML = getStatusBadge(student.status);
     }
 
+    // Update PDF cell dynamically if student is approved or visa used
+    const pdfCell = row.querySelector('.td-pdf');
+    if (pdfCell) {
+        const statusLower = (student.status || '').toLowerCase();
+        const isApproved = statusLower.includes('approved') || statusLower.includes('visa used');
+        if (isApproved) {
+            pdfCell.innerHTML = `
+                <button class="btn btn-sm btn-pdf-download action-btn" data-action="download-pdf" data-id="${student.passport}" title="Download Visa PDF">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                </button>
+            `;
+            // Attach listener to newly created button
+            const pdfBtn = pdfCell.querySelector('.btn-pdf-download');
+            if (pdfBtn) {
+                pdfBtn.addEventListener('click', (e) => {
+                    handleAction('download-pdf', student.passport, e.currentTarget);
+                });
+            }
+        } else {
+            pdfCell.innerHTML = '';
+        }
+    }
+
     // Update student ID (and inline reason)
     const idCell = row.querySelector('.td-name .student-id');
     if (idCell) {
@@ -431,6 +454,13 @@ function updateSingleRow(student) {
 
     // Update tab counts (status might have changed)
     updateTabCounts();
+
+    // Dynamically toggle PDF column visibility if any PDF button exists
+    const table = document.querySelector('.custom-table');
+    if (table) {
+        const hasPdfButton = document.querySelector('#studentsTableBody .btn-pdf-download') !== null;
+        table.classList.toggle('show-pdf-column', currentFilter === 'approved' || hasPdfButton);
+    }
 
     // Add a subtle flash animation to indicate update
     row.style.transition = 'background-color 0.3s ease';
@@ -516,7 +546,6 @@ function updateTabCounts() {
 }
 
 function renderTable() {
-    updateSelectColumnVisibility();
 
     // Hide loading state when data is ready
     if (cachedDOM.loadingState) {
@@ -587,6 +616,8 @@ function renderTable() {
     // Update Count
     cachedDOM.studentCountLabel.textContent = `${filteredStudents.length} students`;
 
+    updateSelectColumnVisibility(filteredStudents);
+
     // Empty State
     if (filteredStudents.length === 0) {
         cachedDOM.emptyState.classList.remove('d-none');
@@ -637,7 +668,7 @@ function renderTable() {
                 >
             </td>
             <td class="text-center td-pdf">
-                ${currentFilter === 'approved' ? `
+                ${((student.status || '').toLowerCase().includes('approved') || (student.status || '').toLowerCase().includes('visa used')) ? `
                 <button class="btn btn-sm btn-pdf-download action-btn" data-action="download-pdf" data-id="${student.passport}" title="Download Visa PDF">
                     <i class="bi bi-file-earmark-pdf-fill"></i>
                 </button>` : ''}
@@ -676,11 +707,16 @@ function renderTable() {
     updateCheckSelectedButton();
 }
 
-function updateSelectColumnVisibility() {
+function updateSelectColumnVisibility(filteredStudents = []) {
     const table = document.querySelector('.custom-table');
     if (!table) return;
     table.classList.toggle('show-select-column', currentFilter === 'application');
-    table.classList.toggle('show-pdf-column', currentFilter === 'approved');
+    
+    const hasApproved = filteredStudents.some(s => {
+        const status = (s.status || '').toLowerCase();
+        return status.includes('approved') || status.includes('visa used');
+    });
+    table.classList.toggle('show-pdf-column', currentFilter === 'approved' || hasApproved);
 }
 
 function getCopyFieldHtml(displayHtml, copyValue, title, extraClass = '') {
@@ -700,7 +736,8 @@ function getCopyFieldHtml(displayHtml, copyValue, title, extraClass = '') {
 function getDisplayStatusText(statusValue) {
     const status = (statusValue || '').toLowerCase();
 
-    if (status.includes('approved') || status.includes('visa used')) return 'Approved';
+    if (status.includes('visa used')) return 'Visa Used';
+    if (status.includes('approved')) return 'Approved';
     if (status.includes('cancel') || status.includes('reject')) return 'Cancelled';
     if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) return 'Pending';
     if (status.includes('received') || status.includes('app/')) return 'Received';
@@ -1196,40 +1233,17 @@ async function downloadVisaPdf(student, btnElement) {
     }
 
     try {
-        // If no stored PDF URL, fetch it from visamasters.uz first
-        let storedPdfUrl = student.pdfUrl || '';
-        if (!storedPdfUrl) {
-            // Fetch PDF URL from visamasters.uz
-            const isLocal = window.location.hostname === 'localhost' ||
-                            window.location.hostname === '127.0.0.1' ||
-                            window.location.protocol === 'file:';
-            const fetchUrlEndpoint = isLocal
-                ? 'http://localhost:3000/fetch-visa-pdfurl'
-                : '/api/fetch-visa-pdfurl';
-            const urlRes = await fetch(fetchUrlEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    passport: student.passport,
-                    full_name: student.fullName,
-                    birth_date: student.birthday,
-                })
-            });
-            const urlData = await urlRes.json();
-            if (!urlData.pdfUrl) {
-                throw new Error('No PDF available for this student from visamasters.uz.');
-            }
-            storedPdfUrl = urlData.pdfUrl;
-        }
-
         const isLocal = window.location.hostname === 'localhost' ||
                         window.location.hostname === '127.0.0.1' ||
                         window.location.hostname === '' ||
                         window.location.protocol === 'file:';
 
-        const pdfUrl = isLocal 
-            ? `http://localhost:3000/download-visa-pdf?url=${encodeURIComponent(storedPdfUrl)}&passport=${encodeURIComponent(student.passport)}&full_name=${encodeURIComponent(student.fullName || '')}&birth_date=${encodeURIComponent(student.birthday || '')}`
-            : `/api/download-visa-pdf?url=${encodeURIComponent(storedPdfUrl)}&passport=${encodeURIComponent(student.passport)}&full_name=${encodeURIComponent(student.fullName || '')}&birth_date=${encodeURIComponent(student.birthday || '')}`;
+        const storedPdfUrl = student.pdfUrl || '';
+        const baseEndpoint = isLocal 
+            ? 'http://localhost:3000/download-visa-pdf'
+            : '/api/download-visa-pdf';
+
+        const pdfUrl = `${baseEndpoint}?url=${encodeURIComponent(storedPdfUrl)}&passport=${encodeURIComponent(student.passport)}&full_name=${encodeURIComponent(student.fullName || '')}&birth_date=${encodeURIComponent(student.birthday || '')}`;
 
         const response = await fetch(pdfUrl);
 

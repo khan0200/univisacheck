@@ -182,6 +182,16 @@ async function checkVisaDirect(passport, fullName, birthDate) {
     
     // Latest record is first (most recent application)
     const latest = records[0] || {};
+
+    // Extract dynamic variables for printing/downloading certificate PDF
+    const evSeq = (r.body.match(/var\s+evSeq\s*=\s*"([^"]*)"/) || [])[1] || '';
+    const invSeq = (r.body.match(/var\s+invSeq\s*=\s*"([^"]*)"/) || [])[1] || '';
+    const applNo = (r.body.match(/var\s+applNo\s*=\s*"([^"]*)"/) || [])[1] || '';
+
+    let pdfUrl = '';
+    if (evSeq) {
+        pdfUrl = `https://www.visa.go.kr/biz/ap/ev/selectElectronicVisaPrint3.do?evSeq=${evSeq}&invSeq=${invSeq}&applNo=${applNo}`;
+    }
     
     return {
         found: true,
@@ -193,6 +203,7 @@ async function checkVisaDirect(passport, fullName, birthDate) {
         entryDate:          latest.entryDate || '',
         entryPurpose:       latest.entryPurpose || '',
         rejectionReason:    latest.rejectionReason || '',
+        pdfUrl,
     };
 }
 
@@ -261,6 +272,8 @@ async function runTest() {
     console.log('');
 }
 
-runTest().catch(console.error);
+if (require.main === module) {
+    runTest().catch(console.error);
+}
 
 module.exports = { checkVisaDirect, getSession };
