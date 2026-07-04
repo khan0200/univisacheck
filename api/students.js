@@ -104,6 +104,8 @@ module.exports = async (req, res) => {
             const rejectReason = body.rejectReason !== undefined ? body.rejectReason : (body.rejectionReason !== undefined ? body.rejectionReason : null);
             const pdfUrl = body.pdfUrl !== undefined ? body.pdfUrl : null;
             const apiResponse = body.apiResponse !== undefined ? (typeof body.apiResponse === 'object' ? JSON.stringify(body.apiResponse) : body.apiResponse) : null;
+            const visaType = body.visaType !== undefined ? body.visaType.trim() : null;
+            const applicationNo = body.applicationNo !== undefined ? body.applicationNo.trim() : null;
 
             let batchSelected = null;
             if (body.batchSelected !== undefined) {
@@ -126,8 +128,8 @@ module.exports = async (req, res) => {
                     INSERT INTO students (
                         passport, fullName, birthday, studentId, status,
                         lastChecked, rejectReason, pdfUrl, apiResponse,
-                        batchSelected, batchSelectedUpdatedAt, createdAt, userId
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?)
+                        batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
                 `;
                 await db.execute({
                     sql,
@@ -143,7 +145,9 @@ module.exports = async (req, res) => {
                         apiResponse || '',
                         batchSelected !== null ? batchSelected : 0,
                         batchSelectedUpdatedAt || '',
-                        userId
+                        userId,
+                        visaType || 'Embassy',
+                        applicationNo || ''
                     ]
                 });
                 res.status(201).json({ success: true, message: 'Student created successfully' });
@@ -162,6 +166,8 @@ module.exports = async (req, res) => {
                 if (apiResponse !== null) { updateFields.push('apiResponse = ?'); args.push(apiResponse); }
                 if (batchSelected !== null) { updateFields.push('batchSelected = ?'); args.push(batchSelected); }
                 if (batchSelectedUpdatedAt !== null) { updateFields.push('batchSelectedUpdatedAt = ?'); args.push(batchSelectedUpdatedAt); }
+                if (visaType !== null) { updateFields.push('visaType = ?'); args.push(visaType); }
+                if (applicationNo !== null) { updateFields.push('applicationNo = ?'); args.push(applicationNo); }
 
                 if (updateFields.length === 0) {
                     res.status(200).json({ success: true, message: 'No fields to update' });

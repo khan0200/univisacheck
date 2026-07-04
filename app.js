@@ -106,6 +106,21 @@ function setupEventListeners() {
     // Form Submit (Add/Edit)
     cachedDOM.form.addEventListener('submit', handleFormSubmit);
 
+    // Toggle Application Number field based on Visa Type selection
+    const visaTypeEl = document.getElementById('visaType');
+    const appNoWrapper = document.getElementById('applicationNoWrapper');
+    const appNoInput = document.getElementById('applicationNo');
+    if (visaTypeEl && appNoWrapper && appNoInput) {
+        visaTypeEl.addEventListener('change', (e) => {
+            if (e.target.value === 'E-Visa') {
+                appNoWrapper.classList.remove('d-none');
+            } else {
+                appNoWrapper.classList.add('d-none');
+                appNoInput.value = ''; // Clear value when hidden
+            }
+        });
+    }
+
     // Select-column checkboxes: tie Check button visibility directly to the
     // live DOM checkbox state via native 'change' (delegated, since rows are
     // rebuilt on every render). This is independent of the toggle-batch
@@ -178,6 +193,15 @@ function setupEventListeners() {
         document.getElementById('modalTitle').textContent = "Add New Student";
         document.getElementById('submitBtnText').textContent = "Save Student";
         document.getElementById('passport').disabled = false;
+        if (document.getElementById('visaType')) {
+            document.getElementById('visaType').value = "Embassy";
+        }
+        if (document.getElementById('applicationNoWrapper')) {
+            document.getElementById('applicationNoWrapper').classList.add('d-none');
+        }
+        if (document.getElementById('applicationNo')) {
+            document.getElementById('applicationNo').value = '';
+        }
     });
 
     // Force uppercase as-you-type for Student ID and Full Name
@@ -192,6 +216,8 @@ function setupEventListeners() {
     if (studentIdInputEl) uppercaseWhileTyping(studentIdInputEl);
     const fullNameInputEl = document.getElementById('fullName');
     if (fullNameInputEl) uppercaseWhileTyping(fullNameInputEl);
+    const appNoInputEl = document.getElementById('applicationNo');
+    if (appNoInputEl) uppercaseWhileTyping(appNoInputEl);
 
     // Auto-format Passport Number (SSDDDDDDD — 2 letters + 7 digits, matches
     // CONFIG.VALIDATION.PASSPORT_REGEX)
@@ -403,7 +429,7 @@ function updateSingleRow(student) {
     // Update status badge
     const statusCell = row.querySelector('.td-status');
     if (statusCell) {
-        statusCell.innerHTML = getStatusBadge(student.status);
+        statusCell.innerHTML = getCopyFieldHtml(getStatusBadge(student.status), getDisplayStatusText(student.status), 'Copy status');
     }
 
     // Update PDF cell dynamically if student is approved or visa used
@@ -432,7 +458,13 @@ function updateSingleRow(student) {
     // Update student ID (and inline reason)
     const idCell = row.querySelector('.td-name .student-id');
     if (idCell) {
-        idCell.innerHTML = `${student.studentId ? '#' + student.studentId : ''} ${getInlineRejectionReasonHtml(student)}`;
+        const cancellationReason = getCancellationReason(student);
+        idCell.innerHTML = `
+            ${student.visaType === 'E-Visa' ? '<span class="badge bg-info-subtle text-info-emphasis me-1 py-0 px-1" style="font-size: 0.65rem; vertical-align: middle;">E-Visa</span>' : '<span class="badge bg-secondary-subtle text-secondary me-1 py-0 px-1" style="font-size: 0.65rem; vertical-align: middle;">Embassy</span>'}
+            ${student.studentId ? getCopyFieldHtml('#' + escapeHtml(student.studentId), student.studentId, 'Copy student ID') : ''}
+            ${student.applicationNo ? getCopyFieldHtml(escapeHtml(student.applicationNo), student.applicationNo, 'Copy application number') : ''}
+            ${cancellationReason ? getCopyFieldHtml(`Rejected: ${escapeHtml(formatCancellationReason(cancellationReason))}`, cancellationReason, 'Copy cancellation reason', 'copy-field-reason') : ''}
+        `;
     }
 
     // Update last checked timestamp
@@ -444,7 +476,7 @@ function updateSingleRow(student) {
     // Update application date if it changed
     const appliedCell = row.querySelector('.td-applied .applied-date');
     if (appliedCell && student.applicationDate) {
-        appliedCell.textContent = student.applicationDate;
+        appliedCell.innerHTML = getCopyFieldHtml(escapeHtml(student.applicationDate), student.applicationDate, 'Copy applied date');
     }
 
     const selectInput = row.querySelector('.batch-select-toggle');
@@ -596,7 +628,9 @@ function renderTable() {
             const matchName = (student.fullName || '').toLowerCase().includes(searchQuery);
             const matchPassport = (student.passport || '').toLowerCase().includes(searchQuery);
             const matchId = (student.studentId || '').toLowerCase().includes(searchQuery);
-            if (!matchName && !matchPassport && !matchId) return false;
+            const matchVisaType = (student.visaType || '').toLowerCase().includes(searchQuery);
+            const matchAppNo = (student.applicationNo || '').toLowerCase().includes(searchQuery);
+            if (!matchName && !matchPassport && !matchId && !matchVisaType && !matchAppNo) return false;
         }
 
         return true;
@@ -637,7 +671,9 @@ function renderTable() {
             <td class="td-name">
                 <div class="student-name">${getCopyFieldHtml(escapeHtml(student.fullName || ''), student.fullName, 'Copy full name')}</div>
                 <div class="student-id">
+                    ${student.visaType === 'E-Visa' ? '<span class="badge bg-info-subtle text-info-emphasis me-1 py-0 px-1" style="font-size: 0.65rem; vertical-align: middle;">E-Visa</span>' : '<span class="badge bg-secondary-subtle text-secondary me-1 py-0 px-1" style="font-size: 0.65rem; vertical-align: middle;">Embassy</span>'}
                     ${student.studentId ? getCopyFieldHtml('#' + escapeHtml(student.studentId), student.studentId, 'Copy student ID') : ''}
+                    ${student.applicationNo ? getCopyFieldHtml(escapeHtml(student.applicationNo), student.applicationNo, 'Copy application number') : ''}
                     ${cancellationReason ? getCopyFieldHtml(`Rejected: ${escapeHtml(formatCancellationReason(cancellationReason))}`, cancellationReason, 'Copy cancellation reason', 'copy-field-reason') : ''}
                 </div>
             </td>
@@ -773,12 +809,16 @@ async function handleFormSubmit(e) {
     const passportInput = document.getElementById('passport');
     const birthdayInput = document.getElementById('birthday');
     const studentIdInput = document.getElementById('studentId');
+    const visaTypeInput = document.getElementById('visaType');
+    const applicationNoInput = document.getElementById('applicationNo');
 
     // Enforce formats
     const fullName = fullNameInput.value.toUpperCase().trim();
     const passport = passportInput.value.toUpperCase().trim();
     const birthday = birthdayInput.value.trim();
     const studentId = studentIdInput ? studentIdInput.value.trim() : '';
+    const visaType = visaTypeInput ? visaTypeInput.value : 'Embassy';
+    const applicationNo = applicationNoInput ? applicationNoInput.value.trim().toUpperCase() : '';
 
     // Validation: Passport Format
     if (!CONFIG.VALIDATION.PASSPORT_REGEX.test(passport)) {
@@ -823,6 +863,8 @@ async function handleFormSubmit(e) {
         passport,
         birthday,
         studentId,
+        visaType,
+        applicationNo,
         lastChecked: new Date().toISOString()
     };
 
@@ -935,6 +977,19 @@ async function handleAction(action, passport, btnElement) {
         if (document.getElementById('studentId')) {
             document.getElementById('studentId').value = student.studentId || '';
         }
+        if (document.getElementById('visaType')) {
+            document.getElementById('visaType').value = student.visaType || 'Embassy';
+        }
+        if (document.getElementById('applicationNo')) {
+            document.getElementById('applicationNo').value = student.applicationNo || '';
+        }
+        if (document.getElementById('applicationNoWrapper')) {
+            if (student.visaType === 'E-Visa') {
+                document.getElementById('applicationNoWrapper').classList.remove('d-none');
+            } else {
+                document.getElementById('applicationNoWrapper').classList.add('d-none');
+            }
+        }
 
 
         bootstrapModal.show();
@@ -948,6 +1003,18 @@ async function handleAction(action, passport, btnElement) {
         document.getElementById('detailsBirthday').textContent = formatDate(student.birthday);
         document.getElementById('detailsAppDate').textContent = student.applicationDate || '--';
         document.getElementById('detailsLastChecked').textContent = formatTimestamp(student.lastChecked);
+        if (document.getElementById('detailsVisaType')) {
+            document.getElementById('detailsVisaType').innerHTML = getVisaTypeBadge(student.visaType);
+        }
+        if (document.getElementById('detailsAppNo') && document.getElementById('detailsAppNoWrapper')) {
+            if (student.visaType === 'E-Visa' && student.applicationNo) {
+                document.getElementById('detailsAppNo').textContent = student.applicationNo;
+                document.getElementById('detailsAppNoWrapper').classList.remove('d-none');
+            } else {
+                document.getElementById('detailsAppNo').textContent = '--';
+                document.getElementById('detailsAppNoWrapper').classList.add('d-none');
+            }
+        }
 
         new bootstrap.Modal(document.getElementById('detailsModal')).show();
     } else if (action === 'refresh') {
@@ -1301,7 +1368,9 @@ async function checkVisaStatus(student) {
             body: JSON.stringify({
                 passport_number: student.passport,
                 english_name: student.fullName,
-                birth_date: student.birthday
+                birth_date: student.birthday,
+                visa_type: student.visaType || 'Embassy',
+                application_no: student.applicationNo || ''
             })
         });
 
@@ -1357,6 +1426,8 @@ async function sendTelegramNotification(student, oldStatus, newStatus, applicati
             fullName: student.fullName || '',
             passport: student.passport || '',
             studentId: student.studentId || '',
+            visaType: student.visaType || 'Embassy',
+            applicationNo: student.applicationNo || '',
             birthday: student.birthday || '',
             oldStatus,
             newStatus,
@@ -1382,6 +1453,19 @@ async function sendTelegramNotification(student, oldStatus, newStatus, applicati
 }
 
 // Helpers
+function getVisaTypeBadge(visaType) {
+    visaType = visaType || 'Embassy';
+    if (visaType === 'E-Visa') {
+        return `<span class="badge bg-info-subtle text-info-emphasis">
+                    <i class="bi bi-globe me-1"></i>E-Visa
+                </span>`;
+    } else {
+        return `<span class="badge bg-secondary-subtle text-secondary">
+                    <i class="bi bi-building me-1"></i>Embassy
+                </span>`;
+    }
+}
+
 function getStatusBadge(status) {
     status = (status || 'Pending').toLowerCase();
 

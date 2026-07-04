@@ -69,7 +69,13 @@ form.addEventListener('submit', async (e) => {
         const apiBase = CONFIG.API.PROXY_URL;
         const apiResponse = await fetch(apiBase, {
             method: 'POST',
-            body: JSON.stringify({ passport, full_name: fullName, birth_date: birthday }),
+            body: JSON.stringify({
+                passport,
+                full_name: fullName,
+                birth_date: birthday,
+                visa_type: student.visaType || 'Embassy',
+                application_no: student.applicationNo || ''
+            }),
             headers: { 'Content-Type': 'application/json' }
         });
 
@@ -176,6 +182,8 @@ async function sendTelegramNotification(student, oldStatus, newStatus, applicati
             fullName: student.fullName || '',
             passport: student.passport || '',
             studentId: student.studentId || '',
+            visaType: student.visaType || 'Embassy',
+            applicationNo: student.applicationNo || '',
             birthday: student.birthday || student.dateOfBirth || '',
             oldStatus,
             newStatus,

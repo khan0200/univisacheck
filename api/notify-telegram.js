@@ -108,6 +108,8 @@ module.exports = async (req, res) => {
     const fullName = escapeTelegramText(body.fullName);
     const passport = escapeTelegramText(body.passport);
     const studentId = escapeTelegramText(body.studentId);
+    const visaType = escapeTelegramText(body.visaType || 'Embassy');
+    const applicationNo = escapeTelegramText(body.applicationNo);
     const birthday = escapeTelegramText(body.birthday);
     const newStatus = escapeTelegramText(body.newStatus);
     const applicationDate = escapeTelegramText(body.applicationDate);
@@ -117,6 +119,8 @@ module.exports = async (req, res) => {
         messageTone.header,
         '',
         `👤 Name: ${fullName}`,
+        `✈️ Visa Type: ${visaType}`,
+        ...(applicationNo ? [`📄 Application No: ${applicationNo}`] : []),
         studentId ? `🎓 Student ID: ${studentId}` : '🎓 Student ID: --',
         applicationDate ? `📅 Application Date: ${applicationDate}` : '📅 Application Date: --',
         '',

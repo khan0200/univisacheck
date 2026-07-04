@@ -442,9 +442,11 @@ const server = http.createServer(async (req, res) => {
         req.on('end', async () => {
             try {
                 const payload = JSON.parse(body);
-                const passport = payload.passport_number || payload.passport || '';
-                const fullName = payload.english_name || payload.full_name || '';
-                const birthDate = payload.birth_date || payload.date_of_birth || '';
+                const passport = (payload.passport_number || payload.passport || '').toUpperCase().trim();
+                const fullName = (payload.english_name || payload.full_name || '').toUpperCase().trim();
+                const birthDate = (payload.birth_date || payload.date_of_birth || '').trim();
+                const visaType = (payload.visa_type || payload.visaType || 'Embassy').trim();
+                const applicationNo = (payload.application_no || payload.applicationNo || '').trim();
 
                 if (!passport || !fullName || !birthDate) {
                     res.writeHead(400);
@@ -452,10 +454,10 @@ const server = http.createServer(async (req, res) => {
                     return;
                 }
 
-                console.log(`[Direct] Checking visa.go.kr for passport: ${passport}`);
+                console.log(`[Direct] Checking visa.go.kr for passport: ${passport}, type: ${visaType}, appNo: ${applicationNo}`);
 
                 // ── Direct visa.go.kr query (no middleman) ────────────────────
-                const direct = await checkVisaDirect(passport, fullName, birthDate);
+                const direct = await checkVisaDirect(passport, fullName, birthDate, visaType, applicationNo);
 
                 // Map to the same shape the frontend already expects
                 const parsed = {
@@ -499,7 +501,7 @@ const server = http.createServer(async (req, res) => {
                 }
 
                 const payload = JSON.parse(body);
-                const { fullName = '', passport = '', studentId = '', newStatus = '', applicationDate = '' } = payload;
+                const { fullName = '', passport = '', studentId = '', visaType = 'Embassy', applicationNo = '', newStatus = '', applicationDate = '' } = payload;
 
                 const getEmoji = s => {
                     const l = s.toLowerCase();
@@ -523,6 +525,8 @@ const server = http.createServer(async (req, res) => {
                     getHeader(newStatus),
                     '',
                     `👤 Name: ${fullName}`,
+                    `✈️ Visa Type: ${visaType}`,
+                    ...(applicationNo ? [`📄 Application No: ${applicationNo}`] : []),
                     studentId ? `🎓 Student ID: ${studentId}` : '🎓 Student ID: --',
                     applicationDate ? `📅 Application Date: ${applicationDate}` : '📅 Application Date: --',
                     '',
@@ -666,6 +670,8 @@ const server = http.createServer(async (req, res) => {
         const passportParam = (urlParsed.searchParams.get('passport') || '').trim().toUpperCase();
         const fullNameParam = (urlParsed.searchParams.get('full_name') || '').trim().toUpperCase();
         const birthParam    = (urlParsed.searchParams.get('birth_date') || '').trim();
+        const visaTypeParam = (urlParsed.searchParams.get('visa_type') || urlParsed.searchParams.get('visaType') || 'Embassy').trim();
+        const applicationNoParam = (urlParsed.searchParams.get('application_no') || urlParsed.searchParams.get('applicationNo') || '').trim();
 
         if (!passportParam || !fullNameParam || !birthParam) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -714,7 +720,7 @@ const server = http.createServer(async (req, res) => {
                     cookies = await getSession(true);
                 } else {
                     console.log(`[PDF] No pdfUrl provided. Fetching fresh status check first for ${passportParam}...`);
-                    const directResult = await checkVisaDirect(passportParam, fullNameParam, birthParam);
+                    const directResult = await checkVisaDirect(passportParam, fullNameParam, birthParam, visaTypeParam, applicationNoParam);
                     if (!directResult.found || !directResult.pdfUrl) {
                         res.writeHead(404, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ error: 'No visa record or PDF download parameters found on visa.go.kr.' }));

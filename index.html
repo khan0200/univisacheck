@@ -124,8 +124,19 @@
                     <form id="studentForm">
                         <input type="hidden" id="editMode" value="false">
                         <div class="mb-3">
+                            <label for="visaType" class="form-label small fw-semibold text-secondary">Visa Type</label>
+                            <select class="form-select form-select-glass rounded-3" id="visaType" required>
+                                <option value="Embassy" selected>Embassy</option>
+                                <option value="E-Visa">E-Visa</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="studentId" class="form-label small fw-semibold text-secondary">Student ID</label>
                             <input type="text" class="form-control form-control-glass rounded-3" id="studentId" placeholder="M445">
+                        </div>
+                        <div class="mb-3 d-none" id="applicationNoWrapper">
+                            <label for="applicationNo" class="form-label small fw-semibold text-secondary">Application Number</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="applicationNo" placeholder="AP2026123456">
                         </div>
                         <div class="mb-3">
                             <label for="fullName" class="form-label small fw-semibold text-secondary">Full Name</label>
@@ -191,6 +202,18 @@
                             <div class="p-3 bg-light-glass rounded-3 h-100 border">
                                 <small class="text-secondary d-block mb-1">Last Checked</small>
                                 <p class="mb-0 fw-medium" id="detailsLastChecked">--</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Visa Type</small>
+                                <div id="detailsVisaType">--</div>
+                            </div>
+                        </div>
+                        <div class="col-6 d-none" id="detailsAppNoWrapper">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Application Number</small>
+                                <p class="mb-0 fw-medium" id="detailsAppNo">--</p>
                             </div>
                         </div>
                     </div>

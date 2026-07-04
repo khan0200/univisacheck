@@ -30,14 +30,16 @@ module.exports = async (req, res) => {
         const passport  = (body.passport_number || body.passport || '').toUpperCase().trim();
         const fullName  = (body.english_name    || body.full_name || '').toUpperCase().trim();
         const birthDate = (body.birth_date       || body.date_of_birth || '').trim();
+        const visaType  = (body.visa_type || body.visaType || 'Embassy').trim();
+        const applicationNo = (body.application_no || body.applicationNo || '').trim();
 
         if (!passport || !fullName || !birthDate) {
             res.status(400).json({ error: 'Missing required fields: passport, english_name, birth_date' });
             return;
         }
 
-        console.log(`[Vercel Direct] Checking visa.go.kr for passport: ${passport}`);
-        const direct = await checkVisaDirect(passport, fullName, birthDate);
+        console.log(`[Vercel Direct] Checking visa.go.kr for passport: ${passport}, type: ${visaType}, appNo: ${applicationNo}`);
+        const direct = await checkVisaDirect(passport, fullName, birthDate, visaType, applicationNo);
 
         // Map to the same shape the frontend already expects
         const parsed = {

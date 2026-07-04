@@ -85,6 +85,8 @@ module.exports = async (req, res) => {
         const passportParam = (req.query.passport || '').trim().toUpperCase();
         const fullNameParam = (req.query.full_name || '').trim().toUpperCase();
         const birthParam = (req.query.birth_date || '').trim();
+        const visaTypeParam = (req.query.visa_type || req.query.visaType || 'Embassy').trim();
+        const applicationNoParam = (req.query.application_no || req.query.applicationNo || '').trim();
 
         if (!passportParam || !fullNameParam || !birthParam) {
             res.status(400).json({ error: 'Missing required parameters (passport, full_name, birth_date).' });
@@ -128,7 +130,7 @@ module.exports = async (req, res) => {
                 cookies = await getSession(true);
             } else {
                 console.log(`[Vercel PDF] No pdfUrl provided. Fetching fresh status check first for ${passportParam}...`);
-                const directResult = await checkVisaDirect(passportParam, fullNameParam, birthParam);
+                const directResult = await checkVisaDirect(passportParam, fullNameParam, birthParam, visaTypeParam, applicationNoParam);
                 if (!directResult.found || !directResult.pdfUrl) {
                     res.status(404).json({ error: 'No visa record or PDF download parameters found on visa.go.kr.' });
                     return;

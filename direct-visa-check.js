@@ -63,7 +63,7 @@ const KOREAN_STATUS_MAP = [
     { keywords: ['사용완료'],         status: 'VISA USED' },
     { keywords: ['불허'],             status: 'REJECTED' },
     { keywords: ['허가', '발급'],     status: 'APPROVED' },
-    { keywords: ['접수'],             status: 'RECEIVED' },
+    { keywords: ['접수', '신청'],     status: 'RECEIVED' },
     { keywords: ['심사중', '처리중'], status: 'UNDER REVIEW' },
     { keywords: ['취소'],             status: 'CANCELLED' },
     { keywords: ['반려'],             status: 'RETURNED' },
@@ -77,6 +77,41 @@ function parseKoreanStatus(korean) {
         if (entry.keywords.some(k => korean.includes(k))) return entry.status;
     }
     return korean; // Return original if no mapping found
+}
+
+function parseResult1_1(html) {
+    // result1_1 is the E-Visa Search (gb01) result section
+    const results = [];
+
+    // Extract all APPL_YMD values (application dates)
+    const appl_dates = [...html.matchAll(/id="APPL_YMD"[^>]*>([^<]+)</g)].map(m => m[1].trim());
+    
+    // Extract PROC_STS_CDNM elements - includes text
+    const statusRaw  = [...html.matchAll(/id="PROC_STS_CDNM"[^>]*>([\s\S]*?)<\/div>/g)].map(m => stripTags(m[1]).trim());
+    
+    const purposes   = [...html.matchAll(/id="SOJ_QUAL_NM"[^>]*>([^<]+)</g)].map(m => m[1].trim());
+    
+    // Extract rejection reasons (불허사유)
+    const rejReasons = [...html.matchAll(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)].map(m => stripTags(m[1]).trim());
+
+    const count = Math.max(appl_dates.length, statusRaw.length);
+    for (let i = 0; i < count; i++) {
+        const statusKor = statusRaw[i] || '';
+        
+        let entryDate = '';
+        const entryDateMatch = statusKor.match(/(\d{4}\.\d{2}\.\d{2}\.?)/);
+        if (entryDateMatch) entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
+        
+        results.push({
+            applicationDate: appl_dates[i] || '',
+            status:          parseKoreanStatus(statusKor),
+            statusKorean:    statusKor,
+            entryDate:       entryDate,
+            entryPurpose:    purposes[i] || '',
+            rejectionReason: rejReasons[i] || '',
+        });
+    }
+    return results;
 }
 
 function parseResult3_2(html) {
@@ -124,18 +159,29 @@ function parseResult3_2(html) {
  * @param {string} birthDate - Date of birth in YYYY-MM-DD format (e.g., "2006-03-18")
  * @returns {Object} { found: boolean, records: Array, latestStatus: string, latestDate: string, ... }
  */
-async function checkVisaDirect(passport, fullName, birthDate) {
+async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embassy', applicationNo = '') {
     const cookies = await getSession();
+    const isEVisa = (visaType === 'E-Visa') && applicationNo;
+
+    const bodyParams = isEVisa ? {
+        pRADIOSEARCH:  'gb01', // E-Visa Individual
+        sINVITEE_SEQ:  applicationNo.toUpperCase().trim(),
+        ssINVITEE_SEQ: applicationNo.toUpperCase().trim(),
+        sPASS_NO:      passport.toUpperCase().trim(),
+        sEK_NM:        fullName.toUpperCase().trim(),
+        sFROMDATE:     birthDate,
+        sMainPopUpGB:  'main',
+    } : {
+        pRADIOSEARCH:  'gb03', // Diplomatic Mission
+        sBUSI_GB:      'PASS_NO',
+        sBUSI_GBNO:    passport.toUpperCase().trim(),
+        ssBUSI_GBNO:   passport.toUpperCase().trim(),
+        sEK_NM:        fullName.toUpperCase().trim(),
+        sFROMDATE:     birthDate,
+        sMainPopUpGB:  'main',
+    };
     
-    const body = querystring.stringify({
-        pRADIOSEARCH: 'gb03',
-        sBUSI_GB:     'PASS_NO',
-        sBUSI_GBNO:   passport.toUpperCase().trim(),
-        ssBUSI_GBNO:  passport.toUpperCase().trim(),
-        sEK_NM:       fullName.toUpperCase().trim(),
-        sFROMDATE:    birthDate,
-        sMainPopUpGB: 'main',
-    });
+    const body = querystring.stringify(bodyParams);
     
     let r;
     try {
@@ -177,8 +223,8 @@ async function checkVisaDirect(passport, fullName, birthDate) {
         };
     }
     
-    // Parse all records from the result3_2 section
-    const records = parseResult3_2(r.body);
+    // Parse all records
+    const records = isEVisa ? parseResult1_1(r.body) : parseResult3_2(r.body);
     
     // Latest record is first (most recent application)
     const latest = records[0] || {};
