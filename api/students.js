@@ -73,10 +73,20 @@ module.exports = async (req, res) => {
                 res.status(400).json({ error: 'Missing passport parameter' });
                 return;
             }
+
+            const passports = passport.split(',').map(p => p.toUpperCase().trim()).filter(Boolean);
+            if (passports.length === 0) {
+                res.status(400).json({ error: 'No valid passports provided' });
+                return;
+            }
+
+            // Build IN (?, ?, ...) query dynamically
+            const placeholders = passports.map(() => '?').join(', ');
             await db.execute({
-                sql: 'DELETE FROM students WHERE passport = ? AND userId = ?',
-                args: [passport.toUpperCase().trim(), userId]
+                sql: `DELETE FROM students WHERE passport IN (${placeholders}) AND userId = ?`,
+                args: [...passports, userId]
             });
+
             res.status(200).json({ success: true });
             return;
         }

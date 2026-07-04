@@ -60,6 +60,7 @@ let currentFilter = 'pending';
 let searchQuery = '';
 let tooltips = [];
 let searchDebounceTimer = null;
+let bulkDeleteMode = false;
 
 // Cached DOM Elements (for performance)
 let cachedDOM = {
@@ -73,6 +74,7 @@ let cachedDOM = {
     searchInput: null,
     darkModeToggle: null,
     checkSelectedBtn: null,
+    deleteSelectedBtn: null,
 };
 
 
@@ -111,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cachedDOM.searchInput = document.getElementById('searchInput');
     cachedDOM.darkModeToggle = document.getElementById('darkModeToggle');
     cachedDOM.checkSelectedBtn = document.getElementById('checkSelectedBtn');
+    cachedDOM.deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
 
     // Init Bootstrap Modal
     bootstrapModal = new bootstrap.Modal(cachedDOM.modalElement);
@@ -146,6 +149,7 @@ function setupEventListeners() {
     cachedDOM.tableBody.addEventListener('change', (e) => {
         if (e.target.classList && e.target.classList.contains('batch-select-toggle')) {
             updateCheckSelectedButton();
+            updateDeleteSelectedButton();
         }
     });
 
@@ -175,7 +179,10 @@ function setupEventListeners() {
 
             // Apply Filter
             currentFilter = clickedTab.getAttribute('data-tab');
+            bulkDeleteMode = false;
+            studentsData.forEach(s => s.batchSelected = false);
             updateCheckSelectedButton();
+            updateDeleteSelectedButton();
             renderTable();
         };
 
@@ -706,8 +713,8 @@ function renderTable() {
                     type="checkbox"
                     data-action="toggle-batch"
                     data-id="${student.passport}"
-                    title="Select for batch check"
-                    ${currentFilter === 'application' ? '' : 'disabled'}
+                    title="${currentFilter === 'application' ? 'Select for batch check' : 'Select for batch delete'}"
+                    ${(currentFilter === 'application' || ((currentFilter === 'cancelled' || currentFilter === 'approved') && bulkDeleteMode)) ? '' : 'disabled'}
                     ${student.batchSelected ? 'checked' : ''}
                 >
             </td>
@@ -754,7 +761,9 @@ function renderTable() {
 function updateSelectColumnVisibility(filteredStudents = []) {
     const table = document.querySelector('.custom-table');
     if (!table) return;
-    table.classList.toggle('show-select-column', currentFilter === 'application');
+    const showSelect = (currentFilter === 'application') || 
+                        ((currentFilter === 'cancelled' || currentFilter === 'approved') && bulkDeleteMode);
+    table.classList.toggle('show-select-column', showSelect);
     
     const hasApproved = filteredStudents.some(s => {
         const status = (s.status || '').toLowerCase();
@@ -961,6 +970,14 @@ async function handleAction(action, passport, btnElement) {
     if (!student) return;
 
     if (action === 'delete') {
+        if (currentFilter === 'cancelled' || currentFilter === 'approved') {
+            bulkDeleteMode = true;
+            student.batchSelected = true;
+            renderTable();
+            updateDeleteSelectedButton();
+            return;
+        }
+
         if (confirm(`Are you sure you want to delete ${student.fullName}?`)) {
             try {
                 const response = await authFetch(`${STUDENTS_URL}?passport=${encodeURIComponent(passport)}`, {
@@ -1055,8 +1072,13 @@ async function handleAction(action, passport, btnElement) {
         }
 
         // React to the checkbox state immediately — don't wait on the network
-        // round-trip to show/hide the Check button.
+        // round-trip to show/hide the Check/Delete buttons.
         updateCheckSelectedButton();
+        updateDeleteSelectedButton();
+
+        if (currentFilter === 'cancelled' || currentFilter === 'approved') {
+            return; // No need to persist batch selection in DB for temporary delete actions
+        }
 
         try {
             const response = await authFetch(STUDENTS_URL, {
@@ -1076,6 +1098,7 @@ async function handleAction(action, passport, btnElement) {
                 studentsData[index].batchSelected = !enabled;
             }
             updateCheckSelectedButton();
+            updateDeleteSelectedButton();
             showError('Failed to save selection.');
         }
     }
@@ -1160,6 +1183,63 @@ async function handleBatchCheck() {
         }
         // Force refresh count
         updateCheckSelectedButton();
+    }
+}
+
+function getSelectedDeletePassports() {
+    if (currentFilter !== 'cancelled' && currentFilter !== 'approved') return [];
+
+    return [...document.querySelectorAll('.batch-select-toggle:checked:not(:disabled)')]
+        .map(checkbox => checkbox.getAttribute('data-id'))
+        .filter(Boolean);
+}
+
+function updateDeleteSelectedButton() {
+    if (!cachedDOM.deleteSelectedBtn) return;
+    const count = getSelectedDeletePassports().length;
+    const shouldShow = ((currentFilter === 'cancelled' || currentFilter === 'approved') && bulkDeleteMode && count > 0);
+    cachedDOM.deleteSelectedBtn.classList.toggle('d-none', !shouldShow);
+    
+    const btnText = cachedDOM.deleteSelectedBtn.querySelector('.btn-text');
+    if (btnText) {
+        btnText.textContent = count > 0 ? `Delete Selected (${count})` : 'Delete Selected';
+    }
+}
+
+async function handleBatchDelete() {
+    const selectedPassports = getSelectedDeletePassports();
+    if (selectedPassports.length === 0) return;
+
+    const count = selectedPassports.length;
+    if (!confirm(`Are you sure you want to delete ${count} selected students?`)) {
+        return;
+    }
+
+    const button = cachedDOM.deleteSelectedBtn;
+    const icon = button.querySelector('i');
+    
+    // Add loading state
+    button.disabled = true;
+    if (icon) icon.className = 'spinner-border spinner-border-sm me-1';
+
+    try {
+        const response = await authFetch(`${STUDENTS_URL}?passport=${encodeURIComponent(selectedPassports.join(','))}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        bulkDeleteMode = false;
+        await loadStudents();
+    } catch (error) {
+        debug('Failed to batch delete students:', error);
+        showError('Failed to delete selected students.');
+    } finally {
+        button.disabled = false;
+        if (icon) icon.className = 'bi bi-trash';
+        updateDeleteSelectedButton();
     }
 }
 
