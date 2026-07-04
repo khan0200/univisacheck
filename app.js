@@ -1202,7 +1202,7 @@ function updateDeleteSelectedButton() {
     
     const btnText = cachedDOM.deleteSelectedBtn.querySelector('.btn-text');
     if (btnText) {
-        btnText.textContent = count > 0 ? `Delete Selected (${count})` : 'Delete Selected';
+        btnText.textContent = count > 0 ? `Delete (${count})` : 'Delete';
     }
 }
 
