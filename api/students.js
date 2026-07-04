@@ -82,10 +82,9 @@ module.exports = async (req, res) => {
 
             // Build IN (?, ?, ...) query dynamically
             const placeholders = passports.map(() => '?').join(', ');
-            await db.execute({
-                sql: `DELETE FROM students WHERE passport IN (${placeholders}) AND userId = ?`,
-                args: [...passports, userId]
-            });
+            const sql = `DELETE FROM students WHERE passport IN (${placeholders}) AND userId = ?`;
+            const args = [...passports, userId];
+            await db.execute({ sql, args });
 
             res.status(200).json({ success: true });
             return;
