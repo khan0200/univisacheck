@@ -298,6 +298,7 @@ body {
   .search-box i {
     font-size: 16px !important;
     left: 16px !important;
+    margin-left: 0 !important;
   }
 }
 
@@ -713,17 +714,17 @@ body {
 
 /* Mobile Card View - Clean & Simple */
 @media (max-width: 767px) {
-  /* Strip the outer glass-panel wrapper — the individual cards already have
-     their own background/border/shadow. Without this the wrapper creates a
-     visible second layer (double-card effect) around all the cards. */
+  /* On mobile, keep the glass-panel's background (matches toolbar color) but
+     strip the border and shadow that create the double-layer card effect.
+     The toolbar uses the same glass-bg, so both sections look unified. */
   .glass-panel:has(> .table-responsive) {
-    background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     border-radius: 0 !important;
     overflow: visible !important;
+    padding: 12px !important;
   }
 
   .table-responsive {
@@ -749,7 +750,7 @@ body {
     border-radius: 16px;
     padding: 20px;
     box-shadow: var(--shadow-md);
-    border: 1px solid var(--divider);
+    border: 1px solid var(--glass-border);
     transition: transform 0.18s ease, box-shadow 0.18s ease;
   }
 
@@ -759,7 +760,7 @@ body {
   }
 
   .custom-table tbody tr:hover {
-    background: var(--card-bg);
+    background: var(--glass-bg);
   }
 
   .custom-table tbody td {
