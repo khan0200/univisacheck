@@ -3,9 +3,10 @@ const https = require('https');
 const path = require('path');
 const db = require('./api/db');
 const authHandler = require('./api/auth');
+const { checkVisaDirect } = require('./direct-visa-check');
 
 const PORT = 3000;
-const API_HOST = 'visamasters.uz';
+const API_HOST = 'visamasters.uz'; // kept for legacy helpers only
 
 // ── Telegram credentials (local only, NOT committed to git) ──────────────────
 // Edit telegram.config.js to add your bot token and chat ID.
@@ -449,85 +450,34 @@ const server = http.createServer(async (req, res) => {
                     return;
                 }
 
-                // Step 1: Get CSRF token
-                let csrf;
-                try {
-                    csrf = await getCSRF();
-                } catch (e) {
-                    console.error('[CSRF] Failed:', e.message);
-                    // Retry once with a fresh fetch (invalidate cache)
-                    csrfCache.token = null;
-                    try {
-                        csrf = await getCSRF();
-                    } catch (e2) {
-                        res.writeHead(502);
-                        res.end(JSON.stringify({ error: 'Failed to get CSRF token: ' + e2.message }));
-                        return;
-                    }
-                }
+                console.log(`[Direct] Checking visa.go.kr for passport: ${passport}`);
 
-                // Step 2: Build multipart form
-                const boundary = '----FormBoundary' + Math.random().toString(36).substr(2, 16);
-                const formFields = {
-                    '_csrf-frontend': csrf.token,
-                    'passport': passport.toUpperCase(),
-                    'full_name': fullName.toUpperCase(),
-                    'date_of_birth': birthDate
-                };
-                const multipartBody = buildMultipartBody(formFields, boundary);
+                // ── Direct visa.go.kr query (no middleman) ────────────────────
+                const direct = await checkVisaDirect(passport, fullName, birthDate);
 
-                const postHeaders = {
-                    'Content-Type': `multipart/form-data; boundary=${boundary}`,
-                    'Content-Length': Buffer.byteLength(multipartBody),
-                    'X-CSRF-Token': csrf.token,
-                    'X-PJAX': 'true',
-                    'X-PJAX-Container': '#visa-result',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Referer': 'https://visamasters.uz/visa-status',
-                    'Origin': 'https://visamasters.uz',
-                    'Cookie': csrf.cookies,
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                // Map to the same shape the frontend already expects
+                const parsed = {
+                    status:          direct.latestStatus,
+                    detail:          direct.latestStatusKorean || direct.latestStatus,
+                    applicationDate: direct.latestDate || '',
+                    rejectionReason: direct.rejectionReason || '',
+                    pdfUrl:          '',
+                    rawHtml:         '',
+                    // Extra fields for future use
+                    entryDate:       direct.entryDate || '',
+                    entryPurpose:    direct.entryPurpose || '',
+                    resultCount:     direct.resultCount || 0,
+                    source:          'visa.go.kr',
                 };
 
-                console.log(`[Proxy] Checking visa for passport: ${passport}`);
-                const apiRes = await httpsPost('/site/check-visa', postHeaders, multipartBody);
-
-                // If CSRF failed (403), refresh token and retry once
-                if (apiRes.statusCode === 400 || apiRes.statusCode === 403) {
-                    console.warn('[Proxy] CSRF failed, refreshing token and retrying...');
-                    csrfCache.token = null;
-                    csrf = await getCSRF();
-
-                    const retryFields = { ...formFields, '_csrf-frontend': csrf.token };
-                    const retryBody = buildMultipartBody(retryFields, boundary);
-                    const retryHeaders = { ...postHeaders, 'X-CSRF-Token': csrf.token, 'Cookie': csrf.cookies, 'Content-Length': Buffer.byteLength(retryBody) };
-                    const retryRes = await httpsPost('/site/check-visa', retryHeaders, retryBody);
-
-                    const parsed = parseVisaStatusHtml(retryRes.body);
-                    console.log(`[Proxy] Retry result for ${passport}: ${parsed.status}`);
-                    await updateStudentDb(passport, parsed);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(parsed));
-                    return;
-                }
-
-                // Update cookies from response if any
-                const newCookies = apiRes.headers['set-cookie'];
-                if (newCookies && newCookies.length > 0) {
-                    const updatedCookies = newCookies.map(c => c.split(';')[0]).join('; ');
-                    csrfCache.cookies = updatedCookies;
-                }
-
-                const parsed = parseVisaStatusHtml(apiRes.body);
-                console.log(`[Proxy] Result for ${passport}: ${parsed.status} | ${parsed.detail}`);
+                console.log(`[Direct] Result for ${passport}: ${parsed.status}`);
                 await updateStudentDb(passport, parsed);
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(parsed));
 
             } catch (err) {
-                console.error('[Proxy] Error:', err);
+                console.error('[Direct] Error:', err);
                 res.writeHead(500);
                 res.end(JSON.stringify({ error: err.message }));
             }
@@ -602,44 +552,6 @@ const server = http.createServer(async (req, res) => {
             }
         });
 
-    } else if (req.url.startsWith('/debug-visa-html') && req.method === 'POST') {
-        // ── DEBUG: return raw HTML from visamasters.uz for an approved passport ──
-        // Usage: POST /debug-visa-html  body: { passport, full_name, birth_date }
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', async () => {
-            try {
-                const payload = JSON.parse(body);
-                const passport  = payload.passport_number || payload.passport || '';
-                const fullName  = payload.english_name   || payload.full_name  || '';
-                const birthDate = payload.birth_date     || '';
-                if (!passport || !fullName || !birthDate) {
-                    res.writeHead(400); res.end(JSON.stringify({ error: 'Missing fields' })); return;
-                }
-                let csrf = await getCSRF();
-                const boundary = '----FormBoundary' + Math.random().toString(36).substr(2, 16);
-                const formFields = { '_csrf-frontend': csrf.token, passport: passport.toUpperCase(), full_name: fullName.toUpperCase(), date_of_birth: birthDate };
-                const multipartBody = buildMultipartBody(formFields, boundary);
-                const postHeaders = {
-                    'Content-Type': `multipart/form-data; boundary=${boundary}`,
-                    'Content-Length': Buffer.byteLength(multipartBody),
-                    'X-CSRF-Token': csrf.token, 'X-PJAX': 'true',
-                    'X-PJAX-Container': '#visa-result', 'X-Requested-With': 'XMLHttpRequest',
-                    'Referer': 'https://visamasters.uz/visa-status',
-                    'Origin': 'https://visamasters.uz', 'Cookie': csrf.cookies,
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                };
-                const apiRes = await httpsPost('/site/check-visa', postHeaders, multipartBody);
-                // Return the raw HTML + all hrefs found
-                const rawHtml = apiRes.body;
-                const allHrefs = [...rawHtml.matchAll(/href="([^"]+)"/gi)].map(m => m[1]);
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ rawHtml, allHrefs, statusCode: apiRes.statusCode }));
-            } catch (err) {
-                res.writeHead(500); res.end(JSON.stringify({ error: err.message }));
-            }
-        });
 
     } else if (req.url.startsWith('/api/auth')) {
         // ── Auth route (signup / login / me) ─────────────────────────────────
@@ -686,6 +598,61 @@ const server = http.createServer(async (req, res) => {
             const studentsHandler = require('./api/students');
             studentsHandler(req, res);
         }
+
+    } else if (req.url.startsWith('/fetch-visa-pdfurl') && req.method === 'POST') {
+        // ── Fetch PDF URL from visamasters.uz ────────────────────────────────
+        // Called when student.pdfUrl is empty. Hits visamasters.uz check-visa
+        // and extracts the PDF download link from the returned HTML.
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', async () => {
+            try {
+                const payload = JSON.parse(body);
+                const passport  = (payload.passport  || payload.passport_number || '').toUpperCase().trim();
+                const fullName  = (payload.full_name  || payload.english_name   || '').toUpperCase().trim();
+                const birthDate = (payload.birth_date || '').trim();
+
+                if (!passport || !fullName || !birthDate) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Missing passport, full_name, birth_date' }));
+                    return;
+                }
+
+                let csrf;
+                try { csrf = await getCSRF(); } catch (e) {
+                    csrfCache.token = null;
+                    csrf = await getCSRF();
+                }
+
+                const boundary = '----FormBoundary' + Math.random().toString(36).substr(2, 16);
+                const formFields = { '_csrf-frontend': csrf.token, passport, full_name: fullName, date_of_birth: birthDate };
+                const multipartBody = buildMultipartBody(formFields, boundary);
+                const postHeaders = {
+                    'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                    'Content-Length': Buffer.byteLength(multipartBody),
+                    'X-CSRF-Token': csrf.token, 'X-PJAX': 'true',
+                    'X-PJAX-Container': '#visa-result', 'X-Requested-With': 'XMLHttpRequest',
+                    'Referer': 'https://visamasters.uz/visa-status',
+                    'Origin': 'https://visamasters.uz', 'Cookie': csrf.cookies,
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,*/*;q=0.9',
+                };
+
+                console.log(`[FetchPDF] Fetching PDF URL from visamasters.uz for ${passport}...`);
+                const apiRes = await httpsPost('/site/check-visa', postHeaders, multipartBody);
+                const parsed = parseVisaStatusHtml(apiRes.body);
+                const pdfUrl = parsed.pdfUrl || '';
+
+                console.log(`[FetchPDF] PDF URL for ${passport}: ${pdfUrl || 'NOT FOUND'}`);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ pdfUrl }));
+
+            } catch (err) {
+                console.error('[FetchPDF] Error:', err.message);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: err.message }));
+            }
+        });
 
     } else if (req.url.startsWith('/download-visa-pdf') && req.method === 'GET') {
         // ── Download Visa PDF ─────────────────────────────────────────────────

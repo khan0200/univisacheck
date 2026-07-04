@@ -461,7 +461,7 @@ function updateTabCounts() {
 
         if (matchesSearch) {
             const status = (student.status || '').toLowerCase();
-            const isApproved = status.includes('approved');
+            const isApproved = status.includes('approved') || status.includes('visa used');
             const isCancelled = status.includes('cancel') || status.includes('reject');
             // Pending: students with pending/unknown/error status or no application found
             const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
@@ -547,7 +547,7 @@ function renderTable() {
             // Application: students with actual application statuses (Received, Under Review, etc.)
             // Exclude: Pending, Unknown, Cancelled, Rejected, Approved
             const isCancelled = status.includes('cancel') || status.includes('reject');
-            const isApproved = status.includes('approved');
+            const isApproved = status.includes('approved') || status.includes('visa used');
             const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
 
             if (isCancelled || isApproved || isPending) return false;
@@ -558,8 +558,8 @@ function renderTable() {
             if (!isCancelled) return false;
 
         } else if (currentFilter === 'approved') {
-            // Approved: Approved
-            if (!status.includes('approved')) return false;
+            // Approved: Approved or Visa Used
+            if (!status.includes('approved') && !status.includes('visa used')) return false;
         }
 
         // Search Filter
@@ -700,7 +700,7 @@ function getCopyFieldHtml(displayHtml, copyValue, title, extraClass = '') {
 function getDisplayStatusText(statusValue) {
     const status = (statusValue || '').toLowerCase();
 
-    if (status.includes('approved')) return 'Approved';
+    if (status.includes('approved') || status.includes('visa used')) return 'Approved';
     if (status.includes('cancel') || status.includes('reject')) return 'Cancelled';
     if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) return 'Pending';
     if (status.includes('received') || status.includes('app/')) return 'Received';
@@ -1063,7 +1063,7 @@ async function handleBatchCheck() {
 function isApplicationStatus(statusValue) {
     const status = String(statusValue || '').toLowerCase();
     const isCancelled = status.includes('cancel') || status.includes('reject');
-    const isApproved = status.includes('approved');
+    const isApproved = status.includes('approved') || status.includes('visa used');
     const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
     return !isCancelled && !isApproved && !isPending;
 }
@@ -1196,10 +1196,30 @@ async function downloadVisaPdf(student, btnElement) {
     }
 
     try {
-        // The PDF URL was extracted from visamasters.uz HTML during last status check
-        const storedPdfUrl = student.pdfUrl || '';
+        // If no stored PDF URL, fetch it from visamasters.uz first
+        let storedPdfUrl = student.pdfUrl || '';
         if (!storedPdfUrl) {
-            throw new Error('No PDF link found for this student. Please refresh their status first (click the ↻ button), then try again.');
+            // Fetch PDF URL from visamasters.uz
+            const isLocal = window.location.hostname === 'localhost' ||
+                            window.location.hostname === '127.0.0.1' ||
+                            window.location.protocol === 'file:';
+            const fetchUrlEndpoint = isLocal
+                ? 'http://localhost:3000/fetch-visa-pdfurl'
+                : '/api/fetch-visa-pdfurl';
+            const urlRes = await fetch(fetchUrlEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    passport: student.passport,
+                    full_name: student.fullName,
+                    birth_date: student.birthday,
+                })
+            });
+            const urlData = await urlRes.json();
+            if (!urlData.pdfUrl) {
+                throw new Error('No PDF available for this student from visamasters.uz.');
+            }
+            storedPdfUrl = urlData.pdfUrl;
         }
 
         const isLocal = window.location.hostname === 'localhost' ||
@@ -1351,9 +1371,10 @@ async function sendTelegramNotification(student, oldStatus, newStatus, applicati
 function getStatusBadge(status) {
     status = (status || 'Pending').toLowerCase();
 
-    if (status.includes('approved')) {
+    if (status.includes('approved') || status.includes('visa used')) {
+        const label = status.includes('visa used') ? 'Visa Used' : 'Approved';
         return `<span class="badge bg-success-subtle text-success">
-                    <i class="bi bi-check-circle-fill me-1"></i>Approved
+                    <i class="bi bi-check-circle-fill me-1"></i>${label}
                 </span>`;
     } else if (status.includes('cancel') || status.includes('reject')) {
         return `<span class="badge bg-danger-subtle text-danger">
