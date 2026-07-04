@@ -484,13 +484,16 @@ function updateSingleRow(student) {
         const statusLower = (student.status || '').toLowerCase();
         const isApproved = statusLower.includes('approved') || statusLower.includes('visa used');
         if (isApproved) {
-            pdfCell.innerHTML = `
-                <button class="btn btn-sm btn-pdf-download action-btn" data-action="download-pdf" data-id="${student.passport}" title="Download Visa PDF">
+            const isEVisa = (student.visaType || '') === 'E-Visa';
+            pdfCell.innerHTML = isEVisa
+                ? `<button class="btn btn-sm btn-pdf-evisa action-btn" data-action="download-pdf" data-id="${student.passport}" title="E-Visa PDF: request from university" style="color:var(--bs-warning,#f59e0b);">
+                    <i class="bi bi-info-circle-fill" style="font-size:1.2rem;"></i>
+                   </button>`
+                : `<button class="btn btn-sm btn-pdf-download action-btn" data-action="download-pdf" data-id="${student.passport}" title="Download Visa PDF">
                     <i class="bi bi-file-earmark-pdf-fill"></i>
-                </button>
-            `;
+                   </button>`;
             // Attach listener to newly created button
-            const pdfBtn = pdfCell.querySelector('.btn-pdf-download');
+            const pdfBtn = pdfCell.querySelector('.action-btn');
             if (pdfBtn) {
                 pdfBtn.addEventListener('click', (e) => {
                     handleAction('download-pdf', student.passport, e.currentTarget);
@@ -750,10 +753,15 @@ function renderTable() {
                 >
             </td>
             <td class="text-center td-pdf">
-                ${((student.status || '').toLowerCase().includes('approved') || (student.status || '').toLowerCase().includes('visa used')) ? `
-                <button class="btn btn-sm btn-pdf-download action-btn" data-action="download-pdf" data-id="${student.passport}" title="Download Visa PDF">
-                    <i class="bi bi-file-earmark-pdf-fill"></i>
-                </button>` : ''}
+                ${((student.status || '').toLowerCase().includes('approved') || (student.status || '').toLowerCase().includes('visa used')) ? (
+                    (student.visaType === 'E-Visa')
+                        ? `<button class="btn btn-sm btn-pdf-evisa action-btn" data-action="download-pdf" data-id="${student.passport}" title="E-Visa PDF: request from university" style="color:var(--bs-warning,#f59e0b);">
+                               <i class="bi bi-info-circle-fill" style="font-size:1.2rem;"></i>
+                           </button>`
+                        : `<button class="btn btn-sm btn-pdf-download action-btn" data-action="download-pdf" data-id="${student.passport}" title="Download Visa PDF">
+                               <i class="bi bi-file-earmark-pdf-fill"></i>
+                           </button>`
+                ) : ''}
             </td>
             <td class="td-actions">
                 <div class="d-flex justify-content-end gap-1">
@@ -1399,6 +1407,12 @@ function extractVisaStatus(data) {
 
 // ── PDF Download ─────────────────────────────────────────────────────────────
 async function downloadVisaPdf(student, btnElement) {
+    // E-Visa PDFs are issued by the university, not downloadable directly.
+    if ((student.visaType || '') === 'E-Visa') {
+        showEVisaPdfInfo(student, btnElement);
+        return;
+    }
+
     const btn = btnElement || document.querySelector(`button[data-action="download-pdf"][data-id="${student.passport}"]`);
     const icon = btn ? btn.querySelector('i') : null;
 
@@ -1458,6 +1472,44 @@ async function downloadVisaPdf(student, btnElement) {
             icon.classList.add('bi-file-earmark-pdf-fill');
         }
     }
+}
+
+// Show an informational toast for E-Visa students explaining PDF must come from university
+function showEVisaPdfInfo(student) {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        toastContainer.style.zIndex = '11000';
+        document.body.appendChild(toastContainer);
+    }
+
+    const toastId = 'toast-' + Date.now();
+    const html = `
+        <div id="${toastId}" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
+             style="background:var(--card-bg,#1e293b);color:var(--text-main,#fff);">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-start gap-2">
+                    <i class="bi bi-info-circle-fill text-warning mt-1" style="font-size:1.1rem;flex-shrink:0;"></i>
+                    <div>
+                        <div class="fw-semibold mb-1">E-Visa PDF</div>
+                        <div class="small opacity-90">
+                            E-Visa certificates are issued directly by the university.<br>
+                            Please ask the university for the PDF.
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+
+    toastContainer.insertAdjacentHTML('beforeend', html);
+    const toastEl = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastEl, { delay: 6000 });
+    toast.show();
+    toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
 }
 
 // API Integration — uses visamasters.uz via local proxy
