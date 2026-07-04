@@ -153,6 +153,33 @@ function setupEventListeners() {
         }
     });
 
+    // Toggle checkboxes on row clicks during bulk delete operations
+    cachedDOM.tableBody.addEventListener('click', (e) => {
+        if (!bulkDeleteMode || (currentFilter !== 'cancelled' && currentFilter !== 'approved')) return;
+
+        const isInteractive = e.target.closest('button, input, select, a, .btn-copy-inline, .action-btn');
+        if (isInteractive) return;
+
+        const row = e.target.closest('tr');
+        if (!row) return;
+
+        const actionBtn = row.querySelector('.action-btn[data-id]');
+        if (!actionBtn) return;
+        const passport = actionBtn.getAttribute('data-id');
+
+        const checkbox = row.querySelector('.batch-select-toggle');
+        if (checkbox && !checkbox.disabled) {
+            checkbox.checked = !checkbox.checked;
+            const enabled = checkbox.checked;
+            const index = studentsData.findIndex(s => s.passport === passport);
+            if (index !== -1) {
+                studentsData[index].batchSelected = enabled;
+            }
+            updateCheckSelectedButton();
+            updateDeleteSelectedButton();
+        }
+    });
+
     // Search Input with Debouncing
     cachedDOM.searchInput.addEventListener('input', (e) => {
         clearTimeout(searchDebounceTimer);
