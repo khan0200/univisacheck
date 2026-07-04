@@ -457,6 +457,12 @@ body {
   background: rgba(255, 255, 255, 0.04) !important;
 }
 
+/* Highlight Selected Row */
+.custom-table tbody tr:has(.batch-select-toggle:checked),
+.custom-table tbody tr:has(.batch-select-toggle:checked) td {
+  background-color: var(--primary-soft) !important;
+}
+
 /* Desktop table cell styles */
 .td-name {
   width: 34%;
