@@ -236,6 +236,10 @@ function setupEventListeners() {
         cachedDOM.checkSelectedBtn.addEventListener('click', handleBatchCheck);
     }
 
+    if (cachedDOM.deleteSelectedBtn) {
+        cachedDOM.deleteSelectedBtn.addEventListener('click', handleBatchDelete);
+    }
+
     // Modal Events to reset form
     cachedDOM.modalElement.addEventListener('hidden.bs.modal', () => {
         cachedDOM.form.reset();
@@ -1237,8 +1241,7 @@ async function handleBatchDelete() {
     const selectedPassports = getSelectedDeletePassports();
     if (selectedPassports.length === 0) return;
 
-    const count = selectedPassports.length;
-    if (!confirm(`Are you sure you want to delete ${count} selected students?`)) {
+    if (!confirm("Are you sure?")) {
         return;
     }
 
