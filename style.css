@@ -1422,3 +1422,42 @@ input::-webkit-credentials-auto-fill-button {
     opacity: 0 !important;
     pointer-events: none !important;
 }
+
+/* Visa Type Segmented Selector */
+.visa-type-toggle-container {
+  display: flex;
+  background: var(--input-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  width: 100%;
+}
+
+.visa-type-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 8px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.visa-type-btn:hover {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] .visa-type-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.visa-type-btn.active {
+  background: var(--primary-color);
+  color: #ffffff !important;
+  box-shadow: var(--shadow-primary-sm);
+}

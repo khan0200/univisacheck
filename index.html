@@ -124,11 +124,12 @@
                     <form id="studentForm">
                         <input type="hidden" id="editMode" value="false">
                         <div class="mb-3">
-                            <label for="visaType" class="form-label small fw-semibold text-secondary">Visa Type</label>
-                            <select class="form-select form-select-glass rounded-3" id="visaType" required>
-                                <option value="Embassy" selected>Embassy</option>
-                                <option value="E-Visa">E-Visa</option>
-                            </select>
+                            <label class="form-label small fw-semibold text-secondary d-block">Visa Type</label>
+                            <div class="visa-type-toggle-container">
+                                <button type="button" class="visa-type-btn active" id="btnVisaTypeEmbassy">Embassy</button>
+                                <button type="button" class="visa-type-btn" id="btnVisaTypeEVisa">E-Visa</button>
+                            </div>
+                            <input type="hidden" id="visaType" value="Embassy">
                         </div>
                         <div class="mb-3">
                             <label for="studentId" class="form-label small fw-semibold text-secondary">Student ID</label>

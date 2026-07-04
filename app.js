@@ -30,6 +30,29 @@ window.handleLogout = function() {
     window.location.replace('auth.html');
 };
 
+// Visa Type selection helper for Segmented Selector buttons
+function setVisaType(value) {
+    const visaTypeInput = document.getElementById('visaType');
+    if (!visaTypeInput) return;
+    visaTypeInput.value = value;
+    
+    const btnEmbassy = document.getElementById('btnVisaTypeEmbassy');
+    const btnEVisa = document.getElementById('btnVisaTypeEVisa');
+    const appNoWrapper = document.getElementById('applicationNoWrapper');
+    const appNoInput = document.getElementById('applicationNo');
+    
+    if (value === 'E-Visa') {
+        if (btnEmbassy) btnEmbassy.classList.remove('active');
+        if (btnEVisa) btnEVisa.classList.add('active');
+        if (appNoWrapper) appNoWrapper.classList.remove('d-none');
+    } else {
+        if (btnEmbassy) btnEmbassy.classList.add('active');
+        if (btnEVisa) btnEVisa.classList.remove('active');
+        if (appNoWrapper) appNoWrapper.classList.add('d-none');
+        if (appNoInput) appNoInput.value = ''; // Clear value when hidden
+    }
+}
+
 // State
 let studentsData = [];
 // Default filter is now 'pending' (students without visa application yet)
@@ -106,19 +129,12 @@ function setupEventListeners() {
     // Form Submit (Add/Edit)
     cachedDOM.form.addEventListener('submit', handleFormSubmit);
 
-    // Toggle Application Number field based on Visa Type selection
-    const visaTypeEl = document.getElementById('visaType');
-    const appNoWrapper = document.getElementById('applicationNoWrapper');
-    const appNoInput = document.getElementById('applicationNo');
-    if (visaTypeEl && appNoWrapper && appNoInput) {
-        visaTypeEl.addEventListener('change', (e) => {
-            if (e.target.value === 'E-Visa') {
-                appNoWrapper.classList.remove('d-none');
-            } else {
-                appNoWrapper.classList.add('d-none');
-                appNoInput.value = ''; // Clear value when hidden
-            }
-        });
+    // Visa Type Toggle Buttons Setup
+    const btnEmbassy = document.getElementById('btnVisaTypeEmbassy');
+    const btnEVisa = document.getElementById('btnVisaTypeEVisa');
+    if (btnEmbassy && btnEVisa) {
+        btnEmbassy.addEventListener('click', () => setVisaType('Embassy'));
+        btnEVisa.addEventListener('click', () => setVisaType('E-Visa'));
     }
 
     // Select-column checkboxes: tie Check button visibility directly to the
@@ -193,15 +209,7 @@ function setupEventListeners() {
         document.getElementById('modalTitle').textContent = "Add New Student";
         document.getElementById('submitBtnText').textContent = "Save Student";
         document.getElementById('passport').disabled = false;
-        if (document.getElementById('visaType')) {
-            document.getElementById('visaType').value = "Embassy";
-        }
-        if (document.getElementById('applicationNoWrapper')) {
-            document.getElementById('applicationNoWrapper').classList.add('d-none');
-        }
-        if (document.getElementById('applicationNo')) {
-            document.getElementById('applicationNo').value = '';
-        }
+        setVisaType('Embassy');
     });
 
     // Force uppercase as-you-type for Student ID and Full Name
@@ -977,18 +985,9 @@ async function handleAction(action, passport, btnElement) {
         if (document.getElementById('studentId')) {
             document.getElementById('studentId').value = student.studentId || '';
         }
-        if (document.getElementById('visaType')) {
-            document.getElementById('visaType').value = student.visaType || 'Embassy';
-        }
+        setVisaType(student.visaType || 'Embassy');
         if (document.getElementById('applicationNo')) {
             document.getElementById('applicationNo').value = student.applicationNo || '';
-        }
-        if (document.getElementById('applicationNoWrapper')) {
-            if (student.visaType === 'E-Visa') {
-                document.getElementById('applicationNoWrapper').classList.remove('d-none');
-            } else {
-                document.getElementById('applicationNoWrapper').classList.add('d-none');
-            }
         }
 
 
