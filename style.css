@@ -767,6 +767,15 @@ body {
     padding: 0 !important;
     border: none;
     width: 100% !important;
+    /* Kill Bootstrap table-hover per-td background — it creates ugly stripes
+       on mobile where tds are stacked blocks inside the card. */
+    background-color: transparent !important;
+  }
+
+  /* Also prevent Bootstrap's :hover from adding any td-level colour on tap */
+  .custom-table.table-hover > tbody > tr:hover > td,
+  .custom-table.table-hover > tbody > tr:hover > th {
+    background-color: transparent !important;
   }
 
   /* Student Name */
