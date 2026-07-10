@@ -1251,7 +1251,6 @@ body {
   display: block !important;
   line-height: 1em !important;
   text-align: center;
-  vertical-align: 0 !important;
 }
 
 @keyframes spin {

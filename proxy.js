@@ -381,33 +381,72 @@ function parseVisaStatusHtml(html) {
     return { status, detail, applicationDate, rejectionReason, pdfUrl, rawHtml: html };
 }
 
-async function updateStudentDb(passport, parsed) {
+async function updateStudentDb(passport, parsed, inputData = {}) {
     try {
         const lastChecked = new Date().toISOString();
-        await db.execute({
-            sql: `
-                UPDATE students 
-                SET status = ?, 
-                    applicationDate = ?, 
-                    rejectReason = ?, 
-                    pdfUrl = ?, 
-                    apiResponse = ?, 
-                    lastChecked = ?
-                WHERE passport = ?
-            `,
-            args: [
-                parsed.status || 'Pending',
-                parsed.applicationDate || '',
-                parsed.rejectionReason || '',
-                parsed.pdfUrl || '',
-                JSON.stringify({ status: parsed.status, detail: parsed.detail }),
-                lastChecked,
-                passport
-            ]
+        const apiResponse = JSON.stringify({
+            status: parsed.status,
+            detail: parsed.detail,
+            visaExpiry: parsed.visaExpiry || '',
+            visaKind: parsed.visaKind || '',
+            statusOfResidence: parsed.statusOfResidence || '',
+            entryDate: parsed.entryDate || '',
+            entryPurpose: parsed.entryPurpose || ''
         });
-        console.log(`[Proxy DB Update] Saved status for ${passport} to Turso`);
+
+        // Check if a record already exists for this passport (any user)
+        const existing = await db.execute({
+            sql: 'SELECT passport FROM students WHERE passport = ? LIMIT 1',
+            args: [passport]
+        });
+
+        if (existing.rows.length > 0) {
+            // Row exists — only refresh the status fields
+            await db.execute({
+                sql: `UPDATE students
+                      SET status = ?, applicationDate = ?, rejectReason = ?,
+                          pdfUrl = ?, apiResponse = ?, lastChecked = ?
+                      WHERE passport = ?`,
+                args: [
+                    parsed.status || 'Pending',
+                    parsed.applicationDate || '',
+                    parsed.rejectionReason || '',
+                    parsed.pdfUrl || '',
+                    apiResponse,
+                    lastChecked,
+                    passport
+                ]
+            });
+            console.log(`[Proxy DB Update] Updated status for ${passport} → ${parsed.status}`);
+        } else {
+            // New record — insert with full data so autofill works next time
+            await db.execute({
+                sql: `INSERT INTO students
+                      (passport, fullName, birthday, studentId, status, lastChecked,
+                       rejectReason, pdfUrl, apiResponse, batchSelected,
+                       batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo)
+                      VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'),?,?,?)`,
+                args: [
+                    passport,
+                    inputData.fullName    || '',
+                    inputData.birthday    || '',
+                    '',
+                    parsed.status         || 'Pending',
+                    lastChecked,
+                    parsed.rejectionReason || '',
+                    parsed.pdfUrl          || '',
+                    apiResponse,
+                    0,
+                    '',
+                    999999,
+                    inputData.visaType    || 'Embassy',
+                    inputData.applicationNo || ''
+                ]
+            });
+            console.log(`[Proxy DB Insert] Saved new record for ${passport} → ${parsed.status}`);
+        }
     } catch (dbErr) {
-        console.error(`[Proxy DB Update] Failed to update Turso for ${passport}:`, dbErr.message);
+        console.error(`[Proxy DB Update] Failed to upsert Turso for ${passport}:`, dbErr.message);
     }
 }
 
@@ -470,12 +509,21 @@ const server = http.createServer(async (req, res) => {
                     // Extra fields for future use
                     entryDate:       direct.entryDate || '',
                     entryPurpose:    direct.entryPurpose || '',
+                    visaExpiry:      direct.visaExpiry || '',
+                    visaKind:        direct.visaKind || '',
+                    statusOfResidence: direct.statusOfResidence || '',
                     resultCount:     direct.resultCount || 0,
                     source:          'visa.go.kr',
                 };
 
                 console.log(`[Direct] Result for ${passport}: ${parsed.status}`);
-                await updateStudentDb(passport, parsed);
+                // Save/update in Turso — inserts new record if passport never seen before
+                await updateStudentDb(passport, parsed, {
+                    fullName:      fullName,
+                    birthday:      birthDate,
+                    visaType:      visaType,
+                    applicationNo: applicationNo,
+                });
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(parsed));

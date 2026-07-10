@@ -232,11 +232,21 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
         }, body);
     }
     
-    // Parse result count from embedded JS
+    // ── Detect result count ───────────────────────────────────────────────────
+    // visa.go.kr embeds JS like: if ("3" == 0) { /* no results block */ }
+    // When countMatch is null the regex didn't match — DON'T assume 0.
+    // Instead fall through to the parser and let it decide.
     const countMatch = r.body.match(/"(\d+)"\s*==\s*0/);
-    const resultCount = countMatch ? parseInt(countMatch[1]) : 0;
-    
-    if (resultCount === 0) {
+    let resultCount = countMatch ? parseInt(countMatch[1]) : null; // null = unknown
+
+    // Secondary signal: presence of status elements in the HTML
+    const hasStatusElements = isEVisa
+        ? /id="PROC_STS_CDNM"/.test(r.body)
+        : /id="PROC_STS_CDNM_1"/.test(r.body);
+
+    // If count is definitively 0 AND no status elements present → truly not found
+    if (resultCount === 0 && !hasStatusElements) {
+        console.log(`[Direct] ${passport}: resultCount=0 and no status elements → not found`);
         return {
             found: false,
             records: [],
@@ -245,9 +255,24 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
             resultCount: 0,
         };
     }
-    
-    // Parse all records
+
+    // Parse all records (always attempt — even if count regex returned null)
     const records = isEVisa ? parseResult1_1(r.body) : parseResult3_2(r.body);
+
+    // If parsing also found nothing → not found
+    if (records.length === 0) {
+        console.log(`[Direct] ${passport}: parsing found 0 records → not found`);
+        return {
+            found: false,
+            records: [],
+            latestStatus: 'Pending',
+            latestDate: '',
+            resultCount: 0,
+        };
+    }
+
+    if (resultCount === null) resultCount = records.length;
+
     
     // Latest record is first (most recent application)
     const latest = records[0] || {};
@@ -262,6 +287,33 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
         pdfUrl = `https://www.visa.go.kr/biz/ap/ev/selectElectronicVisaPrint3.do?evSeq=${evSeq}&invSeq=${invSeq}&applNo=${applNo}`;
     }
     
+    // Extract extra visa info fields (TABLE 3 / E-Visa Table)
+    let visaExpiry = '';
+    const exprMatch = r.body.match(/id="VISA_EXPR_YMD"[^>]*>([\s\S]*?)<\/div>/i);
+    if (exprMatch) {
+        const rawExpr = stripTags(exprMatch[1]);
+        const dateMatch = rawExpr.match(/(\d{4}\.\d{2}\.\d{2})/);
+        if (dateMatch) {
+            visaExpiry = dateMatch[1].replace(/\./g, '-');
+        }
+    }
+
+    let visaKind = '';
+    const kindMatch = r.body.match(/id="VISA_KIND_CD"[^>]*>([\s\S]*?)<\/div>/i);
+    if (kindMatch) {
+        const rawKind = stripTags(kindMatch[1]).toLowerCase();
+        if (rawKind.includes('단수')) {
+            visaKind = 'Single';
+        } else if (rawKind.includes('복수')) {
+            visaKind = 'Multiple';
+        } else {
+            visaKind = stripTags(kindMatch[1]);
+        }
+    }
+
+    const statusOfResidenceMatches = [...r.body.matchAll(/id="SOJ_QUAL_NM"[^>]*>([^<]+)/gi)].map(m => m[1].trim());
+    const statusOfResidence = statusOfResidenceMatches.length > 0 ? statusOfResidenceMatches[statusOfResidenceMatches.length - 1] : '';
+
     return {
         found: true,
         records,
@@ -272,6 +324,9 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
         entryDate:          latest.entryDate || '',
         entryPurpose:       latest.entryPurpose || '',
         rejectionReason:    latest.rejectionReason || '',
+        visaExpiry,
+        visaKind,
+        statusOfResidence,
         pdfUrl,
     };
 }
