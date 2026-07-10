@@ -115,13 +115,36 @@ function parseResult1_1(html) {
 }
 
 function parseResult3_2(html) {
-    // result3_2 is the e-Visa (gb03) result section
+    // result3_2 is the Embassy/Diplomatic Mission (gb03) result section
     // It contains one or more records, each as table blocks
     const results = [];
 
-    // Extract all APPL_DTM values (application dates)
-    const appl_dates = [...html.matchAll(/id="APPL_DTM"[^>]*>([^<]+)</g)].map(m => m[1].trim());
-    
+    // Embassy (gb03) uses RECPT_YMD for the application/receipt date (format: YYYYMMDD)
+    // APPL_YMD and APPL_DTM are present in the HTML template but always empty for Embassy checks
+    function extractDateField(fieldId) {
+        const matches = [...html.matchAll(new RegExp(`id="${fieldId}"[^>]*>([\\s\\S]*?)<`, 'g'))];
+        return matches.map(m => m[1].replace(/\s+/g, ' ').trim()).filter(v => v.length > 0);
+    }
+
+    function formatKoreanDate(raw) {
+        // Handles YYYYMMDD → YYYY-MM-DD
+        if (/^\d{8}$/.test(raw)) {
+            return `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`;
+        }
+        // Handles YYYY.MM.DD. → YYYY-MM-DD
+        return raw.replace(/\./g, '-').replace(/-$/, '');
+    }
+
+    let appl_dates = extractDateField('RECPT_YMD').map(formatKoreanDate);
+    if (appl_dates.length === 0) {
+        // Fallbacks (usually empty, but just in case)
+        appl_dates = extractDateField('APPL_YMD').map(formatKoreanDate);
+    }
+    if (appl_dates.length === 0) {
+        appl_dates = extractDateField('APPL_DTM').map(formatKoreanDate);
+    }
+
+
     // Extract PROC_STS_CDNM_1 elements - includes text + sometimes a date in parens like (2026.06.11.)
     const statusRaw  = [...html.matchAll(/id="PROC_STS_CDNM_1"[^>]*>([\s\S]*?)<\/div>/g)].map(m => stripTags(m[1]));
     
