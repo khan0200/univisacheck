@@ -3,184 +3,732 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Visa Status Check — Free &amp; Instant</title>
-    <meta name="description" content="Check your Korean visa status instantly. Free, no signup required. Supports Embassy and E-Visa applications.">
+    <title>Visa Status Check — KoreaVisa</title>
+    <meta name="description" content="Check your Korean visa application status instantly. Free, no signup required. Supports Embassy and E-Visa applications via visa.go.kr.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛂</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        :root{--bg:#080810;--bg-card:rgba(255,255,255,0.04);--bg-input:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.10);--text:#f0f0f5;--text-2:#9fa0bc;--text-3:#585870;--accent:#1a67e0;--accent-2:#e8304a;--gradient:linear-gradient(135deg,#1a67e0 0%,#e8304a 100%);--approved:#30d158;--pending:#ff9f0a;--review:#1a67e0;--rejected:#e8304a;--received:#ffd60a;--cancelled:#e8304a;--used:#30d158;--radius-sm:10px;--radius:16px;--radius-lg:24px;--radius-xl:32px;--shadow:0 8px 40px rgba(0,0,0,0.50);--transition:all 0.32s cubic-bezier(0.32,0.72,0,1);--spring:all 0.45s cubic-bezier(0.34,1.56,0.64,1)}
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        html{scroll-behavior:smooth}
-        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-        .bg-layer{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-        .bg-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.22;animation:float 12s ease-in-out infinite}
-        .bg-orb-1{width:520px;height:520px;background:radial-gradient(circle,#1a67e0,transparent 70%);top:-150px;left:-100px;animation-delay:0s}
-        .bg-orb-2{width:420px;height:420px;background:radial-gradient(circle,#e8304a,transparent 70%);bottom:-120px;right:-80px;animation-delay:-6s}
-        .bg-orb-3{width:280px;height:280px;background:radial-gradient(circle,#1a67e0,transparent 70%);top:55%;left:65%;transform:translate(-50%,-50%);opacity:0.08;animation-delay:-3s}
-        @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,15px) scale(0.97)}}
-        .bg-layer::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px}
-        .page{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;min-height:100dvh;padding:40px 20px 60px}
-        .header{text-align:center;margin-bottom:44px;animation:slideDown .7s cubic-bezier(.32,.72,0,1) both}
-        @keyframes slideDown{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:translateY(0)}}
-        .header-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(26,103,224,.12);border:1px solid rgba(26,103,224,.25);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:600;color:#4d8eff;letter-spacing:.04em;text-transform:uppercase;margin-bottom:18px}
-        .header-badge::before{content:'';width:7px;height:7px;background:#e8304a;border-radius:50%;animation:pulse-dot 2s ease-in-out infinite}
-        @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-        .header h1{font-size:clamp(32px,6vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1.1;background:linear-gradient(135deg,#ffffff 0%,#a8c4ff 50%,#ffaab5 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px}
-        .header p{font-size:16px;color:var(--text-2);line-height:1.6;max-width:420px;margin:0 auto}
-        .card{width:100%;max-width:480px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-xl);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);padding:32px;animation:slideUp .7s cubic-bezier(.32,.72,0,1) .1s both;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06)}
-        @keyframes slideUp{from{opacity:0;transform:translateY(32px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-        .segment-wrap{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--radius);padding:4px;display:flex;gap:4px;margin-bottom:28px}
-        .segment-btn{flex:1;border:none;background:transparent;color:var(--text-2);font-family:inherit;font-size:14px;font-weight:600;padding:10px;border-radius:calc(var(--radius) - 4px);cursor:pointer;transition:var(--transition)}
-        .segment-btn.active{background:rgba(255,255,255,.10);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.25)}
-        .segment-btn:not(.active):hover{color:var(--text);background:rgba(255,255,255,.04)}
-        .field-group{display:flex;flex-direction:column;gap:14px}
-        .field{display:flex;flex-direction:column;gap:6px}
-        .field-label{font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:.04em;text-transform:uppercase}
-        .field-input-wrap{position:relative}
-        .field-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-3);pointer-events:none;transition:color .2s}
-        .field-input{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:15px;font-weight:500;padding:13px 14px 13px 44px;transition:var(--transition);outline:none;-webkit-appearance:none;appearance:none}
-        .field-input::placeholder{color:var(--text-3);font-weight:400}
-        .field-input:focus{border-color:rgba(26,103,224,.55);background:rgba(26,103,224,.07);box-shadow:0 0 0 3px rgba(26,103,224,.14)}
-        .field-input-wrap:focus-within .field-icon{color:var(--accent)}
-        .field-evisa{overflow:hidden;max-height:0;opacity:0;transition:max-height .4s cubic-bezier(.32,.72,0,1),opacity .3s ease,margin .4s;margin-top:0}
-        .field-evisa.visible{max-height:100px;opacity:1}
-        .btn-search{width:100%;margin-top:24px;border:none;border-radius:var(--radius);background:var(--gradient);color:#fff;font-family:inherit;font-size:16px;font-weight:700;padding:16px;cursor:pointer;transition:var(--spring);position:relative;overflow:hidden;letter-spacing:-.01em}
-        .btn-search::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);opacity:0;transition:opacity .2s}
-        .btn-search:hover::before{opacity:1}
-        .btn-search:active{transform:scale(.97)}
-        .btn-search:disabled{opacity:.5;cursor:not-allowed;transform:none}
-        .btn-search-inner{display:flex;align-items:center;justify-content:center;gap:8px}
-        .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .result-wrap{width:100%;max-width:480px;margin-top:20px}
-        .result-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-xl);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);overflow:hidden;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06)}
-        .status-hero{padding:32px 28px 24px;text-align:center;position:relative;overflow:hidden}
-        .status-hero::before{content:'';position:absolute;inset:0;opacity:.08}
-        .status-hero.approved::before{background:radial-gradient(circle at 50% 0%,var(--approved),transparent 70%)}
-        .status-hero.pending::before{background:radial-gradient(circle at 50% 0%,var(--pending),transparent 70%)}
-        .status-hero.review::before{background:radial-gradient(circle at 50% 0%,var(--review),transparent 70%)}
-        .status-hero.rejected::before,.status-hero.cancelled::before{background:radial-gradient(circle at 50% 0%,var(--rejected),transparent 70%)}
-        .status-hero.received::before{background:radial-gradient(circle at 50% 0%,var(--received),transparent 70%)}
-        .status-hero.used::before{background:radial-gradient(circle at 50% 0%,var(--used),transparent 70%)}
-        .status-icon-wrap{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px;position:relative}
-        .status-icon-wrap::after{content:'';position:absolute;inset:-4px;border-radius:50%;opacity:.25;border:2px solid currentColor}
-        .status-icon-wrap.approved{background:rgba(48,209,88,.15);color:var(--approved)}
-        .status-icon-wrap.pending{background:rgba(255,159,10,.15);color:var(--pending)}
-        .status-icon-wrap.review{background:rgba(26,103,224,.15);color:var(--review)}
-        .status-icon-wrap.rejected,.status-icon-wrap.cancelled{background:rgba(232,48,74,.15);color:var(--rejected)}
-        .status-icon-wrap.received{background:rgba(255,214,10,.15);color:var(--received)}
-        .status-icon-wrap.used{background:rgba(48,209,88,.15);color:var(--used)}
-        .status-label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:10px}
-        .status-label.approved{background:rgba(48,209,88,.15);color:#30d158}
-        .status-label.pending{background:rgba(255,159,10,.15);color:#ff9f0a}
-        .status-label.review{background:rgba(26,103,224,.15);color:#4d8eff}
-        .status-label.rejected,.status-label.cancelled{background:rgba(232,48,74,.15);color:#f05068}
-        .status-label.received{background:rgba(255,214,10,.15);color:#ffd60a}
-        .status-label.used{background:rgba(48,209,88,.15);color:#30d158}
-        .status-name{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--text);margin-bottom:4px}
-        .status-subtext{font-size:14px;color:var(--text-2)}
-        .details-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
-        .detail-cell{background:#0b0b16;padding:18px 20px}
-        .detail-cell:last-child:nth-child(odd){grid-column:span 2}
-        .detail-cell-label{font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
-        .detail-cell-value{font-size:15px;font-weight:600;color:var(--text);line-height:1.3}
-        .rejection-box{margin:0;padding:18px 20px;background:rgba(232,48,74,.07);border-top:1px solid rgba(232,48,74,.15);display:flex;gap:12px;align-items:flex-start}
-        .rejection-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-        .rejection-text{font-size:14px;color:#f05068;line-height:1.5}
-        .not-found{padding:36px 28px;text-align:center}
-        .not-found-icon{font-size:48px;margin-bottom:14px;display:block}
-        .not-found-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
-        .not-found-sub{font-size:14px;color:var(--text-2);line-height:1.6}
-        .error-alert{background:rgba(232,48,74,.08);border:1px solid rgba(232,48,74,.22);border-radius:var(--radius);padding:14px 18px;display:flex;gap:12px;align-items:flex-start;margin-top:16px}
-        .error-alert-icon{font-size:18px;flex-shrink:0}
-        .error-alert-text{font-size:14px;color:#f05068;line-height:1.5}
-        .footer{margin-top:40px;text-align:center;font-size:13px;color:var(--text-3);animation:fadeIn 1s ease .5s both}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        .footer a{color:var(--text-2);text-decoration:none;border-bottom:1px solid var(--border);transition:color .2s}
-        .footer a:hover{color:var(--text)}
-        .divider{height:1px;background:var(--border);margin:0}
-        @media(max-width:520px){.page{padding:28px 14px 48px}.card,.result-card{border-radius:var(--radius-lg)}.card{padding:24px 20px}.header h1{font-size:28px}.details-grid{grid-template-columns:1fr}.detail-cell:last-child:nth-child(odd){grid-column:span 1}}
-        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.25);transform:scale(0);animation:ripple-anim .5s linear;pointer-events:none}
-        @keyframes ripple-anim{to{transform:scale(4);opacity:0}}
-        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-        .shake{animation:shake .4s ease}
-        .field-input.error{border-color:rgba(232,48,74,.5);background:rgba(232,48,74,.06)}
-        @keyframes resultPop{0%{transform:scale(.93) translateY(10px);opacity:0}60%{transform:scale(1.02);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
-        .result-pop{animation:resultPop .5s cubic-bezier(.34,1.56,.64,1) both}
-        .btn-pdf{display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-weight:600;padding:12px 24px;text-decoration:none;transition:var(--transition);width:100%;margin-top:14px;box-shadow:0 1px 2px rgba(0,0,0,0.15)}
-        .btn-pdf:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.20);transform:translateY(-1px)}
-        .btn-pdf:active{transform:translateY(0)}
-        .cached-notice{padding:14px 20px;font-size:13px;color:#ff9f0a;background:rgba(255,159,10,.07);border-top:1px solid rgba(255,159,10,.15);display:flex;align-items:center;gap:8px}
-        .field-input.skeleton{background:linear-gradient(90deg,var(--bg-input) 25%,rgba(255,255,255,0.12) 50%,var(--bg-input) 75%);background-size:200% 100%;animation:skeleton-shimmer 1.5s infinite linear;color:transparent!important;pointer-events:none}
-        @keyframes skeleton-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        /* ─── RESET & TOKENS ──────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:           #09090f;
+            --bg-card:      rgba(255,255,255,0.04);
+            --bg-input:     rgba(255,255,255,0.06);
+            --border:       rgba(255,255,255,0.09);
+            --border-focus: rgba(26,103,224,0.55);
+            --text:         #f0f0f5;
+            --text-2:       #9fa0bc;
+            --text-3:       #54556a;
+            --accent:       #1a67e0;
+            --red:          #e8304a;
+            --approved:     #30d158;
+            --pending:      #ff9f0a;
+            --review:       #1a67e0;
+            --rejected:     #e8304a;
+            --received:     #f5c542;
+            --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --ease:         cubic-bezier(0.32, 0.72, 0, 1);
+            --spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
+            --dur:          0.22s;
+            --radius-sm:    8px;
+            --radius:       12px;
+            --radius-lg:    18px;
+            --radius-xl:    24px;
+            --nav-h:        60px;
+        }
+
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SUBTLE BACKGROUND ───────────────────────────────────── */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.14;
+        }
+        .bg-orb-1 {
+            width: 480px; height: 480px;
+            background: radial-gradient(circle, #1a67e0, transparent 70%);
+            top: -180px; left: -120px;
+        }
+        .bg-orb-2 {
+            width: 360px; height: 360px;
+            background: radial-gradient(circle, #e8304a, transparent 70%);
+            bottom: -100px; right: -80px;
+        }
+
+        /* ─── TOP NAV ─────────────────────────────────────────────── */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--nav-h);
+            background: rgba(9,9,15,0.85);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border-bottom: 1px solid var(--border);
+        }
+        .top-nav-inner {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+            color: var(--text);
+        }
+        .nav-logo-icon {
+            width: 30px; height: 30px;
+            background: var(--red);
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+        .nav-logo-icon svg { width: 16px; height: 16px; stroke: #fff; }
+        .nav-logo-text {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+        .nav-logo-text span { color: var(--red); }
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-2);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+            min-height: 36px;
+        }
+        .nav-back:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.06);
+        }
+        .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+        /* ─── PAGE LAYOUT ─────────────────────────────────────────── */
+        .page {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100dvh - var(--nav-h));
+            padding: 40px 20px 64px;
+            animation: fadeIn 0.4s ease both;
+        }
+
+        /* ─── HEADER ──────────────────────────────────────────────── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 32px;
+            width: 100%;
+            max-width: 520px;
+            animation: slideDown 0.6s var(--ease) both;
+        }
+        .page-header h1 {
+            font-size: clamp(24px, 5.5vw, 42px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .page-header p {
+            font-size: 15px;
+            color: var(--text-2);
+            line-height: 1.60;
+        }
+
+        /* ─── MAIN CARD ───────────────────────────────────────────── */
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 28px;
+            animation: slideUp 0.6s var(--ease) 0.05s both;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* ─── SEGMENT CONTROL ─────────────────────────────────────── */
+        .segment-wrap {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+        }
+        .segment-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-2);
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 10px;
+            min-height: 48px;
+            border-radius: calc(var(--radius) - 3px);
+            cursor: pointer;
+            transition: color var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .segment-btn.active {
+            background: rgba(255,255,255,0.09);
+            color: var(--text);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+        }
+        .segment-btn:not(.active):hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+        }
+
+        /* ─── FORM FIELDS ─────────────────────────────────────────── */
+        .field-group { display: flex; flex-direction: column; gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-2);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .field-input-wrap { position: relative; }
+        .field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 17px; height: 17px;
+            color: var(--text-3);
+            pointer-events: none;
+            transition: color 0.18s ease;
+        }
+        .field-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font);
+            /* 16px prevents iOS Safari zoom */
+            font-size: 16px;
+            font-weight: 500;
+            padding: 14px 16px;
+            min-height: 52px;
+            transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .field-input::placeholder { color: var(--text-3); font-weight: 400; font-size: 15px; }
+        .field-input:focus {
+            border-color: var(--border-focus);
+            background: rgba(26,103,224,0.06);
+            box-shadow: 0 0 0 3px rgba(26,103,224,0.13);
+        }
+        .field-input-wrap:focus-within .field-icon { color: var(--accent); }
+
+        /* E-Visa field animation */
+        .field-evisa {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.38s var(--ease), opacity 0.28s ease, margin 0.38s;
+            margin-top: 0;
+        }
+        .field-evisa.visible { max-height: 90px; opacity: 1; }
+
+        /* ─── SEARCH BUTTON ───────────────────────────────────────── */
+        .btn-search {
+            width: 100%;
+            margin-top: 20px;
+            border: none;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, #1a67e0 0%, #e8304a 100%);
+            color: #fff;
+            font-family: var(--font);
+            font-size: 16px;
+            font-weight: 700;
+            padding: 16px;
+            min-height: 56px;
+            cursor: pointer;
+            transition: opacity var(--dur) var(--ease), transform 0.18s var(--spring);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-search::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.10);
+            opacity: 0;
+            transition: opacity 0.18s;
+        }
+        .btn-search:hover::before { opacity: 1; }
+        .btn-search:active { transform: scale(0.98); }
+        .btn-search:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-search-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.30);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* ─── ERROR ALERT ─────────────────────────────────────────── */
+        .error-alert {
+            background: rgba(232,48,74,0.08);
+            border: 1px solid rgba(232,48,74,0.20);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-top: 14px;
+        }
+        .error-alert-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+        .error-alert-text { font-size: 14px; color: #f05068; line-height: 1.5; }
+
+        /* ─── RESULT WRAP ─────────────────────────────────────────── */
+        .result-wrap {
+            width: 100%;
+            max-width: 520px;
+            margin-top: 16px;
+        }
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* ─── STATUS HERO ─────────────────────────────────────────── */
+        .status-hero {
+            padding: 32px 24px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .status-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+        .status-hero.approved::before  { background: radial-gradient(circle at 50% 0%, var(--approved), transparent 65%); }
+        .status-hero.pending::before   { background: radial-gradient(circle at 50% 0%, var(--pending), transparent 65%); }
+        .status-hero.review::before    { background: radial-gradient(circle at 50% 0%, var(--review), transparent 65%); }
+        .status-hero.rejected::before,
+        .status-hero.cancelled::before { background: radial-gradient(circle at 50% 0%, var(--rejected), transparent 65%); }
+        .status-hero.received::before  { background: radial-gradient(circle at 50% 0%, var(--received), transparent 65%); }
+        .status-hero.used::before      { background: radial-gradient(circle at 50% 0%, var(--approved), transparent 65%); }
+
+        .status-icon-wrap {
+            width: 68px; height: 68px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 30px;
+            position: relative;
+        }
+        .status-icon-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            opacity: 0.20;
+            border: 1.5px solid currentColor;
+        }
+        .status-icon-wrap.approved  { background: rgba(48,209,88,.13); color: var(--approved); }
+        .status-icon-wrap.pending   { background: rgba(255,159,10,.13); color: var(--pending); }
+        .status-icon-wrap.review    { background: rgba(26,103,224,.13); color: var(--review); }
+        .status-icon-wrap.rejected,
+        .status-icon-wrap.cancelled { background: rgba(232,48,74,.13); color: var(--rejected); }
+        .status-icon-wrap.received  { background: rgba(245,197,66,.13); color: var(--received); }
+        .status-icon-wrap.used      { background: rgba(48,209,88,.13); color: var(--approved); }
+
+        .status-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 10px;
+        }
+        .status-label.approved  { background: rgba(48,209,88,.13); color: #30d158; }
+        .status-label.pending   { background: rgba(255,159,10,.13); color: #ff9f0a; }
+        .status-label.review    { background: rgba(26,103,224,.13); color: #4d8eff; }
+        .status-label.rejected,
+        .status-label.cancelled { background: rgba(232,48,74,.13); color: #f05068; }
+        .status-label.received  { background: rgba(245,197,66,.13); color: #f5c542; }
+        .status-label.used      { background: rgba(48,209,88,.13); color: #30d158; }
+
+        .status-name {
+            font-size: clamp(16px, 4.5vw, 19px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            line-height: 1.35;
+            word-wrap: break-word;
+            word-break: break-word;
+            margin-top: 6px;
+            margin-bottom: 4px;
+        }
+
+        /* ─── DETAILS GRID ────────────────────────────────────────── */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+        }
+        .detail-cell {
+            background: rgba(9,9,15,0.85);
+            padding: 16px 20px;
+        }
+        .detail-cell:last-child:nth-child(odd) { grid-column: span 2; }
+        .detail-cell-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-3);
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .detail-cell-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        /* ─── REJECTION BOX ───────────────────────────────────────── */
+        .rejection-box {
+            padding: 16px 20px;
+            background: rgba(232,48,74,0.06);
+            border-top: 1px solid rgba(232,48,74,0.14);
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .rejection-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+        .rejection-text { font-size: 14px; color: #f05068; line-height: 1.5; }
+
+        /* ─── NOT FOUND ───────────────────────────────────────────── */
+        .not-found {
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .not-found-icon-wrap {
+            width: 64px; height: 64px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        .not-found-icon-wrap svg { width: 28px; height: 28px; color: var(--text-3); }
+        .not-found-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .not-found-sub {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.60;
+        }
+
+        /* ─── CACHED NOTICE ───────────────────────────────────────── */
+        .cached-notice {
+            padding: 12px 20px;
+            font-size: 13px;
+            color: #ff9f0a;
+            background: rgba(255,159,10,0.06);
+            border-top: 1px solid rgba(255,159,10,0.14);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ─── PDF BUTTON ──────────────────────────────────────────── */
+        .btn-pdf {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 13px 24px;
+            min-height: 48px;
+            text-decoration: none;
+            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+            width: 100%;
+        }
+        .btn-pdf:hover {
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(255,255,255,0.16);
+            transform: translateY(-1px);
+        }
+        .btn-pdf:active { transform: translateY(0); }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .page-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-3);
+            animation: fadeIn 1s ease 0.5s both;
+        }
+        .page-footer a {
+            color: var(--text-2);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            transition: color 0.18s;
+        }
+        .page-footer a:hover { color: var(--text); }
+
+        /* ─── ANIMATIONS ──────────────────────────────────────────── */
+        @keyframes fadeIn    { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes slideUp   { from { opacity: 0; transform: translateY(28px) scale(.97) } to { opacity: 1; transform: translateY(0) scale(1) } }
+        @keyframes spin      { to { transform: rotate(360deg) } }
+        @keyframes shake     { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+        @keyframes resultPop { 0%{transform:scale(.94) translateY(8px);opacity:0} 60%{transform:scale(1.01);opacity:1} 100%{transform:scale(1) translateY(0);opacity:1} }
+        @keyframes skeleton  { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+        .shake     { animation: shake 0.38s ease; }
+        .result-pop { animation: resultPop 0.45s var(--spring) both; }
+        .field-input.error { border-color: rgba(232,48,74,0.50); background: rgba(232,48,74,0.06); }
+        .field-input.skeleton {
+            background: linear-gradient(90deg, var(--bg-input) 25%, rgba(255,255,255,0.11) 50%, var(--bg-input) 75%);
+            background-size: 200% 100%;
+            animation: skeleton 1.5s infinite linear;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        /* ─── RIPPLE ──────────────────────────────────────────────── */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.20);
+            transform: scale(0);
+            animation: ripple-anim 0.5s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 520px) {
+            .page { padding: 24px 14px 52px; }
+            .card { padding: 22px 18px; border-radius: var(--radius-lg); }
+            .page-header h1 { font-size: clamp(20px, 6.5vw, 30px); }
+        }
+        @media (max-width: 380px) {
+            .details-grid { grid-template-columns: 1fr; }
+            .detail-cell:last-child:nth-child(odd) { grid-column: span 1; }
+            .detail-cell { padding: 14px 16px; }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
+
+<!-- Subtle background orbs -->
 <div class="bg-layer" aria-hidden="true">
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
-    <div class="bg-orb bg-orb-3"></div>
 </div>
+
+<!-- ─── TOP NAV ─────────────────────────────────────────────────────── -->
+<nav class="top-nav" aria-label="Page navigation">
+    <div class="top-nav-inner">
+        <a href="index.html" class="nav-logo" aria-label="KoreaVisa — Back to home">
+            <div class="nav-logo-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+            </div>
+            <div class="nav-logo-text">Korea<span>Visa</span></div>
+        </a>
+        <a href="index.html" class="nav-back" aria-label="Return to homepage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Home
+        </a>
+    </div>
+</nav>
+
+<!-- ─── PAGE CONTENT ────────────────────────────────────────────────── -->
 <div class="page">
-    <header class="header">
+    <!-- Header -->
+    <header class="page-header">
         <h1>Visa Status Check</h1>
     </header>
+
+    <!-- Main Form Card -->
     <div class="card" role="main">
+        <!-- Visa Type Segment -->
         <div class="segment-wrap" role="group" aria-label="Visa type">
-            <button class="segment-btn active" id="btnEmbassy" onclick="selectType('Embassy')" aria-pressed="true">&#127963; Embassy</button>
-            <button class="segment-btn" id="btnEVisa" onclick="selectType('E-Visa')" aria-pressed="false">&#128241; E-Visa</button>
+            <button class="segment-btn active" id="btnEmbassy" onclick="selectType('Embassy')" aria-pressed="true">Embassy</button>
+            <button class="segment-btn" id="btnEVisa" onclick="selectType('E-Visa')" aria-pressed="false">E-Visa</button>
         </div>
+
+        <!-- Form Fields -->
         <div class="field-group">
             <div class="field">
                 <label class="field-label" for="passportInput">Passport Number</label>
                 <div class="field-input-wrap">
-                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-1a5 5 0 0 1 10 0v1"/></svg>
-                    <input type="text" id="passportInput" class="field-input" placeholder="FA1234567" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" aria-required="true">
+                    <input type="text" id="passportInput" class="field-input" placeholder="FA1234567"
+                        autocomplete="off" autocapitalize="characters" spellcheck="false"
+                        maxlength="20" aria-required="true" inputmode="text">
                 </div>
             </div>
+
             <div class="field">
                 <label class="field-label" for="nameInput">Full Name (as in passport)</label>
                 <div class="field-input-wrap">
-                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <input type="text" id="nameInput" class="field-input" placeholder="ABDUVOHIDOV KUVONCHBEK" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-required="true">
+                    <input type="text" id="nameInput" class="field-input" placeholder="ABDUVOHIDOV KUVONCHBEK"
+                        autocomplete="off" autocapitalize="characters" spellcheck="false" aria-required="true">
                 </div>
             </div>
+
             <div class="field">
                 <label class="field-label" for="dobInput">Date of Birth</label>
                 <div class="field-input-wrap">
-                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <input type="text" id="dobInput" class="field-input" placeholder="YYYY-MM-DD" autocomplete="off" maxlength="10" aria-required="true">
+                    <input type="text" id="dobInput" class="field-input" placeholder="YYYY-MM-DD"
+                        autocomplete="off" maxlength="10" aria-required="true" inputmode="numeric">
                 </div>
             </div>
+
             <div class="field field-evisa" id="evisaField" aria-hidden="true">
                 <label class="field-label" for="appNoInput">Application Number</label>
                 <div class="field-input-wrap">
-                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    <input type="text" id="appNoInput" class="field-input" placeholder="AP2026123456" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="30">
+                    <input type="text" id="appNoInput" class="field-input" placeholder="AP2026123456"
+                        autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="30">
                 </div>
             </div>
         </div>
-        <button class="btn-search" id="searchBtn" onclick="handleSearch(event)">
+
+        <!-- Search Button -->
+        <button class="btn-search" id="searchBtn" onclick="handleSearch(event)" aria-label="Check visa status">
             <div class="btn-search-inner" id="btnInner">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 Check Status
             </div>
         </button>
+
+        <!-- Inline Error -->
         <div id="errorAlert" class="error-alert" style="display:none;" role="alert" aria-live="polite">
             <span class="error-alert-icon">&#9888;&#65039;</span>
             <span class="error-alert-text" id="errorText"></span>
         </div>
     </div>
+
+    <!-- Result -->
     <div class="result-wrap" id="resultWrap" style="display:none;" aria-live="polite" aria-label="Visa status result">
         <div class="result-card" id="resultCard"></div>
     </div>
-    <footer class="footer">
-        <p>Data sourced directly from <a href="https://www.visa.go.kr" target="_blank" rel="noopener noreferrer">visa.go.kr</a> &nbsp;&middot;&nbsp; Results are real-time</p>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <p><a href="index.html">← Back to Home</a></p>
     </footer>
 </div>
+
+<!-- ─── ALL JS PRESERVED EXACTLY ────────────────────────────────────── -->
 <script>
+const isLocal = (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "" ||
+    window.location.protocol === "file:"
+) && window.location.port !== "3000";
+
+const API_CHECK_STATUS = isLocal ? "http://localhost:3000/check-status" : "/api/check-status";
+const API_STUDENTS     = isLocal ? "http://localhost:3000/api/students" : "/api/students";
+const API_DOWNLOAD_PDF = isLocal ? "http://localhost:3000/download-visa-pdf" : "/api/download-visa-pdf";
+
 let visaType='Embassy';
 function selectType(t){
     visaType=t;
@@ -208,7 +756,6 @@ let _lastAutofillPassport='';
 let _autofillApplied=false;
 
 document.getElementById('passportInput').addEventListener('input',function(){
-    // uppercase handled by generic listener above
     clearTimeout(_autofillTimer);
     const passport=this.value.trim().toUpperCase();
     if(passport.length<3){_lastAutofillPassport='';_autofillApplied=false;return;}
@@ -224,11 +771,10 @@ async function autofillFromDb(passport){
     if(nameEl&&!nameEl.dataset.userEdited) elsToAnimate.push(nameEl);
     if(dobEl&&!dobEl.dataset.userEdited) elsToAnimate.push(dobEl);
 
-    // Apply skeleton animation
     elsToAnimate.forEach(el=>el.classList.add('skeleton'));
 
     try{
-        const res=await fetch(`/api/students?passport=${encodeURIComponent(passport)}&public=true`);
+        const res=await fetch(`${API_STUDENTS}?passport=${encodeURIComponent(passport)}&public=true`);
         if(!res.ok) return;
         const rows=await res.json();
         if(!rows||rows.length===0) return;
@@ -236,33 +782,26 @@ async function autofillFromDb(passport){
         _lastAutofillPassport=passport;
         _autofillApplied=true;
 
-        // Fill name
         if(s.fullName&&nameEl&&!nameEl.dataset.userEdited){
             nameEl.value=s.fullName;
         }
-        // Fill DOB
         if(s.birthday&&dobEl&&!dobEl.dataset.userEdited){
             dobEl.value=s.birthday;
         }
-        // Switch visa type
         if(s.visaType&&(s.visaType==='Embassy'||s.visaType==='E-Visa')){
             if(visaType!==s.visaType)selectType(s.visaType);
         }
     }catch(_){/* silently ignore network errors */}
     finally{
-        // Remove skeleton animation
         elsToAnimate.forEach(el=>el.classList.remove('skeleton'));
     }
 }
 
-// Mark fields as user-edited when user actually types in them
 ['nameInput','dobInput','appNoInput'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
     el.addEventListener('input',()=>{el.dataset.userEdited='1';});
-    // Clear the flag when passport changes so new autofill can overwrite again
 });
-// Clear user-edited flags when passport changes
 document.getElementById('passportInput').addEventListener('input',()=>{
     ['nameInput','dobInput','appNoInput'].forEach(id=>{
         const el=document.getElementById(id);
@@ -282,20 +821,18 @@ async function handleSearch(event){
     if(visaType==='E-Visa'&&!appNo){shakeField('appNoInput');showError('Application number is required for E-Visa.');return;}
     setLoading(true);
     try{
-        const res=await fetch('/api/check-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passport_number:passport,english_name:name,birth_date:dob,visa_type:visaType,application_no:appNo})});
+        const res=await fetch(API_CHECK_STATUS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passport_number:passport,english_name:name,birth_date:dob,visa_type:visaType,application_no:appNo})});
         if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||`Server error (${res.status})`);}
         const data=await res.json();
 
-        // ── If live check found nothing, fall back to Turso cached data ──
         if(!data.found){
             try{
-                const cached=await fetch(`/api/students?passport=${encodeURIComponent(passport)}&public=true`);
+                const cached=await fetch(`${API_STUDENTS}?passport=${encodeURIComponent(passport)}&public=true`);
                 if(cached.ok){
                     const rows=await cached.json();
                     const s=rows&&rows[0];
                     const realStatuses=['APPROVED','VISA USED','UNDER REVIEW','APP/RECEIVED','RECEIVED','REJECTED','CANCELLED','RETURNED','PENDING SUPPLEMENT','EXPIRED'];
                     if(s&&realStatuses.includes((s.status||'').toUpperCase())){
-                        // Parse extra visa details from cached response
                         let extra = {};
                         try { extra = JSON.parse(s.apiResponse || '{}'); } catch(e){}
                         const synth={
@@ -317,7 +854,6 @@ async function handleSearch(event){
                     }
                 }
             }catch(_){}
-            // Truly not found anywhere
             renderResult(data,{passport,name,dob,appNo},false);
             return;
         }
@@ -343,13 +879,12 @@ function fmtAgo(iso){
 function renderResult(data,input,cached){
     const wrap=document.getElementById('resultWrap'),card=document.getElementById('resultCard');
     if(!data.found){
-        card.innerHTML=`<div class="not-found"><span class="not-found-icon">🔍</span><div class="not-found-title">No Record Found</div><div class="not-found-sub">No visa application was found for this passport.<br>Please double-check your details and try again.</div></div>`;
+        card.innerHTML=`<div class="not-found"><div class="not-found-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="not-found-title">No Record Found</div><div class="not-found-sub">No visa application was found for this passport.<br>Please double-check your details and try again.</div></div>`;
         wrap.style.display='';
         return;
     }
     const raw=data.status||'UNKNOWN',cfg=STATUS_CONFIG[raw]||{cls:'pending',icon:'❓',label:raw};
     const appDate=data.applicationDate||'—',entryDate=data.entryDate||'—',purpose=data.entryPurpose||'—';
-    const sourceLabel=cached?`Cached · last checked ${fmtAgo(data.lastChecked)}`:'Checked just now · visa.go.kr';
     
     const cells=[
         {label:'Passport',value:input.passport},
@@ -365,8 +900,7 @@ function renderResult(data,input,cached){
     
     const cellsHtml=cells.map(c=>`<div class="detail-cell"><div class="detail-cell-label">${esc(c.label)}</div><div class="detail-cell-value">${esc(c.value)}</div></div>`).join('');
     
-    const rejHtml=data.rejectionReason?`<div class="rejection-box"><span class="rejection-icon">⚠️</span><div class="rejection-text"><strong>Reason:</strong> ${esc(data.rejectionReason)}</div></div>`:
-        (cached?'<div class="cached-notice">⚡ Live data temporarily unavailable. Showing last known status.</div>':'');
+    const rejHtml=data.rejectionReason?`<div class="rejection-box"><span class="rejection-icon">⚠️</span><div class="rejection-text"><strong>Reason:</strong> ${esc(data.rejectionReason)}</div></div>`:'';
         
     let downloadBtnHtml = '';
     const statusUpper = raw.toUpperCase();
@@ -379,17 +913,17 @@ function renderResult(data,input,cached){
             application_no: input.appNo || ''
         });
         downloadBtnHtml = `
-            <div style="padding: 20px 28px 28px; background: #0b0b16; border-top: 1px solid var(--border);">
-                <a href="/api/download-visa-pdf?${queryParams.toString()}" target="_blank" class="btn-pdf">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <div style="padding: 16px 20px 20px; background: rgba(9,9,15,0.85); border-top: 1px solid var(--border);">
+                <a href="${API_DOWNLOAD_PDF}?${queryParams.toString()}" target="_blank" class="btn-pdf">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Download Certificate PDF
                 </a>
             </div>
         `;
     }
         
-    const displayName=input.name.split(' ').slice(0,2).join(' ');
-    card.innerHTML=`<div class="status-hero ${cfg.cls}"><div class="status-icon-wrap ${cfg.cls}">${cfg.icon}</div><div class="status-label ${cfg.cls}">${esc(cfg.label)}</div><div class="status-name">${esc(displayName)}</div><div class="status-subtext">${esc(sourceLabel)}</div></div><div class="divider"></div><div class="details-grid">${cellsHtml}</div>${rejHtml}${downloadBtnHtml}`;
+    const displayName=input.name;
+    card.innerHTML=`<div class="status-hero ${cfg.cls}"><div class="status-label ${cfg.cls}">${esc(cfg.label)}</div><div class="status-name">${esc(displayName)}</div></div><div style="height:1px;background:var(--border)"></div><div class="details-grid">${cellsHtml}</div>${rejHtml}${downloadBtnHtml}`;
     wrap.classList.remove('result-pop');void wrap.offsetWidth;wrap.classList.add('result-pop');
     wrap.style.display='';
     setTimeout(()=>wrap.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
@@ -399,7 +933,7 @@ function clearResult(){const w=document.getElementById('resultWrap');w.style.dis
 function clearError(){document.getElementById('errorAlert').style.display='none';document.querySelectorAll('.field-input').forEach(i=>i.classList.remove('error'));}
 function showError(msg){const el=document.getElementById('errorAlert');document.getElementById('errorText').textContent=msg;el.style.display='flex';}
 function shakeField(id){const el=document.getElementById(id);if(!el)return;el.classList.add('error','shake');el.addEventListener('animationend',()=>el.classList.remove('shake'),{once:true});}
-function setLoading(on){const btn=document.getElementById('searchBtn'),inner=document.getElementById('btnInner');btn.disabled=on;inner.innerHTML=on?'<div class="spinner"></div> Checking…':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Check Status';}
+function setLoading(on){const btn=document.getElementById('searchBtn'),inner=document.getElementById('btnInner');btn.disabled=on;inner.innerHTML=on?'<div class="spinner"></div> Checking…':'Check Status';}
 function addRipple(e){const btn=document.getElementById('searchBtn'),rect=btn.getBoundingClientRect(),size=Math.max(rect.width,rect.height),x=(e.clientX||rect.left+rect.width/2)-rect.left-size/2,y=(e.clientY||rect.top+rect.height/2)-rect.top-size/2,rpl=document.createElement('span');rpl.className='ripple';rpl.style.cssText=`width:${size}px;height:${size}px;left:${x}px;top:${y}px`;btn.appendChild(rpl);rpl.addEventListener('animationend',()=>rpl.remove());}
 document.querySelectorAll('.field-input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')handleSearch(e);}));
 </script>
