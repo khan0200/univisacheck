@@ -391,7 +391,8 @@ async function updateStudentDb(passport, parsed, inputData = {}) {
             visaKind: parsed.visaKind || '',
             statusOfResidence: parsed.statusOfResidence || '',
             entryDate: parsed.entryDate || '',
-            entryPurpose: parsed.entryPurpose || ''
+            entryPurpose: parsed.entryPurpose || '',
+            invitingCompany: parsed.invitingCompany || ''
         });
 
         // Check if a record already exists for this passport (any user)
@@ -512,6 +513,7 @@ const server = http.createServer(async (req, res) => {
                     visaExpiry:      direct.visaExpiry || '',
                     visaKind:        direct.visaKind || '',
                     statusOfResidence: direct.statusOfResidence || '',
+                    invitingCompany:  direct.invitingCompany || '',
                     resultCount:     direct.resultCount || 0,
                     source:          'visa.go.kr',
                 };

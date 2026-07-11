@@ -301,13 +301,14 @@ async function handleSearch(event){
                         const synth={
                             found:true,
                             status:s.status,
-                            applicationDate:s.lastChecked?s.lastChecked.slice(0,10):'',
+                            applicationDate:s.applicationDate||(s.lastChecked?s.lastChecked.slice(0,10):''),
                             rejectionReason:s.rejectReason||'',
                             entryDate:extra.entryDate||'',
                             entryPurpose:extra.entryPurpose||'',
                             visaExpiry:extra.visaExpiry||'',
                             visaKind:extra.visaKind||'',
                             statusOfResidence:extra.statusOfResidence||'',
+                            invitingCompany:extra.invitingCompany||'',
                             source:'cached',
                             lastChecked:s.lastChecked||'',
                         };
@@ -357,7 +358,8 @@ function renderResult(data,input,cached){
         ...(data.statusOfResidence?[{label:'Residency Class',value:data.statusOfResidence}]:[]),
         ...(data.visaKind?[{label:'Visa Category',value:data.visaKind}]:[]),
         ...(data.visaExpiry?[{label:'Expiry Date',value:data.visaExpiry}]:[]),
-        ...(purpose!=='—'&&purpose!==''?[{label:'Purpose',value:purpose}]:[]),
+        ...(data.invitingCompany?[{label:'Inviting Company',value:data.invitingCompany}]:[]),
+        ...(purpose!=='—'&&purpose!==''&&purpose!==data.statusOfResidence?[{label:'Purpose',value:purpose}]:[]),
         {label:'Visa Mode',value:visaType}
     ];
     

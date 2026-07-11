@@ -52,6 +52,10 @@ module.exports = async (req, res) => {
             // Extra fields for future use
             entryDate:       direct.entryDate || '',
             entryPurpose:    direct.entryPurpose || '',
+            visaExpiry:      direct.visaExpiry || '',
+            visaKind:        direct.visaKind || '',
+            statusOfResidence: direct.statusOfResidence || '',
+            invitingCompany:  direct.invitingCompany || '',
             resultCount:     direct.resultCount || 0,
             source:          'visa.go.kr',
         };
@@ -75,7 +79,16 @@ module.exports = async (req, res) => {
                     parsed.applicationDate || '',
                     parsed.rejectionReason || '',
                     parsed.pdfUrl || '',
-                    JSON.stringify({ status: parsed.status, detail: parsed.detail }),
+                    JSON.stringify({
+                        status: parsed.status,
+                        detail: parsed.detail,
+                        visaExpiry: parsed.visaExpiry || '',
+                        visaKind: parsed.visaKind || '',
+                        statusOfResidence: parsed.statusOfResidence || '',
+                        entryDate: parsed.entryDate || '',
+                        entryPurpose: parsed.entryPurpose || '',
+                        invitingCompany: parsed.invitingCompany || ''
+                    }),
                     lastChecked,
                     passport
                 ]

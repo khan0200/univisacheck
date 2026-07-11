@@ -314,6 +314,9 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     const statusOfResidenceMatches = [...r.body.matchAll(/id="SOJ_QUAL_NM"[^>]*>([^<]+)/gi)].map(m => m[1].trim());
     const statusOfResidence = statusOfResidenceMatches.length > 0 ? statusOfResidenceMatches[statusOfResidenceMatches.length - 1] : '';
 
+    const inviterMatches = [...r.body.matchAll(/id="MEM_NM"[^>]*>([^<]+)/gi)].map(m => m[1].trim());
+    const invitingCompany = inviterMatches.length > 0 ? inviterMatches[inviterMatches.length - 1] : '';
+
     return {
         found: true,
         records,
@@ -327,6 +330,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
         visaExpiry,
         visaKind,
         statusOfResidence,
+        invitingCompany,
         pdfUrl,
     };
 }

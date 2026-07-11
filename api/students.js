@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
                 return;
             }
             const result = await db.execute({
-                sql: 'SELECT passport, fullName, birthday, status, lastChecked, rejectReason, pdfUrl, visaType, applicationNo, apiResponse FROM students WHERE passport = ?',
+                sql: 'SELECT passport, fullName, birthday, status, applicationDate, lastChecked, rejectReason, pdfUrl, visaType, applicationNo, apiResponse FROM students WHERE passport = ?',
                 args: [passport.toUpperCase().trim()]
             });
             res.status(200).json(result.rows);
