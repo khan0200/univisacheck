@@ -512,7 +512,7 @@ if (existingToken) {
     fetch(`${AUTH_URL}?action=me`, {
         headers: { 'Authorization': `Bearer ${existingToken}` }
     }).then(r => {
-        if (r.ok) window.location.replace('index.html');
+        if (r.ok) window.location.replace('cabinet.html');
         else localStorage.removeItem('authToken');
     }).catch(() => {});
 }
@@ -617,7 +617,7 @@ window.handleLogin = async function() {
 
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('authUser', JSON.stringify(data.user));
-        window.location.replace('index.html');
+        window.location.replace('cabinet.html');
     } catch (e) {
         showError('login', 'Network error. Is the server running?');
     } finally {
@@ -656,7 +656,7 @@ window.handleSignup = async function() {
         localStorage.setItem('authUser', JSON.stringify(data.user));
 
         document.getElementById('signupSuccess').classList.add('show');
-        setTimeout(() => window.location.replace('index.html'), 1000);
+        setTimeout(() => window.location.replace('cabinet.html'), 1000);
     } catch (e) {
         showError('signup', 'Network error. Is the server running?');
     } finally {

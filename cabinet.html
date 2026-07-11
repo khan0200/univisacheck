@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisaCheck</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css?v=20260702-7">
+    <!-- Favicon Suppress -->
+    <link rel="icon" href="data:,">
+</head>
+<body>
+
+    <div id="mainAppWrapper" class="container-fluid main-wrapper p-4">
+
+
+        <!-- Main Content -->
+        <div class="row g-3">
+            <!-- Toolbar -->
+            <div class="col-12">
+                <div class="glass-panel toolbar-section d-flex flex-wrap align-items-center gap-3">
+                    <!-- Add Button -->
+                    <button class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                        <i class="bi bi-plus"></i>
+                        <span>Add</span>
+                    </button>
+                    
+                    <!-- Search Box -->
+                    <div class="search-box position-relative flex-grow-1" style="max-width: 320px;">
+                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="font-size: 14px;"></i>
+                        <input type="text" id="searchInput" class="form-control form-control-glass ps-5 w-100" placeholder="Search...">
+                    </div>
+                    <button id="checkSelectedBtn" type="button" class="btn btn-primary d-none align-items-center gap-2">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <span class="btn-text">Check</span>
+                    </button>
+                    <button id="deleteSelectedBtn" type="button" class="btn btn-danger d-none align-items-center gap-2">
+                        <i class="bi bi-trash"></i>
+                        <span class="btn-text">Delete</span>
+                    </button>
+
+                    <!-- Tabs - Using buttons for better mobile touch support -->
+                    <div class="nav-tabs-wrapper ms-auto d-flex align-items-center gap-2">
+                        <div class="nav nav-pills nav-glass gap-0" id="statusTabs">
+                            <button type="button" class="nav-link active" data-tab="pending">Pending</button>
+                            <button type="button" class="nav-link" data-tab="application">Application</button>
+                            <button type="button" class="nav-link" data-tab="cancelled">Cancelled</button>
+                            <button type="button" class="nav-link" data-tab="approved">Approved</button>
+                        </div>
+                        <span class="text-secondary small fw-medium text-nowrap ms-2" id="studentCount">0</span>
+                    </div>
+
+                    <!-- User Badge + Dark Mode + Logout -->
+                    <div class="header-actions d-flex align-items-center gap-2 ms-2">
+                        <div class="user-badge d-flex align-items-center gap-2 px-3 py-1" id="userBadge" title="Profile Settings" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#profileModal">
+                            <div class="user-avatar" id="userAvatar">A</div>
+                            <span class="user-name d-none d-md-inline" id="userName">Account</span>
+                        </div>
+                        <button id="darkModeToggle" class="btn-header-icon" title="Toggle dark mode" aria-label="Toggle dark mode">
+                            <i class="bi bi-moon-stars-fill"></i>
+                        </button>
+                        <button id="logoutBtn" class="btn-header-icon btn-header-icon-danger" title="Sign out" aria-label="Sign out" onclick="handleLogout()">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="col-12">
+                <div class="glass-panel p-0 rounded-3 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle custom-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Passport</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Applied</th>
+                                    <th scope="col">Checked</th>
+                                    <th scope="col" class="text-center th-select">Select</th>
+                                    <th scope="col" class="text-center th-pdf">PDF</th>
+                                    <th scope="col" class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <!-- Loading State -->
+                        <div id="loadingState" class="text-center py-5">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-secondary small mb-0">Loading students...</p>
+                        </div>
+                        <!-- Empty State -->
+                        <div id="emptyState" class="text-center py-5 d-none">
+                            <div class="text-secondary mb-2">
+                                <i class="bi bi-inbox"></i>
+                            </div>
+                            <p class="text-secondary small mb-0">No students found</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="modalTitle">Add New Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-4">
+                    <form id="studentForm">
+                        <input type="hidden" id="editMode" value="false">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-secondary d-block">Visa Type</label>
+                            <div class="visa-type-toggle-container">
+                                <button type="button" class="visa-type-btn active" id="btnVisaTypeEmbassy">Embassy</button>
+                                <button type="button" class="visa-type-btn" id="btnVisaTypeEVisa">E-Visa</button>
+                            </div>
+                            <input type="hidden" id="visaType" value="Embassy">
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentId" class="form-label small fw-semibold text-secondary">Student ID</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="studentId" placeholder="M445">
+                        </div>
+                        <div class="mb-3 d-none" id="applicationNoWrapper">
+                            <label for="applicationNo" class="form-label small fw-semibold text-secondary">Application Number</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="applicationNo" placeholder="AP2026123456">
+                        </div>
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label small fw-semibold text-secondary">Full Name</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="fullName" required placeholder="ABDUVOHIDOV KUVONCHBEK ABDUMUMIN UGLI">
+                        </div>
+                        <div class="mb-3">
+                            <label for="passport" class="form-label small fw-semibold text-secondary">Passport Number</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="passport" required placeholder="FA1234567">
+                        </div>
+                        <div class="mb-3">
+                            <label for="birthday" class="form-label small fw-semibold text-secondary">Birthday</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="birthday" required placeholder="YYYY-MM-DD" maxlength="10">
+                            <div class="form-text small">Format: YYYY-MM-DD</div>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary rounded-pill py-2">
+                                <span id="submitBtnText">Save Student</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel border-0 rounded-4">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold">Student Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div class="text-center mb-4">
+                        <div class="avatar-placeholder bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-person fs-1 text-secondary"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1" id="detailsName">Student Name</h5>
+                        <span class="badge bg-light text-dark border px-2 py-1 rounded-2" id="detailsPassport">PASSPORT</span>
+                    </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Status</small>
+                                <div id="detailsStatus"></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Birthday</small>
+                                <p class="mb-0 fw-medium" id="detailsBirthday">--</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Application Date</small>
+                                <p class="mb-0 fw-medium" id="detailsAppDate">--</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Last Checked</small>
+                                <p class="mb-0 fw-medium" id="detailsLastChecked">--</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Visa Type</small>
+                                <div id="detailsVisaType">--</div>
+                            </div>
+                        </div>
+                        <div class="col-6 d-none" id="detailsAppNoWrapper">
+                            <div class="p-3 bg-light-glass rounded-3 h-100 border">
+                                <small class="text-secondary d-block mb-1">Application Number</small>
+                                <p class="mb-0 fw-medium" id="detailsAppNo">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Settings Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-2">
+                    <h5 class="modal-title fw-bold">Profile Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-pills nav-glass mb-4" id="profileModalTabs" role="tablist">
+                        <li class="nav-item flex-grow-1 text-center" role="presentation">
+                            <button class="nav-link w-100 active" id="profile-general-tab" data-bs-toggle="pill" data-bs-target="#profile-general" type="button" role="tab" aria-selected="true">General</button>
+                        </li>
+                        <li class="nav-item flex-grow-1 text-center" role="presentation">
+                            <button class="nav-link w-100" id="profile-security-tab" data-bs-toggle="pill" data-bs-target="#profile-security" type="button" role="tab" aria-selected="false">Security</button>
+                        </li>
+                    </ul>
+
+                    <!-- Alerts inside Modal -->
+                    <div class="alert alert-danger d-none" id="profileModalError" role="alert"></div>
+                    <div class="alert alert-success d-none" id="profileModalSuccess" role="alert"></div>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="profileModalTabContent">
+                        <!-- General Settings Panel -->
+                        <div class="tab-pane fade show active" id="profile-general" role="tabpanel" aria-labelledby="profile-general-tab">
+                            <form id="profileGeneralForm">
+                                <div class="mb-3">
+                                    <label for="profileUsername" class="form-label small fw-semibold text-secondary">Consulting Name</label>
+                                    <input type="text" class="form-control form-control-glass rounded-3" id="profileUsername" required placeholder="Enter consulting name">
+                                </div>
+                                <div class="d-grid mt-4">
+                                    <button type="submit" class="btn btn-primary rounded-pill py-2" id="saveGeneralBtn">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Security Settings Panel (Password Change) -->
+                        <div class="tab-pane fade" id="profile-security" role="tabpanel" aria-labelledby="profile-security-tab">
+                            <form id="profilePasswordForm">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-secondary" for="profileNewPw">New Password</label>
+                                    <div class="input-wrap">
+                                        <i class="bi bi-lock-fill me-2"></i>
+                                        <input type="password" class="field-input" id="profileNewPw" required placeholder="Minimum 6 characters">
+                                        <button class="pw-toggle" type="button" onclick="toggleProfilePw('profileNewPw', this)" aria-label="Toggle password visibility">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-secondary" for="profileConfirmPw">Confirm New Password</label>
+                                    <div class="input-wrap">
+                                        <i class="bi bi-lock-fill me-2"></i>
+                                        <input type="password" class="field-input" id="profileConfirmPw" required placeholder="••••••••">
+                                        <button class="pw-toggle" type="button" onclick="toggleProfilePw('profileConfirmPw', this)" aria-label="Toggle password visibility">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="d-grid mt-4">
+                                    <button type="submit" class="btn btn-primary rounded-pill py-2" id="changePasswordBtn">Change Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- App JS -->
+    <script type="module" src="app.js?v=20260702-6"></script>
+</body>
+</html>
