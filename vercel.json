@@ -11,6 +11,14 @@
     {
       "source": "/api/auth",
       "destination": "/api/auth.js"
+    },
+    {
+      "source": "/api/students",
+      "destination": "/api/students.js"
+    },
+    {
+      "source": "/api/download-visa-pdf",
+      "destination": "/api/download-visa-pdf.js"
     }
   ]
 }

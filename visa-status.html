@@ -228,7 +228,7 @@ async function autofillFromDb(passport){
     elsToAnimate.forEach(el=>el.classList.add('skeleton'));
 
     try{
-        const res=await fetch(`http://localhost:3000/api/students?passport=${encodeURIComponent(passport)}&public=true`);
+        const res=await fetch(`/api/students?passport=${encodeURIComponent(passport)}&public=true`);
         if(!res.ok) return;
         const rows=await res.json();
         if(!rows||rows.length===0) return;
@@ -282,14 +282,14 @@ async function handleSearch(event){
     if(visaType==='E-Visa'&&!appNo){shakeField('appNoInput');showError('Application number is required for E-Visa.');return;}
     setLoading(true);
     try{
-        const res=await fetch('http://localhost:3000/check-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passport_number:passport,english_name:name,birth_date:dob,visa_type:visaType,application_no:appNo})});
+        const res=await fetch('/api/check-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passport_number:passport,english_name:name,birth_date:dob,visa_type:visaType,application_no:appNo})});
         if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||`Server error (${res.status})`);}
         const data=await res.json();
 
         // ── If live check found nothing, fall back to Turso cached data ──
         if(!data.found){
             try{
-                const cached=await fetch(`http://localhost:3000/api/students?passport=${encodeURIComponent(passport)}&public=true`);
+                const cached=await fetch(`/api/students?passport=${encodeURIComponent(passport)}&public=true`);
                 if(cached.ok){
                     const rows=await cached.json();
                     const s=rows&&rows[0];
@@ -325,7 +325,7 @@ async function handleSearch(event){
         renderResult(data,{passport,name,dob,appNo},false);
     }catch(err){
         let msg=err.message||'Unknown error';
-        if(msg.includes('Failed to fetch')||msg.includes('NetworkError')||msg.includes('ECONNREFUSED'))msg='Cannot reach the local server. Make sure node proxy.js is running on port 3000.';
+        if(msg.includes('Failed to fetch')||msg.includes('NetworkError')||msg.includes('ECONNREFUSED'))msg='Unable to reach the server. Please try again in a moment.';
         showError(msg);
     }finally{setLoading(false);}
 }
@@ -380,7 +380,7 @@ function renderResult(data,input,cached){
         });
         downloadBtnHtml = `
             <div style="padding: 20px 28px 28px; background: #0b0b16; border-top: 1px solid var(--border);">
-                <a href="http://localhost:3000/download-visa-pdf?${queryParams.toString()}" target="_blank" class="btn-pdf">
+                <a href="/api/download-visa-pdf?${queryParams.toString()}" target="_blank" class="btn-pdf">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Download Certificate PDF
                 </a>
