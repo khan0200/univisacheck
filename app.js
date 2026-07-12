@@ -242,9 +242,9 @@ function setupEventListeners() {
     cachedDOM.modalElement.addEventListener('hidden.bs.modal', () => {
         cachedDOM.form.reset();
         document.getElementById('editMode').value = "false";
+        document.getElementById('originalPassport').value = "";
         document.getElementById('modalTitle').textContent = "Add New Student";
         document.getElementById('submitBtnText').textContent = "Save Student";
-        document.getElementById('passport').disabled = false;
         setVisaType('Embassy');
         clearTimeout(_addModalLookupTimer);
         _addModalLookupPassport = '';
@@ -888,6 +888,9 @@ function setPassportLookupStatus(mode, html) {
 
 function handlePassportLookup(e) {
     const input = e.target;
+    // Lookup/autofill only makes sense when adding a brand-new student — during
+    // Edit the consultant is correcting their own existing record, not looking
+    // one up, so no duplicate warning and no autofill should ever appear.
     if (input.disabled || document.getElementById('editMode').value === 'true') return;
 
     clearTimeout(_addModalLookupTimer);
@@ -909,6 +912,9 @@ function handlePassportLookup(e) {
 }
 
 async function runPassportLookup(passport, fullNameInput, birthdayInput) {
+    // Only ever called when adding a new student (handlePassportLookup skips
+    // this entirely during Edit) — see handlePassportLookup for why.
+
     // 1) Duplicate check — scoped to the logged-in consultant's own students,
     // already loaded client-side, so this is instant and needs no request.
     const ownDuplicate = studentsData.find(s => s.passport === passport);
@@ -992,13 +998,13 @@ async function handleFormSubmit(e) {
         return;
     }
 
-    // Check for duplicates (only when adding new student)
-    if (!isEdit) {
-        const duplicate = studentsData.find(s => s.passport === passport);
-        if (duplicate) {
-            showError(`Student with passport ${passport} already exists`);
-            return;
-        }
+    const originalPassport = isEdit ? document.getElementById('originalPassport').value : '';
+
+    // Check for duplicates — skip the student's own unchanged passport when editing
+    const duplicate = studentsData.find(s => s.passport === passport && s.passport !== originalPassport);
+    if (duplicate) {
+        showError(`Student with passport ${passport} already exists`);
+        return;
     }
 
     // Show Loading
@@ -1015,6 +1021,10 @@ async function handleFormSubmit(e) {
         lastChecked: new Date().toISOString()
     };
 
+    if (isEdit && originalPassport && originalPassport !== passport) {
+        studentData.originalPassport = originalPassport;
+    }
+
     if (!isEdit) {
         studentData.status = "Pending";
         // Application date will be set by API response
@@ -1028,7 +1038,8 @@ async function handleFormSubmit(e) {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+            const errBody = await response.json().catch(() => ({}));
+            throw new Error(errBody.error || `HTTP ${response.status}`);
         }
 
         // Reload data
@@ -1041,7 +1052,7 @@ async function handleFormSubmit(e) {
         bootstrapModal.hide();
     } catch (error) {
         debug("Error saving student:", error);
-        showError("Failed to save student. Please try again.");
+        showError(error.message && !error.message.startsWith('HTTP ') ? error.message : "Failed to save student. Please try again.");
         // Revert button on error
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalContent;
@@ -1127,7 +1138,10 @@ async function handleAction(action, passport, btnElement) {
 
         document.getElementById('fullName').value = student.fullName;
         document.getElementById('passport').value = student.passport;
-        document.getElementById('passport').disabled = true; // Key shouldn't change easily
+        document.getElementById('originalPassport').value = student.passport;
+        clearTimeout(_addModalLookupTimer);
+        _addModalLookupPassport = '';
+        setPassportLookupStatus(null);
         document.getElementById('birthday').value = student.birthday;
         if (document.getElementById('studentId')) {
             document.getElementById('studentId').value = student.studentId || '';

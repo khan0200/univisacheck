@@ -1031,10 +1031,10 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`\n🚀 Visamasters Proxy running at http://localhost:${PORT}`);
+    console.log(`\n🚀 Local Dev Proxy running at http://localhost:${PORT}`);
     console.log(`📡 Endpoint: POST http://localhost:${PORT}/check-status`);
     console.log(`📬 Telegram: POST http://localhost:${PORT}/notify-telegram`);
-    console.log(`🔗 Proxying to: https://${API_HOST}/site/check-visa\n`);
+    console.log(`🔗 Visa status checks and PDF downloads both go directly to visa.go.kr (visamasters.uz is only a last-resort fallback).\n`);
 
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
         console.warn('⚠️  Telegram credentials not set. Edit telegram.config.js to enable local notifications.\n');

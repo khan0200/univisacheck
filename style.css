@@ -1316,6 +1316,20 @@ body {
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
+/* Passport is locked during Edit (it's the unique key) — make that
+   visually obvious instead of looking like every other live field. */
+#addStudentModal .form-control-glass:disabled {
+  background: var(--bg-color);
+  color: var(--text-secondary);
+  border-color: var(--divider);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+#addStudentModal .form-control-glass:disabled:hover {
+  border-color: var(--divider);
+}
+
 #addStudentModal .form-text {
   font-size: 12px;
   margin-top: 6px;
@@ -1350,13 +1364,18 @@ body {
   font-size: 14.5px;
   font-weight: 600;
   border-radius: 10px;
-  background: var(--text-main);
+  /* Fixed dark fill (matches visa-status.html's primary action) — deliberately
+     does NOT follow --text-main, which flips to near-white in dark mode and
+     would wash the button out to near-invisible contrast against its own
+     white label. */
+  background: #0F172A;
+  color: #fff !important;
   box-shadow: none;
 }
 
 #addStudentModal .btn-primary:hover {
-  background: var(--text-main);
-  opacity: 0.88;
+  background: #1E293B;
+  opacity: 1;
   box-shadow: none;
   transform: none;
 }
@@ -1441,6 +1460,12 @@ body {
 
 [data-theme="dark"] .modal-content {
   background: var(--card-bg);
+}
+
+/* Bootstrap's .btn-close icon is a dark SVG meant for light backgrounds —
+   near-invisible on a dark modal without this. */
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(1.6);
 }
 
 /* Hide checkAll column header on desktop too if not needed */

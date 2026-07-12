@@ -19,6 +19,9 @@ module.exports = async (req, res) => {
 
         // ── Public: GET by passport (for student self-check page) ──────────────
         // GET /api/students?passport=XX1234567&public=true  → returns limited fields, no auth
+        // Intentionally includes soft-deleted rows too, so re-adding a deleted
+        // student (here or in the Add Student modal) can still autofill from
+        // their last known name/birthday.
         if (method === 'GET' && req.query.public === 'true') {
             const { passport } = req.query;
             if (!passport) {
@@ -45,7 +48,7 @@ module.exports = async (req, res) => {
             const { passport } = req.query;
             if (passport) {
                 const result = await db.execute({
-                    sql: 'SELECT * FROM students WHERE passport = ? AND userId = ?',
+                    sql: 'SELECT * FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
                     args: [passport.toUpperCase().trim(), userId]
                 });
                 const mappedRows = result.rows.map(r => ({
@@ -55,7 +58,7 @@ module.exports = async (req, res) => {
                 res.status(200).json(mappedRows);
             } else {
                 const result = await db.execute({
-                    sql: 'SELECT * FROM students WHERE userId = ? ORDER BY createdAt DESC',
+                    sql: 'SELECT * FROM students WHERE userId = ? AND deletedAt IS NULL ORDER BY createdAt DESC',
                     args: [userId]
                 });
                 const mappedRows = result.rows.map(r => ({
@@ -80,10 +83,12 @@ module.exports = async (req, res) => {
                 return;
             }
 
-            // Build IN (?, ?, ...) query dynamically
+            // Soft delete: mark deletedAt instead of removing the row, so the
+            // student disappears from this user's dashboard but their data is
+            // still there to autofill from if the same passport is re-added later.
             const placeholders = passports.map(() => '?').join(', ');
-            const sql = `DELETE FROM students WHERE passport IN (${placeholders}) AND userId = ?`;
-            const args = [...passports, userId];
+            const sql = `UPDATE students SET deletedAt = ? WHERE passport IN (${placeholders}) AND userId = ?`;
+            const args = [new Date().toISOString(), ...passports, userId];
             await db.execute({ sql, args });
 
             res.status(200).json({ success: true });
@@ -93,18 +98,61 @@ module.exports = async (req, res) => {
         if (method === 'POST' || method === 'PATCH') {
             const body = req.body && typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
             const passport = (body.passport || '').toUpperCase().trim();
+            // originalPassport is sent only when editing an existing student whose
+            // passport number itself is being changed — it identifies which row to
+            // update, while `passport` carries the new value to save into it.
+            const originalPassport = (body.originalPassport || '').toUpperCase().trim();
+            const isRename = originalPassport && originalPassport !== passport;
 
             if (!passport) {
                 res.status(400).json({ error: 'Missing passport in request body' });
                 return;
             }
 
-            // Check if student already exists FOR THIS USER
+            // `passport` is globally UNIQUE in the DB (not scoped per user) — even
+            // a soft-deleted row still occupies its passport slot — so every check
+            // against it must be global, or an INSERT/UPDATE below can throw a raw
+            // SQLITE_CONSTRAINT instead of a clean error. A soft-deleted row can
+            // only be revived by the same user who deleted it; otherwise a passport
+            // held by someone else's row (active or soft-deleted) is a hard conflict.
+            if (isRename) {
+                const collision = await db.execute({
+                    sql: 'SELECT passport, userId, deletedAt FROM students WHERE passport = ?',
+                    args: [passport]
+                });
+                if (collision.rows.length > 0 && collision.rows[0].userId !== userId) {
+                    res.status(409).json({ error: `Passport ${passport} is already in use by another student.` });
+                    return;
+                }
+
+                const ownsOriginal = await db.execute({
+                    sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ?',
+                    args: [originalPassport, userId]
+                });
+                if (ownsOriginal.rows.length === 0) {
+                    res.status(404).json({ error: 'Student not found.' });
+                    return;
+                }
+            } else {
+                const globalMatch = await db.execute({
+                    sql: 'SELECT passport, userId, deletedAt FROM students WHERE passport = ?',
+                    args: [passport]
+                });
+                if (globalMatch.rows.length > 0 && globalMatch.rows[0].userId !== userId) {
+                    res.status(409).json({ error: `Passport ${passport} is already in use by another student.` });
+                    return;
+                }
+            }
+
+            // Check if a row for THIS USER already exists — active OR soft-deleted
+            // (decides INSERT vs UPDATE; reviving a soft-deleted row is an UPDATE
+            // that also clears deletedAt below).
             const check = await db.execute({
-                sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ?',
-                args: [passport, userId]
+                sql: 'SELECT passport, deletedAt FROM students WHERE passport = ? AND userId = ?',
+                args: [isRename ? originalPassport : passport, userId]
             });
             const exists = check.rows.length > 0;
+            const isRevive = exists && check.rows[0].deletedAt;
 
             const fullName = body.fullName !== undefined ? body.fullName.toUpperCase().trim() : null;
             const birthday = body.birthday !== undefined ? body.birthday.trim() : null;
@@ -165,6 +213,8 @@ module.exports = async (req, res) => {
                 const updateFields = [];
                 const args = [];
 
+                if (isRename) { updateFields.push('passport = ?'); args.push(passport); }
+                if (isRevive) { updateFields.push('deletedAt = NULL'); }
                 if (fullName !== null) { updateFields.push('fullName = ?'); args.push(fullName); }
                 if (birthday !== null) { updateFields.push('birthday = ?'); args.push(birthday); }
                 if (studentId !== null) { updateFields.push('studentId = ?'); args.push(studentId); }
@@ -183,7 +233,7 @@ module.exports = async (req, res) => {
                     return;
                 }
 
-                args.push(passport, userId);
+                args.push(isRename ? originalPassport : passport, userId);
                 const sql = `UPDATE students SET ${updateFields.join(', ')} WHERE passport = ? AND userId = ?`;
                 await db.execute({ sql, args });
                 res.status(200).json({ success: true, message: 'Student updated successfully' });
