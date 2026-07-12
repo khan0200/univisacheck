@@ -8,36 +8,42 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛂</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <style>
         /* ─── RESET & TOKENS ──────────────────────────────────────── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg:           #09090f;
-            --bg-card:      rgba(255,255,255,0.04);
-            --bg-input:     rgba(255,255,255,0.06);
-            --border:       rgba(255,255,255,0.09);
-            --border-focus: rgba(26,103,224,0.55);
-            --text:         #f0f0f5;
-            --text-2:       #9fa0bc;
-            --text-3:       #54556a;
-            --accent:       #1a67e0;
-            --red:          #e8304a;
-            --approved:     #30d158;
-            --pending:      #ff9f0a;
-            --review:       #1a67e0;
-            --rejected:     #e8304a;
-            --received:     #f5c542;
+            --bg:           #F8FAFC;
+            --card:         #FFFFFF;
+            --border:       #E5E7EB;
+            --border-strong:#D1D5DB;
+            --primary:      #0F172A;
+            --text-2:       #64748B;
+            --text-3:       #94A3B8;
+            --success:      #16A34A;
+            --success-bg:   #F0FDF4;
+            --success-brd:  #BBF7D0;
+            --warning:      #D97706;
+            --warning-bg:   #FFFBEB;
+            --warning-brd:  #FDE68A;
+            --danger:       #DC2626;
+            --danger-bg:    #FEF2F2;
+            --danger-brd:   #FECACA;
+            --accent:       #2563EB;
+            --accent-bg:    #EFF6FF;
+            --accent-brd:   #BFDBFE;
             --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --ease:         cubic-bezier(0.32, 0.72, 0, 1);
-            --spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
-            --dur:          0.22s;
-            --radius-sm:    8px;
-            --radius:       12px;
-            --radius-lg:    18px;
-            --radius-xl:    24px;
+            --ease:         cubic-bezier(0.16, 1, 0.3, 1);
+            --dur:          0.18s;
+            --radius-sm:    6px;
+            --radius:       10px;
+            --radius-lg:    14px;
             --nav-h:        60px;
+            --shadow-xs:    0 1px 2px rgba(15,23,42,0.04);
+            --shadow-sm:    0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md:    0 4px 12px rgba(15,23,42,0.07), 0 2px 4px rgba(15,23,42,0.04);
+            --shadow-lg:    0 12px 32px rgba(15,23,42,0.10), 0 4px 8px rgba(15,23,42,0.04);
         }
 
         html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
@@ -45,36 +51,11 @@
         body {
             font-family: var(--font);
             background: var(--bg);
-            color: var(--text);
+            color: var(--primary);
             min-height: 100dvh;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* ─── SUBTLE BACKGROUND ───────────────────────────────────── */
-        .bg-layer {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        .bg-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.14;
-        }
-        .bg-orb-1 {
-            width: 480px; height: 480px;
-            background: radial-gradient(circle, #1a67e0, transparent 70%);
-            top: -180px; left: -120px;
-        }
-        .bg-orb-2 {
-            width: 360px; height: 360px;
-            background: radial-gradient(circle, #e8304a, transparent 70%);
-            bottom: -100px; right: -80px;
         }
 
         /* ─── TOP NAV ─────────────────────────────────────────────── */
@@ -83,15 +64,15 @@
             top: 0;
             z-index: 100;
             height: var(--nav-h);
-            background: rgba(9,9,15,0.85);
-            backdrop-filter: blur(24px) saturate(160%);
-            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
         }
         .top-nav-inner {
             max-width: 560px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
             height: 100%;
             display: flex;
             align-items: center;
@@ -103,23 +84,23 @@
             align-items: center;
             gap: 9px;
             text-decoration: none;
-            color: var(--text);
+            color: var(--primary);
         }
         .nav-logo-icon {
-            width: 30px; height: 30px;
-            background: var(--red);
-            border-radius: 8px;
+            width: 28px; height: 28px;
+            background: var(--primary);
+            border-radius: 7px;
             display: grid;
             place-items: center;
             flex-shrink: 0;
         }
-        .nav-logo-icon svg { width: 16px; height: 16px; stroke: #fff; }
+        .nav-logo-icon svg { width: 15px; height: 15px; stroke: #fff; }
         .nav-logo-text {
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: -0.04em;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
-        .nav-logo-text span { color: var(--red); }
+        .nav-logo-text span { color: var(--accent); }
         .nav-back {
             display: inline-flex;
             align-items: center;
@@ -128,14 +109,14 @@
             font-weight: 500;
             color: var(--text-2);
             text-decoration: none;
-            padding: 8px 12px;
+            padding: 7px 12px;
             border-radius: var(--radius-sm);
             transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
-            min-height: 36px;
+            min-height: 34px;
         }
         .nav-back:hover {
-            color: var(--text);
-            background: rgba(255,255,255,0.06);
+            color: var(--primary);
+            background: #F1F5F9;
         }
         .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
 
@@ -147,7 +128,7 @@
             flex-direction: column;
             align-items: center;
             min-height: calc(100dvh - var(--nav-h));
-            padding: 40px 20px 64px;
+            padding: 48px 24px 64px;
             animation: fadeIn 0.4s ease both;
         }
 
@@ -156,45 +137,37 @@
             text-align: center;
             margin-bottom: 32px;
             width: 100%;
-            max-width: 520px;
-            animation: slideDown 0.6s var(--ease) both;
+            max-width: 480px;
+            animation: slideDown 0.5s var(--ease) both;
         }
         .page-header h1 {
-            font-size: clamp(24px, 5.5vw, 42px);
+            font-size: clamp(24px, 5vw, 32px);
             font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-            color: var(--text);
-            margin-bottom: 10px;
-        }
-        .page-header p {
-            font-size: 15px;
-            color: var(--text-2);
-            line-height: 1.60;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+            color: var(--primary);
         }
 
         /* ─── MAIN CARD ───────────────────────────────────────────── */
         .card {
             width: 100%;
-            max-width: 520px;
-            background: var(--bg-card);
+            max-width: 480px;
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            border-radius: var(--radius-lg);
             padding: 28px;
-            animation: slideUp 0.6s var(--ease) 0.05s both;
-            box-shadow: 0 4px 32px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.05);
+            animation: slideUp 0.5s var(--ease) 0.05s both;
+            box-shadow: var(--shadow-sm);
         }
 
         /* ─── SEGMENT CONTROL ─────────────────────────────────────── */
         .segment-wrap {
-            background: rgba(255,255,255,0.04);
+            background: #F1F5F9;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 4px;
+            padding: 3px;
             display: flex;
-            gap: 4px;
+            gap: 3px;
             margin-bottom: 24px;
         }
         .segment-btn {
@@ -203,78 +176,67 @@
             background: transparent;
             color: var(--text-2);
             font-family: var(--font);
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
-            padding: 12px 10px;
-            min-height: 48px;
+            padding: 10px 10px;
+            min-height: 40px;
             border-radius: calc(var(--radius) - 3px);
             cursor: pointer;
             transition: color var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
             -webkit-tap-highlight-color: transparent;
         }
         .segment-btn.active {
-            background: rgba(255,255,255,0.09);
-            color: var(--text);
-            box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+            background: #fff;
+            color: var(--primary);
+            box-shadow: var(--shadow-xs);
         }
         .segment-btn:not(.active):hover {
-            color: var(--text);
-            background: rgba(255,255,255,0.04);
+            color: var(--primary);
         }
 
         /* ─── FORM FIELDS ─────────────────────────────────────────── */
         .field-group { display: flex; flex-direction: column; gap: 16px; }
         .field { display: flex; flex-direction: column; gap: 6px; }
         .field-label {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-2);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            letter-spacing: 0.01em;
         }
         .field-input-wrap { position: relative; }
-        .field-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 17px; height: 17px;
-            color: var(--text-3);
-            pointer-events: none;
-            transition: color 0.18s ease;
-        }
         .field-input {
             width: 100%;
-            background: var(--bg-input);
+            background: #fff;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            color: var(--text);
+            color: var(--primary);
             font-family: var(--font);
             /* 16px prevents iOS Safari zoom */
             font-size: 16px;
             font-weight: 500;
-            padding: 14px 16px;
-            min-height: 52px;
-            transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+            padding: 13px 15px;
+            min-height: 46px;
+            transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
             outline: none;
             -webkit-appearance: none;
             appearance: none;
         }
         .field-input::placeholder { color: var(--text-3); font-weight: 400; font-size: 15px; }
+        .field-input:hover { border-color: var(--border-strong); }
+        /* Long full names (as printed on passports) can overflow at 16px — trim ~15% */
+        #nameInput { font-size: 13.6px; }
+        #nameInput::placeholder { font-size: 13px; }
         .field-input:focus {
-            border-color: var(--border-focus);
-            background: rgba(26,103,224,0.06);
-            box-shadow: 0 0 0 3px rgba(26,103,224,0.13);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.14);
         }
-        .field-input-wrap:focus-within .field-icon { color: var(--accent); }
 
         /* E-Visa field animation */
         .field-evisa {
             overflow: hidden;
             max-height: 0;
             opacity: 0;
-            transition: max-height 0.38s var(--ease), opacity 0.28s ease, margin 0.38s;
-            margin-top: 0;
+            transition: max-height 0.35s var(--ease), opacity 0.25s ease;
         }
         .field-evisa.visible { max-height: 90px; opacity: 1; }
 
@@ -284,126 +246,92 @@
             margin-top: 20px;
             border: none;
             border-radius: var(--radius);
-            background: linear-gradient(135deg, #1a67e0 0%, #e8304a 100%);
+            background: var(--primary);
             color: #fff;
             font-family: var(--font);
-            font-size: 16px;
-            font-weight: 700;
-            padding: 16px;
-            min-height: 56px;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 14px;
+            min-height: 48px;
             cursor: pointer;
-            transition: opacity var(--dur) var(--ease), transform 0.18s var(--spring);
+            transition: background var(--dur) var(--ease), transform 0.1s var(--ease);
             position: relative;
             overflow: hidden;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.005em;
             -webkit-tap-highlight-color: transparent;
         }
-        .btn-search::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.10);
-            opacity: 0;
-            transition: opacity 0.18s;
-        }
-        .btn-search:hover::before { opacity: 1; }
+        .btn-search:hover { background: #1E293B; }
         .btn-search:active { transform: scale(0.98); }
-        .btn-search:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-search:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .btn-search-inner {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
-        .spinner {
-            width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,0.30);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+
+        /* Skeleton loading dots inline in button */
+        .btn-dots { display: inline-flex; gap: 4px; align-items: center; }
+        .btn-dots span {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            animation: dotPulse 1.1s ease-in-out infinite;
         }
+        .btn-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .btn-dots span:nth-child(3) { animation-delay: 0.3s; }
 
         /* ─── ERROR ALERT ─────────────────────────────────────────── */
         .error-alert {
-            background: rgba(232,48,74,0.08);
-            border: 1px solid rgba(232,48,74,0.20);
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-brd);
             border-radius: var(--radius);
-            padding: 14px 16px;
+            padding: 13px 15px;
             display: flex;
             gap: 10px;
             align-items: flex-start;
             margin-top: 14px;
+            animation: fadeIn 0.25s ease both;
         }
-        .error-alert-icon {
-            font-size: 16px;
-            flex-shrink: 0;
-            line-height: 1.4;
-        }
-        .error-alert-text { font-size: 14px; color: #f05068; line-height: 1.5; }
+        .error-alert-icon { flex-shrink: 0; line-height: 1.4; color: var(--danger); margin-top: 1px; }
+        .error-alert-icon svg { width: 16px; height: 16px; }
+        .error-alert-text { font-size: 13.5px; color: #991B1B; line-height: 1.5; }
 
         /* ─── RESULT WRAP ─────────────────────────────────────────── */
         .result-wrap {
             width: 100%;
-            max-width: 520px;
+            max-width: 480px;
             margin-top: 16px;
         }
         .result-card {
-            background: var(--bg-card);
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+            box-shadow: var(--shadow-sm);
         }
 
         /* ─── STATUS HERO ─────────────────────────────────────────── */
         .status-hero {
-            padding: 32px 24px 24px;
+            padding: 28px 24px 22px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
         }
-        .status-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            opacity: 0.08;
-            pointer-events: none;
-        }
-        .status-hero.approved::before  { background: radial-gradient(circle at 50% 0%, var(--approved), transparent 65%); }
-        .status-hero.pending::before   { background: radial-gradient(circle at 50% 0%, var(--pending), transparent 65%); }
-        .status-hero.review::before    { background: radial-gradient(circle at 50% 0%, var(--review), transparent 65%); }
-        .status-hero.rejected::before,
-        .status-hero.cancelled::before { background: radial-gradient(circle at 50% 0%, var(--rejected), transparent 65%); }
-        .status-hero.received::before  { background: radial-gradient(circle at 50% 0%, var(--received), transparent 65%); }
-        .status-hero.used::before      { background: radial-gradient(circle at 50% 0%, var(--approved), transparent 65%); }
 
         .status-icon-wrap {
-            width: 68px; height: 68px;
+            width: 52px; height: 52px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 14px;
-            font-size: 30px;
-            position: relative;
         }
-        .status-icon-wrap::after {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            opacity: 0.20;
-            border: 1.5px solid currentColor;
-        }
-        .status-icon-wrap.approved  { background: rgba(48,209,88,.13); color: var(--approved); }
-        .status-icon-wrap.pending   { background: rgba(255,159,10,.13); color: var(--pending); }
-        .status-icon-wrap.review    { background: rgba(26,103,224,.13); color: var(--review); }
+        .status-icon-wrap svg { width: 24px; height: 24px; }
+        .status-icon-wrap.approved,
+        .status-icon-wrap.used      { background: var(--success-bg); color: var(--success); }
+        .status-icon-wrap.pending,
+        .status-icon-wrap.received  { background: var(--warning-bg); color: var(--warning); }
+        .status-icon-wrap.review    { background: var(--accent-bg); color: var(--accent); }
         .status-icon-wrap.rejected,
-        .status-icon-wrap.cancelled { background: rgba(232,48,74,.13); color: var(--rejected); }
-        .status-icon-wrap.received  { background: rgba(245,197,66,.13); color: var(--received); }
-        .status-icon-wrap.used      { background: rgba(48,209,88,.13); color: var(--approved); }
+        .status-icon-wrap.cancelled { background: var(--danger-bg); color: var(--danger); }
 
         .status-label {
             display: inline-flex;
@@ -411,30 +339,31 @@
             gap: 5px;
             font-size: 11px;
             font-weight: 700;
-            letter-spacing: 0.09em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
-            padding: 4px 12px;
+            padding: 4px 11px;
             border-radius: 100px;
             margin-bottom: 10px;
+            border: 1px solid transparent;
+            animation: badgeFade 0.35s ease 0.1s both;
         }
-        .status-label.approved  { background: rgba(48,209,88,.13); color: #30d158; }
-        .status-label.pending   { background: rgba(255,159,10,.13); color: #ff9f0a; }
-        .status-label.review    { background: rgba(26,103,224,.13); color: #4d8eff; }
+        .status-label.approved,
+        .status-label.used      { background: var(--success-bg); color: var(--success); border-color: var(--success-brd); }
+        .status-label.pending,
+        .status-label.received  { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-brd); }
+        .status-label.review    { background: var(--accent-bg); color: var(--accent); border-color: var(--accent-brd); }
         .status-label.rejected,
-        .status-label.cancelled { background: rgba(232,48,74,.13); color: #f05068; }
-        .status-label.received  { background: rgba(245,197,66,.13); color: #f5c542; }
-        .status-label.used      { background: rgba(48,209,88,.13); color: #30d158; }
+        .status-label.cancelled { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-brd); }
 
         .status-name {
-            font-size: clamp(16px, 4.5vw, 19px);
+            font-size: clamp(16px, 4vw, 18px);
             font-weight: 700;
-            letter-spacing: -0.02em;
-            color: var(--text);
+            letter-spacing: -0.015em;
+            color: var(--primary);
             line-height: 1.35;
             word-wrap: break-word;
             word-break: break-word;
-            margin-top: 6px;
-            margin-bottom: 4px;
+            margin-top: 4px;
         }
 
         /* ─── DETAILS GRID ────────────────────────────────────────── */
@@ -443,39 +372,68 @@
             grid-template-columns: 1fr 1fr;
             gap: 1px;
             background: var(--border);
+            border-top: 1px solid var(--border);
         }
         .detail-cell {
-            background: rgba(9,9,15,0.85);
-            padding: 16px 20px;
+            background: var(--card);
+            padding: 14px 20px;
+            position: relative;
         }
         .detail-cell:last-child:nth-child(odd) { grid-column: span 2; }
         .detail-cell-label {
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 600;
             color: var(--text-3);
-            letter-spacing: 0.07em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             margin-bottom: 4px;
         }
         .detail-cell-value {
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
-            color: var(--text);
+            color: var(--primary);
             line-height: 1.3;
             word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+
+        /* Copy button — appears on hover */
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px; height: 20px;
+            border: none;
+            background: #F1F5F9;
+            border-radius: 5px;
+            color: var(--text-2);
+            cursor: pointer;
+            opacity: 0;
+            transform: translateX(-2px);
+            transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+            flex-shrink: 0;
+        }
+        .copy-btn svg { width: 11px; height: 11px; }
+        .detail-cell:hover .copy-btn,
+        .copy-btn:focus-visible { opacity: 1; transform: translateX(0); }
+        .copy-btn:hover { background: var(--accent-bg); color: var(--accent); }
+        .copy-btn.copied { background: var(--success-bg); color: var(--success); opacity: 1; }
 
         /* ─── REJECTION BOX ───────────────────────────────────────── */
         .rejection-box {
-            padding: 16px 20px;
-            background: rgba(232,48,74,0.06);
-            border-top: 1px solid rgba(232,48,74,0.14);
+            padding: 14px 20px;
+            background: var(--danger-bg);
+            border-top: 1px solid var(--danger-brd);
             display: flex;
             gap: 10px;
             align-items: flex-start;
         }
-        .rejection-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-        .rejection-text { font-size: 14px; color: #f05068; line-height: 1.5; }
+        .rejection-icon { flex-shrink: 0; margin-top: 1px; color: var(--danger); }
+        .rejection-icon svg { width: 15px; height: 15px; }
+        .rejection-text { font-size: 13.5px; color: #991B1B; line-height: 1.5; }
+        .rejection-text strong { color: #7F1D1D; }
 
         /* ─── NOT FOUND ───────────────────────────────────────────── */
         .not-found {
@@ -483,8 +441,8 @@
             text-align: center;
         }
         .not-found-icon-wrap {
-            width: 64px; height: 64px;
-            background: rgba(255,255,255,0.05);
+            width: 56px; height: 56px;
+            background: #F1F5F9;
             border: 1px solid var(--border);
             border-radius: 50%;
             display: flex;
@@ -492,30 +450,32 @@
             justify-content: center;
             margin: 0 auto 16px;
         }
-        .not-found-icon-wrap svg { width: 28px; height: 28px; color: var(--text-3); }
+        .not-found-icon-wrap svg { width: 24px; height: 24px; color: var(--text-3); }
         .not-found-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
-            color: var(--text);
-            margin-bottom: 8px;
+            color: var(--primary);
+            margin-bottom: 6px;
         }
         .not-found-sub {
-            font-size: 14px;
+            font-size: 13.5px;
             color: var(--text-2);
-            line-height: 1.60;
+            line-height: 1.55;
         }
 
         /* ─── CACHED NOTICE ───────────────────────────────────────── */
         .cached-notice {
-            padding: 12px 20px;
-            font-size: 13px;
-            color: #ff9f0a;
-            background: rgba(255,159,10,0.06);
-            border-top: 1px solid rgba(255,159,10,0.14);
+            padding: 11px 20px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--warning);
+            background: var(--warning-bg);
+            border-top: 1px solid var(--warning-brd);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
         }
+        .cached-notice svg { width: 13px; height: 13px; flex-shrink: 0; }
 
         /* ─── PDF BUTTON ──────────────────────────────────────────── */
         .btn-pdf {
@@ -523,25 +483,24 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: rgba(255,255,255,0.05);
+            background: #fff;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            color: var(--text);
+            color: var(--primary);
             font-family: var(--font);
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
-            padding: 13px 24px;
-            min-height: 48px;
+            padding: 12px 24px;
+            min-height: 44px;
             text-decoration: none;
-            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
             width: 100%;
         }
         .btn-pdf:hover {
-            background: rgba(255,255,255,0.09);
-            border-color: rgba(255,255,255,0.16);
-            transform: translateY(-1px);
+            background: #F8FAFC;
+            border-color: var(--border-strong);
         }
-        .btn-pdf:active { transform: translateY(0); }
+        .btn-pdf-wrap { padding: 16px 20px 20px; border-top: 1px solid var(--border); }
 
         /* ─── FOOTER ──────────────────────────────────────────────── */
         .page-footer {
@@ -549,57 +508,105 @@
             text-align: center;
             font-size: 13px;
             color: var(--text-3);
-            animation: fadeIn 1s ease 0.5s both;
+            animation: fadeIn 1s ease 0.4s both;
         }
         .page-footer a {
             color: var(--text-2);
             text-decoration: none;
-            border-bottom: 1px solid rgba(255,255,255,0.10);
+            border-bottom: 1px solid var(--border);
             transition: color 0.18s;
         }
-        .page-footer a:hover { color: var(--text); }
+        .page-footer a:hover { color: var(--primary); }
+
+        /* ─── TOAST ───────────────────────────────────────────────── */
+        .toast-stack {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            pointer-events: none;
+        }
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 13.5px;
+            font-weight: 500;
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.3s var(--ease) both, toastOut 0.25s ease 2.6s forwards;
+        }
+        .toast svg { width: 15px; height: 15px; color: var(--success); flex-shrink: 0; }
+
+        /* ─── SKELETON ────────────────────────────────────────────── */
+        .field-input.skeleton {
+            color: transparent !important;
+            background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 37%, #F1F5F9 63%);
+            background-size: 400% 100%;
+            animation: skeleton 1.4s ease infinite;
+            pointer-events: none;
+        }
+        .skeleton-line {
+            border-radius: 5px;
+            background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 37%, #F1F5F9 63%);
+            background-size: 400% 100%;
+            animation: skeleton 1.4s ease infinite;
+        }
+        .result-skeleton { padding: 28px 24px; }
+        .result-skeleton .sk-avatar { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 14px; }
+        .result-skeleton .sk-badge { width: 88px; height: 18px; margin: 0 auto 10px; }
+        .result-skeleton .sk-name { width: 60%; height: 18px; margin: 0 auto; }
+        .result-skeleton .sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border-top: 1px solid var(--border); margin-top: 22px; }
+        .result-skeleton .sk-cell { background: var(--card); padding: 14px 20px; display: flex; flex-direction: column; gap: 7px; }
+        .result-skeleton .sk-label { width: 50%; height: 9px; }
+        .result-skeleton .sk-value { width: 75%; height: 13px; }
 
         /* ─── ANIMATIONS ──────────────────────────────────────────── */
         @keyframes fadeIn    { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px) } to { opacity: 1; transform: translateY(0) } }
-        @keyframes slideUp   { from { opacity: 0; transform: translateY(28px) scale(.97) } to { opacity: 1; transform: translateY(0) scale(1) } }
-        @keyframes spin      { to { transform: rotate(360deg) } }
-        @keyframes shake     { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
-        @keyframes resultPop { 0%{transform:scale(.94) translateY(8px);opacity:0} 60%{transform:scale(1.01);opacity:1} 100%{transform:scale(1) translateY(0);opacity:1} }
-        @keyframes skeleton  { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-14px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes slideUp   { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes badgeFade { from { opacity: 0; transform: scale(0.92) } to { opacity: 1; transform: scale(1) } }
+        @keyframes shake     { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
+        @keyframes resultSlideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes skeleton  { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        @keyframes dotPulse  { 0%,80%,100%{opacity:0.35;transform:scale(0.85)} 40%{opacity:1;transform:scale(1)} }
+        @keyframes toastIn   { from { opacity: 0; transform: translateY(10px) scale(0.96) } to { opacity: 1; transform: translateY(0) scale(1) } }
+        @keyframes toastOut  { to { opacity: 0; transform: translateY(6px) scale(0.98) } }
+        @keyframes rippleAnim { to { transform: scale(2.6); opacity: 0; } }
 
-        .shake     { animation: shake 0.38s ease; }
-        .result-pop { animation: resultPop 0.45s var(--spring) both; }
-        .field-input.error { border-color: rgba(232,48,74,0.50); background: rgba(232,48,74,0.06); }
-        .field-input.skeleton {
-            background: linear-gradient(90deg, var(--bg-input) 25%, rgba(255,255,255,0.11) 50%, var(--bg-input) 75%);
-            background-size: 200% 100%;
-            animation: skeleton 1.5s infinite linear;
-            color: transparent !important;
-            pointer-events: none;
-        }
+        .shake      { animation: shake 0.36s ease; }
+        .result-pop { animation: resultSlideUp 0.4s var(--ease) both; }
+        .field-input.error { border-color: var(--danger); background: var(--danger-bg); }
+        .field-input.error:focus { box-shadow: 0 0 0 3px rgba(220,38,38,0.14); }
 
         /* ─── RIPPLE ──────────────────────────────────────────────── */
         .ripple {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255,255,255,0.20);
+            background: rgba(255,255,255,0.28);
             transform: scale(0);
-            animation: ripple-anim 0.5s linear;
+            animation: rippleAnim 0.55s ease-out;
             pointer-events: none;
         }
-        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
 
         /* ─── RESPONSIVE ──────────────────────────────────────────── */
         @media (max-width: 520px) {
-            .page { padding: 24px 14px 52px; }
-            .card { padding: 22px 18px; border-radius: var(--radius-lg); }
-            .page-header h1 { font-size: clamp(20px, 6.5vw, 30px); }
+            .page { padding: 32px 16px 52px; }
+            .card { padding: 22px 18px; }
+            .page-header h1 { font-size: clamp(20px, 6vw, 26px); }
         }
         @media (max-width: 380px) {
-            .details-grid { grid-template-columns: 1fr; }
+            .details-grid, .result-skeleton .sk-grid { grid-template-columns: 1fr; }
             .detail-cell:last-child:nth-child(odd) { grid-column: span 1; }
-            .detail-cell { padding: 14px 16px; }
+            .detail-cell { padding: 13px 16px; }
         }
 
         /* Reduced motion */
@@ -612,12 +619,6 @@
     </style>
 </head>
 <body>
-
-<!-- Subtle background orbs -->
-<div class="bg-layer" aria-hidden="true">
-    <div class="bg-orb bg-orb-1"></div>
-    <div class="bg-orb bg-orb-2"></div>
-</div>
 
 <!-- ─── TOP NAV ─────────────────────────────────────────────────────── -->
 <nav class="top-nav" aria-label="Page navigation">
@@ -662,14 +663,14 @@
                 <div class="field-input-wrap">
                     <input type="text" id="passportInput" class="field-input" placeholder="FA1234567"
                         autocomplete="off" autocapitalize="characters" spellcheck="false"
-                        maxlength="20" aria-required="true" inputmode="text">
+                        maxlength="9" pattern="[A-Za-z]{2}[0-9]{7}" aria-required="true" inputmode="text">
                 </div>
             </div>
 
             <div class="field">
                 <label class="field-label" for="nameInput">Full Name (as in passport)</label>
                 <div class="field-input-wrap">
-                    <input type="text" id="nameInput" class="field-input" placeholder="ABDUVOHIDOV KUVONCHBEK"
+                    <input type="text" id="nameInput" class="field-input" placeholder="AKHMATOV AZIZBEK MAKHMUDJON UGLI"
                         autocomplete="off" autocapitalize="characters" spellcheck="false" aria-required="true">
                 </div>
             </div>
@@ -700,7 +701,9 @@
 
         <!-- Inline Error -->
         <div id="errorAlert" class="error-alert" style="display:none;" role="alert" aria-live="polite">
-            <span class="error-alert-icon">&#9888;&#65039;</span>
+            <span class="error-alert-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </span>
             <span class="error-alert-text" id="errorText"></span>
         </div>
     </div>
@@ -716,7 +719,10 @@
     </footer>
 </div>
 
-<!-- ─── ALL JS PRESERVED EXACTLY ────────────────────────────────────── -->
+<!-- Toast stack -->
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<!-- ─── SCRIPT ──────────────────────────────────────────────────────── -->
 <script>
 const isLocal = (
     window.location.hostname === "localhost" ||
@@ -744,10 +750,19 @@ document.getElementById('dobInput').addEventListener('input',function(){
     if(v.length>10)v=v.slice(0,10);
     this.value=v;
 });
-['passportInput','nameInput','appNoInput'].forEach(id=>{
+['nameInput','appNoInput'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
     el.addEventListener('input',function(){const s=this.selectionStart,e=this.selectionEnd;this.value=this.value.toUpperCase();this.setSelectionRange(s,e);});
+});
+/* Passport: force SSDDDDDDD (2 letters + 7 digits) as the user types */
+document.getElementById('passportInput').addEventListener('input',function(){
+    const s=this.selectionStart,e=this.selectionEnd;
+    let raw=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const letters=raw.slice(0,2).replace(/[^A-Z]/g,'');
+    const digits=raw.slice(2).replace(/[^0-9]/g,'').slice(0,7);
+    this.value=letters+digits;
+    this.setSelectionRange(s,e);
 });
 
 /* ── Passport autofill from Turso ── */
@@ -808,18 +823,37 @@ document.getElementById('passportInput').addEventListener('input',()=>{
         if(el)delete el.dataset.userEdited;
     });
 });
+
+function showResultSkeleton(){
+    const wrap=document.getElementById('resultWrap'),card=document.getElementById('resultCard');
+    card.innerHTML=`
+        <div class="result-skeleton">
+            <div class="skeleton-line sk-avatar"></div>
+            <div class="skeleton-line sk-badge"></div>
+            <div class="skeleton-line sk-name"></div>
+        </div>
+        <div class="sk-grid">
+            ${Array.from({length:4}).map(()=>`<div class="sk-cell"><div class="skeleton-line sk-label"></div><div class="skeleton-line sk-value"></div></div>`).join('')}
+        </div>
+    `;
+    wrap.classList.remove('result-pop');void wrap.offsetWidth;wrap.classList.add('result-pop');
+    wrap.style.display='';
+}
+
 async function handleSearch(event){
-    addRipple(event);clearError();clearResult();
+    addRipple(event);clearError();
     const passport=document.getElementById('passportInput').value.trim().toUpperCase();
     const name=document.getElementById('nameInput').value.trim().toUpperCase();
     const dob=document.getElementById('dobInput').value.trim();
     const appNo=document.getElementById('appNoInput').value.trim().toUpperCase();
     if(!passport){shakeField('passportInput');showError('Passport number is required.');return;}
+    if(!/^[A-Z]{2}\d{7}$/.test(passport)){shakeField('passportInput');showError('Passport number must be 2 letters followed by 7 digits (e.g. FA1234567).');return;}
     if(!name){shakeField('nameInput');showError('Full name is required.');return;}
     if(!dob){shakeField('dobInput');showError('Date of birth is required.');return;}
     if(!/^\d{4}-\d{2}-\d{2}$/.test(dob)){shakeField('dobInput');showError('Date of birth must be in YYYY-MM-DD format (e.g. 1998-07-15).');return;}
     if(visaType==='E-Visa'&&!appNo){shakeField('appNoInput');showError('Application number is required for E-Visa.');return;}
     setLoading(true);
+    showResultSkeleton();
     try{
         const res=await fetch(API_CHECK_STATUS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passport_number:passport,english_name:name,birth_date:dob,visa_type:visaType,application_no:appNo})});
         if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||`Server error (${res.status})`);}
@@ -859,35 +893,51 @@ async function handleSearch(event){
         }
 
         renderResult(data,{passport,name,dob,appNo},false);
+        showToast('Visa status updated.');
     }catch(err){
+        clearResult();
         let msg=err.message||'Unknown error';
         if(msg.includes('Failed to fetch')||msg.includes('NetworkError')||msg.includes('ECONNREFUSED'))msg='Unable to reach the server. Please try again in a moment.';
         showError(msg);
     }finally{setLoading(false);}
 }
-const STATUS_CONFIG={'APPROVED':{cls:'approved',icon:'✅',label:'Approved'},'VISA USED':{cls:'used',icon:'🛂',label:'Visa Used'},'UNDER REVIEW':{cls:'review',icon:'🔍',label:'Under Review'},'APP/RECEIVED':{cls:'received',icon:'📥',label:'App. Received'},'RECEIVED':{cls:'received',icon:'📥',label:'Received'},'REJECTED':{cls:'rejected',icon:'❌',label:'Rejected'},'CANCELLED':{cls:'cancelled',icon:'🚫',label:'Cancelled'},'RETURNED':{cls:'cancelled',icon:'↩️',label:'Returned'},'PENDING SUPPLEMENT':{cls:'pending',icon:'📋',label:'Supplement Needed'},'EXPIRED':{cls:'rejected',icon:'⏰',label:'Expired'},'UNKNOWN':{cls:'pending',icon:'❓',label:'Unknown'},'Pending':{cls:'pending',icon:'⏳',label:'Pending'}};
-function fmtAgo(iso){
-    if(!iso)return'some time ago';
-    const diff=Date.now()-new Date(iso).getTime();
-    const m=Math.floor(diff/60000);
-    if(m<1)return'just now';
-    if(m<60)return m+' min. ago';
-    const h=Math.floor(m/60);
-    if(h<24)return h+' hr. ago';
-    return Math.floor(h/24)+' days ago';
-}
+
+const ICONS = {
+    check:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>',
+    clock:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
+    inbox:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+    x:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+    pass:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8 16h8"/></svg>'
+};
+const STATUS_CONFIG={
+    'APPROVED':          {cls:'approved', icon:ICONS.check, label:'Approved'},
+    'VISA USED':         {cls:'used',     icon:ICONS.pass,  label:'Visa Used'},
+    'UNDER REVIEW':      {cls:'review',   icon:ICONS.search, label:'Under Review'},
+    'APP/RECEIVED':      {cls:'received', icon:ICONS.inbox, label:'App. Received'},
+    'RECEIVED':          {cls:'received', icon:ICONS.inbox, label:'Received'},
+    'REJECTED':          {cls:'rejected', icon:ICONS.x,     label:'Rejected'},
+    'CANCELLED':         {cls:'cancelled',icon:ICONS.x,     label:'Cancelled'},
+    'RETURNED':          {cls:'cancelled',icon:ICONS.x,     label:'Returned'},
+    'PENDING SUPPLEMENT':{cls:'pending',  icon:ICONS.clock, label:'Supplement Needed'},
+    'EXPIRED':           {cls:'rejected', icon:ICONS.clock, label:'Expired'},
+    'UNKNOWN':           {cls:'pending',  icon:ICONS.clock, label:'Unknown'},
+    'Pending':           {cls:'pending',  icon:ICONS.clock, label:'Pending'}
+};
+
 function renderResult(data,input,cached){
     const wrap=document.getElementById('resultWrap'),card=document.getElementById('resultCard');
     if(!data.found){
-        card.innerHTML=`<div class="not-found"><div class="not-found-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="not-found-title">No Record Found</div><div class="not-found-sub">No visa application was found for this passport.<br>Please double-check your details and try again.</div></div>`;
+        card.innerHTML=`<div class="not-found"><div class="not-found-icon-wrap">${ICONS.search.replace('viewBox="0 0 24 24"','viewBox="0 0 24 24" stroke-width="1.75"')}</div><div class="not-found-title">No Record Found</div><div class="not-found-sub">No visa application was found for this passport.<br>Please double-check your details and try again.</div></div>`;
+        wrap.classList.remove('result-pop');void wrap.offsetWidth;wrap.classList.add('result-pop');
         wrap.style.display='';
         return;
     }
-    const raw=data.status||'UNKNOWN',cfg=STATUS_CONFIG[raw]||{cls:'pending',icon:'❓',label:raw};
+    const raw=data.status||'UNKNOWN',cfg=STATUS_CONFIG[raw]||{cls:'pending',icon:ICONS.clock,label:raw};
     const appDate=data.applicationDate||'—',entryDate=data.entryDate||'—',purpose=data.entryPurpose||'—';
-    
+
     const cells=[
-        {label:'Passport',value:input.passport},
+        {label:'Passport',value:input.passport,copy:true},
         {label:'Applied',value:appDate},
         ...(entryDate!=='—'&&entryDate!==''?[{label:'Issued Date',value:entryDate}]:[]),
         ...(data.statusOfResidence?[{label:'Residency Class',value:data.statusOfResidence}]:[]),
@@ -897,11 +947,13 @@ function renderResult(data,input,cached){
         ...(purpose!=='—'&&purpose!==''&&purpose!==data.statusOfResidence?[{label:'Purpose',value:purpose}]:[]),
         {label:'Visa Mode',value:visaType}
     ];
-    
-    const cellsHtml=cells.map(c=>`<div class="detail-cell"><div class="detail-cell-label">${esc(c.label)}</div><div class="detail-cell-value">${esc(c.value)}</div></div>`).join('');
-    
-    const rejHtml=data.rejectionReason?`<div class="rejection-box"><span class="rejection-icon">⚠️</span><div class="rejection-text"><strong>Reason:</strong> ${esc(data.rejectionReason)}</div></div>`:'';
-        
+
+    const cellsHtml=cells.map(c=>`<div class="detail-cell"><div class="detail-cell-label">${esc(c.label)}</div><div class="detail-cell-value"><span>${esc(c.value)}</span>${c.copy?`<button type="button" class="copy-btn" onclick="copyValue(this,'${esc(c.value).replace(/'/g,"\\'")}')" aria-label="Copy ${esc(c.label)}" title="Copy">${ICONS.check.replace('viewBox="0 0 24 24"','viewBox="0 0 24 24" class="copy-icon-default"')}<svg class="copy-icon-idle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>`:''}</div></div>`).join('');
+
+    const rejHtml=data.rejectionReason?`<div class="rejection-box"><span class="rejection-icon">${ICONS.x}</span><div class="rejection-text"><strong>Reason:</strong> ${esc(data.rejectionReason)}</div></div>`:'';
+
+    const cachedHtml=cached?`<div class="cached-notice">${ICONS.clock}<span>Showing last known status${data.lastChecked?' from '+fmtAgo(data.lastChecked):''}. Live lookup unavailable.</span></div>`:'';
+
     let downloadBtnHtml = '';
     const statusUpper = raw.toUpperCase();
     if (data.pdfUrl || statusUpper === 'APPROVED' || statusUpper === 'VISA USED') {
@@ -913,28 +965,77 @@ function renderResult(data,input,cached){
             application_no: input.appNo || ''
         });
         downloadBtnHtml = `
-            <div style="padding: 16px 20px 20px; background: rgba(9,9,15,0.85); border-top: 1px solid var(--border);">
+            <div class="btn-pdf-wrap">
                 <a href="${API_DOWNLOAD_PDF}?${queryParams.toString()}" target="_blank" class="btn-pdf">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Download Certificate PDF
                 </a>
             </div>
         `;
     }
-        
+
     const displayName=input.name;
-    card.innerHTML=`<div class="status-hero ${cfg.cls}"><div class="status-label ${cfg.cls}">${esc(cfg.label)}</div><div class="status-name">${esc(displayName)}</div></div><div style="height:1px;background:var(--border)"></div><div class="details-grid">${cellsHtml}</div>${rejHtml}${downloadBtnHtml}`;
+    card.innerHTML=`<div class="status-hero"><div class="status-icon-wrap ${cfg.cls}">${cfg.icon}</div><div class="status-label ${cfg.cls}">${esc(cfg.label)}</div><div class="status-name">${esc(displayName)}</div></div><div class="details-grid">${cellsHtml}</div>${rejHtml}${cachedHtml}${downloadBtnHtml}`;
     wrap.classList.remove('result-pop');void wrap.offsetWidth;wrap.classList.add('result-pop');
     wrap.style.display='';
     setTimeout(()=>wrap.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
+
+function fmtAgo(iso){
+    if(!iso)return'some time ago';
+    const diff=Date.now()-new Date(iso).getTime();
+    const m=Math.floor(diff/60000);
+    if(m<1)return'just now';
+    if(m<60)return m+' min. ago';
+    const h=Math.floor(m/60);
+    if(h<24)return h+' hr. ago';
+    return Math.floor(h/24)+' days ago';
+}
+
+function copyValue(btn,value){
+    const doCopied=()=>{
+        btn.classList.add('copied');
+        const icons=btn.querySelectorAll('svg');
+        icons.forEach(i=>i.style.display='none');
+        btn.querySelector('.copy-icon-default').style.display='';
+        setTimeout(()=>{btn.classList.remove('copied');icons.forEach(i=>i.style.display='');btn.querySelector('.copy-icon-idle').style.display='';btn.querySelector('.copy-icon-default').style.display='none';},1400);
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(value).then(doCopied).catch(()=>{});
+    }else{
+        const ta=document.createElement('textarea');ta.value=value;document.body.appendChild(ta);ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);doCopied();
+    }
+}
+
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function clearResult(){const w=document.getElementById('resultWrap');w.style.display='none';document.getElementById('resultCard').innerHTML='';}
 function clearError(){document.getElementById('errorAlert').style.display='none';document.querySelectorAll('.field-input').forEach(i=>i.classList.remove('error'));}
 function showError(msg){const el=document.getElementById('errorAlert');document.getElementById('errorText').textContent=msg;el.style.display='flex';}
 function shakeField(id){const el=document.getElementById(id);if(!el)return;el.classList.add('error','shake');el.addEventListener('animationend',()=>el.classList.remove('shake'),{once:true});}
-function setLoading(on){const btn=document.getElementById('searchBtn'),inner=document.getElementById('btnInner');btn.disabled=on;inner.innerHTML=on?'<div class="spinner"></div> Checking…':'Check Status';}
-function addRipple(e){const btn=document.getElementById('searchBtn'),rect=btn.getBoundingClientRect(),size=Math.max(rect.width,rect.height),x=(e.clientX||rect.left+rect.width/2)-rect.left-size/2,y=(e.clientY||rect.top+rect.height/2)-rect.top-size/2,rpl=document.createElement('span');rpl.className='ripple';rpl.style.cssText=`width:${size}px;height:${size}px;left:${x}px;top:${y}px`;btn.appendChild(rpl);rpl.addEventListener('animationend',()=>rpl.remove());}
+function setLoading(on){
+    const btn=document.getElementById('searchBtn'),inner=document.getElementById('btnInner');
+    btn.disabled=on;
+    inner.innerHTML=on?'<span class="btn-dots"><span></span><span></span><span></span></span> Checking':'Check Status';
+}
+function addRipple(e){
+    const btn=document.getElementById('searchBtn'),rect=btn.getBoundingClientRect(),size=Math.max(rect.width,rect.height),
+        x=(e.clientX||rect.left+rect.width/2)-rect.left-size/2,y=(e.clientY||rect.top+rect.height/2)-rect.top-size/2,
+        rpl=document.createElement('span');
+    rpl.className='ripple';
+    rpl.style.cssText=`width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
+    btn.appendChild(rpl);
+    rpl.addEventListener('animationend',()=>rpl.remove());
+}
+function showToast(msg){
+    const stack=document.getElementById('toastStack');
+    const t=document.createElement('div');
+    t.className='toast';
+    t.innerHTML=`${ICONS.check}<span>${esc(msg)}</span>`;
+    stack.appendChild(t);
+    t.addEventListener('animationend',(e)=>{if(e.animationName==='toastOut')t.remove();});
+}
 document.querySelectorAll('.field-input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')handleSearch(e);}));
 </script>
 </body>

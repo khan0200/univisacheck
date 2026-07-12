@@ -56,7 +56,6 @@
                             <button type="button" class="nav-link" data-tab="cancelled">Cancelled</button>
                             <button type="button" class="nav-link" data-tab="approved">Approved</button>
                         </div>
-                        <span class="text-secondary small fw-medium text-nowrap ms-2" id="studentCount">0</span>
                     </div>
 
                     <!-- User Badge + Dark Mode + Logout -->
@@ -136,28 +135,29 @@
                             <input type="hidden" id="visaType" value="Embassy">
                         </div>
                         <div class="mb-3">
-                            <label for="studentId" class="form-label small fw-semibold text-secondary">Student ID</label>
-                            <input type="text" class="form-control form-control-glass rounded-3" id="studentId" placeholder="M445">
-                        </div>
-                        <div class="mb-3 d-none" id="applicationNoWrapper">
-                            <label for="applicationNo" class="form-label small fw-semibold text-secondary">Application Number</label>
-                            <input type="text" class="form-control form-control-glass rounded-3" id="applicationNo" placeholder="AP2026123456">
+                            <label for="passport" class="form-label small fw-semibold text-secondary">Passport Number</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="passport" required placeholder="FA1234567">
+                            <div id="passportLookupStatus" class="passport-lookup-status d-none"></div>
                         </div>
                         <div class="mb-3">
                             <label for="fullName" class="form-label small fw-semibold text-secondary">Full Name</label>
                             <input type="text" class="form-control form-control-glass rounded-3" id="fullName" required placeholder="ABDUVOHIDOV KUVONCHBEK ABDUMUMIN UGLI">
                         </div>
                         <div class="mb-3">
-                            <label for="passport" class="form-label small fw-semibold text-secondary">Passport Number</label>
-                            <input type="text" class="form-control form-control-glass rounded-3" id="passport" required placeholder="FA1234567">
-                        </div>
-                        <div class="mb-3">
                             <label for="birthday" class="form-label small fw-semibold text-secondary">Birthday</label>
                             <input type="text" class="form-control form-control-glass rounded-3" id="birthday" required placeholder="YYYY-MM-DD" maxlength="10">
                             <div class="form-text small">Format: YYYY-MM-DD</div>
                         </div>
+                        <div class="mb-3 d-none" id="applicationNoWrapper">
+                            <label for="applicationNo" class="form-label small fw-semibold text-secondary">Application Number</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="applicationNo" placeholder="AP2026123456">
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentId" class="form-label small fw-semibold text-secondary">Student ID</label>
+                            <input type="text" class="form-control form-control-glass rounded-3" id="studentId" placeholder="M445">
+                        </div>
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary rounded-pill py-2">
+                            <button type="submit" class="btn btn-primary py-2">
                                 <span id="submitBtnText">Save Student</span>
                             </button>
                         </div>

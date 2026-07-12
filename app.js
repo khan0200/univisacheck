@@ -67,7 +67,6 @@ let cachedDOM = {
     tableBody: null,
     emptyState: null,
     loadingState: null,
-    studentCountLabel: null,
     filterLabel: null,
     form: null,
     modalElement: null,
@@ -107,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cachedDOM.tableBody = document.getElementById('studentsTableBody');
     cachedDOM.emptyState = document.getElementById('emptyState');
     cachedDOM.loadingState = document.getElementById('loadingState');
-    cachedDOM.studentCountLabel = document.getElementById('studentCount');
     cachedDOM.form = document.getElementById('studentForm');
     cachedDOM.modalElement = document.getElementById('addStudentModal');
     cachedDOM.searchInput = document.getElementById('searchInput');
@@ -248,6 +246,9 @@ function setupEventListeners() {
         document.getElementById('submitBtnText').textContent = "Save Student";
         document.getElementById('passport').disabled = false;
         setVisaType('Embassy');
+        clearTimeout(_addModalLookupTimer);
+        _addModalLookupPassport = '';
+        setPassportLookupStatus(null);
     });
 
     // Force uppercase as-you-type for Student ID and Full Name
@@ -275,6 +276,7 @@ function setupEventListeners() {
             const digits = value.slice(2).replace(/\D/g, '').slice(0, 7);
             e.target.value = letters + digits;
         });
+        passportInputEl.addEventListener('input', handlePassportLookup);
     }
 
     // Auto-format Birthday Input (YYYY-MM-DD)
@@ -464,6 +466,19 @@ async function loadStudents() {
 }
 
 // Update a single row in the DOM without re-rendering entire table
+function setCheckedCellLoading(passport, on) {
+    const row = document.querySelector(`tr:has(button[data-id="${passport}"])`);
+    const checkedCell = row && row.querySelector('.td-checked');
+    if (!checkedCell) return;
+    if (on) {
+        checkedCell.dataset.prevText = checkedCell.textContent;
+        checkedCell.innerHTML = '<span class="checked-skeleton" aria-label="Checking status"></span>';
+    } else if (checkedCell.querySelector('.checked-skeleton')) {
+        // Fallback in case the row wasn't updated via updateSingleRow (e.g. request failed)
+        checkedCell.textContent = checkedCell.dataset.prevText || '';
+    }
+}
+
 function updateSingleRow(student) {
     // Find the row by data-id attribute on action buttons
     const row = document.querySelector(`tr:has(button[data-id="${student.passport}"])`);
@@ -696,9 +711,6 @@ function renderTable() {
         return 0;
     });
 
-    // Update Count
-    cachedDOM.studentCountLabel.textContent = `${filteredStudents.length} students`;
-
     updateSelectColumnVisibility(filteredStudents);
 
     // Empty State
@@ -852,6 +864,85 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
     return escapeHtml(value).replace(/`/g, '&#096;');
+}
+
+// ── Live passport lookup in the Add Student modal ──────────────────────────
+// As the consultant types a passport number: (1) warn immediately if it's
+// already in THEIR OWN database (duplicate), otherwise (2) look it up
+// publicly (same endpoint visa-status.html uses) and autofill Full Name /
+// Birthday if some other record already has this passport on file.
+let _addModalLookupTimer = null;
+let _addModalLookupPassport = '';
+
+function setPassportLookupStatus(mode, html) {
+    const el = document.getElementById('passportLookupStatus');
+    if (!el) return;
+    if (!mode) {
+        el.className = 'passport-lookup-status d-none';
+        el.innerHTML = '';
+        return;
+    }
+    el.className = `passport-lookup-status ${mode}`;
+    el.innerHTML = html;
+}
+
+function handlePassportLookup(e) {
+    const input = e.target;
+    if (input.disabled || document.getElementById('editMode').value === 'true') return;
+
+    clearTimeout(_addModalLookupTimer);
+    const passport = input.value.trim().toUpperCase();
+
+    // Clear any stale autofill flags so a fresh passport can autofill again
+    const fullNameInput = document.getElementById('fullName');
+    const birthdayInput = document.getElementById('birthday');
+
+    if (!CONFIG.VALIDATION.PASSPORT_REGEX.test(passport)) {
+        _addModalLookupPassport = '';
+        setPassportLookupStatus(null);
+        return;
+    }
+    if (passport === _addModalLookupPassport) return;
+
+    setPassportLookupStatus('checking', `<span class="lookup-skeleton"></span>`);
+    _addModalLookupTimer = setTimeout(() => runPassportLookup(passport, fullNameInput, birthdayInput), 500);
+}
+
+async function runPassportLookup(passport, fullNameInput, birthdayInput) {
+    // 1) Duplicate check — scoped to the logged-in consultant's own students,
+    // already loaded client-side, so this is instant and needs no request.
+    const ownDuplicate = studentsData.find(s => s.passport === passport);
+    if (ownDuplicate) {
+        _addModalLookupPassport = passport;
+        setPassportLookupStatus('duplicate', `<i class="bi bi-exclamation-triangle-fill"></i> This student is already in your database.`);
+        return;
+    }
+
+    // 2) Helpful cross-consultant autofill — same public endpoint the
+    // student-facing status checker uses. Only fills fields the user
+    // hasn't already typed into themselves.
+    try {
+        const res = await fetch(`${STUDENTS_URL}?passport=${encodeURIComponent(passport)}&public=true`);
+        if (!res.ok) { setPassportLookupStatus(null); return; }
+        const rows = await res.json();
+        _addModalLookupPassport = passport;
+
+        if (!rows || rows.length === 0) {
+            setPassportLookupStatus(null);
+            return;
+        }
+
+        const s = rows[0];
+        if (s.fullName && fullNameInput && !fullNameInput.value.trim()) {
+            fullNameInput.value = s.fullName;
+        }
+        if (s.birthday && birthdayInput && !birthdayInput.value.trim()) {
+            birthdayInput.value = s.birthday;
+        }
+        setPassportLookupStatus('found', `<i class="bi bi-info-circle-fill"></i> Found in our records — name & birthday autofilled.`);
+    } catch (_) {
+        setPassportLookupStatus(null);
+    }
 }
 
 async function handleFormSubmit(e) {
@@ -1514,6 +1605,7 @@ function showEVisaPdfInfo(student) {
 
 // API Integration — uses visamasters.uz via local proxy
 async function checkVisaStatus(student) {
+    setCheckedCellLoading(student.passport, true);
     try {
         debug("Checking status for:", student.passport);
 
@@ -1577,6 +1669,7 @@ async function checkVisaStatus(student) {
         if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
             showError('Cannot connect to proxy server. Please make sure proxy.js is running (node proxy.js).');
         }
+        setCheckedCellLoading(student.passport, false);
         return null;
     }
 }

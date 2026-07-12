@@ -4,11 +4,26 @@
  *   node reset-password.js <email> <new_password>
  */
 
-const { createClient } = require('./node_modules/@libsql/client');
-const bcrypt = require('./node_modules/bcryptjs');
+const path = require('path');
+const { createClient } = require('@libsql/client');
+const bcrypt = require('bcryptjs');
 
-const dbUrl = 'libsql://visachecking-khan0200.aws-ap-northeast-1.turso.io';
-const dbAuthToken = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODI5ODQ4NzQsImlkIjoiMDE5ZjFlZjEtMjUwMS03N2UyLWIxNWUtMjZhZmYyN2Y1NThiIiwia2lkIjoiVFZIaHctQ1VfMTczOVlqa2dZRGpKbGJfQlVpQWVLckxTelhfbDVMUTlzRSIsInJpZCI6IjYzMGRiOTQyLWY1ZGItNDlmMC1iOTg1LTcxM2U4ZWIxNjQzMyJ9.jGWCFnYHOz8gtFLxwRsXtlGwUvV0CskwYeTC1eqytioncQ5DeCxOMbN2Ydwe0sbyPyI3ZrCuvYt5udu4af8zAg';
+// Credentials come from environment variables, or turso.config.js (gitignored)
+// for local development — same pattern as api/db.js. Never hardcode secrets here.
+let localConfig = {};
+try {
+    localConfig = require(path.join(__dirname, 'turso.config.js'));
+} catch (_) {
+    // Not present — expected in production, where env vars are used instead.
+}
+
+const dbUrl = process.env.TURSO_URL || localConfig.TURSO_DATABASE_URL;
+const dbAuthToken = process.env.TURSO_AUTH_TOKEN || localConfig.TURSO_AUTH_TOKEN;
+
+if (!dbUrl || !dbAuthToken) {
+    console.error('❌ Missing Turso credentials. Set TURSO_URL and TURSO_AUTH_TOKEN env vars, or add turso.config.js locally.');
+    process.exit(1);
+}
 
 async function main() {
     const args = process.argv.slice(2);

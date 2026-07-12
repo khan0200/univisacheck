@@ -106,7 +106,7 @@ body {
 
 @media (min-width: 768px) {
   .main-wrapper {
-    padding: 20px 9% !important;
+    padding: 20px 8.55% !important;
   }
 }
 
@@ -632,6 +632,68 @@ body {
   font-size: 12px;
   color: var(--text-secondary);
   font-weight: 500;
+}
+
+.checked-skeleton {
+  display: inline-block;
+  width: 56px;
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--input-bg) 25%, var(--divider) 50%, var(--input-bg) 75%);
+  background-size: 400% 100%;
+  animation: checkedSkeletonShimmer 1.3s ease infinite;
+}
+
+@keyframes checkedSkeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checked-skeleton { animation: none; opacity: 0.6; }
+}
+
+/* ── Passport lookup status (Add Student modal) ──────────────────────── */
+.passport-lookup-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.passport-lookup-status i {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.passport-lookup-status.checking {
+  color: var(--text-secondary);
+}
+
+.passport-lookup-status.checking .lookup-skeleton {
+  display: inline-block;
+  width: 120px;
+  height: 11px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--input-bg) 25%, var(--divider) 50%, var(--input-bg) 75%);
+  background-size: 400% 100%;
+  animation: checkedSkeletonShimmer 1.3s ease infinite;
+}
+
+.passport-lookup-status.found {
+  color: var(--info);
+}
+
+.passport-lookup-status.duplicate {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passport-lookup-status.checking .lookup-skeleton { animation: none; opacity: 0.6; }
 }
 
 .th-select,
@@ -1191,6 +1253,119 @@ body {
   margin-bottom: 6px;
 }
 
+/* ── Add/Edit Student modal — same restrained, generous-whitespace
+   language as visa-status.html's lookup card: soft border instead of a
+   heavy shadow, calm accent-only focus rings, one clear label rhythm. ── */
+#addStudentModal .modal-content {
+  background: var(--card-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+}
+
+#addStudentModal .modal-header {
+  padding: 24px 28px 0;
+}
+
+#addStudentModal .modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text-main);
+}
+
+#addStudentModal .modal-body {
+  padding: 20px 28px 28px;
+}
+
+#addStudentModal .mb-3 {
+  margin-bottom: 18px !important;
+}
+
+#addStudentModal .form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  margin-bottom: 7px;
+}
+
+#addStudentModal .form-control-glass {
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-main);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+#addStudentModal .form-control-glass:hover {
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+[data-theme="dark"] #addStudentModal .form-control-glass:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+#addStudentModal .form-control-glass:focus {
+  background: var(--card-bg);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+#addStudentModal .form-text {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+#addStudentModal .visa-type-toggle-container {
+  background: #F1F5F9;
+  border-color: var(--divider);
+  padding: 3px;
+}
+
+[data-theme="dark"] #addStudentModal .visa-type-toggle-container {
+  background: var(--input-bg);
+}
+
+#addStudentModal .visa-type-btn.active {
+  background: #fff;
+  color: var(--text-main) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="dark"] #addStudentModal .visa-type-btn.active {
+  background: var(--card-bg);
+}
+
+#addStudentModal .d-grid.mt-4 {
+  margin-top: 24px !important;
+}
+
+#addStudentModal .btn-primary {
+  height: 46px;
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: 10px;
+  background: var(--text-main);
+  box-shadow: none;
+}
+
+#addStudentModal .btn-primary:hover {
+  background: var(--text-main);
+  opacity: 0.88;
+  box-shadow: none;
+  transform: none;
+}
+
+#addStudentModal .btn-primary:active {
+  opacity: 1;
+  transform: none;
+}
+
 /* Empty State */
 #emptyState {
   padding: 40px 20px;
@@ -1199,13 +1374,6 @@ body {
 #emptyState i {
   font-size: 48px;
   opacity: 0.3;
-}
-
-/* Student Count */
-#studentCount {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
 }
 
 /* Toast Notifications */
