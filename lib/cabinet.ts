@@ -1,0 +1,241 @@
+/**
+ * lib/cabinet.ts
+ * 
+ * Manages CRM student cache, synchronization, and individual/bulk refreshes.
+ */
+
+import db from './turso';
+import { checkStudentVisaStatus } from './visa';
+import { getValidSession } from './auth';
+
+export interface Student {
+    passport: string;
+    fullName: string;
+    birthday: string;
+    studentId: string;
+    status: string;
+    applicationDate: string;
+    lastChecked: string;
+    rejectReason: string;
+    pdfUrl: string;
+    userId: number;
+    visaType: string;
+    applicationNo: string;
+    telegram_user_id: number | null;
+}
+
+export function getStatusEmoji(status: string): string {
+    const normalized = String(status || '').toLowerCase();
+    if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
+        return '🟢';
+    }
+    if (normalized.includes('cancel') || normalized.includes('reject')) {
+        return '🔴';
+    }
+    if (normalized.includes('received') || normalized.includes('app/')) {
+        return '🟠';
+    }
+    if (normalized.includes('under review')) {
+        return '🔵';
+    }
+    return '🔷';
+}
+
+export function getStatusDescription(status: string): string {
+    const normalized = String(status || '').toLowerCase();
+    if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
+        return 'Congratulations 🎉';
+    }
+    if (normalized.includes('cancel') || normalized.includes('reject')) {
+        return 'Your application has been rejected/cancelled.';
+    }
+    if (normalized.includes('received') || normalized.includes('app/')) {
+        return '⏳ Your application is in process.';
+    }
+    if (normalized.includes('under review')) {
+        return '🔎 Your application is under review.';
+    }
+    return 'Status updated.';
+}
+
+/**
+ * Formats a Telegram student card message.
+ */
+export function formatStudentCard(student: Student, isUpdate: boolean = false, oldStatus: string = ''): string {
+    const emoji = getStatusEmoji(student.status);
+    
+    if (isUpdate && oldStatus && oldStatus !== student.status) {
+        return [
+            `Visa Status Update`,
+            ``,
+            `${student.studentId || '--'}`,
+            `${student.fullName}`,
+            ``,
+            `Old: ${oldStatus.toUpperCase()}`,
+            `New: ${emoji} ${student.status.toUpperCase()}`
+        ].join('\n');
+    }
+    
+    return [
+        `Visa Status`,
+        ``,
+        `${student.studentId || '--'}`,
+        `${student.fullName}`,
+        ``,
+        `${emoji} ${student.status.toUpperCase()}`
+    ].join('\n');
+}
+
+/**
+ * Fetches all active (non-deleted) students belonging to a connected Telegram user.
+ */
+export async function getStudentsByTelegramId(telegramId: number): Promise<Student[]> {
+    try {
+        const result = await db.execute({
+            sql: `
+                SELECT s.* FROM students s
+                JOIN users u ON s.userId = u.id
+                WHERE u.telegram_id = ? AND s.deletedAt IS NULL
+                ORDER BY s.createdAt DESC
+            `,
+            args: [telegramId]
+        });
+        
+        return result.rows.map((row: any) => ({
+            passport: row.passport,
+            fullName: row.fullName || row.fullname || '',
+            birthday: row.birthday || '',
+            studentId: row.studentId || row.student_id || '',
+            status: row.status || 'Pending',
+            applicationDate: row.applicationDate || row.application_date || '',
+            lastChecked: row.lastChecked || row.last_checked || '',
+            rejectReason: row.rejectReason || '',
+            pdfUrl: row.pdfUrl || '',
+            userId: Number(row.userId),
+            visaType: row.visaType || row.visa_type || 'Embassy',
+            applicationNo: row.applicationNo || row.application_no || '',
+            telegram_user_id: row.telegram_user_id ? Number(row.telegram_user_id) : null
+        }));
+    } catch (err: any) {
+        console.error('[Cabinet Service] Error fetching students:', err.message);
+        return [];
+    }
+}
+
+/**
+ * Checks and updates a student's status, and logs a notification if it changes.
+ * Returns { changed: boolean, oldStatus: string, student: Student }
+ */
+export async function refreshStudent(telegramId: number, passport: string): Promise<{
+    success: boolean;
+    changed: boolean;
+    oldStatus: string;
+    student?: Student;
+    error?: string;
+}> {
+    try {
+        // 1. Fetch student from database to get details
+        const result = await db.execute({
+            sql: 'SELECT s.*, u.id as uId FROM students s JOIN users u ON s.userId = u.id WHERE s.passport = ? AND u.telegram_id = ? AND s.deletedAt IS NULL',
+            args: [passport.toUpperCase().trim(), telegramId]
+        });
+        
+        if (result.rows.length === 0) {
+            return { success: false, changed: false, oldStatus: '', error: 'Student not found in your cabinet.' };
+        }
+        
+        const row = result.rows[0] as any;
+        const student: Student = {
+            passport: row.passport,
+            fullName: row.fullName || row.fullname || '',
+            birthday: row.birthday || '',
+            studentId: row.studentId || row.student_id || '',
+            status: row.status || 'Pending',
+            applicationDate: row.applicationDate || row.application_date || '',
+            lastChecked: row.lastChecked || row.last_checked || '',
+            rejectReason: row.rejectReason || '',
+            pdfUrl: row.pdfUrl || '',
+            userId: Number(row.uId),
+            visaType: row.visaType || row.visa_type || 'Embassy',
+            applicationNo: row.applicationNo || row.application_no || '',
+            telegram_user_id: telegramId
+        };
+        
+        // 2. Query official visa portal
+        const liveStatus = await checkStudentVisaStatus(
+            student.passport,
+            student.fullName,
+            student.birthday,
+            student.visaType,
+            student.applicationNo
+        );
+        
+        if (!liveStatus.found) {
+            // Update last checked time even if not found on the portal (e.g. pending submission)
+            const now = new Date().toISOString();
+            await db.execute({
+                sql: 'UPDATE students SET lastChecked = ?, last_checked = ? WHERE passport = ?',
+                args: [now, now, student.passport]
+            });
+            student.lastChecked = now;
+            return { success: true, changed: false, oldStatus: student.status, student };
+        }
+        
+        const oldStatus = student.status;
+        const newStatus = liveStatus.latestStatus;
+        const changed = oldStatus.toLowerCase() !== newStatus.toLowerCase();
+        const now = new Date().toISOString();
+        
+        // 3. Update student in database (keeping both camelCase and snake_case in sync)
+        await db.execute({
+            sql: `
+                UPDATE students 
+                SET status = ?,
+                    applicationDate = ?,
+                    application_date = ?,
+                    lastChecked = ?,
+                    last_checked = ?,
+                    rejectReason = ?,
+                    pdfUrl = ?,
+                    apiResponse = ?,
+                    telegram_user_id = ?
+                WHERE passport = ?
+            `,
+            args: [
+                newStatus,
+                liveStatus.latestDate || student.applicationDate,
+                liveStatus.latestDate || student.applicationDate,
+                now,
+                now,
+                liveStatus.rejectionReason || '',
+                liveStatus.pdfUrl || '',
+                JSON.stringify(liveStatus),
+                telegramId,
+                student.passport
+            ]
+        });
+        
+        // Update local object
+        student.status = newStatus;
+        student.applicationDate = liveStatus.latestDate || student.applicationDate;
+        student.lastChecked = now;
+        student.rejectReason = liveStatus.rejectionReason || '';
+        student.pdfUrl = liveStatus.pdfUrl || '';
+        
+        // 4. Log notification if status changed
+        if (changed) {
+            await db.execute({
+                sql: `
+                    INSERT INTO notifications (telegram_user_id, student_id, old_status, new_status, created_at)
+                    VALUES (?, ?, ?, ?, datetime('now'))
+                `,
+                args: [telegramId, student.passport, oldStatus, newStatus]
+            });
+        }
+        
+        return { success: true, changed, oldStatus, student };
+    } catch (err: any) {
+        console.error(`[Cabinet Service] Error refreshing student ${passport}:`, err.message);
+        return { success: false, changed: false, oldStatus: '', error: err.message };
+    }
+}
