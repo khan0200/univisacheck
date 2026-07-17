@@ -7,7 +7,7 @@
 import { Context } from 'grammy';
 import { getUserByTelegramId, disconnectUser } from '../lib/auth';
 import { getStudentsByTelegramId, formatStudentCard, refreshStudent } from '../lib/cabinet';
-import { mainMenuKeyboard, accountMenuKeyboard, visaTypeKeyboard, cabinetMenuKeyboard } from './keyboards';
+import { mainMenuKeyboard, accountMenuKeyboard, visaTypeKeyboard, cabinetMenuKeyboard, getMainMenuKeyboard } from './keyboards';
 import db from '../lib/turso';
 
 
@@ -89,16 +89,16 @@ export async function handleCabinetCommand(ctx: Context) {
     // Check if already connected
     const activeUser = await getUserByTelegramId(telegramId);
     if (activeUser) {
-        await ctx.reply(`✅ Profil ulangan: *${activeUser.email}*`, {
+        await ctx.reply(`✅ Kabinet ulangan: *${activeUser.username}*`, {
             parse_mode: 'Markdown',
-            reply_markup: mainMenuKeyboard
+            reply_markup: getMainMenuKeyboard(activeUser.username)
         });
         return;
     }
     
     // Start login state machine
     await setSessionState(telegramId, 'awaiting_email', {});
-    await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki konsaltig nomini kiriting:', {
+    await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki Consulting nomini kiriting:', {
         parse_mode: 'Markdown'
     });
 }
@@ -132,7 +132,7 @@ export async function handleHelpCommand(ctx: Context) {
         `*Menyular:*\n` +
         `📂 *Kabinet* - Talabalar ro'yxati\n` +
         `🔍 *Tekshirish* - Visani to'g'ridan-to'g'ri tekshirish\n` +
-        `⚙ *Profil* - Sozlamalar va chiqish\n\n` +
+        `⚙ *Consulting* - Sozlamalar va chiqish\n\n` +
         `Savollar uchun administratorga murojaat qiling.`;
         
     await ctx.reply(helpText, {
@@ -151,7 +151,7 @@ export async function handleCabinetMenu(ctx: Context) {
     
     const user = await getUserByTelegramId(telegramId);
     if (!user) {
-        await ctx.reply('⚠️ Oldin profilni ulang (/cabinet yoki ⚙ Profil orqali).');
+        await ctx.reply('⚠️ Oldin kabinetni ulang (⚙ Consulting ni ulash orqali).');
         return;
     }
     
@@ -193,8 +193,8 @@ export async function handleAccountMenu(ctx: Context) {
     const connectedSince = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '--';
     
     const accountText = 
-        `⚙ *Profil ma'lumotlari*\n\n` +
-        `👤 *Konsaltig:* ${user.username}\n` +
+        `⚙ *Consulting ma'lumotlari*\n\n` +
+        `👤 *Consulting:* ${user.username}\n` +
         `📧 *Email:* \`${user.email}\`\n` +
         `📅 *Ulangan sana:* ${connectedSince}\n` +
         `🎓 *Talabalar soni:* ${students.length}\n` +

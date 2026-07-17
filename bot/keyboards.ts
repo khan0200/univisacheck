@@ -10,11 +10,27 @@ import { Keyboard, InlineKeyboard } from 'grammy';
  * Persistent Main Menu Reply Keyboard.
  * Uses resized, persistent layouts.
  */
+/**
+ * Persistent Main Menu Reply Keyboard — Not connected state.
+ */
 export const mainMenuKeyboard = new Keyboard()
     .text('📂 Kabinet').text('🔍 Tekshirish').row()
-    .text('⚙ Profil')
+    .text('⚙ Consulting ni ulash')
     .resized()
-    .selected(true); // Keep keyboard persistent and open by default
+    .selected(true);
+
+/**
+ * Builds a personalised main menu keyboard.
+ * @param username - Cabinet username; if provided, shows "⚙ {username}" instead of default label.
+ */
+export function getMainMenuKeyboard(username?: string | null): Keyboard {
+    const profileLabel = username ? `⚙ ${username}` : '⚙ Consulting ni ulash';
+    return new Keyboard()
+        .text('📂 Kabinet').text('🔍 Tekshirish').row()
+        .text(profileLabel)
+        .resized()
+        .selected(true);
+}
 
 /**
  * Creates an inline keyboard with a refresh button for a specific student.

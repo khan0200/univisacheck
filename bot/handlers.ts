@@ -8,7 +8,7 @@ import { Context, InputFile } from 'grammy';
 import { connectUser, disconnectUser, getUserByTelegramId } from '../lib/auth';
 import { checkStudentVisaStatus, downloadStudentVisaPdf } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
-import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard } from './keyboards';
+import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard, getMainMenuKeyboard } from './keyboards';
 import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked } from '../lib/cabinet';
 import db from '../lib/turso';
 
@@ -49,7 +49,7 @@ export async function handleTextMessage(ctx: Context) {
     // ── Cabinet Connection Flow ──
     if (session.state === 'awaiting_email') {
         if (text.length < 2) {
-            await ctx.reply('⚠️ Email yoki konsaltig nomini kiriting:');
+            await ctx.reply('⚠️ Email yoki Consulting nomini kiriting:');
             return;
         }
         
@@ -86,7 +86,7 @@ export async function handleTextMessage(ctx: Context) {
         await clearSessionState(telegramId);
         await ctx.reply('✅ *Muvaffaqiyatli ulindi!*', {
             parse_mode: 'Markdown',
-            reply_markup: mainMenuKeyboard
+            reply_markup: getMainMenuKeyboard(connectResult.user?.username)
         });
         
         // Immediately sync and show their cabinet
@@ -296,7 +296,7 @@ export async function handleCallbackQuery(ctx: Context) {
     if (callbackData === 'account:connect') {
         await clearSessionState(telegramId);
         await setSessionState(telegramId, 'awaiting_email', {});
-        await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki konsaltig nomini kiriting:', {
+        await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki Consulting nomini kiriting:', {
             parse_mode: 'Markdown'
         });
         return;

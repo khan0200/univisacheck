@@ -31,7 +31,7 @@ bot.command('help', handleHelpCommand);
 // ── Register Reply Keyboard Listeners (hears) ──
 bot.hears('📂 Kabinet', handleCabinetMenu);
 bot.hears('🔍 Tekshirish', handleCheckCommand);
-bot.hears('⚙ Profil', handleAccountMenu);
+bot.hears(/^⚙/, handleAccountMenu);
 
 // ── Register Message & Callback Processors ──
 bot.on('message:text', handleTextMessage);
