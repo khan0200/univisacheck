@@ -384,6 +384,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 `${passport.toUpperCase()}\n` +
                 `${birthday}\n\n` +
                 `✈️ *Visa Type:* ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
+                (visaType === 'E-Visa' ? `🏢 *Invitee:* ${checkRes.invitingCompany || 'N/A'}\n` : '') +
                 (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
                 `📅 *Application Date:* ${checkRes.latestDate || 'N/A'}\n` +
                 `🔄 *Status:* ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n\n` +
@@ -482,6 +483,7 @@ async function displayCheckResult(
         `${passport.toUpperCase()}\n` +
         `${birthday}\n\n` +
         `✈️ *Visa Type:* ${result.statusOfResidence || result.visaKind || visaType}\n` +
+        (visaType === 'E-Visa' ? `🏢 *Invitee:* ${result.invitingCompany || 'N/A'}\n` : '') +
         (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
         `📅 *Application Date:* ${result.latestDate || 'N/A'}\n` +
         `🔄 *Status:* ${emoji} *${result.latestStatus.toUpperCase()}*\n\n` +
