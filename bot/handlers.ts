@@ -4,9 +4,9 @@
  * Implements callback query processing and conversational state-machine handlers.
  */
 
-import { Context } from 'grammy';
+import { Context, InputFile } from 'grammy';
 import { connectUser, disconnectUser } from '../lib/auth';
-import { checkStudentVisaStatus } from '../lib/visa';
+import { checkStudentVisaStatus, downloadStudentVisaPdf } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
 import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard } from './keyboards';
 import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked } from '../lib/cabinet';
@@ -259,6 +259,18 @@ export async function handleCallbackQuery(ctx: Context) {
         if (res.student) {
             const cardText = formatStudentCard(res.student, res.changed, res.oldStatus);
             const cardMessage = ctx.callbackQuery?.message;
+            const isApproved = ['approved', 'visa used', 'issued'].some(s => (res.student?.status || '').toLowerCase().includes(s));
+            
+            const inlineKeyboard = {
+                inline_keyboard: isApproved
+                    ? [
+                        [{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }],
+                        [{ text: '📄 Sertifikatni yuklash', callback_data: `download_pdf:${res.student.passport}` }]
+                      ]
+                    : [
+                        [{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }]
+                      ]
+            };
             
             // If it changed, send a brand new message and delete the old card
             if (res.changed) {
@@ -266,17 +278,13 @@ export async function handleCallbackQuery(ctx: Context) {
                     await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
                 }
                 await ctx.reply(cardText, {
-                    reply_markup: {
-                        inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }]]
-                    }
+                    reply_markup: inlineKeyboard
                 });
             } else {
                 // If no changes, edit the existing card's text to show the updated checked timestamp
                 if (cardMessage) {
                     await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, cardText, {
-                        reply_markup: {
-                            inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }]]
-                        }
+                        reply_markup: inlineKeyboard
                     }).catch(() => {});
                 }
             }
@@ -469,14 +477,86 @@ export async function handleCallbackQuery(ctx: Context) {
         // Display each matching student card
         for (const student of filtered) {
             const cardText = formatStudentCard(student);
+            const isApproved = ['approved', 'visa used', 'issued'].some(s => (student.status || '').toLowerCase().includes(s));
             const inlineKeyboard = {
-                inline_keyboard: [
-                    [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }]
-                ]
+                inline_keyboard: isApproved
+                    ? [
+                        [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }],
+                        [{ text: '📄 Sertifikatni yuklash', callback_data: `download_pdf:${student.passport}` }]
+                      ]
+                    : [
+                        [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }]
+                      ]
             };
             await ctx.reply(cardText, {
                 reply_markup: inlineKeyboard
             });
+        }
+        return;
+    }
+
+    // ── Download Certificate PDF Button Click ──
+    if (callbackData.startsWith('download_pdf:')) {
+        const passport = callbackData.split(':')[1].toUpperCase().trim();
+        const progressMsg = await ctx.reply(`⏳ *Sertifikat yuklab olinmoqda...*\n_Iltimos kutib turing, visa.go.kr portaliga so'rov yuborilmoqda..._`, { parse_mode: 'Markdown' });
+        
+        try {
+            // Find student details from database
+            let fullName = '';
+            let birthday = '';
+            let visaType = 'Embassy';
+            let applicationNo = '';
+            let pdfUrl = '';
+            
+            // 1. Search CRM students
+            const crmRes = await db.execute({
+                sql: 'SELECT * FROM students WHERE passport = ? AND deletedAt IS NULL LIMIT 1',
+                args: [passport]
+            });
+            
+            if (crmRes.rows.length > 0) {
+                const row = crmRes.rows[0] as any;
+                fullName = row.fullName || row.fullname || '';
+                birthday = row.birthday || '';
+                visaType = row.visaType || row.visa_type || 'Embassy';
+                applicationNo = row.applicationNo || row.application_no || '';
+                pdfUrl = row.pdfUrl || '';
+            } else {
+                // 2. Search manual refreshes
+                const manualRes = await db.execute({
+                    sql: 'SELECT * FROM bot_manual_refreshes WHERE passport = ? LIMIT 1',
+                    args: [passport]
+                });
+                
+                if (manualRes.rows.length > 0) {
+                    const row = manualRes.rows[0] as any;
+                    fullName = row.fullname || '';
+                    birthday = row.birthday || '';
+                    visaType = row.visa_type || 'Embassy';
+                    applicationNo = row.application_no || '';
+                    pdfUrl = '';
+                }
+            }
+            
+            if (!fullName || !birthday) {
+                await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {});
+                await ctx.reply(`❌ Talaba ma'lumotlari topilmadi. Avval statusni tekshiring.`);
+                return;
+            }
+            
+            const pdfRes = await downloadStudentVisaPdf(passport, fullName, birthday, visaType, applicationNo, pdfUrl);
+            
+            // Delete progress message
+            await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {});
+            
+            // Reply with document
+            await ctx.replyWithDocument(new InputFile(pdfRes.buffer, pdfRes.filename), {
+                caption: `📄 *Koreya vizasi sertifikati* (${passport})`,
+                parse_mode: 'Markdown'
+            });
+        } catch (err: any) {
+            await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {});
+            await ctx.reply(`❌ *Sertifikatni yuklab bo'lmadi:* ${err.message}`);
         }
         return;
     }
@@ -549,24 +629,31 @@ export async function handleCallbackQuery(ctx: Context) {
             const currentText = cardMessage?.text || '';
             const changed = !currentText.toLowerCase().includes(checkRes.latestStatus.toLowerCase());
             
+            const inlineKeyboard = {
+                inline_keyboard: isApproved
+                    ? [
+                        [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }],
+                        [{ text: '📄 Sertifikatni yuklash', callback_data: `download_pdf:${passport}` }]
+                      ]
+                    : [
+                        [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }]
+                      ]
+            };
+            
             if (changed) {
                 if (cardMessage) {
                     await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
                 }
                 await ctx.reply(resultText, {
                     parse_mode: 'Markdown',
-                    reply_markup: {
-                        inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }]]
-                    },
+                    reply_markup: inlineKeyboard,
                     link_preview_options: { is_disabled: true }
                 });
             } else {
                 if (cardMessage) {
                     await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, resultText, {
                         parse_mode: 'Markdown',
-                        reply_markup: {
-                            inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }]]
-                        },
+                        reply_markup: inlineKeyboard,
                         link_preview_options: { is_disabled: true }
                     }).catch(() => {});
                 }
@@ -647,11 +734,20 @@ async function displayCheckResult(
         (result.rejectionReason ? `\n⚠️ *Sababi:* ${result.rejectionReason}\n` : '') +
         (result.pdfUrl && isApproved ? `\n📄 [Visa sertifikatini yuklash](${result.pdfUrl})\n` : '');
         
+    const inlineKeyboard = {
+        inline_keyboard: isApproved
+            ? [
+                [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
+                [{ text: '📄 Sertifikatni yuklash', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
+              ]
+            : [
+                [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]
+              ]
+    };
+
     await ctx.reply(resultText, {
         parse_mode: 'Markdown',
-        reply_markup: {
-            inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]]
-        },
+        reply_markup: inlineKeyboard,
         link_preview_options: { is_disabled: true }
     });
 }
