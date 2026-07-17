@@ -341,7 +341,7 @@ async function displayCheckResult(
     fullName: string,
     birthday: string
 ) {
-    if (!result.found) {
+    if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
         await ctx.reply(
             `Double check your passport number, Fullname, Birthdate`,
             {
