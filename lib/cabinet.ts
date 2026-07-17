@@ -61,8 +61,54 @@ export function getStatusDescription(status: string): string {
 /**
  * Formats a Telegram student card message.
  */
+export function formatLastChecked(dateString: string): string {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    try {
+        const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
+        const dateStr = date.toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
+        
+        const timePart = date.toLocaleTimeString('en-US', {
+            timeZone: 'Asia/Tashkent',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+        if (todayStr === dateStr) {
+            return `Today at ${timePart}`;
+        } else {
+            const datePart = date.toLocaleDateString('en-US', {
+                timeZone: 'Asia/Tashkent',
+                month: 'short',
+                day: 'numeric'
+            });
+            return `${datePart}, ${timePart}`;
+        }
+    } catch {
+        const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+        const uzDate = new Date(utc + (3600000 * 5));
+        let hours = uzDate.getHours();
+        const minutes = String(uzDate.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const timePart = `${hours}:${minutes} ${ampm}`;
+        
+        const nowUz = new Date(new Date().getTime() + (new Date().getTimezoneOffset() * 60000) + (3600000 * 5));
+        if (nowUz.toDateString() === uzDate.toDateString()) {
+            return `Today at ${timePart}`;
+        } else {
+            return `${uzDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${timePart}`;
+        }
+    }
+}
+
+/**
+ * Formats a Telegram student card message.
+ */
 export function formatStudentCard(student: Student, isUpdate: boolean = false, oldStatus: string = ''): string {
     const emoji = getStatusEmoji(student.status);
+    const checkedStr = formatLastChecked(student.lastChecked);
     
     if (isUpdate && oldStatus && oldStatus !== student.status) {
         return [
@@ -72,7 +118,8 @@ export function formatStudentCard(student: Student, isUpdate: boolean = false, o
             `${student.fullName}`,
             ``,
             `Old: ${oldStatus.toUpperCase()}`,
-            `New: ${emoji} ${student.status.toUpperCase()}`
+            `New: ${emoji} ${student.status.toUpperCase()}`,
+            `Checked: ${checkedStr}`
         ].join('\n');
     }
     
@@ -82,7 +129,8 @@ export function formatStudentCard(student: Student, isUpdate: boolean = false, o
         `${student.studentId || '--'}`,
         `${student.fullName}`,
         ``,
-        `${emoji} ${student.status.toUpperCase()}`
+        `${emoji} ${student.status.toUpperCase()}`,
+        `Checked: ${checkedStr}`
     ].join('\n');
 }
 

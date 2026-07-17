@@ -192,9 +192,15 @@ export async function handleCallbackQuery(ctx: Context) {
     // ── Individual Refresh Button Click ──
     if (callbackData.startsWith('refresh:')) {
         const passport = callbackData.split(':')[1];
-        await ctx.reply(`🔄 *Refreshing status for passport ${passport}...*`, { parse_mode: 'Markdown' });
+        
+        // 1. Send temporary refreshing status message
+        const statusMsg = await ctx.reply(`🔄 *Refreshing status for passport ${passport}...*`, { parse_mode: 'Markdown' });
         
         const res = await refreshStudent(telegramId, passport);
+        
+        // 2. Delete the temporary refreshing status message immediately
+        await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
+        
         if (!res.success) {
             await ctx.reply(`❌ Failed to check: ${res.error}`);
             return;
@@ -202,15 +208,27 @@ export async function handleCallbackQuery(ctx: Context) {
         
         if (res.student) {
             const cardText = formatStudentCard(res.student, res.changed, res.oldStatus);
-            // If it changed, send a brand new message, otherwise edit/reply
+            const cardMessage = ctx.callbackQuery?.message;
+            
+            // If it changed, send a brand new message and delete the old card
             if (res.changed) {
+                if (cardMessage) {
+                    await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
+                }
                 await ctx.reply(cardText, {
                     reply_markup: {
                         inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `refresh:${res.student.passport}` }]]
                     }
                 });
             } else {
-                await ctx.reply(`No changes.\n\nCurrent status:\n\n${getStatusEmoji(res.student.status)} ${res.student.status.toUpperCase()}`);
+                // If no changes, edit the existing card's text to show the updated checked timestamp
+                if (cardMessage) {
+                    await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, cardText, {
+                        reply_markup: {
+                            inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `refresh:${res.student.passport}` }]]
+                        }
+                    }).catch(() => {});
+                }
             }
         }
         return;
