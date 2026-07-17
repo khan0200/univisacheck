@@ -67,6 +67,6 @@ export const accountMenuKeyboard = new InlineKeyboard()
  * Simple cancellation button for input dialogues.
  */
 export const cancelKeyboard = new Keyboard()
-    .text('❌ Bekor qilish')
+    .text('<Ortga')
     .resized()
     .oneTime();
