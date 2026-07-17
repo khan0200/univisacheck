@@ -134,11 +134,11 @@ export async function handleTextMessage(ctx: Context) {
         const birthday = text;
         
         if (visaType === 'Embassy') {
-            await ctx.reply('⌛ *Querying visa.go.kr portal...*', { parse_mode: 'Markdown' });
+            await ctx.reply('⌛ *Wait for visa.go.kr portal...*', { parse_mode: 'Markdown' });
             try {
                 const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
                 await clearSessionState(telegramId);
-                await displayCheckResult(ctx, checkRes, passport, 'Embassy', '');
+                await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday);
             } catch (err: any) {
                 await clearSessionState(telegramId);
                 await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`, {
@@ -163,12 +163,12 @@ export async function handleTextMessage(ctx: Context) {
         }
         
         const { passport, fullName, birthday } = session.data;
-        await ctx.reply('⌛ *Querying visa.go.kr portal...*', { parse_mode: 'Markdown' });
+        await ctx.reply('⌛ *Wait for visa.go.kr portal...*', { parse_mode: 'Markdown' });
         
         try {
             const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'E-Visa', text);
             await clearSessionState(telegramId);
-            await displayCheckResult(ctx, checkRes, passport, 'E-Visa', text);
+            await displayCheckResult(ctx, checkRes, passport, 'E-Visa', text, fullName, birthday);
         } catch (err: any) {
             await clearSessionState(telegramId);
             await ctx.reply(`❌ *Visa check failed* due to a network or portal error: ${err.message}`, {
@@ -337,7 +337,9 @@ async function displayCheckResult(
     result: any,
     passport: string,
     visaType: string,
-    applicationNo: string
+    applicationNo: string,
+    fullName: string,
+    birthday: string
 ) {
     if (!result.found) {
         await ctx.reply(
@@ -356,17 +358,20 @@ async function displayCheckResult(
     
     const emoji = getStatusEmoji(result.latestStatus);
     const desc = getStatusDescription(result.latestStatus);
+    const isApproved = ['approved', 'visa used', 'issued'].some(s => result.latestStatus.toLowerCase().includes(s));
     
     const resultText = 
         `🔍 *Visa Application Status Check*\n\n` +
-        `👤 *Name:* ${result.latestStatusKorean ? 'Matched' : 'Confirmed'}\n` +
+        `${fullName.toUpperCase()}\n` +
+        `${passport.toUpperCase()}\n` +
+        `${birthday}\n\n` +
         `✈️ *Visa Type:* ${result.statusOfResidence || result.visaKind || visaType}\n` +
-        `📄 *Application Number:* ${applicationNo || 'N/A'}\n` +
+        (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
         `📅 *Application Date:* ${result.latestDate || 'N/A'}\n` +
         `🔄 *Status:* ${emoji} *${result.latestStatus.toUpperCase()}*\n\n` +
         `*Result:* ${desc}\n` +
         (result.rejectionReason ? `\n⚠️ *Reason:* ${result.rejectionReason}\n` : '') +
-        (result.pdfUrl ? `\n📄 [Download Visa Certificate](${result.pdfUrl})\n` : '');
+        (result.pdfUrl && isApproved ? `\n📄 [Download Visa Certificate](${result.pdfUrl})\n` : '');
         
     await ctx.reply(resultText, {
         parse_mode: 'Markdown',
