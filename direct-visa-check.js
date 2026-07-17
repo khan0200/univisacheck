@@ -82,33 +82,36 @@ function parseKoreanStatus(korean) {
 function parseResult1_1(html) {
     // result1_1 is the E-Visa Search (gb01) result section
     const results = [];
+    const tables = html.split(/<table\b/i).slice(1);
 
-    // Extract all APPL_YMD values (application dates)
-    const appl_dates = [...html.matchAll(/id="APPL_YMD"[^>]*>([^<]+)</g)].map(m => m[1].trim());
-    
-    // Extract PROC_STS_CDNM elements - includes text
-    const statusRaw  = [...html.matchAll(/id="PROC_STS_CDNM"[^>]*>([\s\S]*?)<\/div>/g)].map(m => stripTags(m[1]).trim());
-    
-    const purposes   = [...html.matchAll(/id="SOJ_QUAL_NM"[^>]*>([^<]+)</g)].map(m => m[1].trim());
-    
-    // Extract rejection reasons (불허사유)
-    const rejReasons = [...html.matchAll(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)].map(m => stripTags(m[1]).trim());
+    for (const tableHtml of tables) {
+        if (!/id="PROC_STS_CDNM"/i.test(tableHtml) && !/id="APPL_YMD"/i.test(tableHtml)) {
+            continue;
+        }
 
-    const count = Math.max(appl_dates.length, statusRaw.length);
-    for (let i = 0; i < count; i++) {
-        const statusKor = statusRaw[i] || '';
-        
+        const dateMatch = tableHtml.match(/id="APPL_YMD"[^>]*>([^<]+)</i);
+        const applicationDate = dateMatch ? dateMatch[1].trim() : '';
+
+        const statusMatch = tableHtml.match(/id="PROC_STS_CDNM"[^>]*>([\s\S]*?)<\/div>/i);
+        const statusKor = statusMatch ? stripTags(statusMatch[1]).trim() : '';
+
+        const purposeMatch = tableHtml.match(/id="SOJ_QUAL_NM"[^>]*>([^<]+)/i);
+        const entryPurpose = purposeMatch ? purposeMatch[1].trim() : '';
+
+        const rejMatch = tableHtml.match(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+        const rejectionReason = rejMatch ? stripTags(rejMatch[1]).trim() : '';
+
         let entryDate = '';
         const entryDateMatch = statusKor.match(/(\d{4}\.\d{2}\.\d{2}\.?)/);
         if (entryDateMatch) entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
-        
+
         results.push({
-            applicationDate: appl_dates[i] || '',
+            applicationDate,
             status:          parseKoreanStatus(statusKor),
             statusKorean:    statusKor,
-            entryDate:       entryDate,
-            entryPurpose:    purposes[i] || '',
-            rejectionReason: rejReasons[i] || '',
+            entryDate,
+            entryPurpose,
+            rejectionReason,
         });
     }
     return results;
@@ -116,59 +119,45 @@ function parseResult1_1(html) {
 
 function parseResult3_2(html) {
     // result3_2 is the Embassy/Diplomatic Mission (gb03) result section
-    // It contains one or more records, each as table blocks
     const results = [];
-
-    // Embassy (gb03) uses RECPT_YMD for the application/receipt date (format: YYYYMMDD)
-    // APPL_YMD and APPL_DTM are present in the HTML template but always empty for Embassy checks
-    function extractDateField(fieldId) {
-        const matches = [...html.matchAll(new RegExp(`id="${fieldId}"[^>]*>([\\s\\S]*?)<`, 'g'))];
-        return matches.map(m => m[1].replace(/\s+/g, ' ').trim()).filter(v => v.length > 0);
-    }
+    const tables = html.split(/<table\b/i).slice(1);
 
     function formatKoreanDate(raw) {
-        // Handles YYYYMMDD → YYYY-MM-DD
         if (/^\d{8}$/.test(raw)) {
             return `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`;
         }
-        // Handles YYYY.MM.DD. → YYYY-MM-DD
         return raw.replace(/\./g, '-').replace(/-$/, '');
     }
 
-    let appl_dates = extractDateField('RECPT_YMD').map(formatKoreanDate);
-    if (appl_dates.length === 0) {
-        // Fallbacks (usually empty, but just in case)
-        appl_dates = extractDateField('APPL_YMD').map(formatKoreanDate);
-    }
-    if (appl_dates.length === 0) {
-        appl_dates = extractDateField('APPL_DTM').map(formatKoreanDate);
-    }
+    for (const tableHtml of tables) {
+        if (!/id="PROC_STS_CDNM_1"/i.test(tableHtml) && !/id="(?:RECPT_YMD|APPL_YMD|APPL_DTM)"/i.test(tableHtml)) {
+            continue;
+        }
 
+        const dateMatch = tableHtml.match(/id="(?:RECPT_YMD|APPL_YMD|APPL_DTM)"[^>]*>([\s\S]*?)</i);
+        const rawDate = dateMatch ? stripTags(dateMatch[1]).trim() : '';
+        const applicationDate = rawDate ? formatKoreanDate(rawDate) : '';
 
-    // Extract PROC_STS_CDNM_1 elements - includes text + sometimes a date in parens like (2026.06.11.)
-    const statusRaw  = [...html.matchAll(/id="PROC_STS_CDNM_1"[^>]*>([\s\S]*?)<\/div>/g)].map(m => stripTags(m[1]));
-    
-    const purposes   = [...html.matchAll(/id="ENTRY_PURPOSE"[^>]*>([^<]+)</g)].map(m => m[1].trim());
-    
-    // Extract rejection reasons (불허사유)
-    const rejReasons = [...html.matchAll(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)].map(m => stripTags(m[1]));
+        const statusMatch = tableHtml.match(/id="PROC_STS_CDNM_1"[^>]*>([\s\S]*?)<\/div>/i);
+        const statusKor = statusMatch ? stripTags(statusMatch[1]).trim() : '';
 
-    const count = Math.max(appl_dates.length, statusRaw.length);
-    for (let i = 0; i < count; i++) {
-        const statusKor = statusRaw[i] || '';
-        
-        // Extract date from status text like "사용완료 (2026.06.11.)"
+        const purposeMatch = tableHtml.match(/id="ENTRY_PURPOSE"[^>]*>([^<]+)/i);
+        const entryPurpose = purposeMatch ? purposeMatch[1].trim() : '';
+
+        const rejMatch = tableHtml.match(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+        const rejectionReason = rejMatch ? stripTags(rejMatch[1]).trim() : '';
+
         let entryDate = '';
         const entryDateMatch = statusKor.match(/(\d{4}\.\d{2}\.\d{2}\.?)/);
         if (entryDateMatch) entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
-        
+
         results.push({
-            applicationDate: appl_dates[i] || '',
+            applicationDate,
             status:          parseKoreanStatus(statusKor),
             statusKorean:    statusKor,
-            entryDate:       entryDate,
-            entryPurpose:    purposes[i] || '',
-            rejectionReason: rejReasons[i] || '',
+            entryDate,
+            entryPurpose,
+            rejectionReason,
         });
     }
     return results;

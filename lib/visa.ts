@@ -24,6 +24,7 @@ export interface VisaStatusInfo {
     statusOfResidence: string;
     invitingCompany: string;
     pdfUrl: string;
+    previousRejectionReason?: string;
 }
 
 /**
@@ -59,6 +60,14 @@ export async function checkStudentVisaStatus(
             cleanedAppNo
         );
         
+        let previousRejectionReason = '';
+        if (result.records && result.records.length > 1) {
+            const prev = result.records[1];
+            if (prev && prev.rejectionReason) {
+                previousRejectionReason = prev.rejectionReason;
+            }
+        }
+        
         return {
             found: !!result.found,
             latestStatus: result.latestStatus || 'Pending',
@@ -71,7 +80,8 @@ export async function checkStudentVisaStatus(
             visaKind: result.visaKind || '',
             statusOfResidence: result.statusOfResidence || '',
             invitingCompany: result.invitingCompany || '',
-            pdfUrl: result.pdfUrl || ''
+            pdfUrl: result.pdfUrl || '',
+            previousRejectionReason
         };
     } catch (err: any) {
         console.error(`[Visa Service] Error checking status for ${passport}:`, err.message);

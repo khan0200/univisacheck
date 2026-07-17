@@ -624,6 +624,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 `Tekshirildi: ${checkedStr}\n\n` +
                 `*Natija:* ${desc}\n` +
                 (checkRes.rejectionReason ? `\n⚠️ *Sababi:* ${checkRes.rejectionReason}\n` : '') +
+                (checkRes.previousRejectionReason ? `\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${checkRes.previousRejectionReason}\n` : '') +
                 (checkRes.pdfUrl && isApproved ? `\n📄 [Visa sertifikatini yuklash](${checkRes.pdfUrl})\n` : '');
                 
             const currentText = cardMessage?.text || '';
@@ -732,6 +733,7 @@ async function displayCheckResult(
         `Tekshirildi: ${checkedStr}\n\n` +
         `*Natija:* ${desc}\n` +
         (result.rejectionReason ? `\n⚠️ *Sababi:* ${result.rejectionReason}\n` : '') +
+        (result.previousRejectionReason ? `\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${result.previousRejectionReason}\n` : '') +
         (result.pdfUrl && isApproved ? `\n📄 [Visa sertifikatini yuklash](${result.pdfUrl})\n` : '');
         
     const inlineKeyboard = {
