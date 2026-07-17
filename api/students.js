@@ -115,6 +115,7 @@ module.exports = async (req, res) => {
             // SQLITE_CONSTRAINT instead of a clean error. A soft-deleted row can
             // only be revived by the same user who deleted it; otherwise a passport
             // held by someone else's row (active or soft-deleted) is a hard conflict.
+            let hasConflict = false;
             if (isRename) {
                 // Ensure the user owns the original student
                 const ownsOriginal = await db.execute({
@@ -132,19 +133,28 @@ module.exports = async (req, res) => {
                     args: [passport, userId]
                 });
                 if (collision.rows.length > 0) {
-                    res.status(409).json({ error: `Passport ${passport} is already in use under your account.` });
-                    return;
+                    hasConflict = true;
                 }
             } else {
-                // Only check if the passport already exists for this user (and is active)
-                const userMatch = await db.execute({
-                    sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+                // Only check duplicate conflicts if we are inserting a new student record
+                const checkExistence = await db.execute({
+                    sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ?',
                     args: [passport, userId]
                 });
-                if (userMatch.rows.length > 0) {
-                    res.status(409).json({ error: `Passport ${passport} is already in use under your account.` });
-                    return;
+                if (checkExistence.rows.length === 0) {
+                    const userMatch = await db.execute({
+                        sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+                        args: [passport, userId]
+                    });
+                    if (userMatch.rows.length > 0) {
+                        hasConflict = true;
+                    }
                 }
+            }
+
+            if (hasConflict) {
+                res.status(409).json({ error: `Passport ${passport} is already registered under your account.` });
+                return;
             }
 
             // Check if a row for THIS USER already exists — active OR soft-deleted
