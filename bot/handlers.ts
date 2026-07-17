@@ -343,13 +343,8 @@ async function displayCheckResult(
 ) {
     if (!result.found) {
         await ctx.reply(
-            `❌ *No Records Found*\n\n` +
-            `We could not find any visa application matching:\n` +
-            `• Passport: ${passport}\n` +
-            `• Visa Mode: ${visaType}\n\n` +
-            `Please make sure the details are spelled exactly as submitted.`,
+            `Double check your passport number, Fullname, Birthdate`,
             {
-                parse_mode: 'Markdown',
                 reply_markup: mainMenuKeyboard
             }
         );
