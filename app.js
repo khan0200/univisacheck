@@ -1648,17 +1648,19 @@ async function checkVisaStatus(student) {
         const data = await response.json();
         debug(`API Result for ${student.passport}:`, data);
 
-        // Proxy returns { status, detail, applicationDate, rejectionReason, rawHtml }
+        // Proxy returns { status, detail, applicationDate, rejectionReason, rawHtml, pdfUrl, previousRejectionReason, invitingCompany }
         const newStatus = data.status || 'Unknown';
         const applicationDate = data.applicationDate || '';
         const rejectionReason = data.rejectionReason || '';
         const pdfUrl = data.pdfUrl || '';
+        const previousRejectionReason = data.previousRejectionReason || '';
+        const invitingCompany = data.invitingCompany || '';
         const oldStatus = student.status || 'Unknown';
 
         // NOTIFICATION LOGIC
         if (oldStatus !== 'Unknown' && oldStatus.toLowerCase() !== newStatus.toLowerCase()) {
             showNotification(student.fullName, oldStatus, newStatus);
-            await sendTelegramNotification(student, oldStatus, newStatus, applicationDate);
+            await sendTelegramNotification(student, oldStatus, newStatus, applicationDate, rejectionReason, pdfUrl, previousRejectionReason, invitingCompany);
         }
 
         // Update local object
@@ -1688,7 +1690,7 @@ async function checkVisaStatus(student) {
     }
 }
 
-async function sendTelegramNotification(student, oldStatus, newStatus, applicationDate) {
+async function sendTelegramNotification(student, oldStatus, newStatus, applicationDate, rejectionReason = '', pdfUrl = '', previousRejectionReason = '', invitingCompany = '') {
     try {
         const payload = {
             fullName: student.fullName || '',
@@ -1700,6 +1702,10 @@ async function sendTelegramNotification(student, oldStatus, newStatus, applicati
             oldStatus,
             newStatus,
             applicationDate: applicationDate || '',
+            rejectionReason,
+            pdfUrl,
+            previousRejectionReason,
+            invitingCompany,
             changedAt: new Date().toISOString()
         };
 

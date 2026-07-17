@@ -44,41 +44,49 @@ function getStatusEmoji(status) {
     return '🔷';
 }
 
-function getMessageTone(status) {
+function getStatusDescription(status) {
     const normalized = String(status || '').toLowerCase();
-
-    if (normalized.includes('approved') || normalized.includes('visa used')) {
-        return {
-            header: '🟢 Visa Status Update',
-            footer: '🎉 Congratulations!'
-        };
+    if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
+        return 'Tabriklaymiz 🎉';
     }
-
     if (normalized.includes('cancel') || normalized.includes('reject')) {
-        return {
-            header: '🔴 Visa Status Update',
-            footer: ''
-        };
+        return 'Arizangiz rad etildi.';
     }
-
     if (normalized.includes('received') || normalized.includes('app/')) {
-        return {
-            header: '🟠 Visa Status Update',
-            footer: '⏳ Your application is in process.'
-        };
+        return '⏳ Arizangiz jarayonda.';
     }
-
     if (normalized.includes('under review')) {
-        return {
-            header: '🔵 Visa Status Update',
-            footer: '🔎 Your application is under review.'
-        };
+        return '🔎 Ko\'rib chiqilmoqda.';
     }
+    return 'Status yangilandi.';
+}
 
-    return {
-        header: '🔷 Visa Status Update',
-        footer: 'ℹ️ Status updated.'
-    };
+function formatLastChecked(dateString) {
+    if (!dateString) return 'Hech qachon';
+    const date = new Date(dateString);
+    try {
+        const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
+        const dateStr = date.toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
+        
+        const timePart = date.toLocaleTimeString('en-US', {
+            timeZone: 'Asia/Tashkent',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+        if (todayStr === dateStr) {
+            return `Bugun, ${timePart}`;
+        } else {
+            const datePart = date.toLocaleDateString('en-US', {
+                timeZone: 'Asia/Tashkent',
+                month: 'short',
+                day: 'numeric'
+            });
+            return `${datePart}, ${timePart}`;
+        }
+    } catch {
+        return 'Bugun';
+    }
 }
 
 module.exports = async (req, res) => {
@@ -113,20 +121,44 @@ module.exports = async (req, res) => {
     const birthday = escapeTelegramText(body.birthday);
     const newStatus = escapeTelegramText(body.newStatus);
     const applicationDate = escapeTelegramText(body.applicationDate);
-    const statusEmoji = getStatusEmoji(newStatus);
-    const messageTone = getMessageTone(newStatus);
+    const rejectionReason = escapeTelegramText(body.rejectionReason);
+    const previousRejectionReason = escapeTelegramText(body.previousRejectionReason);
+    const invitingCompany = escapeTelegramText(body.invitingCompany);
+
+    const emoji = getStatusEmoji(newStatus);
+    const desc = getStatusDescription(newStatus);
+    const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s));
+    const checkedStr = formatLastChecked(new Date().toISOString());
+
     const text = [
-        messageTone.header,
-        '',
-        `👤 Name: ${fullName}`,
-        `✈️ Visa Type: ${visaType}`,
-        ...(applicationNo ? [`📄 Application No: ${applicationNo}`] : []),
-        studentId ? `🎓 Student ID: ${studentId}` : '🎓 Student ID: --',
-        applicationDate ? `📅 Application Date: ${applicationDate}` : '📅 Application Date: --',
-        '',
-        `🔄 Visa status: ${statusEmoji} ${newStatus}`,
-        messageTone.footer
+        `🔍 *Visa statusini tekshirish*`,
+        ``,
+        fullName.toUpperCase(),
+        passport.toUpperCase(),
+        birthday,
+        ``,
+        `✈️ *Visa turi:* ${visaType === 'E-Visa' ? 'E-Visa' : 'Embassy'}`,
+        ...(visaType === 'E-Visa' && invitingCompany ? [`🏢 *Hamkor:* ${invitingCompany}`] : []),
+        ...(visaType === 'E-Visa' && applicationNo ? [`📄 *Ariza raqami:* ${applicationNo}`] : []),
+        `📅 *Topshirilgan sana:* ${applicationDate || 'N/A'}`,
+        `🔄 *Holati:* ${emoji} *${newStatus.toUpperCase()}*`,
+        `Tekshirildi: ${checkedStr}`,
+        ``,
+        `*Natija:* ${desc}`,
+        ...(rejectionReason ? [`⚠️ *Sababi:* ${rejectionReason}`] : []),
+        ...(previousRejectionReason ? [`\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${previousRejectionReason}`] : []),
     ].join('\n');
+
+    const reply_markup = {
+        inline_keyboard: isApproved
+            ? [
+                [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
+                [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
+              ]
+            : [
+                [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]
+              ]
+    };
 
     try {
         const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -137,6 +169,8 @@ module.exports = async (req, res) => {
             body: JSON.stringify({
                 chat_id: chatId,
                 text,
+                parse_mode: 'Markdown',
+                reply_markup,
                 disable_web_page_preview: true
             })
         });

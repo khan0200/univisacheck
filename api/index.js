@@ -41,6 +41,14 @@ module.exports = async (req, res) => {
         console.log(`[Vercel Direct] Checking visa.go.kr for passport: ${passport}, type: ${visaType}, appNo: ${applicationNo}`);
         const direct = await checkVisaDirect(passport, fullName, birthDate, visaType, applicationNo);
 
+        let previousRejectionReason = '';
+        if (direct.records && direct.records.length > 1) {
+            const prev = direct.records[1];
+            if (prev && prev.rejectionReason) {
+                previousRejectionReason = prev.rejectionReason;
+            }
+        }
+
         // Map to the same shape the frontend already expects
         const parsed = {
             status:          direct.latestStatus,
@@ -49,6 +57,7 @@ module.exports = async (req, res) => {
             rejectionReason: direct.rejectionReason || '',
             pdfUrl:          direct.pdfUrl || '',
             rawHtml:         '',
+            previousRejectionReason,
             // Extra fields for future use
             entryDate:       direct.entryDate || '',
             entryPurpose:    direct.entryPurpose || '',

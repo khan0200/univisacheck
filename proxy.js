@@ -499,6 +499,14 @@ const server = http.createServer(async (req, res) => {
                 // ── Direct visa.go.kr query (no middleman) ────────────────────
                 const direct = await checkVisaDirect(passport, fullName, birthDate, visaType, applicationNo);
 
+                let previousRejectionReason = '';
+                if (direct.records && direct.records.length > 1) {
+                    const prev = direct.records[1];
+                    if (prev && prev.rejectionReason) {
+                        previousRejectionReason = prev.rejectionReason;
+                    }
+                }
+
                 // Map to the same shape the frontend already expects
                 const parsed = {
                     status:          direct.latestStatus,
@@ -507,6 +515,7 @@ const server = http.createServer(async (req, res) => {
                     rejectionReason: direct.rejectionReason || '',
                     pdfUrl:          direct.pdfUrl || '',
                     rawHtml:         '',
+                    previousRejectionReason,
                     // Extra fields for future use
                     entryDate:       direct.entryDate || '',
                     entryPurpose:    direct.entryPurpose || '',
@@ -551,42 +560,111 @@ const server = http.createServer(async (req, res) => {
                 }
 
                 const payload = JSON.parse(body);
-                const { fullName = '', passport = '', studentId = '', visaType = 'Embassy', applicationNo = '', newStatus = '', applicationDate = '' } = payload;
+                const {
+                    fullName = '',
+                    passport = '',
+                    studentId = '',
+                    visaType = 'Embassy',
+                    applicationNo = '',
+                    newStatus = '',
+                    applicationDate = '',
+                    rejectionReason = '',
+                    previousRejectionReason = '',
+                    invitingCompany = '',
+                    birthday = ''
+                } = payload;
 
                 const getEmoji = s => {
                     const l = s.toLowerCase();
-                    if (l.includes('approved'))                        return '🟢';
+                    if (l.includes('approved') || l.includes('visa used') || l.includes('issued')) return '🟢';
                     if (l.includes('cancel') || l.includes('reject')) return '🔴';
                     if (l.includes('received') || l.includes('app/')) return '🟠';
                     if (l.includes('under review'))                    return '🔵';
                     return '🔷';
                 };
 
-                const getHeader = s => {
+                const getDesc = s => {
                     const l = s.toLowerCase();
-                    if (l.includes('approved'))                        return '🟢 Visa Status Update';
-                    if (l.includes('cancel') || l.includes('reject')) return '🔴 Visa Status Update';
-                    if (l.includes('received') || l.includes('app/')) return '🟠 Visa Status Update';
-                    if (l.includes('under review'))                    return '🔵 Visa Status Update';
-                    return '🔷 Visa Status Update';
+                    if (l.includes('approved') || l.includes('visa used') || l.includes('issued')) return 'Tabriklaymiz 🎉';
+                    if (l.includes('cancel') || l.includes('reject')) return 'Arizangiz rad etildi.';
+                    if (l.includes('received') || l.includes('app/')) return '⏳ Arizangiz jarayonda.';
+                    if (l.includes('under review'))                    return '🔎 Ko\'rib chiqilmoqda.';
+                    return 'Status yangilandi.';
                 };
 
+                const formatLastChecked = dateString => {
+                    if (!dateString) return 'Hech qachon';
+                    const date = new Date(dateString);
+                    try {
+                        const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
+                        const dateStr = date.toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
+                        
+                        const timePart = date.toLocaleTimeString('en-US', {
+                            timeZone: 'Asia/Tashkent',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                        if (todayStr === dateStr) {
+                            return `Bugun, ${timePart}`;
+                        } else {
+                            const datePart = date.toLocaleDateString('en-US', {
+                                timeZone: 'Asia/Tashkent',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+                            return `${datePart}, ${timePart}`;
+                        }
+                    } catch {
+                        return 'Bugun';
+                    }
+                };
+
+                const emoji = getEmoji(newStatus);
+                const desc = getDesc(newStatus);
+                const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s));
+                const checkedStr = formatLastChecked(new Date().toISOString());
+
                 const text = [
-                    getHeader(newStatus),
-                    '',
-                    `👤 Name: ${fullName}`,
-                    `✈️ Visa Type: ${visaType}`,
-                    ...(applicationNo ? [`📄 Application No: ${applicationNo}`] : []),
-                    studentId ? `🎓 Student ID: ${studentId}` : '🎓 Student ID: --',
-                    applicationDate ? `📅 Application Date: ${applicationDate}` : '📅 Application Date: --',
-                    '',
-                    `🔄 Visa status: ${getEmoji(newStatus)} ${newStatus}`,
+                    `🔍 *Visa statusini tekshirish*`,
+                    ``,
+                    fullName.toUpperCase(),
+                    passport.toUpperCase(),
+                    birthday,
+                    ``,
+                    `✈️ *Visa turi:* ${visaType === 'E-Visa' ? 'E-Visa' : 'Embassy'}`,
+                    ...(visaType === 'E-Visa' && invitingCompany ? [`🏢 *Hamkor:* ${invitingCompany}`] : []),
+                    ...(visaType === 'E-Visa' && applicationNo ? [`📄 *Ariza raqami:* ${applicationNo}`] : []),
+                    `📅 *Topshirilgan sana:* ${applicationDate || 'N/A'}`,
+                    `🔄 *Holati:* ${emoji} *${newStatus.toUpperCase()}*`,
+                    `Tekshirildi: ${checkedStr}`,
+                    ``,
+                    `*Natija:* ${desc}`,
+                    ...(rejectionReason ? [`⚠️ *Sababi:* ${rejectionReason}`] : []),
+                    ...(previousRejectionReason ? [`\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${previousRejectionReason}`] : []),
                 ].join('\n');
+
+                const reply_markup = {
+                    inline_keyboard: isApproved
+                        ? [
+                            [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
+                            [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
+                          ]
+                        : [
+                            [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]
+                          ]
+                };
 
                 const tgRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, disable_web_page_preview: true })
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text,
+                        parse_mode: 'Markdown',
+                        reply_markup,
+                        disable_web_page_preview: true
+                    })
                 });
 
                 const tgData = await tgRes.json();
