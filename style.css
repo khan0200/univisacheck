@@ -1712,3 +1712,102 @@ input::-webkit-credentials-auto-fill-button {
   color: #ffffff !important;
   box-shadow: var(--shadow-primary-sm);
 }
+
+/* ── Telegram Bot Banner ──────────────────────────── */
+.tg-bot-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0, 136, 204, 0.10) 0%, rgba(42, 170, 226, 0.06) 100%);
+  border: 1px solid rgba(0, 136, 204, 0.20);
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tg-bot-banner:hover {
+  border-color: rgba(0, 136, 204, 0.40);
+  box-shadow: 0 4px 24px rgba(0, 136, 204, 0.10);
+}
+
+.tg-bot-banner-icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0088cc, #2aaae2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 136, 204, 0.30);
+}
+
+.tg-bot-banner-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.tg-bot-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tg-bot-banner-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.tg-bot-banner-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tg-bot-banner-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 18px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #0088cc, #2aaae2);
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 10px rgba(0, 136, 204, 0.30);
+}
+
+.tg-bot-banner-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 136, 204, 0.40);
+}
+
+[data-theme="dark"] .tg-bot-banner {
+  background: linear-gradient(135deg, rgba(0, 136, 204, 0.12) 0%, rgba(42, 170, 226, 0.07) 100%);
+  border-color: rgba(0, 136, 204, 0.25);
+}
+
+@media (max-width: 576px) {
+  .tg-bot-banner {
+    flex-wrap: wrap;
+  }
+  .tg-bot-banner-desc {
+    white-space: normal;
+  }
+  .tg-bot-banner-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+}
