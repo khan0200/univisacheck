@@ -263,7 +263,7 @@ export async function handleCallbackQuery(ctx: Context) {
         const passport = callbackData.split(':')[1];
         
         // 1. Send temporary refreshing status message
-        const statusMsg = await ctx.reply(`🔄 *Pasport ${passport} yangilanmoqda...*`, { parse_mode: 'Markdown' });
+        const statusMsg = await ctx.reply(`🔄 *Tekshirilmoqda...*`, { parse_mode: 'Markdown' });
         
         const res = await refreshStudent(telegramId, passport);
         
@@ -279,9 +279,10 @@ export async function handleCallbackQuery(ctx: Context) {
             const cardText = formatStudentCard(res.student, res.changed, res.oldStatus);
             const cardMessage = ctx.callbackQuery?.message;
             const isApproved = ['approved', 'visa used', 'issued'].some(s => (res.student?.status || '').toLowerCase().includes(s));
+            const canDownloadPdf = isApproved && (res.student.visaType || '').toLowerCase() !== 'e-visa';
             
             const inlineKeyboard = {
-                inline_keyboard: isApproved
+                inline_keyboard: canDownloadPdf
                     ? [
                         [{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }],
                         [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${res.student.passport}` }]
@@ -306,8 +307,8 @@ export async function handleCallbackQuery(ctx: Context) {
                         reply_markup: inlineKeyboard
                     }).catch(() => {});
                 }
-                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport}da o'zgarish yo'q 🤷🏻`);
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                const noChangeMsg = await ctx.reply(`${res.student.fullName.toUpperCase()}\nO'zgarish yo'q 🤷🏻`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }
         }
@@ -500,8 +501,9 @@ export async function handleCallbackQuery(ctx: Context) {
         for (const student of filtered) {
             const cardText = formatStudentCard(student);
             const isApproved = ['approved', 'visa used', 'issued'].some(s => (student.status || '').toLowerCase().includes(s));
+            const canDownloadPdf = isApproved && (student.visaType || '').toLowerCase() !== 'e-visa';
             const inlineKeyboard = {
-                inline_keyboard: isApproved
+                inline_keyboard: canDownloadPdf
                     ? [
                         [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }],
                         [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${student.passport}` }]
@@ -588,7 +590,7 @@ export async function handleCallbackQuery(ctx: Context) {
         const passport = callbackData.split(':')[1].toUpperCase().trim();
         
         // 1. Send temporary refreshing status message
-        const statusMsg = await ctx.reply(`🔄 *Pasport raqami ${passport} yangilanmoqda...*`, { parse_mode: 'Markdown' });
+        const statusMsg = await ctx.reply(`🔄 *Tekshirilmoqda...*`, { parse_mode: 'Markdown' });
         
         try {
             // 2. Fetch manual check details from database
@@ -631,6 +633,7 @@ export async function handleCallbackQuery(ctx: Context) {
             const emoji = getStatusEmoji(checkRes.latestStatus);
             const desc = getStatusDescription(checkRes.latestStatus);
             const isApproved = ['approved', 'visa used', 'issued'].some(s => checkRes.latestStatus.toLowerCase().includes(s));
+            const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa';
             
             const checkedStr = formatLastChecked(new Date().toISOString());
             const resultText = 
@@ -647,13 +650,13 @@ export async function handleCallbackQuery(ctx: Context) {
                 `*Natija:* ${desc}\n` +
                 (checkRes.rejectionReason ? `\n⚠️ *Sababi:* ${checkRes.rejectionReason}\n` : '') +
                 (checkRes.previousRejectionReason ? `\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${checkRes.previousRejectionReason}\n` : '') +
-                (checkRes.pdfUrl && isApproved ? `\n📄 [Visa sertifikatini yuklash](${checkRes.pdfUrl})\n` : '');
+                (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [Visa sertifikatini yuklash](${checkRes.pdfUrl})\n` : '');
                 
             const currentText = cardMessage?.text || '';
             const changed = !currentText.toLowerCase().includes(checkRes.latestStatus.toLowerCase());
             
             const inlineKeyboard = {
-                inline_keyboard: isApproved
+                inline_keyboard: canDownloadPdf
                     ? [
                         [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }],
                         [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport}` }]
@@ -680,8 +683,8 @@ export async function handleCallbackQuery(ctx: Context) {
                         link_preview_options: { is_disabled: true }
                     }).catch(() => {});
                 }
-                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport}da o'zgarish yo'q 🤷🏻`);
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                const noChangeMsg = await ctx.reply(`${fullName.toUpperCase()}\nO'zgarish yo'q 🤷🏻`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }
         } catch (err: any) {
@@ -901,6 +904,7 @@ async function displayCheckResult(
     const emoji = getStatusEmoji(result.latestStatus);
     const desc = getStatusDescription(result.latestStatus);
     const isApproved = ['approved', 'visa used', 'issued'].some(s => result.latestStatus.toLowerCase().includes(s));
+    const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa';
     
     const checkedStr = formatLastChecked(new Date().toISOString());
     const resultText = 
@@ -917,10 +921,10 @@ async function displayCheckResult(
         `*Natija:* ${desc}\n` +
         (result.rejectionReason ? `\n⚠️ *Sababi:* ${result.rejectionReason}\n` : '') +
         (result.previousRejectionReason ? `\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${result.previousRejectionReason}\n` : '') +
-        (result.pdfUrl && isApproved ? `\n📄 [Visa sertifikatini yuklash](${result.pdfUrl})\n` : '');
+        (result.pdfUrl && canDownloadPdf ? `\n📄 [Visa sertifikatini yuklash](${result.pdfUrl})\n` : '');
         
     const inlineKeyboard = {
-        inline_keyboard: isApproved
+        inline_keyboard: canDownloadPdf
             ? [
                 [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
                 [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]

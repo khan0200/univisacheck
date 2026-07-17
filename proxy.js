@@ -623,6 +623,7 @@ const server = http.createServer(async (req, res) => {
                 const emoji = getEmoji(newStatus);
                 const desc = getDesc(newStatus);
                 const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s));
+                const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa';
                 const checkedStr = formatLastChecked(new Date().toISOString());
 
                 const text = [
@@ -645,7 +646,7 @@ const server = http.createServer(async (req, res) => {
                 ].join('\n');
 
                 const reply_markup = {
-                    inline_keyboard: isApproved
+                    inline_keyboard: canDownloadPdf
                         ? [
                             [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
                             [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]

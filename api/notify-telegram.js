@@ -128,6 +128,7 @@ module.exports = async (req, res) => {
     const emoji = getStatusEmoji(newStatus);
     const desc = getStatusDescription(newStatus);
     const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s));
+    const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa';
     const checkedStr = formatLastChecked(new Date().toISOString());
 
     const text = [
@@ -150,7 +151,7 @@ module.exports = async (req, res) => {
     ].join('\n');
 
     const reply_markup = {
-        inline_keyboard: isApproved
+        inline_keyboard: canDownloadPdf
             ? [
                 [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
                 [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
