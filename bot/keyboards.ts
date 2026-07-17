@@ -12,7 +12,7 @@ import { Keyboard, InlineKeyboard } from 'grammy';
  */
 export const mainMenuKeyboard = new Keyboard()
     .text('📂 Cabinet').text('🔍 Check Visa').row()
-    .text('🔄 Refresh All').text('⚙ Account')
+    .text('⚙ Account')
     .resized()
     .selected(true); // Keep keyboard persistent and open by default
 

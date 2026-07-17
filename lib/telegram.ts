@@ -11,7 +11,6 @@ import {
     handleCheckCommand, 
     handleHelpCommand, 
     handleCabinetMenu, 
-    handleRefreshAllMenu, 
     handleAccountMenu 
 } from '../bot/commands';
 import { handleTextMessage, handleCallbackQuery } from '../bot/handlers';
@@ -32,7 +31,6 @@ bot.command('help', handleHelpCommand);
 // ── Register Reply Keyboard Listeners (hears) ──
 bot.hears('📂 Cabinet', handleCabinetMenu);
 bot.hears('🔍 Check Visa', handleCheckCommand);
-bot.hears('🔄 Refresh All', handleRefreshAllMenu);
 bot.hears('⚙ Account', handleAccountMenu);
 
 // ── Register Message & Callback Processors ──

@@ -162,56 +162,6 @@ export async function handleCabinetMenu(ctx: Context) {
     });
 }
 
-/**
- * Handles the "🔄 Refresh All" main menu click.
- * Syncs and updates status of all students.
- */
-export async function handleRefreshAllMenu(ctx: Context) {
-    const telegramId = ctx.from?.id;
-    if (!telegramId) return;
-    
-    const user = await getUserByTelegramId(telegramId);
-    if (!user) {
-        await ctx.reply('⚠️ Please connect your cabinet account first.');
-        return;
-    }
-    
-    await ctx.reply('🔄 *Initiating bulk refresh of all your cabinet students...*\nThis might take a moment.', { parse_mode: 'Markdown' });
-    
-    const students = await getStudentsByTelegramId(telegramId);
-    if (students.length === 0) {
-        await ctx.reply('📭 No students found in your cabinet to refresh.');
-        return;
-    }
-    
-    let updatedCount = 0;
-    let changedCount = 0;
-    
-    // Batch run with a concurrency limit or simple sequential (safe for Vercel timeouts)
-    // Run up to 3 parallel checks to optimize speed
-    const batchSize = 3;
-    for (let i = 0; i < students.length; i += batchSize) {
-        const batch = students.slice(i, i + batchSize);
-        await Promise.all(batch.map(async (student) => {
-            try {
-                const res = await refreshStudent(telegramId, student.passport);
-                updatedCount++;
-                if (res.success && res.changed && res.student) {
-                    changedCount++;
-                    // Send notification message
-                    const notifyText = formatStudentCard(res.student, true, res.oldStatus);
-                    await ctx.api.sendMessage(telegramId, notifyText);
-                }
-            } catch (err: any) {
-                console.error(`[Bulk Refresh] Error on ${student.passport}:`, err.message);
-            }
-        }));
-    }
-    
-    await ctx.reply(`✅ *Bulk Refresh Complete!*\nChecked ${updatedCount} students. Found ${changedCount} status updates.`, {
-        parse_mode: 'Markdown'
-    });
-}
 
 /**
  * Handles the "⚙ Account" main menu click.
