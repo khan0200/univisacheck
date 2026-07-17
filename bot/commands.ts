@@ -7,7 +7,7 @@
 import { Context } from 'grammy';
 import { getUserByTelegramId, disconnectUser } from '../lib/auth';
 import { getStudentsByTelegramId, formatStudentCard, refreshStudent } from '../lib/cabinet';
-import { mainMenuKeyboard, accountMenuKeyboard, visaTypeKeyboard } from './keyboards';
+import { mainMenuKeyboard, accountMenuKeyboard, visaTypeKeyboard, cabinetMenuKeyboard } from './keyboards';
 import db from '../lib/turso';
 
 
@@ -156,26 +156,10 @@ export async function handleCabinetMenu(ctx: Context) {
         return;
     }
     
-    await ctx.reply('📂 *Loading students from your cabinet...*', { parse_mode: 'Markdown' });
-    
-    const students = await getStudentsByTelegramId(telegramId);
-    if (students.length === 0) {
-        await ctx.reply('📭 Your cabinet does not have any active students yet. Add them on the cabinet website first.');
-        return;
-    }
-    
-    // Send one message per student with a refresh button
-    for (const student of students) {
-        const cardText = formatStudentCard(student);
-        const inlineKeyboard = {
-            inline_keyboard: [
-                [{ text: '🔄 Refresh', callback_data: `refresh:${student.passport}` }]
-            ]
-        };
-        await ctx.reply(cardText, {
-            reply_markup: inlineKeyboard
-        });
-    }
+    await ctx.reply('📂 *Cabinet Categories*\n\nSelect a category to view students:', {
+        parse_mode: 'Markdown',
+        reply_markup: cabinetMenuKeyboard
+    });
 }
 
 /**

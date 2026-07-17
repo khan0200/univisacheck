@@ -33,6 +33,15 @@ export const visaTypeKeyboard = new InlineKeyboard()
     .text('E-Visa (Individual)', 'check_type:E-Visa');
 
 /**
+ * Inline keyboard to choose Cabinet Category.
+ */
+export const cabinetMenuKeyboard = new InlineKeyboard()
+    .text('⏳ Pending', 'cabinet_tab:pending')
+    .text('📄 Application', 'cabinet_tab:application').row()
+    .text('❌ Cancelled', 'cabinet_tab:cancelled')
+    .text('🟢 Approved', 'cabinet_tab:approved');
+
+/**
  * Inline keyboard for Account menu actions.
  */
 export const accountMenuKeyboard = new InlineKeyboard()

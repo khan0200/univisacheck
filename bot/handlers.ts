@@ -9,7 +9,7 @@ import { connectUser, disconnectUser } from '../lib/auth';
 import { checkStudentVisaStatus } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
 import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard } from './keyboards';
-import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard } from '../lib/cabinet';
+import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId } from '../lib/cabinet';
 
 // Input Validation Helpers
 const PASSPORT_REGEX = /^[A-Z]{2}\d{7}$/i;
@@ -252,6 +252,61 @@ export async function handleCallbackQuery(ctx: Context) {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
         });
+        return;
+    }
+    
+    // ── Cabinet Category Selection ──
+    if (callbackData.startsWith('cabinet_tab:')) {
+        const tab = callbackData.split(':')[1];
+        
+        // Fetch all active students
+        const students = await getStudentsByTelegramId(telegramId);
+        
+        // Filter based on tab
+        const filtered = students.filter(student => {
+            const status = (student.status || '').toLowerCase();
+            const isApproved = status.includes('approved') || status.includes('visa used');
+            const isCancelled = status.includes('cancel') || status.includes('reject');
+            const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
+            
+            if (tab === 'pending') {
+                return isPending;
+            } else if (tab === 'approved') {
+                return isApproved;
+            } else if (tab === 'cancelled') {
+                return isCancelled;
+            } else if (tab === 'application') {
+                // Application: everything else
+                return !isPending && !isCancelled && !isApproved;
+            }
+            return false;
+        });
+        
+        const categoryTitle = tab.charAt(0).toUpperCase() + tab.slice(1);
+        
+        if (filtered.length === 0) {
+            await ctx.reply(`📭 No students found in the *${categoryTitle}* category.`, {
+                parse_mode: 'Markdown'
+            });
+            return;
+        }
+        
+        await ctx.reply(`📂 *Cabinet - ${categoryTitle}* (${filtered.length} students)`, {
+            parse_mode: 'Markdown'
+        });
+        
+        // Display each matching student card
+        for (const student of filtered) {
+            const cardText = formatStudentCard(student);
+            const inlineKeyboard = {
+                inline_keyboard: [
+                    [{ text: '🔄 Refresh', callback_data: `refresh:${student.passport}` }]
+                ]
+            };
+            await ctx.reply(cardText, {
+                reply_markup: inlineKeyboard
+            });
+        }
         return;
     }
 }
