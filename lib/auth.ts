@@ -2,6 +2,10 @@
  * lib/auth.ts
  * 
  * Handles user authentication, Telegram connection, and session renewal.
+ * 
+ * Cabinet ↔ Telegram relationship is stored in `cabinet_subscribers`:
+ *   - One cabinet (users.id) → many telegram_ids
+ *   - One telegram_id → one cabinet at a time (UNIQUE constraint)
  */
 
 import bcrypt from 'bcryptjs';
@@ -23,8 +27,10 @@ export interface BotUser {
 }
 
 /**
- * Validates cabinet credentials and links the Telegram user to their cabinet account.
- * Encrypts the password and generates an initial JWT session token.
+ * Validates cabinet credentials and links the Telegram user to the cabinet.
+ * Uses cabinet_subscribers so multiple Telegram users can share one cabinet.
+ * INSERT OR REPLACE on telegram_id means if this Telegram account was
+ * previously linked to a different cabinet it is silently re-assigned.
  */
 export async function connectUser(
     telegramId: number,
@@ -55,44 +61,52 @@ export async function connectUser(
             return { success: false, error: 'Invalid password. Please check your credentials.' };
         }
         
-        // Generate JWT session
+        // Generate JWT session for this subscriber
         const sessionToken = signToken({
             id: Number(user.id),
             email: user.email,
             username: user.username
         });
-        
-        // Encrypt password for auto-login later
-        const encryptedPassword = encrypt(passwordInput);
-        
-        // Save connection state in the database
+
+        // Ensure cabinet_subscribers table exists
+        await db.execute({
+            sql: `CREATE TABLE IF NOT EXISTS cabinet_subscribers (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                cabinet_id       INTEGER NOT NULL,
+                telegram_id      INTEGER NOT NULL,
+                telegram_username TEXT,
+                first_name       TEXT,
+                last_name        TEXT,
+                session          TEXT,
+                connected_at     TEXT DEFAULT (datetime('now')),
+                UNIQUE(telegram_id)
+            )`,
+            args: []
+        });
+
+        // INSERT OR REPLACE: if this telegram_id was linked elsewhere, re-assign it.
+        // Multiple different telegram_ids can share the same cabinet_id.
         await db.execute({
             sql: `
-                UPDATE users 
-                SET telegram_id = ?, 
-                    telegram_username = ?, 
-                    first_name = ?, 
-                    last_name = ?, 
-                    encrypted_password = ?, 
-                    session = ?, 
-                    updated_at = datetime('now')
-                WHERE id = ?
+                INSERT INTO cabinet_subscribers
+                    (cabinet_id, telegram_id, telegram_username, first_name, last_name, session, connected_at)
+                VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+                ON CONFLICT(telegram_id) DO UPDATE SET
+                    cabinet_id       = excluded.cabinet_id,
+                    telegram_username = excluded.telegram_username,
+                    first_name       = excluded.first_name,
+                    last_name        = excluded.last_name,
+                    session          = excluded.session,
+                    connected_at     = datetime('now')
             `,
             args: [
+                Number(user.id),
                 telegramId,
                 telegramUsername || '',
                 firstName || '',
                 lastName || '',
-                encryptedPassword,
-                sessionToken,
-                user.id
+                sessionToken
             ]
-        });
-        
-        // Also update any matching students cached in Turso with the telegram_user_id
-        await db.execute({
-            sql: 'UPDATE students SET telegram_user_id = ? WHERE userId = ?',
-            args: [telegramId, user.id]
         });
         
         return {
@@ -116,45 +130,17 @@ export async function connectUser(
 }
 
 /**
- * Disconnects a Telegram user from their cabinet account.
- * Clears saved telegram session, credentials, and sets student association to null.
+ * Disconnects a single Telegram user from whichever cabinet they are linked to.
+ * Other subscribers of the same cabinet are NOT affected.
  */
 export async function disconnectUser(telegramId: number): Promise<boolean> {
     try {
-        // Find if user is connected
-        const userResult = await db.execute({
-            sql: 'SELECT id FROM users WHERE telegram_id = ?',
+        const result = await db.execute({
+            sql: 'DELETE FROM cabinet_subscribers WHERE telegram_id = ?',
             args: [telegramId]
         });
         
-        if (userResult.rows.length === 0) {
-            return false;
-        }
-        
-        const userId = userResult.rows[0].id;
-        
-        // Clear telegram data in users table
-        await db.execute({
-            sql: `
-                UPDATE users 
-                SET telegram_id = NULL,
-                    telegram_username = NULL,
-                    first_name = NULL,
-                    last_name = NULL,
-                    encrypted_password = NULL,
-                    session = NULL,
-                    updated_at = datetime('now')
-                WHERE id = ?
-            `,
-            args: [userId]
-        });
-        
-        // Remove telegram_user_id link from students (student data remains in the cabinet)
-        await db.execute({
-            sql: 'UPDATE students SET telegram_user_id = NULL WHERE userId = ?',
-            args: [userId]
-        });
-        
+        // rowsAffected may be 0 if the user was already disconnected
         return true;
     } catch (err: any) {
         console.error('[Auth Service] Disconnect error:', err.message);
@@ -163,13 +149,18 @@ export async function disconnectUser(telegramId: number): Promise<boolean> {
 }
 
 /**
- * Resolves a valid JWT session for a Telegram user.
- * Checks if the existing session is valid, and if not, automatically signs a new one.
+ * Resolves a valid JWT session for a Telegram subscriber.
+ * Reads/writes the session field from cabinet_subscribers.
  */
 export async function getValidSession(telegramId: number): Promise<string | null> {
     try {
         const result = await db.execute({
-            sql: 'SELECT id, email, username, session FROM users WHERE telegram_id = ?',
+            sql: `
+                SELECT cs.session, u.id, u.email, u.username
+                FROM cabinet_subscribers cs
+                JOIN users u ON u.id = cs.cabinet_id
+                WHERE cs.telegram_id = ?
+            `,
             args: [telegramId]
         });
         
@@ -177,31 +168,28 @@ export async function getValidSession(telegramId: number): Promise<string | null
             return null;
         }
         
-        const user = result.rows[0] as any;
-        const currentSession = user.session;
+        const row = result.rows[0] as any;
+        const currentSession = row.session;
         
         if (currentSession) {
             try {
-                // Verify if token is still valid
                 jwt.verify(currentSession, JWT_SECRET);
                 return currentSession;
             } catch (jwtErr) {
-                // Token is expired or invalid, let's issue a new one automatically
-                console.log(`[Auth Service] Session expired for user ${user.email}. Re-signing token.`);
+                console.log(`[Auth Service] Session expired for user ${row.email}. Re-signing token.`);
             }
         }
         
-        // Generate a new valid JWT token
+        // Re-issue a fresh token
         const newSessionToken = signToken({
-            id: Number(user.id),
-            email: user.email,
-            username: user.username
+            id: Number(row.id),
+            email: row.email,
+            username: row.username
         });
         
-        // Save the new session token in the database
         await db.execute({
-            sql: "UPDATE users SET session = ?, updated_at = datetime('now') WHERE id = ?",
-            args: [newSessionToken, user.id]
+            sql: `UPDATE cabinet_subscribers SET session = ? WHERE telegram_id = ?`,
+            args: [newSessionToken, telegramId]
         });
         
         return newSessionToken;
@@ -212,12 +200,19 @@ export async function getValidSession(telegramId: number): Promise<string | null
 }
 
 /**
- * Gets a connected user record by their Telegram ID.
+ * Gets the cabinet user record for a given Telegram subscriber.
+ * Returns null if this Telegram ID is not connected to any cabinet.
  */
 export async function getUserByTelegramId(telegramId: number): Promise<BotUser | null> {
     try {
         const result = await db.execute({
-            sql: 'SELECT * FROM users WHERE telegram_id = ?',
+            sql: `
+                SELECT u.*, cs.telegram_id, cs.telegram_username,
+                       cs.first_name, cs.last_name, cs.session
+                FROM cabinet_subscribers cs
+                JOIN users u ON u.id = cs.cabinet_id
+                WHERE cs.telegram_id = ?
+            `,
             args: [telegramId]
         });
         
@@ -225,20 +220,23 @@ export async function getUserByTelegramId(telegramId: number): Promise<BotUser |
             return null;
         }
         
-        const user = result.rows[0] as any;
+        const row = result.rows[0] as any;
         return {
-            id: Number(user.id),
-            email: user.email,
-            username: user.username,
-            telegram_id: Number(user.telegram_id),
-            telegram_username: user.telegram_username,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            session: user.session,
-            createdAt: user.createdAt
+            id: Number(row.id),
+            email: row.email,
+            username: row.username,
+            telegram_id: Number(row.telegram_id),
+            telegram_username: row.telegram_username,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            session: row.session,
+            createdAt: row.createdAt
         };
     } catch (err: any) {
         console.error('[Auth Service] Get user by telegram ID error:', err.message);
         return null;
     }
 }
+
+
+

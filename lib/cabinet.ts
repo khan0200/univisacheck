@@ -142,8 +142,8 @@ export async function getStudentsByTelegramId(telegramId: number): Promise<Stude
         const result = await db.execute({
             sql: `
                 SELECT s.* FROM students s
-                JOIN users u ON s.userId = u.id
-                WHERE u.telegram_id = ? AND s.deletedAt IS NULL
+                JOIN cabinet_subscribers cs ON s.userId = cs.cabinet_id
+                WHERE cs.telegram_id = ? AND s.deletedAt IS NULL
                 ORDER BY s.createdAt DESC
             `,
             args: [telegramId]
@@ -182,9 +182,15 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
     error?: string;
 }> {
     try {
-        // 1. Fetch student from database to get details
+        // 1. Fetch student — resolve cabinet via cabinet_subscribers so any
+        //    subscriber of the same cabinet can refresh any of its students.
         const result = await db.execute({
-            sql: 'SELECT s.*, u.id as uId FROM students s JOIN users u ON s.userId = u.id WHERE s.passport = ? AND u.telegram_id = ? AND s.deletedAt IS NULL',
+            sql: `
+                SELECT s.*, cs.cabinet_id as uId
+                FROM students s
+                JOIN cabinet_subscribers cs ON s.userId = cs.cabinet_id
+                WHERE s.passport = ? AND cs.telegram_id = ? AND s.deletedAt IS NULL
+            `,
             args: [passport.toUpperCase().trim(), telegramId]
         });
         

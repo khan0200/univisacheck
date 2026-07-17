@@ -120,25 +120,27 @@ module.exports = async (req, res) => {
         return;
     }
 
-    // ── Look up the connected Telegram ID for this cabinet user ───────────
-    let telegramId = null;
+    // ── Look up ALL Telegram subscribers for this cabinet ─────────────────
+    let subscriberIds = [];
     try {
-        const userResult = await db.execute({
-            sql: 'SELECT telegram_id FROM users WHERE id = ?',
+        const subsResult = await db.execute({
+            sql: `
+                SELECT cs.telegram_id
+                FROM cabinet_subscribers cs
+                WHERE cs.cabinet_id = ?
+            `,
             args: [authUser.userId]
         });
-        if (userResult.rows.length > 0) {
-            telegramId = userResult.rows[0].telegram_id;
-        }
+        subscriberIds = subsResult.rows.map(r => r.telegram_id).filter(Boolean);
     } catch (dbErr) {
         console.error('[Notify Telegram] DB lookup error:', dbErr.message);
-        res.status(500).json({ error: 'Database error looking up user.' });
+        res.status(500).json({ error: 'Database error looking up subscribers.' });
         return;
     }
 
-    // ── If cabinet not connected to Telegram bot, skip silently ───────────
-    if (!telegramId) {
-        res.status(200).json({ ok: true, skipped: 'Cabinet not connected to Telegram bot' });
+    // ── If cabinet has no connected Telegram subscribers, skip silently ───
+    if (subscriberIds.length === 0) {
+        res.status(200).json({ ok: true, skipped: 'No Telegram subscribers connected to this cabinet' });
         return;
     }
 
@@ -213,36 +215,32 @@ module.exports = async (req, res) => {
               ]
     };
 
-    try {
-        const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                chat_id: telegramId,
-                text,
-                parse_mode: 'Markdown',
-                reply_markup,
-                disable_web_page_preview: true
-            })
-        });
+    // ── Send message to ALL subscribers of this cabinet ───────────────────
+    const results = await Promise.allSettled(
+        subscriberIds.map(chatId =>
+            fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text,
+                    parse_mode: 'Markdown',
+                    reply_markup,
+                    disable_web_page_preview: true
+                })
+            }).then(r => r.json())
+        )
+    );
 
-        const telegramData = await telegramResponse.json();
-        if (!telegramResponse.ok || !telegramData.ok) {
-            res.status(502).json({
-                error: 'Telegram API request failed',
-                details: telegramData
-            });
-            return;
-        }
-
-        res.status(200).json({ ok: true });
-    } catch (error) {
-        res.status(500).json({
-            error: 'Failed to send Telegram message',
-            details: error.message
-        });
+    const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value?.ok));
+    if (failed.length > 0) {
+        console.error('[Notify Telegram] Some sends failed:', failed.length);
     }
+
+    res.status(200).json({
+        ok: true,
+        notified: subscriberIds.length,
+        failed: failed.length
+    });
 };
 

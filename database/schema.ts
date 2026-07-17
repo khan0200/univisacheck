@@ -34,6 +34,28 @@ CREATE TABLE IF NOT EXISTS bot_manual_refreshes (
 );
 `;
 
+/**
+ * Stores per-Telegram-user connections to a cabinet.
+ * Replaces the single telegram_id column on users with a proper
+ * one-to-many relationship: one cabinet → many Telegram subscribers.
+ *
+ * UNIQUE(telegram_id) ensures one Telegram account connects to
+ * at most one cabinet at a time (INSERT OR REPLACE evicts the old row).
+ */
+export const CREATE_CABINET_SUBSCRIBERS_TABLE = `
+CREATE TABLE IF NOT EXISTS cabinet_subscribers (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    cabinet_id       INTEGER NOT NULL,
+    telegram_id      INTEGER NOT NULL,
+    telegram_username TEXT,
+    first_name       TEXT,
+    last_name        TEXT,
+    session          TEXT,
+    connected_at     TEXT DEFAULT (datetime('now')),
+    UNIQUE(telegram_id)
+);
+`;
+
 export interface DbColumn {
     name: string;
     type: string;
