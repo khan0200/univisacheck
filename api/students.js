@@ -22,19 +22,55 @@ module.exports = async (req, res) => {
         // Intentionally includes soft-deleted rows too, so re-adding a deleted
         // student (here or in the Add Student modal) can still autofill from
         // their last known name/birthday.
+        // Falls back to bot_manual_refreshes if the passport was only ever
+        // checked via the Telegram bot (not yet added to any cabinet).
         if (method === 'GET' && req.query.public === 'true') {
             const { passport } = req.query;
             if (!passport) {
                 res.status(400).json({ error: 'Missing passport parameter' });
                 return;
             }
+            const passportKey = passport.toUpperCase().trim();
             const result = await db.execute({
                 sql: 'SELECT passport, fullName, birthday, status, applicationDate, lastChecked, rejectReason, pdfUrl, visaType, applicationNo, apiResponse FROM students WHERE passport = ?',
-                args: [passport.toUpperCase().trim()]
+                args: [passportKey]
             });
-            res.status(200).json(result.rows);
+
+            // If found in students table, return immediately
+            if (result.rows.length > 0) {
+                res.status(200).json(result.rows);
+                return;
+            }
+
+            // Fallback: check bot_manual_refreshes (any passport ever checked via Telegram bot)
+            const botResult = await db.execute({
+                sql: 'SELECT passport, fullname AS fullName, birthday, visa_type AS visaType, application_no AS applicationNo FROM bot_manual_refreshes WHERE passport = ?',
+                args: [passportKey]
+            });
+
+            if (botResult.rows.length > 0) {
+                // Normalise to the same shape the frontend expects
+                const row = botResult.rows[0];
+                res.status(200).json([{
+                    passport:        row.passport,
+                    fullName:        row.fullName || '',
+                    birthday:        row.birthday || '',
+                    visaType:        row.visaType || 'Embassy',
+                    applicationNo:   row.applicationNo || '',
+                    status:          null,
+                    applicationDate: null,
+                    lastChecked:     null,
+                    rejectReason:    null,
+                    pdfUrl:          null,
+                    apiResponse:     null
+                }]);
+                return;
+            }
+
+            res.status(200).json([]);
             return;
         }
+
 
         // ── All other operations require authentication ─────────────────────────
         const authUser = verifyToken(req);
