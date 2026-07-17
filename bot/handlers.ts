@@ -10,6 +10,7 @@ import { checkStudentVisaStatus } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
 import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard } from './keyboards';
 import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId } from '../lib/cabinet';
+import db from '../lib/turso';
 
 // Input Validation Helpers
 const PASSPORT_REGEX = /^[A-Z]{2}\d{7}$/i;
@@ -327,6 +328,101 @@ export async function handleCallbackQuery(ctx: Context) {
         }
         return;
     }
+
+    // ── Manual Check Refresh Button Click ──
+    if (callbackData.startsWith('mrefresh:')) {
+        const passport = callbackData.split(':')[1].toUpperCase().trim();
+        
+        // 1. Send temporary refreshing status message
+        const statusMsg = await ctx.reply(`🔄 *Refreshing status for passport ${passport}...*`, { parse_mode: 'Markdown' });
+        
+        try {
+            // 2. Fetch manual check details from database
+            const res = await db.execute({
+                sql: 'SELECT * FROM bot_manual_refreshes WHERE passport = ?',
+                args: [passport]
+            });
+            
+            if (res.rows.length === 0) {
+                // Delete the status message
+                await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
+                await ctx.reply(`❌ Failed to check: details not found. Please run a new check using /check.`);
+                return;
+            }
+            
+            const row = res.rows[0] as any;
+            const fullName = row.fullname;
+            const birthday = row.birthday;
+            const visaType = row.visa_type;
+            const applicationNo = row.application_no || '';
+            
+            // 3. Query the portal directly
+            const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, visaType, applicationNo);
+            
+            // 4. Delete the temporary refreshing status message
+            await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
+            
+            const cardMessage = ctx.callbackQuery?.message;
+            
+            if (!checkRes.found || (checkRes.latestStatus || '').toUpperCase() === 'UNKNOWN') {
+                if (cardMessage) {
+                    await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
+                }
+                await ctx.reply(`🚫 No result\n\nDouble check your passport number, Fullname, Birthdate`, {
+                    reply_markup: mainMenuKeyboard
+                });
+                return;
+            }
+            
+            const emoji = getStatusEmoji(checkRes.latestStatus);
+            const desc = getStatusDescription(checkRes.latestStatus);
+            const isApproved = ['approved', 'visa used', 'issued'].some(s => checkRes.latestStatus.toLowerCase().includes(s));
+            
+            const resultText = 
+                `🔍 *Visa Application Status Check*\n\n` +
+                `${fullName.toUpperCase()}\n` +
+                `${passport.toUpperCase()}\n` +
+                `${birthday}\n\n` +
+                `✈️ *Visa Type:* ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
+                (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
+                `📅 *Application Date:* ${checkRes.latestDate || 'N/A'}\n` +
+                `🔄 *Status:* ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n\n` +
+                `*Result:* ${desc}\n` +
+                (checkRes.rejectionReason ? `\n⚠️ *Reason:* ${checkRes.rejectionReason}\n` : '') +
+                (checkRes.pdfUrl && isApproved ? `\n📄 [Download Visa Certificate](${checkRes.pdfUrl})\n` : '');
+                
+            const currentText = cardMessage?.text || '';
+            const changed = !currentText.toLowerCase().includes(checkRes.latestStatus.toLowerCase());
+            
+            if (changed) {
+                if (cardMessage) {
+                    await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
+                }
+                await ctx.reply(resultText, {
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `mrefresh:${passport}` }]]
+                    },
+                    link_preview_options: { is_disabled: true }
+                });
+            } else {
+                if (cardMessage) {
+                    await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, resultText, {
+                        parse_mode: 'Markdown',
+                        reply_markup: {
+                            inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `mrefresh:${passport}` }]]
+                        },
+                        link_preview_options: { is_disabled: true }
+                    }).catch(() => {});
+                }
+            }
+        } catch (err: any) {
+            // Delete the status message
+            await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
+            await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`);
+        }
+        return;
+    }
 }
 
 /**
@@ -351,6 +447,31 @@ async function displayCheckResult(
         return;
     }
     
+    // Save manual check details in database
+    try {
+        await db.execute({
+            sql: `
+                INSERT INTO bot_manual_refreshes (passport, fullname, birthday, visa_type, application_no, updated_at)
+                VALUES (?, ?, ?, ?, ?, datetime('now'))
+                ON CONFLICT(passport) DO UPDATE SET
+                    fullname = excluded.fullname,
+                    birthday = excluded.birthday,
+                    visa_type = excluded.visa_type,
+                    application_no = excluded.application_no,
+                    updated_at = datetime('now')
+            `,
+            args: [
+                passport.toUpperCase().trim(),
+                fullName.toUpperCase().trim(),
+                birthday.trim(),
+                visaType,
+                applicationNo
+            ]
+        });
+    } catch (err: any) {
+        console.error('[Manual Check Database Save Error]:', err.message);
+    }
+    
     const emoji = getStatusEmoji(result.latestStatus);
     const desc = getStatusDescription(result.latestStatus);
     const isApproved = ['approved', 'visa used', 'issued'].some(s => result.latestStatus.toLowerCase().includes(s));
@@ -370,7 +491,9 @@ async function displayCheckResult(
         
     await ctx.reply(resultText, {
         parse_mode: 'Markdown',
-        reply_markup: mainMenuKeyboard,
+        reply_markup: {
+            inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]]
+        },
         link_preview_options: { is_disabled: true }
     });
 }

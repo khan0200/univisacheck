@@ -23,6 +23,17 @@ CREATE TABLE IF NOT EXISTS bot_sessions (
 );
 `;
 
+export const CREATE_MANUAL_REFRESHES_TABLE = `
+CREATE TABLE IF NOT EXISTS bot_manual_refreshes (
+    passport TEXT PRIMARY KEY,
+    fullname TEXT,
+    birthday TEXT,
+    visa_type TEXT,
+    application_no TEXT,
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+`;
+
 export interface DbColumn {
     name: string;
     type: string;

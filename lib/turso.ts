@@ -9,6 +9,7 @@ import db from '../api/db';
 import { 
     CREATE_NOTIFICATIONS_TABLE, 
     CREATE_SESSIONS_TABLE, 
+    CREATE_MANUAL_REFRESHES_TABLE,
     USER_COLUMNS, 
     STUDENT_COLUMNS 
 } from '../database/schema';
@@ -20,6 +21,7 @@ export async function initDb() {
         // 1. Create new tables
         await db.execute(CREATE_NOTIFICATIONS_TABLE);
         await db.execute(CREATE_SESSIONS_TABLE);
+        await db.execute(CREATE_MANUAL_REFRESHES_TABLE);
         
         // 2. Add columns to users table
         const userColsInfo = await db.execute("PRAGMA table_info(users)");
