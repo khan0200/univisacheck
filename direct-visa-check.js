@@ -82,50 +82,72 @@ function parseKoreanStatus(korean) {
 function parseResult1_1(html) {
     // result1_1 is the E-Visa Search (gb01) result section
     const results = [];
-    const tables = html.split(/<table\b/i).slice(1);
 
-    for (const tableHtml of tables) {
-        if (!/id="PROC_STS_CDNM"/i.test(tableHtml) && !/id="APPL_YMD"/i.test(tableHtml)) {
-            continue;
+    // Extract dates
+    const appl_dates = [...html.matchAll(/id="APPL_YMD"[^>]*>([^<]+)</g)].map(m => m[1].trim());
+
+    // Extract statuses with position
+    const statusMatches = [...html.matchAll(/id="PROC_STS_CDNM"[^>]*>([\s\S]*?)<\/div>/g)];
+    const statuses = statusMatches.map(m => ({
+        text: stripTags(m[1]).trim(),
+        index: m.index
+    }));
+
+    // Extract rejection reasons with position
+    const rejMatches = [...html.matchAll(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)];
+    const rejReasons = rejMatches.map(m => ({
+        text: stripTags(m[1]).trim(),
+        index: m.index
+    }));
+
+    const statusCount = statuses.length;
+    const mappedRejections = new Array(statusCount).fill('');
+
+    for (const rej of rejReasons) {
+        let bestStatusIdx = -1;
+        for (let i = 0; i < statusCount; i++) {
+            if (statuses[i].index < rej.index) {
+                bestStatusIdx = i;
+            }
         }
-
-        const dateMatch = tableHtml.match(/id="APPL_YMD"[^>]*>([^<]+)</i);
-        const applicationDate = dateMatch ? dateMatch[1].trim() : '';
-
-        const statusMatch = tableHtml.match(/id="PROC_STS_CDNM"[^>]*>([\s\S]*?)<\/div>/i);
-        const statusKor = statusMatch ? stripTags(statusMatch[1]).trim() : '';
-
-        // SKIP tables that have no actual content/data fields (layout/template tables)
-        if (!applicationDate && !statusKor) {
-            continue;
+        if (bestStatusIdx !== -1) {
+            mappedRejections[bestStatusIdx] = rej.text;
         }
+    }
 
-        const purposeMatch = tableHtml.match(/id="SOJ_QUAL_NM"[^>]*>([^<]+)/i);
-        const entryPurpose = purposeMatch ? purposeMatch[1].trim() : '';
+    const purposes = [...html.matchAll(/id="SOJ_QUAL_NM"[^>]*>([^<]+)</g)].map(m => m[1].trim());
 
-        const rejMatch = tableHtml.match(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
-        const rejectionReason = rejMatch ? stripTags(rejMatch[1]).trim() : '';
+    const count = Math.max(appl_dates.length, statusCount);
+    for (let i = 0; i < count; i++) {
+        const statusObj = statuses[i] || { text: '' };
+        const statusKor = statusObj.text;
 
         let entryDate = '';
         const entryDateMatch = statusKor.match(/(\d{4}\.\d{2}\.\d{2}\.?)/);
         if (entryDateMatch) entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
 
         results.push({
-            applicationDate,
+            applicationDate: appl_dates[i] || '',
             status:          parseKoreanStatus(statusKor),
             statusKorean:    statusKor,
             entryDate,
-            entryPurpose,
-            rejectionReason,
+            entryPurpose:    purposes[i] || '',
+            rejectionReason: mappedRejections[i] || '',
         });
     }
+
     return results;
 }
 
 function parseResult3_2(html) {
     // result3_2 is the Embassy/Diplomatic Mission (gb03) result section
     const results = [];
-    const tables = html.split(/<table\b/i).slice(1);
+
+    // 1. Extract dates
+    function extractDateField(fieldId) {
+        const matches = [...html.matchAll(new RegExp(`id="${fieldId}"[^>]*>([\\s\\S]*?)<`, 'g'))];
+        return matches.map(m => m[1].replace(/\s+/g, ' ').trim()).filter(v => v.length > 0);
+    }
 
     function formatKoreanDate(raw) {
         if (/^\d{8}$/.test(raw)) {
@@ -134,40 +156,62 @@ function parseResult3_2(html) {
         return raw.replace(/\./g, '-').replace(/-$/, '');
     }
 
-    for (const tableHtml of tables) {
-        if (!/id="PROC_STS_CDNM_1"/i.test(tableHtml) && !/id="(?:RECPT_YMD|APPL_YMD|APPL_DTM)"/i.test(tableHtml)) {
-            continue;
+    let appl_dates = extractDateField('RECPT_YMD').map(formatKoreanDate);
+    if (appl_dates.length === 0) {
+        appl_dates = extractDateField('APPL_YMD').map(formatKoreanDate);
+    }
+    if (appl_dates.length === 0) {
+        appl_dates = extractDateField('APPL_DTM').map(formatKoreanDate);
+    }
+
+    // 2. Extract statuses along with their positions in HTML
+    const statusMatches = [...html.matchAll(/id="PROC_STS_CDNM_1"[^>]*>([\s\S]*?)<\/div>/g)];
+    const statuses = statusMatches.map(m => ({
+        text: stripTags(m[1]).trim(),
+        index: m.index
+    }));
+
+    // 3. Extract rejection reasons along with their positions in HTML
+    const rejMatches = [...html.matchAll(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)];
+    const rejReasons = rejMatches.map(m => ({
+        text: stripTags(m[1]).trim(),
+        index: m.index
+    }));
+
+    // 4. Map rejection reasons to their respective status based on HTML position
+    const statusCount = statuses.length;
+    const mappedRejections = new Array(statusCount).fill('');
+
+    for (const rej of rejReasons) {
+        let bestStatusIdx = -1;
+        for (let i = 0; i < statusCount; i++) {
+            if (statuses[i].index < rej.index) {
+                bestStatusIdx = i;
+            }
         }
-
-        const dateMatch = tableHtml.match(/id="(?:RECPT_YMD|APPL_YMD|APPL_DTM)"[^>]*>([\s\S]*?)</i);
-        const rawDate = dateMatch ? stripTags(dateMatch[1]).trim() : '';
-        const applicationDate = rawDate ? formatKoreanDate(rawDate) : '';
-
-        const statusMatch = tableHtml.match(/id="PROC_STS_CDNM_1"[^>]*>([\s\S]*?)<\/div>/i);
-        const statusKor = statusMatch ? stripTags(statusMatch[1]).trim() : '';
-
-        // SKIP tables that have no actual content/data fields (layout/template tables)
-        if (!applicationDate && !statusKor) {
-            continue;
+        if (bestStatusIdx !== -1) {
+            mappedRejections[bestStatusIdx] = rej.text;
         }
+    }
 
-        const purposeMatch = tableHtml.match(/id="ENTRY_PURPOSE"[^>]*>([^<]+)/i);
-        const entryPurpose = purposeMatch ? purposeMatch[1].trim() : '';
+    const purposes = [...html.matchAll(/id="ENTRY_PURPOSE"[^>]*>([^<]+)</g)].map(m => m[1].trim());
 
-        const rejMatch = tableHtml.match(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
-        const rejectionReason = rejMatch ? stripTags(rejMatch[1]).trim() : '';
-
+    const count = Math.max(appl_dates.length, statusCount);
+    for (let i = 0; i < count; i++) {
+        const statusObj = statuses[i] || { text: '' };
+        const statusKor = statusObj.text;
+        
         let entryDate = '';
         const entryDateMatch = statusKor.match(/(\d{4}\.\d{2}\.\d{2}\.?)/);
         if (entryDateMatch) entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
 
         results.push({
-            applicationDate,
+            applicationDate: appl_dates[i] || '',
             status:          parseKoreanStatus(statusKor),
             statusKorean:    statusKor,
             entryDate,
-            entryPurpose,
-            rejectionReason,
+            entryPurpose:    purposes[i] || '',
+            rejectionReason: mappedRejections[i] || '',
         });
     }
     return results;
