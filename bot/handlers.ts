@@ -102,7 +102,56 @@ export async function handleTextMessage(ctx: Context) {
         }
         
         const visaType = session.data.visaType;
-        await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport: text.toUpperCase() });
+        const passport = text.toUpperCase();
+        
+        // Search if we have matching student details in our CRM database
+        try {
+            const dbRes = await db.execute({
+                sql: `
+                    SELECT fullname, birthday, visa_type
+                    FROM students
+                    WHERE passport = ? AND deletedAt IS NULL
+                    ORDER BY createdAt DESC
+                    LIMIT 1
+                `,
+                args: [passport]
+            });
+            
+            if (dbRes.rows.length > 0) {
+                const row = dbRes.rows[0] as any;
+                const dbName = row.fullname || row.fullName || '';
+                const dbDob = row.birthday || '';
+                
+                if (dbName && dbDob) {
+                    await setSessionState(telegramId, 'awaiting_check_autofill_choice', {
+                        visaType,
+                        passport,
+                        autofill: { fullName: dbName, birthday: dbDob }
+                    });
+                    
+                    const inlineKeyboard = {
+                        inline_keyboard: [
+                            [{ text: `${dbName}`, callback_data: 'autofill:yes' }],
+                            [{ text: '👤 Enter details manually', callback_data: 'autofill:no' }]
+                        ]
+                    };
+                    
+                    await ctx.reply(
+                        `🔍 *Matches Found in Database*\n\n` +
+                        `We found matching student details for passport *${passport}*. Is this the student?`,
+                        {
+                            parse_mode: 'Markdown',
+                            reply_markup: inlineKeyboard
+                        }
+                    );
+                    return;
+                }
+            }
+        } catch (dbErr: any) {
+            console.error('[Autofill DB Search Error]:', dbErr.message);
+        }
+        
+        await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
         await ctx.reply('👤 Please enter the student\'s *Full Name* (in English, matching passport):', {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
@@ -271,6 +320,108 @@ export async function handleCallbackQuery(ctx: Context) {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
         });
+        return;
+    }
+    
+    // ── Autofill Choice selection ──
+    if (callbackData.startsWith('autofill:')) {
+        const session = await getSessionState(telegramId);
+        if (session.state !== 'awaiting_check_autofill_choice') return;
+        
+        const choice = callbackData.split(':')[1];
+        
+        // Remove the choice inline keyboard to clean up chat
+        const cardMessage = ctx.callbackQuery?.message;
+        if (cardMessage) {
+            await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
+        }
+        
+        if (choice === 'yes') {
+            const { passport, visaType, autofill } = session.data;
+            
+            await setSessionState(telegramId, 'awaiting_check_autofill_confirm', {
+                passport,
+                visaType,
+                fullName: autofill.fullName,
+                birthday: autofill.birthday
+            });
+            
+            const inlineKeyboard = {
+                inline_keyboard: [
+                    [
+                        { text: '✅ Yes', callback_data: 'autofill_confirm:yes' },
+                        { text: '❌ No', callback_data: 'autofill_confirm:no' }
+                    ]
+                ]
+            };
+            
+            await ctx.reply(
+                `🔍 *Verify Student Details*\n\n` +
+                `👤 *Name:* ${autofill.fullName}\n` +
+                `📅 *DOB:* ${autofill.birthday}\n` +
+                `✈️ *Visa Type:* ${visaType}\n\n` +
+                `*Is this correct?*`,
+                {
+                    parse_mode: 'Markdown',
+                    reply_markup: inlineKeyboard
+                }
+            );
+        } else {
+            // User chose manual entry
+            const { passport, visaType } = session.data;
+            await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
+            await ctx.reply('👤 Please enter the student\'s *Full Name* (in English, matching passport):', {
+                parse_mode: 'Markdown',
+                reply_markup: cancelKeyboard
+            });
+        }
+        return;
+    }
+    
+    // ── Autofill Confirm selection ──
+    if (callbackData.startsWith('autofill_confirm:')) {
+        const session = await getSessionState(telegramId);
+        if (session.state !== 'awaiting_check_autofill_confirm') return;
+        
+        const confirm = callbackData.split(':')[1];
+        
+        // Remove the confirm inline keyboard
+        const cardMessage = ctx.callbackQuery?.message;
+        if (cardMessage) {
+            await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
+        }
+        
+        const { passport, visaType, fullName, birthday } = session.data;
+        
+        if (confirm === 'yes') {
+            if (visaType === 'Embassy') {
+                await ctx.reply('⌛ *Wait for visa.go.kr portal...*', { parse_mode: 'Markdown' });
+                try {
+                    const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
+                    await clearSessionState(telegramId);
+                    await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday);
+                } catch (err: any) {
+                    await clearSessionState(telegramId);
+                    await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`, {
+                        reply_markup: mainMenuKeyboard
+                    });
+                }
+            } else {
+                // E-Visa track: prompt for application number (do NOT load it automatically)
+                await setSessionState(telegramId, 'awaiting_check_appno', { visaType, passport, fullName, birthday });
+                await ctx.reply('📄 Please enter the *E-Visa Application Number* (e.g. 6595150001):', {
+                    parse_mode: 'Markdown',
+                    reply_markup: cancelKeyboard
+                });
+            }
+        } else {
+            // User rejected confirm
+            await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
+            await ctx.reply('👤 Please enter the student\'s *Full Name* (in English, matching passport):', {
+                parse_mode: 'Markdown',
+                reply_markup: cancelKeyboard
+            });
+        }
         return;
     }
     
