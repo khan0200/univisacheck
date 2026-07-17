@@ -609,12 +609,43 @@
             .detail-cell { padding: 13px 16px; }
         }
 
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
+        /* Telegram Bot Banner */
+        .telegram-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: var(--accent-bg);
+            border: 1px solid var(--accent-brd);
+            border-radius: var(--radius);
+            font-size: 13.5px;
+            color: #1E40AF;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--shadow-xs);
+            animation: slideUp 0.5s var(--ease) 0.08s both;
+        }
+        .telegram-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .telegram-text {
+            line-height: 1.45;
+            font-weight: 500;
+        }
+        .telegram-text a {
+            color: #1D4ED8;
+            font-weight: 700;
+            text-decoration: none;
+            border-bottom: 1.5px solid rgba(29, 78, 216, 0.2);
+            transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+        }
+        .telegram-text a:hover {
+            color: #1E40AF;
+            border-color: #1E40AF;
         }
     </style>
 </head>
@@ -705,6 +736,17 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </span>
             <span class="error-alert-text" id="errorText"></span>
+        </div>
+    </div>
+
+    <!-- Telegram Bot Banner -->
+    <div class="telegram-banner">
+        <svg class="telegram-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m22 2-7 20-4-9-9-4Z"/>
+            <path d="M22 2 11 13"/>
+        </svg>
+        <div class="telegram-text">
+            Telegram bot orqali viza holatini kuzatib boring: <a href="https://t.me/Koreavizabot" target="_blank" rel="noopener">@Koreavizabot</a>
         </div>
     </div>
 
