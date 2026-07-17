@@ -7,8 +7,9 @@
 import { Context } from 'grammy';
 import { getUserByTelegramId, disconnectUser } from '../lib/auth';
 import { getStudentsByTelegramId, formatStudentCard, refreshStudent } from '../lib/cabinet';
-import { mainMenuKeyboard, accountMenuKeyboard } from './keyboards';
+import { mainMenuKeyboard, accountMenuKeyboard, visaTypeKeyboard } from './keyboards';
 import db from '../lib/turso';
+
 
 // Session Helpers (backed by Turso SQLite)
 export async function getSessionState(telegramId: number): Promise<{ state: string; data: any }> {
@@ -110,9 +111,10 @@ export async function handleCheckCommand(ctx: Context) {
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
     
-    await setSessionState(telegramId, 'awaiting_check_passport', {});
-    await ctx.reply('🔍 *Instant Visa Check*\n\nPlease enter the *Passport number* (e.g., AA1234567):', {
-        parse_mode: 'Markdown'
+    await setSessionState(telegramId, 'awaiting_check_type', {});
+    await ctx.reply('✈️ Select the *Visa application mode*:', {
+        parse_mode: 'Markdown',
+        reply_markup: visaTypeKeyboard
     });
 }
 

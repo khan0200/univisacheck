@@ -100,7 +100,8 @@ export async function handleTextMessage(ctx: Context) {
             return;
         }
         
-        await setSessionState(telegramId, 'awaiting_check_name', { passport: text.toUpperCase() });
+        const visaType = session.data.visaType;
+        await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport: text.toUpperCase() });
         await ctx.reply('👤 Please enter the student\'s *Full Name* (in English, matching passport):', {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
@@ -114,8 +115,8 @@ export async function handleTextMessage(ctx: Context) {
             return;
         }
         
-        const passport = session.data.passport;
-        await setSessionState(telegramId, 'awaiting_check_dob', { passport, fullName: text.toUpperCase() });
+        const { visaType, passport } = session.data;
+        await setSessionState(telegramId, 'awaiting_check_dob', { visaType, passport, fullName: text.toUpperCase() });
         await ctx.reply('📅 Please enter the student\'s *Date of Birth* (format: YYYY-MM-DD, e.g. 2005-03-18):', {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
@@ -129,15 +130,29 @@ export async function handleTextMessage(ctx: Context) {
             return;
         }
         
-        const passport = session.data.passport;
-        const fullName = session.data.fullName;
+        const { visaType, passport, fullName } = session.data;
+        const birthday = text;
         
-        await setSessionState(telegramId, 'awaiting_check_type', { passport, fullName, birthday: text });
-        
-        await ctx.reply('✈️ Select the *Visa application mode*:', {
-            parse_mode: 'Markdown',
-            reply_markup: visaTypeKeyboard
-        });
+        if (visaType === 'Embassy') {
+            await ctx.reply('⌛ *Querying visa.go.kr portal...*', { parse_mode: 'Markdown' });
+            try {
+                const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
+                await clearSessionState(telegramId);
+                await displayCheckResult(ctx, checkRes, passport, 'Embassy', '');
+            } catch (err: any) {
+                await clearSessionState(telegramId);
+                await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`, {
+                    reply_markup: mainMenuKeyboard
+                });
+            }
+        } else {
+            // E-Visa needs application number
+            await setSessionState(telegramId, 'awaiting_check_appno', { visaType, passport, fullName, birthday });
+            await ctx.reply('📄 Please enter the *E-Visa Application Number* (e.g. 6595150001):', {
+                parse_mode: 'Markdown',
+                reply_markup: cancelKeyboard
+            });
+        }
         return;
     }
     
@@ -231,28 +246,12 @@ export async function handleCallbackQuery(ctx: Context) {
         if (session.state !== 'awaiting_check_type') return;
         
         const visaType = callbackData.split(':')[1];
-        const { passport, fullName, birthday } = session.data;
         
-        if (visaType === 'Embassy') {
-            await ctx.reply('⌛ *Querying visa.go.kr portal...*', { parse_mode: 'Markdown' });
-            try {
-                const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
-                await clearSessionState(telegramId);
-                await displayCheckResult(ctx, checkRes, passport, 'Embassy', '');
-            } catch (err: any) {
-                await clearSessionState(telegramId);
-                await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`, {
-                    reply_markup: mainMenuKeyboard
-                });
-            }
-        } else {
-            // E-Visa needs application number
-            await setSessionState(telegramId, 'awaiting_check_appno', { passport, fullName, birthday });
-            await ctx.reply('📄 Please enter the *E-Visa Application Number* (e.g. 6595150001):', {
-                parse_mode: 'Markdown',
-                reply_markup: cancelKeyboard
-            });
-        }
+        await setSessionState(telegramId, 'awaiting_check_passport', { visaType });
+        await ctx.reply('🔍 *Instant Visa Check*\n\nPlease enter the *Passport number* (e.g., AA1234567):', {
+            parse_mode: 'Markdown',
+            reply_markup: cancelKeyboard
+        });
         return;
     }
 }
