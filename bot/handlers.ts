@@ -788,17 +788,10 @@ async function displayCheckResult(
     birthday: string,
     telegramId?: number
 ) {
-    if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
-        await ctx.reply(
-            `🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`,
-            {
-                reply_markup: mainMenuKeyboard
-            }
-        );
-        return;
-    }
-    
-    // Save manual check details in database
+    // ── Always save student data to bot_manual_refreshes ──────────────────
+    // This runs BEFORE the found-check so the passport/name/birthday is
+    // persisted even when the visa portal returns no result. This enables
+    // autofill in the Add Student modal and visa-status.html.
     try {
         await db.execute({
             sql: `
@@ -819,8 +812,19 @@ async function displayCheckResult(
                 applicationNo
             ]
         });
+        console.log(`[Bot DB] Saved to bot_manual_refreshes: ${passport.toUpperCase().trim()}`);
     } catch (err: any) {
         console.error('[Manual Check Database Save Error]:', err.message);
+    }
+
+    if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
+        await ctx.reply(
+            `🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`,
+            {
+                reply_markup: mainMenuKeyboard
+            }
+        );
+        return;
     }
 
     // If user is signed into a cabinet, offer to save this student there
