@@ -60,7 +60,18 @@ export async function clearSessionState(telegramId: number): Promise<void> {
  * Welcomes the user and opens the main menu.
  */
 export async function handleStart(ctx: Context) {
-    await clearSessionState(ctx.from?.id || 0);
+    const telegramId = ctx.from?.id || 0;
+    await clearSessionState(telegramId);
+    
+    // Check if user is connected to cabinet
+    let username: string | null = null;
+    if (telegramId) {
+        const activeUser = await getUserByTelegramId(telegramId);
+        if (activeUser) {
+            username = activeUser.username;
+        }
+    }
+
     const welcomeText = 
         `Koreya visa tekshirish botiga xush kelibsiz! 🇰🇷🤖\n\n` +
         `Imkoniyatlar:\n` +
@@ -72,7 +83,7 @@ export async function handleStart(ctx: Context) {
     
     await ctx.reply(welcomeText, {
         parse_mode: 'Markdown',
-        reply_markup: mainMenuKeyboard
+        reply_markup: getMainMenuKeyboard(username)
     });
 }
 
@@ -122,6 +133,17 @@ export async function handleCheckCommand(ctx: Context) {
  * /help command.
  */
 export async function handleHelpCommand(ctx: Context) {
+    const telegramId = ctx.from?.id || 0;
+    
+    // Check if user is connected to cabinet
+    let username: string | null = null;
+    if (telegramId) {
+        const activeUser = await getUserByTelegramId(telegramId);
+        if (activeUser) {
+            username = activeUser.username;
+        }
+    }
+
     const helpText = 
         `ℹ️ *Bot bo'yicha qo'llanma*\n\n` +
         `*Buyruqlar:*\n` +
@@ -137,7 +159,7 @@ export async function handleHelpCommand(ctx: Context) {
         
     await ctx.reply(helpText, {
         parse_mode: 'Markdown',
-        reply_markup: mainMenuKeyboard
+        reply_markup: getMainMenuKeyboard(username)
     });
 }
 

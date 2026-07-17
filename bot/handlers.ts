@@ -16,6 +16,12 @@ import db from '../lib/turso';
 const PASSPORT_REGEX = /^[A-Z]{2}\d{7}$/i;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
+async function getMenuKeyboard(telegramId: number) {
+    const user = await getUserByTelegramId(telegramId);
+    return getMainMenuKeyboard(user?.username);
+}
+
+
 /**
  * Main Text Message handler (State Machine).
  * Processes inputs for various conversation flows.
@@ -30,7 +36,7 @@ export async function handleTextMessage(ctx: Context) {
     if (text === '❌ Bekor qilish') {
         await clearSessionState(telegramId);
         await ctx.reply('❌ Bekor qilindi.', {
-            reply_markup: mainMenuKeyboard
+            reply_markup: await getMenuKeyboard(telegramId)
         });
         return;
     }
@@ -41,7 +47,7 @@ export async function handleTextMessage(ctx: Context) {
     if (session.state === 'idle') {
         // Fallback for unexpected messages
         await ctx.reply('👋 Menudan bo\'limni tanlang yoki /help yuboring.', {
-            reply_markup: mainMenuKeyboard
+            reply_markup: await getMenuKeyboard(telegramId)
         });
         return;
     }
@@ -78,7 +84,7 @@ export async function handleTextMessage(ctx: Context) {
             await clearSessionState(telegramId);
             await ctx.reply(`❌ *Xatolik*\n\n${connectResult.error}`, {
                 parse_mode: 'Markdown',
-                reply_markup: mainMenuKeyboard
+                reply_markup: await getMenuKeyboard(telegramId)
             });
             return;
         }
@@ -192,7 +198,7 @@ export async function handleTextMessage(ctx: Context) {
             } catch (err: any) {
                 await clearSessionState(telegramId);
                 await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
-                    reply_markup: mainMenuKeyboard
+                    reply_markup: await getMenuKeyboard(telegramId)
                 });
             }
         } else {
@@ -222,7 +228,7 @@ export async function handleTextMessage(ctx: Context) {
         } catch (err: any) {
             await clearSessionState(telegramId);
             await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
-                reply_markup: mainMenuKeyboard
+                reply_markup: await getMenuKeyboard(telegramId)
             });
         }
         return;
@@ -308,7 +314,7 @@ export async function handleCallbackQuery(ctx: Context) {
         if (success) {
             await ctx.reply('🔌 *Kabinet o\'chirildi.*', {
                 parse_mode: 'Markdown',
-                reply_markup: mainMenuKeyboard
+                reply_markup: await getMenuKeyboard(telegramId)
             });
         } else {
             await ctx.reply('⚠️ Profil ulanmagan.');
@@ -411,7 +417,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 } catch (err: any) {
                     await clearSessionState(telegramId);
                     await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
-                        reply_markup: mainMenuKeyboard
+                        reply_markup: await getMenuKeyboard(telegramId)
                     });
                 }
             } else {
@@ -601,7 +607,7 @@ export async function handleCallbackQuery(ctx: Context) {
                     await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
                 }
                 await ctx.reply(`🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`, {
-                    reply_markup: mainMenuKeyboard
+                    reply_markup: await getMenuKeyboard(telegramId)
                 });
                 return;
             }
@@ -818,10 +824,11 @@ async function displayCheckResult(
     }
 
     if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
+        const replyMarkup = telegramId ? await getMenuKeyboard(telegramId) : mainMenuKeyboard;
         await ctx.reply(
             `🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`,
             {
-                reply_markup: mainMenuKeyboard
+                reply_markup: replyMarkup
             }
         );
         return;
