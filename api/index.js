@@ -69,41 +69,48 @@ module.exports = async (req, res) => {
             source:          'visa.go.kr',
         };
 
-        try {
-            // Update Turso database with the fresh check results
-            const lastChecked = new Date().toISOString();
-            await db.execute({
-                sql: `
-                    UPDATE students 
-                    SET status = ?, 
-                        applicationDate = ?, 
-                        rejectReason = ?, 
-                        pdfUrl = ?, 
-                        apiResponse = ?, 
-                        lastChecked = ?
-                    WHERE passport = ?
-                `,
-                args: [
-                    parsed.status || 'Pending',
-                    parsed.applicationDate || '',
-                    parsed.rejectionReason || '',
-                    parsed.pdfUrl || '',
-                    JSON.stringify({
-                        status: parsed.status,
-                        detail: parsed.detail,
-                        visaExpiry: parsed.visaExpiry || '',
-                        visaKind: parsed.visaKind || '',
-                        statusOfResidence: parsed.statusOfResidence || '',
-                        entryDate: parsed.entryDate || '',
-                        entryPurpose: parsed.entryPurpose || '',
-                        invitingCompany: parsed.invitingCompany || ''
-                    }),
-                    lastChecked,
-                    passport
-                ]
-            });
-        } catch (dbErr) {
-            console.error('[Vercel DB Update] Error updating student visa status:', dbErr.message);
+        // Only update the DB row when we can verify which user owns this student.
+        // The cabinet frontend always sends a JWT; bot flows handle their own
+        // DB updates via lib/cabinet.ts:refreshStudent(), so we skip them here.
+        const { verifyToken } = require('./auth-helper');
+        const authUser = verifyToken(req);
+        if (authUser && authUser.userId) {
+            try {
+                const lastChecked = new Date().toISOString();
+                await db.execute({
+                    sql: `
+                        UPDATE students 
+                        SET status = ?, 
+                            applicationDate = ?, 
+                            rejectReason = ?, 
+                            pdfUrl = ?, 
+                            apiResponse = ?, 
+                            lastChecked = ?
+                        WHERE passport = ? AND userId = ?
+                    `,
+                    args: [
+                        parsed.status || 'Pending',
+                        parsed.applicationDate || '',
+                        parsed.rejectionReason || '',
+                        parsed.pdfUrl || '',
+                        JSON.stringify({
+                            status: parsed.status,
+                            detail: parsed.detail,
+                            visaExpiry: parsed.visaExpiry || '',
+                            visaKind: parsed.visaKind || '',
+                            statusOfResidence: parsed.statusOfResidence || '',
+                            entryDate: parsed.entryDate || '',
+                            entryPurpose: parsed.entryPurpose || '',
+                            invitingCompany: parsed.invitingCompany || ''
+                        }),
+                        lastChecked,
+                        passport,
+                        authUser.userId
+                    ]
+                });
+            } catch (dbErr) {
+                console.error('[Vercel DB Update] Error updating student visa status:', dbErr.message);
+            }
         }
 
         res.status(200).json(parsed);

@@ -1709,7 +1709,7 @@ async function sendTelegramNotification(student, oldStatus, newStatus, applicati
             changedAt: new Date().toISOString()
         };
 
-        const response = await fetch(CONFIG.API.TELEGRAM_NOTIFY_URL, {
+        const response = await authFetch(CONFIG.API.TELEGRAM_NOTIFY_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
