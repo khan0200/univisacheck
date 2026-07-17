@@ -15,7 +15,7 @@ import { Keyboard, InlineKeyboard } from 'grammy';
  */
 export const mainMenuKeyboard = new Keyboard()
     .text('📂 Kabinet').text('🔍 Tekshirish').row()
-    .text('⚙ Consulting ni ulash')
+    .text('⚙ Consultingni ulash')
     .resized()
     .selected(true);
 
@@ -24,7 +24,7 @@ export const mainMenuKeyboard = new Keyboard()
  * @param username - Cabinet username; if provided, shows "⚙ {username}" instead of default label.
  */
 export function getMainMenuKeyboard(username?: string | null): Keyboard {
-    const profileLabel = username ? `⚙ ${username}` : '⚙ Consulting ni ulash';
+    const profileLabel = username ? `⚙ ${username}` : '⚙ Consultingni ulash';
     return new Keyboard()
         .text('📂 Kabinet').text('🔍 Tekshirish').row()
         .text(profileLabel)

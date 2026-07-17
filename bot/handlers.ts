@@ -90,7 +90,7 @@ export async function handleTextMessage(ctx: Context) {
         }
         
         await clearSessionState(telegramId);
-        await ctx.reply('✅ *Muvaffaqiyatli ulindi!*', {
+        await ctx.reply('✅ *Muvaffaqiyatli ulandi!*', {
             parse_mode: 'Markdown',
             reply_markup: getMainMenuKeyboard(connectResult.user?.username)
         });
@@ -103,7 +103,7 @@ export async function handleTextMessage(ctx: Context) {
     // ── One-Off Manual check flow ──
     if (session.state === 'awaiting_check_passport') {
         if (!PASSPORT_REGEX.test(text)) {
-            await ctx.reply('⚠️ Pasport xato. Misol: AA1234567. Qaytadan kiriting:');
+            await ctx.reply('⚠️ Pasport raqami xato. Misol: AA1234567. Qaytadan kiriting:');
             return;
         }
         
@@ -306,7 +306,7 @@ export async function handleCallbackQuery(ctx: Context) {
                         reply_markup: inlineKeyboard
                     }).catch(() => {});
                 }
-                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport} da o'zgarish yo'q 🤷🏻`);
+                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport}da o'zgarish yo'q 🤷🏻`);
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }
@@ -680,7 +680,7 @@ export async function handleCallbackQuery(ctx: Context) {
                         link_preview_options: { is_disabled: true }
                     }).catch(() => {});
                 }
-                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport} da o'zgarish yo'q 🤷🏻`);
+                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport}da o'zgarish yo'q 🤷🏻`);
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }

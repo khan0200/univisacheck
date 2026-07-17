@@ -173,7 +173,7 @@ export async function handleCabinetMenu(ctx: Context) {
     
     const user = await getUserByTelegramId(telegramId);
     if (!user) {
-        await ctx.reply('⚠️ Oldin kabinetni ulang (⚙ Consulting ni ulash orqali).');
+        await ctx.reply('⚠️ Oldin kabinetni ulang (⚙ Consultingni ulash orqali).');
         return;
     }
     
