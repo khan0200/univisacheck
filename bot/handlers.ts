@@ -9,7 +9,7 @@ import { connectUser, disconnectUser } from '../lib/auth';
 import { checkStudentVisaStatus } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
 import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard } from './keyboards';
-import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId } from '../lib/cabinet';
+import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked } from '../lib/cabinet';
 import db from '../lib/turso';
 
 // Input Validation Helpers
@@ -378,6 +378,7 @@ export async function handleCallbackQuery(ctx: Context) {
             const desc = getStatusDescription(checkRes.latestStatus);
             const isApproved = ['approved', 'visa used', 'issued'].some(s => checkRes.latestStatus.toLowerCase().includes(s));
             
+            const checkedStr = formatLastChecked(new Date().toISOString());
             const resultText = 
                 `🔍 *Visa Application Status Check*\n\n` +
                 `${fullName.toUpperCase()}\n` +
@@ -387,7 +388,8 @@ export async function handleCallbackQuery(ctx: Context) {
                 (visaType === 'E-Visa' ? `🏢 *Invitee:* ${checkRes.invitingCompany || 'N/A'}\n` : '') +
                 (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
                 `📅 *Application Date:* ${checkRes.latestDate || 'N/A'}\n` +
-                `🔄 *Status:* ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n\n` +
+                `🔄 *Status:* ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n` +
+                `Checked: ${checkedStr}\n\n` +
                 `*Result:* ${desc}\n` +
                 (checkRes.rejectionReason ? `\n⚠️ *Reason:* ${checkRes.rejectionReason}\n` : '') +
                 (checkRes.pdfUrl && isApproved ? `\n📄 [Download Visa Certificate](${checkRes.pdfUrl})\n` : '');
@@ -477,6 +479,7 @@ async function displayCheckResult(
     const desc = getStatusDescription(result.latestStatus);
     const isApproved = ['approved', 'visa used', 'issued'].some(s => result.latestStatus.toLowerCase().includes(s));
     
+    const checkedStr = formatLastChecked(new Date().toISOString());
     const resultText = 
         `🔍 *Visa Application Status Check*\n\n` +
         `${fullName.toUpperCase()}\n` +
@@ -486,7 +489,8 @@ async function displayCheckResult(
         (visaType === 'E-Visa' ? `🏢 *Invitee:* ${result.invitingCompany || 'N/A'}\n` : '') +
         (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
         `📅 *Application Date:* ${result.latestDate || 'N/A'}\n` +
-        `🔄 *Status:* ${emoji} *${result.latestStatus.toUpperCase()}*\n\n` +
+        `🔄 *Status:* ${emoji} *${result.latestStatus.toUpperCase()}*\n` +
+        `Checked: ${checkedStr}\n\n` +
         `*Result:* ${desc}\n` +
         (result.rejectionReason ? `\n⚠️ *Reason:* ${result.rejectionReason}\n` : '') +
         (result.pdfUrl && isApproved ? `\n📄 [Download Visa Certificate](${result.pdfUrl})\n` : '');
