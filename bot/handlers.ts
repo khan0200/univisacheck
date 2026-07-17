@@ -306,6 +306,10 @@ export async function handleCallbackQuery(ctx: Context) {
                         reply_markup: inlineKeyboard
                     }).catch(() => {});
                 }
+                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport} da o'zgarish yo'q 🤷🏻`);
+                setTimeout(() => {
+                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
+                }, 3000);
             }
         }
         return;
@@ -677,6 +681,10 @@ export async function handleCallbackQuery(ctx: Context) {
                         link_preview_options: { is_disabled: true }
                     }).catch(() => {});
                 }
+                const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport} da o'zgarish yo'q 🤷🏻`);
+                setTimeout(() => {
+                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
+                }, 3000);
             }
         } catch (err: any) {
             // Delete the status message
