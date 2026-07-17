@@ -7,7 +7,8 @@
 import { Context } from 'grammy';
 import { getUserByTelegramId, disconnectUser } from '../lib/auth';
 import { getStudentsByTelegramId, formatStudentCard, refreshStudent } from '../lib/cabinet';
-import { mainMenuKeyboard, accountMenuKeyboard, visaTypeKeyboard, cabinetMenuKeyboard, getMainMenuKeyboard } from './keyboards';
+import { getMainMenuKeyboard, getCabinetMenuKeyboard, getAccountMenuKeyboard, getSettingsKeyboard, getVisaTypeKeyboard, getCancelKeyboard } from './keyboards';
+import { getLang, setLang, t, Lang } from '../lib/i18n';
 import db from '../lib/turso';
 
 
@@ -55,6 +56,13 @@ export async function clearSessionState(telegramId: number): Promise<void> {
     } catch {}
 }
 
+// Helper: build localised menu keyboard for a telegram user
+async function getMenuKeyboard(telegramId: number) {
+    const user = await getUserByTelegramId(telegramId);
+    const lang = await getLang(telegramId);
+    return getMainMenuKeyboard(user?.username, lang);
+}
+
 /**
  * /start command.
  * Welcomes the user and opens the main menu.
@@ -63,27 +71,15 @@ export async function handleStart(ctx: Context) {
     const telegramId = ctx.from?.id || 0;
     await clearSessionState(telegramId);
     
-    // Check if user is connected to cabinet
+    const lang = await getLang(telegramId);
     let username: string | null = null;
     if (telegramId) {
         const activeUser = await getUserByTelegramId(telegramId);
-        if (activeUser) {
-            username = activeUser.username;
-        }
+        if (activeUser) username = activeUser.username;
     }
 
-    const welcomeText = 
-        `Koreya visa tekshirish botiga xush kelibsiz! 🇰🇷🤖\n\n` +
-        `Imkoniyatlar:\n` +
-        `• VisaCheck kabinetini ulash\n` +
-        `• Talabalar visa statusini kuzatish\n` +
-        `• O'zgarishlar haqida bildirishnoma olish\n` +
-        `• Visa statusini tezkor tekshirish\n\n` +
-        `Menudan foydalaning.`;
-    
-    await ctx.reply(welcomeText, {
-        parse_mode: 'Markdown',
-        reply_markup: getMainMenuKeyboard(username)
+    await ctx.reply(t('welcome', lang), {
+        reply_markup: getMainMenuKeyboard(username, lang)
     });
 }
 
@@ -95,23 +91,20 @@ export async function handleCabinetCommand(ctx: Context) {
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
     
+    const lang = await getLang(telegramId);
     await clearSessionState(telegramId);
     
-    // Check if already connected
     const activeUser = await getUserByTelegramId(telegramId);
     if (activeUser) {
-        await ctx.reply(`✅ Kabinet ulangan: *${activeUser.username}*`, {
+        await ctx.reply(t('cabinet_already_linked', lang, { username: activeUser.username }), {
             parse_mode: 'Markdown',
-            reply_markup: getMainMenuKeyboard(activeUser.username)
+            reply_markup: getMainMenuKeyboard(activeUser.username, lang)
         });
         return;
     }
     
-    // Start login state machine
     await setSessionState(telegramId, 'awaiting_email', {});
-    await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki Consulting nomini kiriting:', {
-        parse_mode: 'Markdown'
-    });
+    await ctx.reply(t('login_title', lang), { parse_mode: 'Markdown' });
 }
 
 /**
@@ -122,10 +115,11 @@ export async function handleCheckCommand(ctx: Context) {
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
     
+    const lang = await getLang(telegramId);
     await setSessionState(telegramId, 'awaiting_check_type', {});
-    await ctx.reply('✈️ *Visa turini tanlang*:', {
+    await ctx.reply(t('check_type_prompt', lang), {
         parse_mode: 'Markdown',
-        reply_markup: visaTypeKeyboard
+        reply_markup: getVisaTypeKeyboard(lang)
     });
 }
 
@@ -134,52 +128,53 @@ export async function handleCheckCommand(ctx: Context) {
  */
 export async function handleHelpCommand(ctx: Context) {
     const telegramId = ctx.from?.id || 0;
+    const lang = await getLang(telegramId);
     
-    // Check if user is connected to cabinet
     let username: string | null = null;
     if (telegramId) {
         const activeUser = await getUserByTelegramId(telegramId);
-        if (activeUser) {
-            username = activeUser.username;
-        }
+        if (activeUser) username = activeUser.username;
     }
 
-    const helpText = 
-        `ℹ️ *Bot bo'yicha qo'llanma*\n\n` +
-        `*Buyruqlar:*\n` +
-        `/start - Botni boshlash\n` +
-        `/cabinet - Kabinetni ulash\n` +
-        `/check - Visani tekshirish\n` +
-        `/help - Yordam menyusi\n\n` +
-        `*Menyular:*\n` +
-        `📂 *Kabinet* - Talabalar ro'yxati\n` +
-        `🔍 *Tekshirish* - Visani to'g'ridan-to'g'ri tekshirish\n` +
-        `⚙ *Consulting* - Sozlamalar va chiqish\n\n` +
-        `Savollar uchun administratorga murojaat qiling.`;
-        
-    await ctx.reply(helpText, {
+    await ctx.reply(t('help', lang), {
         parse_mode: 'Markdown',
-        reply_markup: getMainMenuKeyboard(username)
+        reply_markup: getMainMenuKeyboard(username, lang)
+    });
+}
+
+/**
+ * ⚙️ Sozlamalar / ⚙️ Settings button.
+ * Shows language selection keyboard.
+ */
+export async function handleSettingsMenu(ctx: Context) {
+    const telegramId = ctx.from?.id;
+    if (!telegramId) return;
+    
+    const lang = await getLang(telegramId);
+    await ctx.reply(t('settings_title', lang), {
+        parse_mode: 'Markdown',
+        reply_markup: getSettingsKeyboard(lang)
     });
 }
 
 /**
  * Handles the "📂 Cabinet" main menu click.
- * Displays all active students with individual Refresh buttons.
+ * Displays all active students categorised by status.
  */
 export async function handleCabinetMenu(ctx: Context) {
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
     
+    const lang = await getLang(telegramId);
     const user = await getUserByTelegramId(telegramId);
     if (!user) {
-        await ctx.reply('⚠️ Oldin kabinetni ulang (⚙ Consultingni ulash orqali).');
+        await ctx.reply(t('connect_first', lang));
         return;
     }
     
-    await ctx.reply('📂 *Kategoriyalar*\n\nKerakli bo\'limni tanlang:', {
+    await ctx.reply(t('cabinet_categories', lang), {
         parse_mode: 'Markdown',
-        reply_markup: cabinetMenuKeyboard
+        reply_markup: getCabinetMenuKeyboard(lang)
     });
 }
 
@@ -192,21 +187,16 @@ export async function handleAccountMenu(ctx: Context) {
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
     
+    const lang = await getLang(telegramId);
     const user = await getUserByTelegramId(telegramId);
     if (!user) {
-        const welcomeText = 
-            `⚙ *Profilni boshqarish*\n\n` +
-            `Holat: 🛑 *Ulanmagan*\n\n` +
-            `VisaCheck kabinetini ulash uchun tugmani bosing:`;
-            
-        const inlineKeyboard = {
-            inline_keyboard: [
-                [{ text: '🔑 Kabinetni ulash', callback_data: 'account:connect' }]
-            ]
-        };
-        await ctx.reply(welcomeText, {
+        await ctx.reply(t('account_not_connected', lang), {
             parse_mode: 'Markdown',
-            reply_markup: inlineKeyboard
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: t('cabinet_connect_btn', lang), callback_data: 'account:connect' }]
+                ]
+            }
         });
         return;
     }
@@ -214,23 +204,16 @@ export async function handleAccountMenu(ctx: Context) {
     const students = await getStudentsByTelegramId(telegramId);
     const connectedSince = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '--';
     
-    const accountText = 
-        `⚙ *Consulting ma'lumotlari*\n\n` +
-        `👤 *Consulting:* ${user.username}\n` +
-        `📧 *Email:* \`${user.email}\`\n` +
-        `📅 *Ulangan sana:* ${connectedSince}\n` +
-        `🎓 *Talabalar soni:* ${students.length}\n` +
-        `🔄 *Holat:* Muvaffaqiyatli ulangan\n\n` +
-        `Kabinetni o'chirish uchun quyidagi tugmani bosing:`;
-        
-    const inlineKeyboard = {
-        inline_keyboard: [
-            [{ text: '🔴 Chiqish', callback_data: 'account:disconnect' }]
-        ]
-    };
-    
-    await ctx.reply(accountText, {
-        parse_mode: 'Markdown',
-        reply_markup: inlineKeyboard
-    });
+    await ctx.reply(
+        t('account_info', lang, {
+            username: user.username,
+            email: user.email,
+            date: connectedSince,
+            count: students.length
+        }),
+        {
+            parse_mode: 'Markdown',
+            reply_markup: getAccountMenuKeyboard(lang)
+        }
+    );
 }

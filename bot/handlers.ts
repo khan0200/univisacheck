@@ -8,8 +8,9 @@ import { Context, InputFile } from 'grammy';
 import { connectUser, disconnectUser, getUserByTelegramId } from '../lib/auth';
 import { checkStudentVisaStatus, downloadStudentVisaPdf } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
-import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard, getMainMenuKeyboard } from './keyboards';
+import { getMainMenuKeyboard, mainMenuKeyboard, getCancelKeyboard, getVisaTypeKeyboard, getSettingsKeyboard } from './keyboards';
 import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked } from '../lib/cabinet';
+import { getLang, setLang, t, Lang } from '../lib/i18n';
 import db from '../lib/turso';
 
 // Input Validation Helpers
@@ -18,7 +19,8 @@ const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 async function getMenuKeyboard(telegramId: number) {
     const user = await getUserByTelegramId(telegramId);
-    return getMainMenuKeyboard(user?.username);
+    const lang = await getLang(telegramId);
+    return getMainMenuKeyboard(user?.username, lang);
 }
 
 
@@ -31,11 +33,12 @@ export async function handleTextMessage(ctx: Context) {
     if (!telegramId) return;
     
     const text = ctx.message?.text?.trim() || '';
+    const lang = await getLang(telegramId);
     
-    // Check if user wants to cancel/back out of the current flow.
-    if (text === '⬅️ Orqaga' || text === '⬅ Orqaga' || text.toLowerCase().includes('orqaga') || text === '<' || text === '<Ortga') {
+    // Check if user wants to cancel/back out
+    if (text === '⬅️ Orqaga' || text === '⬅️ Back' || text === '⬅ Orqaga' || text.toLowerCase().includes('orqaga') || text === '<' || text === '<Ortga') {
         await clearSessionState(telegramId);
-        await ctx.reply('Asosiy menu', {
+        await ctx.reply(t('main_menu', lang), {
             reply_markup: await getMenuKeyboard(telegramId)
         });
         return;
@@ -45,8 +48,7 @@ export async function handleTextMessage(ctx: Context) {
     const session = await getSessionState(telegramId);
     
     if (session.state === 'idle') {
-        // Fallback for unexpected messages
-        await ctx.reply('👋 Menudan bo\'limni tanlang yoki /help yuboring.', {
+        await ctx.reply(t('menu_fallback', lang), {
             reply_markup: await getMenuKeyboard(telegramId)
         });
         return;
@@ -55,21 +57,21 @@ export async function handleTextMessage(ctx: Context) {
     // ── Cabinet Connection Flow ──
     if (session.state === 'awaiting_email') {
         if (text.length < 2) {
-            await ctx.reply('⚠️ Email yoki Consulting nomini kiriting:');
+            await ctx.reply(t('login_email_short', lang));
             return;
         }
         
         await setSessionState(telegramId, 'awaiting_password', { email: text });
-        await ctx.reply('🗝 Parolni kiriting:', {
+        await ctx.reply(t('login_password_prompt', lang), {
             parse_mode: 'Markdown',
-            reply_markup: cancelKeyboard
+            reply_markup: getCancelKeyboard(lang)
         });
         return;
     }
     
     if (session.state === 'awaiting_password') {
         const email = session.data.email;
-        await ctx.reply('⌛ *Tekshirilmoqda...*', { parse_mode: 'Markdown' });
+        await ctx.reply(t('login_checking', lang), { parse_mode: 'Markdown' });
         
         const connectResult = await connectUser(
             telegramId,
@@ -82,7 +84,7 @@ export async function handleTextMessage(ctx: Context) {
         
         if (!connectResult.success) {
             await clearSessionState(telegramId);
-            await ctx.reply(`❌ *Xatolik*\n\n${connectResult.error}`, {
+            await ctx.reply(`${t('login_error_prefix', lang)}${connectResult.error}`, {
                 parse_mode: 'Markdown',
                 reply_markup: await getMenuKeyboard(telegramId)
             });
@@ -90,12 +92,11 @@ export async function handleTextMessage(ctx: Context) {
         }
         
         await clearSessionState(telegramId);
-        await ctx.reply('✅ *Muvaffaqiyatli ulandi!*', {
+        await ctx.reply(t('login_success', lang), {
             parse_mode: 'Markdown',
-            reply_markup: getMainMenuKeyboard(connectResult.user?.username)
+            reply_markup: getMainMenuKeyboard(connectResult.user?.username, lang)
         });
         
-        // Immediately sync and show their cabinet
         await handleCabinetMenu(ctx);
         return;
     }
@@ -103,14 +104,13 @@ export async function handleTextMessage(ctx: Context) {
     // ── One-Off Manual check flow ──
     if (session.state === 'awaiting_check_passport') {
         if (!PASSPORT_REGEX.test(text)) {
-            await ctx.reply('⚠️ Pasport raqami xato. Misol: AA1234567. Qaytadan kiriting:');
+            await ctx.reply(t('check_passport_invalid', lang));
             return;
         }
         
         const visaType = session.data.visaType;
         const passport = text.toUpperCase();
         
-        // Search if we have matching student details in our CRM database or manual check history
         try {
             let dbRes = await db.execute({
                 sql: `
@@ -123,7 +123,6 @@ export async function handleTextMessage(ctx: Context) {
                 args: [passport]
             });
 
-            // If not found in CRM students, fallback to bot_manual_refreshes
             if (dbRes.rows.length === 0) {
                 dbRes = await db.execute({
                     sql: `
@@ -148,19 +147,16 @@ export async function handleTextMessage(ctx: Context) {
                         autofill: { fullName: dbName, birthday: dbDob }
                     });
                     
-                    const inlineKeyboard = {
-                        inline_keyboard: [
-                            [{ text: `${dbName}`, callback_data: 'autofill:yes' }],
-                            [{ text: '👤 Qo\'lda kiritish', callback_data: 'autofill:no' }]
-                        ]
-                    };
-                    
                     await ctx.reply(
-                        `🔍 *Ma'lumot topildi*\n\n` +
-                        `Pasport *${passport}* bo'yicha talaba topildi. Bu shu talabami?`,
+                        t('autofill_found', lang, { passport }),
                         {
                             parse_mode: 'Markdown',
-                            reply_markup: inlineKeyboard
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [{ text: `${dbName}`, callback_data: 'autofill:yes' }],
+                                    [{ text: t('autofill_manual_btn', lang), callback_data: 'autofill:no' }]
+                                ]
+                            }
                         }
                     );
                     return;
@@ -171,31 +167,31 @@ export async function handleTextMessage(ctx: Context) {
         }
         
         await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
-        await ctx.reply('👤 Talabaning *Ism-familiyasi*ni kiriting (inglizcha, pasportdagidek):', {
+        await ctx.reply(t('check_name_prompt', lang), {
             parse_mode: 'Markdown',
-            reply_markup: cancelKeyboard
+            reply_markup: getCancelKeyboard(lang)
         });
         return;
     }
     
     if (session.state === 'awaiting_check_name') {
         if (text.length < 2) {
-            await ctx.reply('⚠️ Ism juda qisqa. To\'liq kiriting:');
+            await ctx.reply(t('check_name_short', lang));
             return;
         }
         
         const { visaType, passport } = session.data;
         await setSessionState(telegramId, 'awaiting_check_dob', { visaType, passport, fullName: text.toUpperCase() });
-        await ctx.reply('📅 Talabaning *Tug\'ilgan kuni* (format: YYYY-MM-DD, misol: 2005-03-18):', {
+        await ctx.reply(t('check_dob_prompt', lang), {
             parse_mode: 'Markdown',
-            reply_markup: cancelKeyboard
+            reply_markup: getCancelKeyboard(lang)
         });
         return;
     }
     
     if (session.state === 'awaiting_check_dob') {
         if (!DATE_REGEX.test(text)) {
-            await ctx.reply('⚠️ Sana xato. Format: YYYY-MM-DD (misol: 2005-03-18):');
+            await ctx.reply(t('check_dob_invalid', lang));
             return;
         }
         
@@ -203,23 +199,22 @@ export async function handleTextMessage(ctx: Context) {
         const birthday = text;
         
         if (visaType === 'Embassy') {
-            await ctx.reply('⌛ *Kutib turing...*', { parse_mode: 'Markdown' });
+            await ctx.reply(t('check_waiting', lang), { parse_mode: 'Markdown' });
             try {
                 const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
                 await clearSessionState(telegramId);
                 await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday, telegramId);
             } catch (err: any) {
                 await clearSessionState(telegramId);
-                await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
+                await ctx.reply(t('check_error', lang, { error: err.message }), {
                     reply_markup: await getMenuKeyboard(telegramId)
                 });
             }
         } else {
-            // E-Visa needs application number
             await setSessionState(telegramId, 'awaiting_check_appno', { visaType, passport, fullName, birthday });
-            await ctx.reply('📄 E-Visa ariza raqamini kiriting (misol: 6595150001):', {
+            await ctx.reply(t('check_appno_prompt', lang), {
                 parse_mode: 'Markdown',
-                reply_markup: cancelKeyboard
+                reply_markup: getCancelKeyboard(lang)
             });
         }
         return;
@@ -227,12 +222,12 @@ export async function handleTextMessage(ctx: Context) {
     
     if (session.state === 'awaiting_check_appno') {
         if (text.length < 5) {
-            await ctx.reply('⚠️ Ariza raqami xato. Qaytadan kiriting:');
+            await ctx.reply(t('check_appno_invalid', lang));
             return;
         }
         
         const { passport, fullName, birthday } = session.data;
-        await ctx.reply('⌛ *Kutib turing...*', { parse_mode: 'Markdown' });
+        await ctx.reply(t('check_waiting', lang), { parse_mode: 'Markdown' });
         
         try {
             const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'E-Visa', text);
@@ -240,7 +235,7 @@ export async function handleTextMessage(ctx: Context) {
             await displayCheckResult(ctx, checkRes, passport, 'E-Visa', text, fullName, birthday, telegramId);
         } catch (err: any) {
             await clearSessionState(telegramId);
-            await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
+            await ctx.reply(t('check_error', lang, { error: err.message }), {
                 reply_markup: await getMenuKeyboard(telegramId)
             });
         }
@@ -258,20 +253,41 @@ export async function handleCallbackQuery(ctx: Context) {
     
     await ctx.answerCallbackQuery().catch(() => {}); // Answer immediately to remove loading spinner
     
+    const lang = await getLang(telegramId);
+
+    // ── Language Settings ──
+    if (callbackData.startsWith('settings:lang:')) {
+        const newLang = callbackData.split(':')[2] as Lang;
+        if (newLang !== 'uz' && newLang !== 'en') return;
+        await setLang(telegramId, newLang);
+        const confirmKey = newLang === 'en' ? 'settings_lang_changed_en' : 'settings_lang_changed_uz';
+        await ctx.reply(t(confirmKey, newLang), {
+            reply_markup: await getMenuKeyboard(telegramId)
+        });
+        // Update the settings message to reflect new selection
+        const settingsMsg = ctx.callbackQuery?.message;
+        if (settingsMsg) {
+            await ctx.api.editMessageReplyMarkup(
+                ctx.chat!.id,
+                settingsMsg.message_id,
+                { reply_markup: getSettingsKeyboard(newLang) }
+            ).catch(() => {});
+        }
+        return;
+    }
+
     // ── Individual Refresh Button Click ──
     if (callbackData.startsWith('refresh:')) {
         const passport = callbackData.split(':')[1];
         
-        // 1. Send temporary refreshing status message
-        const statusMsg = await ctx.reply(`🔄 *Tekshirilmoqda...*`, { parse_mode: 'Markdown' });
+        const statusMsg = await ctx.reply(t('refreshing', lang), { parse_mode: 'Markdown' });
         
         const res = await refreshStudent(telegramId, passport);
         
-        // 2. Delete the temporary refreshing status message immediately
         await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
         
         if (!res.success) {
-            await ctx.reply(`❌ Yangilash xatosi: ${res.error}`);
+            await ctx.reply(t('refresh_error', lang, { error: res.error || '' }));
             return;
         }
         
@@ -284,30 +300,26 @@ export async function handleCallbackQuery(ctx: Context) {
             const inlineKeyboard = {
                 inline_keyboard: canDownloadPdf
                     ? [
-                        [{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }],
-                        [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${res.student.passport}` }]
+                        [{ text: t('btn_refresh', lang), callback_data: `refresh:${res.student.passport}` }],
+                        [{ text: t('btn_pdf', lang), callback_data: `download_pdf:${res.student.passport}` }]
                       ]
                     : [
-                        [{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }]
+                        [{ text: t('btn_refresh', lang), callback_data: `refresh:${res.student.passport}` }]
                       ]
             };
             
-            // If it changed, send a brand new message and delete the old card
             if (res.changed) {
                 if (cardMessage) {
                     await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
                 }
-                await ctx.reply(cardText, {
-                    reply_markup: inlineKeyboard
-                });
+                await ctx.reply(cardText, { reply_markup: inlineKeyboard });
             } else {
-                // If no changes, edit the existing card's text to show the updated checked timestamp
                 if (cardMessage) {
                     await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, cardText, {
                         reply_markup: inlineKeyboard
                     }).catch(() => {});
                 }
-                const noChangeMsg = await ctx.reply(`${res.student.fullName.toUpperCase()}\nO'zgarish yo'q 🤷🏻`);
+                const noChangeMsg = await ctx.reply(t('no_change', lang, { name: res.student.fullName.toUpperCase() }));
                 await new Promise(resolve => setTimeout(resolve, 5000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }
@@ -319,9 +331,7 @@ export async function handleCallbackQuery(ctx: Context) {
     if (callbackData === 'account:connect') {
         await clearSessionState(telegramId);
         await setSessionState(telegramId, 'awaiting_email', {});
-        await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki Consulting nomini kiriting:', {
-            parse_mode: 'Markdown'
-        });
+        await ctx.reply(t('login_title', lang), { parse_mode: 'Markdown' });
         return;
     }
     
@@ -329,12 +339,12 @@ export async function handleCallbackQuery(ctx: Context) {
     if (callbackData === 'account:disconnect') {
         const success = await disconnectUser(telegramId);
         if (success) {
-            await ctx.reply('🔌 *Kabinet o\'chirildi.*', {
+            await ctx.reply(t('cabinet_disconnected', lang), {
                 parse_mode: 'Markdown',
                 reply_markup: await getMenuKeyboard(telegramId)
             });
         } else {
-            await ctx.reply('⚠️ Profil ulanmagan.');
+            await ctx.reply(t('profile_not_connected', lang));
         }
         return;
     }
@@ -347,9 +357,9 @@ export async function handleCallbackQuery(ctx: Context) {
         const visaType = callbackData.split(':')[1];
         
         await setSessionState(telegramId, 'awaiting_check_passport', { visaType });
-        await ctx.reply('🔍 *Tezkor tekshirish*\n\nPasport raqamini kiriting (misol: AA1234567):', {
+        await ctx.reply(t('check_passport_prompt', lang), {
             parse_mode: 'Markdown',
-            reply_markup: cancelKeyboard
+            reply_markup: getCancelKeyboard(lang)
         });
         return;
     }
@@ -361,7 +371,6 @@ export async function handleCallbackQuery(ctx: Context) {
         
         const choice = callbackData.split(':')[1];
         
-        // Remove the choice inline keyboard to clean up chat
         const cardMessage = ctx.callbackQuery?.message;
         if (cardMessage) {
             await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
@@ -377,33 +386,24 @@ export async function handleCallbackQuery(ctx: Context) {
                 birthday: autofill.birthday
             });
             
-            const inlineKeyboard = {
-                inline_keyboard: [
-                    [
-                        { text: '✅ Ha', callback_data: 'autofill_confirm:yes' },
-                        { text: '❌ Yo\'q', callback_data: 'autofill_confirm:no' }
-                    ]
-                ]
-            };
-            
             await ctx.reply(
-                `🔍 *Ma'lumotlarni tekshiring*\n\n` +
-                `👤 *Ism:* ${autofill.fullName}\n` +
-                `📅 *Tug'ilgan sana:* ${autofill.birthday}\n` +
-                `✈️ *Visa turi:* ${visaType}\n\n` +
-                `*Ma'lumotlar to'g'rimi?*`,
+                t('autofill_confirm', lang, { name: autofill.fullName, dob: autofill.birthday, visaType }),
                 {
                     parse_mode: 'Markdown',
-                    reply_markup: inlineKeyboard
+                    reply_markup: {
+                        inline_keyboard: [[
+                            { text: t('btn_yes', lang), callback_data: 'autofill_confirm:yes' },
+                            { text: t('btn_no', lang), callback_data: 'autofill_confirm:no' }
+                        ]]
+                    }
                 }
             );
         } else {
-            // User chose manual entry
             const { passport, visaType } = session.data;
             await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
-            await ctx.reply('👤 Talabaning *Ism-familiyasi*ni kiriting (inglizcha, pasportdagidek):', {
+            await ctx.reply(t('check_name_prompt', lang), {
                 parse_mode: 'Markdown',
-                reply_markup: cancelKeyboard
+                reply_markup: getCancelKeyboard(lang)
             });
         }
         return;
@@ -416,7 +416,6 @@ export async function handleCallbackQuery(ctx: Context) {
         
         const confirm = callbackData.split(':')[1];
         
-        // Remove the confirm inline keyboard
         const cardMessage = ctx.callbackQuery?.message;
         if (cardMessage) {
             await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
@@ -426,31 +425,29 @@ export async function handleCallbackQuery(ctx: Context) {
         
         if (confirm === 'yes') {
             if (visaType === 'Embassy') {
-                await ctx.reply('⌛ *Kutib turing...*', { parse_mode: 'Markdown' });
+                await ctx.reply(t('check_waiting', lang), { parse_mode: 'Markdown' });
                 try {
                     const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
                     await clearSessionState(telegramId);
                     await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday, telegramId);
                 } catch (err: any) {
                     await clearSessionState(telegramId);
-                    await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
+                    await ctx.reply(t('check_error', lang, { error: err.message }), {
                         reply_markup: await getMenuKeyboard(telegramId)
                     });
                 }
             } else {
-                // E-Visa track: prompt for application number (do NOT load it automatically)
                 await setSessionState(telegramId, 'awaiting_check_appno', { visaType, passport, fullName, birthday });
-                await ctx.reply('📄 E-Visa ariza raqamini kiriting (misol: 6595150001):', {
+                await ctx.reply(t('check_appno_prompt', lang), {
                     parse_mode: 'Markdown',
-                    reply_markup: cancelKeyboard
+                    reply_markup: getCancelKeyboard(lang)
                 });
             }
         } else {
-            // User rejected confirm
             await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
-            await ctx.reply('👤 Talabaning *Ism-familiyasi*ni kiriting (inglizcha, pasportdagidek):', {
+            await ctx.reply(t('check_name_prompt', lang), {
                 parse_mode: 'Markdown',
-                reply_markup: cancelKeyboard
+                reply_markup: getCancelKeyboard(lang)
             });
         }
         return;
@@ -460,44 +457,36 @@ export async function handleCallbackQuery(ctx: Context) {
     if (callbackData.startsWith('cabinet_tab:')) {
         const tab = callbackData.split(':')[1];
         
-        // Fetch all active students
         const students = await getStudentsByTelegramId(telegramId);
         
-        // Filter based on tab
         const filtered = students.filter(student => {
             const status = (student.status || '').toLowerCase();
             const isApproved = status.includes('approved') || status.includes('visa used');
             const isCancelled = status.includes('cancel') || status.includes('reject');
             const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error');
             
-            if (tab === 'pending') {
-                return isPending;
-            } else if (tab === 'approved') {
-                return isApproved;
-            } else if (tab === 'cancelled') {
-                return isCancelled;
-            } else if (tab === 'application') {
-                // Application: everything else
-                return !isPending && !isCancelled && !isApproved;
-            }
+            if (tab === 'pending') return isPending;
+            if (tab === 'approved') return isApproved;
+            if (tab === 'cancelled') return isCancelled;
+            if (tab === 'application') return !isPending && !isCancelled && !isApproved;
             return false;
         });
         
-        const categoryTitle = tab.charAt(0).toUpperCase() + tab.slice(1);
-        const uzCategoryTitle = tab === 'pending' ? 'Kutilmoqda' : tab === 'approved' ? 'Tasdiqlandi' : tab === 'cancelled' ? 'Rad etildi' : 'Arizalar';
+        const catKeyMap: Record<string, string> = {
+            pending: 'cat_pending', approved: 'cat_approved',
+            cancelled: 'cat_cancelled', application: 'cat_application'
+        };
+        const catLabel = t(catKeyMap[tab] || 'cat_pending', lang);
         
         if (filtered.length === 0) {
-            await ctx.reply(`📭 Bo'limda talabalar topilmadi.`, {
-                parse_mode: 'Markdown'
-            });
+            await ctx.reply(t('cabinet_empty', lang), { parse_mode: 'Markdown' });
             return;
         }
         
-        await ctx.reply(`📂 *Kabinet - ${uzCategoryTitle}* (${filtered.length} ta talaba)`, {
+        await ctx.reply(t('cabinet_header', lang, { cat: catLabel, n: filtered.length }), {
             parse_mode: 'Markdown'
         });
         
-        // Display each matching student card
         for (const student of filtered) {
             const cardText = formatStudentCard(student);
             const isApproved = ['approved', 'visa used', 'issued'].some(s => (student.status || '').toLowerCase().includes(s));
@@ -505,16 +494,14 @@ export async function handleCallbackQuery(ctx: Context) {
             const inlineKeyboard = {
                 inline_keyboard: canDownloadPdf
                     ? [
-                        [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }],
-                        [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${student.passport}` }]
+                        [{ text: t('btn_refresh', lang), callback_data: `refresh:${student.passport}` }],
+                        [{ text: t('btn_pdf', lang), callback_data: `download_pdf:${student.passport}` }]
                       ]
                     : [
-                        [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }]
+                        [{ text: t('btn_refresh', lang), callback_data: `refresh:${student.passport}` }]
                       ]
             };
-            await ctx.reply(cardText, {
-                reply_markup: inlineKeyboard
-            });
+            await ctx.reply(cardText, { reply_markup: inlineKeyboard });
         }
         return;
     }
@@ -522,17 +509,15 @@ export async function handleCallbackQuery(ctx: Context) {
     // ── Download Certificate PDF Button Click ──
     if (callbackData.startsWith('download_pdf:')) {
         const passport = callbackData.split(':')[1].toUpperCase().trim();
-        const progressMsg = await ctx.reply(`⏳ *Sertifikat yuklab olinmoqda...*\n_Iltimos kutib turing, visa.go.kr portaliga so'rov yuborilmoqda..._`, { parse_mode: 'Markdown' });
+        const progressMsg = await ctx.reply(t('pdf_loading', lang), { parse_mode: 'Markdown' });
         
         try {
-            // Find student details from database
             let fullName = '';
             let birthday = '';
             let visaType = 'Embassy';
             let applicationNo = '';
             let pdfUrl = '';
             
-            // 1. Search CRM students
             const crmRes = await db.execute({
                 sql: 'SELECT * FROM students WHERE passport = ? AND deletedAt IS NULL LIMIT 1',
                 args: [passport]
@@ -546,7 +531,6 @@ export async function handleCallbackQuery(ctx: Context) {
                 applicationNo = row.applicationNo || row.application_no || '';
                 pdfUrl = row.pdfUrl || '';
             } else {
-                // 2. Search manual refreshes
                 const manualRes = await db.execute({
                     sql: 'SELECT * FROM bot_manual_refreshes WHERE passport = ? LIMIT 1',
                     args: [passport]
@@ -558,29 +542,26 @@ export async function handleCallbackQuery(ctx: Context) {
                     birthday = row.birthday || '';
                     visaType = row.visa_type || 'Embassy';
                     applicationNo = row.application_no || '';
-                    pdfUrl = '';
                 }
             }
             
             if (!fullName || !birthday) {
                 await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {});
-                await ctx.reply(`❌ Talaba ma'lumotlari topilmadi. Avval statusni tekshiring.`);
+                await ctx.reply(t('pdf_no_student', lang));
                 return;
             }
             
             const pdfRes = await downloadStudentVisaPdf(passport, fullName, birthday, visaType, applicationNo, pdfUrl);
             
-            // Delete progress message
             await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {});
             
-            // Reply with document
             await ctx.replyWithDocument(new InputFile(pdfRes.buffer, pdfRes.filename), {
-                caption: `📄 *Koreya vizasi sertifikati* (${passport})`,
+                caption: t('pdf_caption', lang, { passport }),
                 parse_mode: 'Markdown'
             });
         } catch (err: any) {
             await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {});
-            await ctx.reply(`❌ *Sertifikatni yuklab bo'lmadi:* ${err.message}`);
+            await ctx.reply(t('pdf_error', lang, { error: err.message }));
         }
         return;
     }
@@ -589,20 +570,17 @@ export async function handleCallbackQuery(ctx: Context) {
     if (callbackData.startsWith('mrefresh:')) {
         const passport = callbackData.split(':')[1].toUpperCase().trim();
         
-        // 1. Send temporary refreshing status message
-        const statusMsg = await ctx.reply(`🔄 *Tekshirilmoqda...*`, { parse_mode: 'Markdown' });
+        const statusMsg = await ctx.reply(t('refreshing', lang), { parse_mode: 'Markdown' });
         
         try {
-            // 2. Fetch manual check details from database
             const res = await db.execute({
                 sql: 'SELECT * FROM bot_manual_refreshes WHERE passport = ?',
                 args: [passport]
             });
             
             if (res.rows.length === 0) {
-                // Delete the status message
                 await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
-                await ctx.reply(`❌ Pasport topilmadi. Qaytadan /check orqali qidiring.`);
+                await ctx.reply(t('passport_not_found', lang));
                 return;
             }
             
@@ -612,10 +590,8 @@ export async function handleCallbackQuery(ctx: Context) {
             const visaType = row.visa_type;
             const applicationNo = row.application_no || '';
             
-            // 3. Query the portal directly
             const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, visaType, applicationNo);
             
-            // 4. Delete the temporary refreshing status message
             await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
             
             const cardMessage = ctx.callbackQuery?.message;
@@ -624,7 +600,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 if (cardMessage) {
                     await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
                 }
-                await ctx.reply(`🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`, {
+                await ctx.reply(t('no_result', lang), {
                     reply_markup: await getMenuKeyboard(telegramId)
                 });
                 return;
@@ -637,19 +613,19 @@ export async function handleCallbackQuery(ctx: Context) {
             
             const checkedStr = formatLastChecked(new Date().toISOString());
             const resultText = 
-                `🔍 *Visa statusini tekshirish*\n\n` +
+                `${t('notif_title', lang)}\n\n` +
                 `${fullName.toUpperCase()}\n` +
                 `${passport.toUpperCase()}\n` +
                 `${birthday}\n\n` +
-                `✈️ *Visa turi:* ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
-                (visaType === 'E-Visa' ? `🏢 *Hamkor:* ${checkRes.invitingCompany || 'N/A'}\n` : '') +
-                (visaType === 'E-Visa' ? `📄 *Ariza raqami:* ${applicationNo}\n` : '') +
-                `📅 *Topshirilgan sana:* ${checkRes.latestDate || 'N/A'}\n` +
-                `🔄 *Holati:* ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n` +
-                `Tekshirildi: ${checkedStr}\n\n` +
-                `*Natija:* ${desc}\n` +
-                (checkRes.rejectionReason ? `\n⚠️ *Sababi:* ${checkRes.rejectionReason}\n` : '') +
-                (checkRes.previousRejectionReason ? `\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${checkRes.previousRejectionReason}\n` : '') +
+                `${t('notif_visa_type', lang)} ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
+                (visaType === 'E-Visa' ? `${t('notif_partner', lang)} ${checkRes.invitingCompany || t('notif_na', lang)}\n` : '') +
+                (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
+                `${t('notif_submitted', lang)} ${checkRes.latestDate || t('notif_na', lang)}\n` +
+                `${t('notif_status', lang)} ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n` +
+                `${t('notif_checked', lang)} ${checkedStr}\n\n` +
+                `${t('notif_result', lang)} ${desc}\n` +
+                (checkRes.rejectionReason ? `\n${t('notif_reason', lang)} ${checkRes.rejectionReason}\n` : '') +
+                (checkRes.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${checkRes.previousRejectionReason}\n` : '') +
                 (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [Visa sertifikatini yuklash](${checkRes.pdfUrl})\n` : '');
                 
             const currentText = cardMessage?.text || '';
@@ -658,11 +634,11 @@ export async function handleCallbackQuery(ctx: Context) {
             const inlineKeyboard = {
                 inline_keyboard: canDownloadPdf
                     ? [
-                        [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }],
-                        [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport}` }]
+                        [{ text: t('btn_refresh', lang), callback_data: `mrefresh:${passport}` }],
+                        [{ text: t('btn_pdf', lang), callback_data: `download_pdf:${passport}` }]
                       ]
                     : [
-                        [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }]
+                        [{ text: t('btn_refresh', lang), callback_data: `mrefresh:${passport}` }]
                       ]
             };
             
@@ -683,14 +659,13 @@ export async function handleCallbackQuery(ctx: Context) {
                         link_preview_options: { is_disabled: true }
                     }).catch(() => {});
                 }
-                const noChangeMsg = await ctx.reply(`${fullName.toUpperCase()}\nO'zgarish yo'q 🤷🏻`);
+                const noChangeMsg = await ctx.reply(t('no_change', lang, { name: fullName.toUpperCase() }));
                 await new Promise(resolve => setTimeout(resolve, 5000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }
         } catch (err: any) {
-            // Delete the status message
             await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
-            await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`);
+            await ctx.reply(t('check_error', lang, { error: err.message }));
         }
         return;
     }
@@ -698,44 +673,36 @@ export async function handleCallbackQuery(ctx: Context) {
     // ── Save to Cabinet Confirmation ──
     if (callbackData.startsWith('save_to_cabinet:')) {
         const parts = callbackData.split(':');
-        const choice = parts[1]; // 'yes' or 'no'
+        const choice = parts[1];
         const passport = (parts[2] || '').toUpperCase().trim();
 
-        // Remove the prompt message
         const promptMsg = ctx.callbackQuery?.message;
         if (promptMsg) {
             await ctx.api.deleteMessage(ctx.chat!.id, promptMsg.message_id).catch(() => {});
         }
 
         if (choice === 'no') {
-            await ctx.reply('📝 Kabinetga saqlanmadi.');
+            await ctx.reply(t('save_no', lang));
             return;
         }
 
-        // Retrieve the pending save data from session state
         const session = await getSessionState(telegramId);
         const saveData = session.data;
 
         if (!saveData || !saveData.pendingSave || saveData.pendingSave.passport !== passport) {
-            await ctx.reply("⚠️ Ma'lumot topilmadi. Qaytadan tekshiring.");
+            await ctx.reply(t('save_data_missing', lang));
             return;
         }
 
         const {
-            fullName,
-            birthday,
-            visaType,
-            applicationNo,
-            status,
-            applicationDate,
-            rejectReason,
-            pdfUrl
+            fullName, birthday, visaType, applicationNo,
+            status, applicationDate, rejectReason, pdfUrl
         } = saveData.pendingSave;
 
         try {
             const cabinetUser = await getUserByTelegramId(telegramId);
             if (!cabinetUser) {
-                await ctx.reply('⚠️ Kabinet ulanmagan. Avval /cabinet orqali ulaning.');
+                await ctx.reply(t('connect_first_slash', lang));
                 return;
             }
             const userId = cabinetUser.id;
@@ -760,7 +727,7 @@ export async function handleCallbackQuery(ctx: Context) {
                             passport, userId
                         ]
                     });
-                    await ctx.reply(`✅ *${passport}* kabinetda yangilandi.`, { parse_mode: 'Markdown' });
+                    await ctx.reply(t('save_updated', lang, { passport }), { parse_mode: 'Markdown' });
                 } else {
                     await db.execute({
                         sql: `UPDATE students SET
@@ -774,7 +741,7 @@ export async function handleCallbackQuery(ctx: Context) {
                             passport, userId
                         ]
                     });
-                    await ctx.reply(`✅ *${passport}* kabinetga qayta qo'shildi.`, { parse_mode: 'Markdown' });
+                    await ctx.reply(t('save_restored', lang, { passport }), { parse_mode: 'Markdown' });
                 }
             } else {
                 await db.execute({
@@ -790,13 +757,13 @@ export async function handleCallbackQuery(ctx: Context) {
                         userId, visaType, applicationNo || '', applicationDate || ''
                     ]
                 });
-                await ctx.reply(`✅ *${passport}* kabinetga saqlandi!`, { parse_mode: 'Markdown' });
+                await ctx.reply(t('save_saved', lang, { passport }), { parse_mode: 'Markdown' });
             }
 
             await clearSessionState(telegramId);
         } catch (err: any) {
             console.error('[Save to Cabinet Error]:', err.message);
-            await ctx.reply(`❌ Saqlashda xatolik: ${err.message}`);
+            await ctx.reply(t('save_error', lang, { error: err.message }));
         }
         return;
     }
@@ -816,10 +783,9 @@ async function displayCheckResult(
     birthday: string,
     telegramId?: number
 ) {
+    const lang: Lang = telegramId ? await getLang(telegramId) : 'uz';
+
     // ── Always save student data to bot_manual_refreshes ──────────────────
-    // This runs BEFORE the found-check so the passport/name/birthday is
-    // persisted even when the visa portal returns no result. This enables
-    // autofill in the Add Student modal and visa-status.html.
     try {
         await db.execute({
             sql: `
@@ -840,19 +806,16 @@ async function displayCheckResult(
                 applicationNo
             ]
         });
-        console.log(`[Bot DB] Saved to bot_manual_refreshes: ${passport.toUpperCase().trim()}`);
     } catch (err: any) {
         console.error('[Manual Check Database Save Error]:', err.message);
     }
 
-    // If user is signed into a cabinet, prepare pending save state in session
     let isCabinetConnected = false;
     if (telegramId) {
         try {
             const cabinetUser = await getUserByTelegramId(telegramId);
             if (cabinetUser) {
                 isCabinetConnected = true;
-                // Store pending save data in session so the callback can retrieve it
                 await setSessionState(telegramId, 'awaiting_cabinet_save', {
                     pendingSave: {
                         passport: passport.toUpperCase().trim(),
@@ -873,30 +836,23 @@ async function displayCheckResult(
     }
 
     if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
-        const replyMarkup = telegramId ? await getMenuKeyboard(telegramId) : mainMenuKeyboard;
-        await ctx.reply(
-            `🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`,
-            {
-                reply_markup: replyMarkup
-            }
-        );
+        const replyMarkup = telegramId ? await (async () => {
+            const user = await getUserByTelegramId(telegramId);
+            return getMainMenuKeyboard(user?.username, lang);
+        })() : mainMenuKeyboard;
+        
+        await ctx.reply(t('no_result', lang), { reply_markup: replyMarkup });
 
-        // Offer to save to cabinet even if no result found
         if (isCabinetConnected) {
             const passportKey = passport.toUpperCase().trim();
-            await ctx.reply(
-                `💾 Bu talabani kabinetga saqlansinmi?`,
-                {
-                    reply_markup: {
-                        inline_keyboard: [
-                            [
-                                { text: '✅ Ha', callback_data: `save_to_cabinet:yes:${passportKey}` },
-                                { text: '❌ Yo\'q', callback_data: `save_to_cabinet:no:${passportKey}` }
-                            ]
-                        ]
-                    }
+            await ctx.reply(t('save_prompt', lang), {
+                reply_markup: {
+                    inline_keyboard: [[
+                        { text: t('btn_yes', lang), callback_data: `save_to_cabinet:yes:${passportKey}` },
+                        { text: t('btn_no', lang), callback_data: `save_to_cabinet:no:${passportKey}` }
+                    ]]
                 }
-            );
+            });
         }
         return;
     }
@@ -908,29 +864,29 @@ async function displayCheckResult(
     
     const checkedStr = formatLastChecked(new Date().toISOString());
     const resultText = 
-        `🔍 *Visa statusini tekshirish*\n\n` +
+        `${t('notif_title', lang)}\n\n` +
         `${fullName.toUpperCase()}\n` +
         `${passport.toUpperCase()}\n` +
         `${birthday}\n\n` +
-        `✈️ *Visa turi:* ${result.statusOfResidence || result.visaKind || visaType}\n` +
-        (visaType === 'E-Visa' ? `🏢 *Hamkor:* ${result.invitingCompany || 'N/A'}\n` : '') +
-        (visaType === 'E-Visa' ? `📄 *Ariza raqami:* ${applicationNo}\n` : '') +
-        `📅 *Topshirilgan sana:* ${result.latestDate || 'N/A'}\n` +
-        `🔄 *Holati:* ${emoji} *${result.latestStatus.toUpperCase()}*\n` +
-        `Tekshirildi: ${checkedStr}\n\n` +
-        `*Natija:* ${desc}\n` +
-        (result.rejectionReason ? `\n⚠️ *Sababi:* ${result.rejectionReason}\n` : '') +
-        (result.previousRejectionReason ? `\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${result.previousRejectionReason}\n` : '') +
-        (result.pdfUrl && canDownloadPdf ? `\n📄 [Visa sertifikatini yuklash](${result.pdfUrl})\n` : '');
+        `${t('notif_visa_type', lang)} ${result.statusOfResidence || result.visaKind || visaType}\n` +
+        (visaType === 'E-Visa' ? `${t('notif_partner', lang)} ${result.invitingCompany || t('notif_na', lang)}\n` : '') +
+        (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
+        `${t('notif_submitted', lang)} ${result.latestDate || t('notif_na', lang)}\n` +
+        `${t('notif_status', lang)} ${emoji} *${result.latestStatus.toUpperCase()}*\n` +
+        `${t('notif_checked', lang)} ${checkedStr}\n\n` +
+        `${t('notif_result', lang)} ${desc}\n` +
+        (result.rejectionReason ? `\n${t('notif_reason', lang)} ${result.rejectionReason}\n` : '') +
+        (result.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${result.previousRejectionReason}\n` : '') +
+        (result.pdfUrl && canDownloadPdf ? `\n📄 [${lang === 'en' ? 'Download visa certificate' : 'Visa sertifikatini yuklash'}](${result.pdfUrl})\n` : '');
         
     const inlineKeyboard = {
         inline_keyboard: canDownloadPdf
             ? [
-                [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
-                [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
+                [{ text: t('btn_refresh', lang), callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
+                [{ text: t('btn_pdf', lang), callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
               ]
             : [
-                [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]
+                [{ text: t('btn_refresh', lang), callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]
               ]
     };
 
@@ -940,21 +896,15 @@ async function displayCheckResult(
         link_preview_options: { is_disabled: true }
     });
 
-    // Show cabinet save prompt if user is connected
     if (isCabinetConnected) {
         const passportKey = passport.toUpperCase().trim();
-        await ctx.reply(
-            `💾 Bu talabani kabinetga saqlansinmi?`,
-            {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: '✅ Ha', callback_data: `save_to_cabinet:yes:${passportKey}` },
-                            { text: '❌ Yo\'q', callback_data: `save_to_cabinet:no:${passportKey}` }
-                        ]
-                    ]
-                }
+        await ctx.reply(t('save_prompt', lang), {
+            reply_markup: {
+                inline_keyboard: [[
+                    { text: t('btn_yes', lang), callback_data: `save_to_cabinet:yes:${passportKey}` },
+                    { text: t('btn_no', lang), callback_data: `save_to_cabinet:no:${passportKey}` }
+                ]]
             }
-        );
+        });
     }
 }

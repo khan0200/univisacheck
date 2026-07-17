@@ -10,6 +10,7 @@ import {
     CREATE_NOTIFICATIONS_TABLE, 
     CREATE_SESSIONS_TABLE, 
     CREATE_MANUAL_REFRESHES_TABLE,
+    CREATE_CABINET_SUBSCRIBERS_TABLE,
     USER_COLUMNS, 
     STUDENT_COLUMNS 
 } from '../database/schema';
@@ -43,7 +44,18 @@ export async function initDb() {
             }
         }
         
-        // 4. Create unique index for telegram_id to enforce uniqueness in SQLite
+        // 4. Create cabinet_subscribers table (multi-subscriber support)
+        await db.execute(CREATE_CABINET_SUBSCRIBERS_TABLE);
+
+        // 5. Add lang column to cabinet_subscribers (language preference per subscriber)
+        const csColsInfo = await db.execute("PRAGMA table_info(cabinet_subscribers)");
+        const existingCsCols = csColsInfo.rows.map((r: any) => String(r.name).toLowerCase());
+        if (!existingCsCols.includes('lang')) {
+            console.log('[Turso] Altering cabinet_subscribers: adding column lang TEXT DEFAULT \'uz\'');
+            await db.execute("ALTER TABLE cabinet_subscribers ADD COLUMN lang TEXT DEFAULT 'uz'");
+        }
+
+        // 6. Create unique index for telegram_id to enforce uniqueness in SQLite
         await db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)");
         
         console.log('[Turso] Database schema and migrations completed successfully.');

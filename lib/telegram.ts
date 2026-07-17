@@ -11,7 +11,8 @@ import {
     handleCheckCommand, 
     handleHelpCommand, 
     handleCabinetMenu, 
-    handleAccountMenu 
+    handleAccountMenu,
+    handleSettingsMenu
 } from '../bot/commands';
 import { handleTextMessage, handleCallbackQuery } from '../bot/handlers';
 
@@ -29,9 +30,12 @@ bot.command('check', handleCheckCommand);
 bot.command('help', handleHelpCommand);
 
 // ── Register Reply Keyboard Listeners (hears) ──
-bot.hears('📂 Kabinet', handleCabinetMenu);
-bot.hears('🔍 Tekshirish', handleCheckCommand);
-bot.hears(/^⚙/, handleAccountMenu);
+// Match both UZ and EN variants of each button label so language switching works
+bot.hears(['📂 Kabinet', '📂 Cabinet'], handleCabinetMenu);
+bot.hears(['🔍 Tekshirish', '🔍 Check'], handleCheckCommand);
+bot.hears(['⚙️ Sozlamalar', '⚙️ Settings'], handleSettingsMenu);
+bot.hears(/^⚙ /, handleAccountMenu); // profile label: ⚙ {username}
+bot.hears(['⚙ Consultingni ulash', '⚙ Connect Consulting'], handleAccountMenu);
 
 // ── Register Message & Callback Processors ──
 bot.on('message:text', handleTextMessage);
@@ -48,4 +52,5 @@ bot.catch((err) => {
         console.error('Error detail:', e);
     }
 });
+
 export default bot;

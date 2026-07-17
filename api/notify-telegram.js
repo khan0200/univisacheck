@@ -44,21 +44,21 @@ function getStatusEmoji(status) {
     return '🔷';
 }
 
-function getStatusDescription(status) {
+function getStatusDescription(status, lang = 'uz') {
     const normalized = String(status || '').toLowerCase();
     if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
-        return 'Tabriklaymiz 🎉';
+        return lang === 'en' ? 'Congratulations 🎉' : 'Tabriklaymiz 🎉';
     }
     if (normalized.includes('cancel') || normalized.includes('reject')) {
-        return 'Arizangiz rad etildi.';
+        return lang === 'en' ? 'Your application was rejected.' : 'Arizangiz rad etildi.';
     }
     if (normalized.includes('received') || normalized.includes('app/')) {
-        return '⏳ Arizangiz jarayonda.';
+        return lang === 'en' ? '⏳ Your application is being processed.' : '⏳ Arizangiz jarayonda.';
     }
     if (normalized.includes('under review')) {
-        return '🔎 Ko\'rib chiqilmoqda.';
+        return lang === 'en' ? '🔎 Under review.' : '🔎 Ko\'rib chiqilmoqda.';
     }
-    return 'Status yangilandi.';
+    return lang === 'en' ? 'Status updated.' : 'Status yangilandi.';
 }
 
 function formatLastChecked(dateString) {
@@ -120,18 +120,15 @@ module.exports = async (req, res) => {
         return;
     }
 
-    // ── Look up ALL Telegram subscribers for this cabinet ─────────────────
-    let subscriberIds = [];
+    // ── Look up ALL Telegram subscribers for this cabinet (with their lang) ─
+    let subscribers = [];
     try {
         const subsResult = await db.execute({
-            sql: `
-                SELECT cs.telegram_id
-                FROM cabinet_subscribers cs
-                WHERE cs.cabinet_id = ?
-            `,
+            sql: `SELECT cs.telegram_id, COALESCE(cs.lang, 'uz') as lang
+                  FROM cabinet_subscribers cs WHERE cs.cabinet_id = ?`,
             args: [authUser.userId]
         });
-        subscriberIds = subsResult.rows.map(r => r.telegram_id).filter(Boolean);
+        subscribers = subsResult.rows.filter(r => r.telegram_id);
     } catch (dbErr) {
         console.error('[Notify Telegram] DB lookup error:', dbErr.message);
         res.status(500).json({ error: 'Database error looking up subscribers.' });
@@ -139,7 +136,7 @@ module.exports = async (req, res) => {
     }
 
     // ── If cabinet has no connected Telegram subscribers, skip silently ───
-    if (subscriberIds.length === 0) {
+    if (subscribers.length === 0) {
         res.status(200).json({ ok: true, skipped: 'No Telegram subscribers connected to this cabinet' });
         return;
     }
@@ -169,7 +166,6 @@ module.exports = async (req, res) => {
     }
 
     const fullName = escapeTelegramText(body.fullName);
-    const studentId = escapeTelegramText(body.studentId);
     const visaType = escapeTelegramText(body.visaType || 'Embassy');
     const applicationNo = escapeTelegramText(body.applicationNo);
     const birthday = escapeTelegramText(body.birthday);
@@ -180,56 +176,75 @@ module.exports = async (req, res) => {
     const invitingCompany = escapeTelegramText(body.invitingCompany);
 
     const emoji = getStatusEmoji(newStatus);
-    const desc = getStatusDescription(newStatus);
     const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s));
     const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa';
     const checkedStr = formatLastChecked(new Date().toISOString());
 
-    const text = [
-        `🔍 *Visa statusini tekshirish*`,
-        ``,
-        fullName.toUpperCase(),
-        passport.toUpperCase(),
-        birthday,
-        ``,
-        `✈️ *Visa turi:* ${visaType === 'E-Visa' ? 'E-Visa' : 'Embassy'}`,
-        ...(visaType === 'E-Visa' && invitingCompany ? [`🏢 *Hamkor:* ${invitingCompany}`] : []),
-        ...(visaType === 'E-Visa' && applicationNo ? [`📄 *Ariza raqami:* ${applicationNo}`] : []),
-        `📅 *Topshirilgan sana:* ${applicationDate || 'N/A'}`,
-        `🔄 *Holati:* ${emoji} *${newStatus.toUpperCase()}*`,
-        `Tekshirildi: ${checkedStr}`,
-        ``,
-        `*Natija:* ${desc}`,
-        ...(rejectionReason ? [`⚠️ *Sababi:* ${rejectionReason}`] : []),
-        ...(previousRejectionReason ? [`\nBundan oldingi ariza natijasi:\n🚫 Sababi: ${previousRejectionReason}`] : []),
-    ].join('\n');
+    // ── Helper: build localised message text for one subscriber ──────────
+    function buildMessage(lang) {
+        const desc = getStatusDescription(newStatus, lang);
+        const labels = {
+            title:     lang === 'en' ? '🔍 *Visa Status Check*'          : '🔍 *Visa statusini tekshirish*',
+            visaLbl:   lang === 'en' ? '✈️ *Visa type:*'                  : '✈️ *Visa turi:*',
+            partner:   lang === 'en' ? '🏢 *Partner:*'                    : '🏢 *Hamkor:*',
+            appNo:     lang === 'en' ? '📄 *Application No:*'             : '📄 *Ariza raqami:*',
+            submitted: lang === 'en' ? '📅 *Submitted date:*'             : '📅 *Topshirilgan sana:*',
+            status:    lang === 'en' ? '🔄 *Status:*'                     : '🔄 *Holati:*',
+            checked:   lang === 'en' ? 'Checked:'                         : 'Tekshirildi:',
+            result:    lang === 'en' ? '*Result:*'                        : '*Natija:*',
+            reason:    lang === 'en' ? '⚠️ *Reason:*'                     : '⚠️ *Sababi:*',
+            prevResult:lang === 'en' ? 'Previous application result:\n🚫 Reason:' : 'Bundan oldingi ariza natijasi:\n🚫 Sababi:',
+        };
+        return [
+            labels.title, '',
+            fullName.toUpperCase(),
+            passport.toUpperCase(),
+            birthday, '',
+            `${labels.visaLbl} ${visaType === 'E-Visa' ? 'E-Visa' : 'Embassy'}`,
+            ...(visaType === 'E-Visa' && invitingCompany ? [`${labels.partner} ${invitingCompany}`] : []),
+            ...(visaType === 'E-Visa' && applicationNo   ? [`${labels.appNo} ${applicationNo}`]     : []),
+            `${labels.submitted} ${applicationDate || 'N/A'}`,
+            `${labels.status} ${emoji} *${newStatus.toUpperCase()}*`,
+            `${labels.checked} ${checkedStr}`, '',
+            `${labels.result} ${desc}`,
+            ...(rejectionReason         ? [`${labels.reason} ${rejectionReason}`]                          : []),
+            ...(previousRejectionReason ? [`\n${labels.prevResult} ${previousRejectionReason}`]            : []),
+        ].join('\n');
+    }
 
-    const reply_markup = {
-        inline_keyboard: canDownloadPdf
-            ? [
-                [{ text: '🔄 Yangilash', callback_data: `refresh:${passport}` }],
-                [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport}` }]
-              ]
-            : [
-                [{ text: '🔄 Yangilash', callback_data: `refresh:${passport}` }]
-              ]
-    };
+    // ── Build per-subscriber reply_markup ────────────────────────────────
+    function buildMarkup(lang) {
+        const refreshBtn = lang === 'en' ? '🔄 Refresh'     : '🔄 Yangilash';
+        const pdfBtn     = lang === 'en' ? '📥 Visa (pdf)'  : '📥 Viza (pdf)';
+        return {
+            inline_keyboard: canDownloadPdf
+                ? [
+                    [{ text: refreshBtn, callback_data: `refresh:${passport}` }],
+                    [{ text: pdfBtn,     callback_data: `download_pdf:${passport}` }]
+                  ]
+                : [
+                    [{ text: refreshBtn, callback_data: `refresh:${passport}` }]
+                  ]
+        };
+    }
 
-    // ── Send message to ALL subscribers of this cabinet ───────────────────
+    // ── Send message to EACH subscriber in their own language ─────────────
     const results = await Promise.allSettled(
-        subscriberIds.map(chatId =>
-            fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        subscribers.map(({ telegram_id: chatId, lang }) => {
+            const msgText    = buildMessage(lang || 'uz');
+            const reply_markup = buildMarkup(lang || 'uz');
+            return fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: chatId,
-                    text,
+                    text: msgText,
                     parse_mode: 'Markdown',
                     reply_markup,
                     disable_web_page_preview: true
                 })
-            }).then(r => r.json())
-        )
+            }).then(r => r.json());
+        })
     );
 
     const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value?.ok));
@@ -239,7 +254,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json({
         ok: true,
-        notified: subscriberIds.length,
+        notified: subscribers.length,
         failed: failed.length
     });
 };
