@@ -292,7 +292,7 @@ export async function handleCallbackQuery(ctx: Context) {
         }
         
         if (res.student) {
-            const cardText = formatStudentCard(res.student, res.changed, res.oldStatus);
+            const cardText = formatStudentCard(res.student, res.changed, res.oldStatus, lang);
             const cardMessage = ctx.callbackQuery?.message;
             const isApproved = ['approved', 'visa used', 'issued'].some(s => (res.student?.status || '').toLowerCase().includes(s));
             const canDownloadPdf = isApproved && (res.student.visaType || '').toLowerCase() !== 'e-visa';
@@ -488,7 +488,7 @@ export async function handleCallbackQuery(ctx: Context) {
         });
         
         for (const student of filtered) {
-            const cardText = formatStudentCard(student);
+            const cardText = formatStudentCard(student, false, '', lang);
             const isApproved = ['approved', 'visa used', 'issued'].some(s => (student.status || '').toLowerCase().includes(s));
             const canDownloadPdf = isApproved && (student.visaType || '').toLowerCase() !== 'e-visa';
             const inlineKeyboard = {

@@ -61,8 +61,9 @@ function getStatusDescription(status, lang = 'uz') {
     return lang === 'en' ? 'Status updated.' : 'Status yangilandi.';
 }
 
-function formatLastChecked(dateString) {
-    if (!dateString) return 'Hech qachon';
+function formatLastChecked(dateString, lang = 'uz') {
+    const today = lang === 'en' ? 'Today' : 'Bugun';
+    if (!dateString) return lang === 'en' ? 'Never' : 'Hech qachon';
     const date = new Date(dateString);
     try {
         const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
@@ -75,7 +76,7 @@ function formatLastChecked(dateString) {
             hour12: true
         });
         if (todayStr === dateStr) {
-            return `Bugun, ${timePart}`;
+            return `${today}, ${timePart}`;
         } else {
             const datePart = date.toLocaleDateString('en-US', {
                 timeZone: 'Asia/Tashkent',
@@ -85,7 +86,7 @@ function formatLastChecked(dateString) {
             return `${datePart}, ${timePart}`;
         }
     } catch {
-        return 'Bugun';
+        return today;
     }
 }
 
@@ -178,11 +179,12 @@ module.exports = async (req, res) => {
     const emoji = getStatusEmoji(newStatus);
     const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s));
     const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa';
-    const checkedStr = formatLastChecked(new Date().toISOString());
+    const nowIso = new Date().toISOString();
 
     // ── Helper: build localised message text for one subscriber ──────────
     function buildMessage(lang) {
         const desc = getStatusDescription(newStatus, lang);
+        const checkedStr = formatLastChecked(nowIso, lang);
         const labels = {
             title:     lang === 'en' ? '🔍 *Visa Status Check*'          : '🔍 *Visa statusini tekshirish*',
             visaLbl:   lang === 'en' ? '✈️ *Visa type:*'                  : '✈️ *Visa turi:*',

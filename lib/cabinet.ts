@@ -41,28 +41,30 @@ export function getStatusEmoji(status: string): string {
     return '🔷';
 }
 
-export function getStatusDescription(status: string): string {
+export function getStatusDescription(status: string, lang: 'uz' | 'en' = 'uz'): string {
     const normalized = String(status || '').toLowerCase();
     if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
-        return 'Tabriklaymiz 🎉';
+        return lang === 'en' ? 'Congratulations 🎉' : 'Tabriklaymiz 🎉';
     }
     if (normalized.includes('cancel') || normalized.includes('reject')) {
-        return 'Arizangiz rad etildi.';
+        return lang === 'en' ? 'Your application was rejected.' : 'Arizangiz rad etildi.';
     }
     if (normalized.includes('received') || normalized.includes('app/')) {
-        return '⏳ Arizangiz jarayonda.';
+        return lang === 'en' ? '⏳ Your application is being processed.' : '⏳ Arizangiz jarayonda.';
     }
     if (normalized.includes('under review')) {
-        return '🔎 Ko\'rib chiqilmoqda.';
+        return lang === 'en' ? '🔎 Under review.' : '🔎 Ko\'rib chiqilmoqda.';
     }
-    return 'Status yangilandi.';
+    return lang === 'en' ? 'Status updated.' : 'Status yangilandi.';
 }
 
 /**
  * Formats a Telegram student card message.
  */
-export function formatLastChecked(dateString: string): string {
-    if (!dateString) return 'Hech qachon';
+export function formatLastChecked(dateString: string, lang: 'uz' | 'en' = 'uz'): string {
+    const today    = lang === 'en' ? 'Today'    : 'Bugun';
+    const never    = lang === 'en' ? 'Never'    : 'Hech qachon';
+    if (!dateString) return never;
     const date = new Date(dateString);
     try {
         const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
@@ -75,7 +77,7 @@ export function formatLastChecked(dateString: string): string {
             hour12: true
         });
         if (todayStr === dateStr) {
-            return `Bugun, ${timePart}`;
+            return `${today}, ${timePart}`;
         } else {
             const datePart = date.toLocaleDateString('en-US', {
                 timeZone: 'Asia/Tashkent',
@@ -96,7 +98,7 @@ export function formatLastChecked(dateString: string): string {
         
         const nowUz = new Date(new Date().getTime() + (new Date().getTimezoneOffset() * 60000) + (3600000 * 5));
         if (nowUz.toDateString() === uzDate.toDateString()) {
-            return `Bugun, ${timePart}`;
+            return `${today}, ${timePart}`;
         } else {
             return `${uzDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${timePart}`;
         }
@@ -106,31 +108,31 @@ export function formatLastChecked(dateString: string): string {
 /**
  * Formats a Telegram student card message.
  */
-export function formatStudentCard(student: Student, isUpdate: boolean = false, oldStatus: string = ''): string {
+export function formatStudentCard(student: Student, isUpdate: boolean = false, oldStatus: string = '', lang: 'uz' | 'en' = 'uz'): string {
     const emoji = getStatusEmoji(student.status);
-    const checkedStr = formatLastChecked(student.lastChecked);
+    const checkedStr = formatLastChecked(student.lastChecked, lang);
     
     if (isUpdate && oldStatus && oldStatus !== student.status) {
         return [
-            `Visa holati o'zgardi`,
+            lang === 'en' ? 'Visa status changed' : 'Visa holati o\'zgardi',
             ``,
             `${student.studentId || '--'}`,
             `${student.fullName}`,
             ``,
-            `Eski: ${oldStatus.toUpperCase()}`,
-            `Yangi: ${emoji} ${student.status.toUpperCase()}`,
-            `Tekshirildi: ${checkedStr}`
+            `${lang === 'en' ? 'Old' : 'Eski'}: ${oldStatus.toUpperCase()}`,
+            `${lang === 'en' ? 'New' : 'Yangi'}: ${emoji} ${student.status.toUpperCase()}`,
+            `${lang === 'en' ? 'Checked' : 'Tekshirildi'}: ${checkedStr}`
         ].join('\n');
     }
     
     return [
-        `Visa statusi`,
+        lang === 'en' ? 'Visa status' : 'Visa statusi',
         ``,
         `${student.studentId || '--'}`,
         `${student.fullName}`,
         ``,
         `${emoji} ${student.status.toUpperCase()}`,
-        `Tekshirildi: ${checkedStr}`
+        `${lang === 'en' ? 'Checked' : 'Tekshirildi'}: ${checkedStr}`
     ].join('\n');
 }
 
@@ -195,7 +197,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
         });
         
         if (result.rows.length === 0) {
-            return { success: false, changed: false, oldStatus: '', error: 'Talaba kabinetingizdan topilmadi.' };
+            return { success: false, changed: false, oldStatus: '', error: 'Student not found in your cabinet.' };
         }
         
         const row = result.rows[0] as any;
