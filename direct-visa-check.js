@@ -95,6 +95,11 @@ function parseResult1_1(html) {
         const statusMatch = tableHtml.match(/id="PROC_STS_CDNM"[^>]*>([\s\S]*?)<\/div>/i);
         const statusKor = statusMatch ? stripTags(statusMatch[1]).trim() : '';
 
+        // SKIP tables that have no actual content/data fields (layout/template tables)
+        if (!applicationDate && !statusKor) {
+            continue;
+        }
+
         const purposeMatch = tableHtml.match(/id="SOJ_QUAL_NM"[^>]*>([^<]+)/i);
         const entryPurpose = purposeMatch ? purposeMatch[1].trim() : '';
 
@@ -140,6 +145,11 @@ function parseResult3_2(html) {
 
         const statusMatch = tableHtml.match(/id="PROC_STS_CDNM_1"[^>]*>([\s\S]*?)<\/div>/i);
         const statusKor = statusMatch ? stripTags(statusMatch[1]).trim() : '';
+
+        // SKIP tables that have no actual content/data fields (layout/template tables)
+        if (!applicationDate && !statusKor) {
+            continue;
+        }
 
         const purposeMatch = tableHtml.match(/id="ENTRY_PURPOSE"[^>]*>([^<]+)/i);
         const entryPurpose = purposeMatch ? purposeMatch[1].trim() : '';
