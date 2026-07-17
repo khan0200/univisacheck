@@ -5,7 +5,7 @@
  */
 
 import { Context, InputFile } from 'grammy';
-import { connectUser, disconnectUser } from '../lib/auth';
+import { connectUser, disconnectUser, getUserByTelegramId } from '../lib/auth';
 import { checkStudentVisaStatus, downloadStudentVisaPdf } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
 import { getStudentCardKeyboard, mainMenuKeyboard, visaTypeKeyboard, cancelKeyboard } from './keyboards';
@@ -188,7 +188,7 @@ export async function handleTextMessage(ctx: Context) {
             try {
                 const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
                 await clearSessionState(telegramId);
-                await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday);
+                await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday, telegramId);
             } catch (err: any) {
                 await clearSessionState(telegramId);
                 await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
@@ -218,7 +218,7 @@ export async function handleTextMessage(ctx: Context) {
         try {
             const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'E-Visa', text);
             await clearSessionState(telegramId);
-            await displayCheckResult(ctx, checkRes, passport, 'E-Visa', text, fullName, birthday);
+            await displayCheckResult(ctx, checkRes, passport, 'E-Visa', text, fullName, birthday, telegramId);
         } catch (err: any) {
             await clearSessionState(telegramId);
             await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
@@ -407,7 +407,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 try {
                     const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
                     await clearSessionState(telegramId);
-                    await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday);
+                    await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday, telegramId);
                 } catch (err: any) {
                     await clearSessionState(telegramId);
                     await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
@@ -666,7 +666,114 @@ export async function handleCallbackQuery(ctx: Context) {
         }
         return;
     }
+
+    // ── Save to Cabinet Confirmation ──
+    if (callbackData.startsWith('save_to_cabinet:')) {
+        const parts = callbackData.split(':');
+        const choice = parts[1]; // 'yes' or 'no'
+        const passport = (parts[2] || '').toUpperCase().trim();
+
+        // Remove the prompt message
+        const promptMsg = ctx.callbackQuery?.message;
+        if (promptMsg) {
+            await ctx.api.deleteMessage(ctx.chat!.id, promptMsg.message_id).catch(() => {});
+        }
+
+        if (choice === 'no') {
+            await ctx.reply('📝 Kabinetga saqlanmadi.');
+            return;
+        }
+
+        // Retrieve the pending save data from session state
+        const session = await getSessionState(telegramId);
+        const saveData = session.data;
+
+        if (!saveData || !saveData.pendingSave || saveData.pendingSave.passport !== passport) {
+            await ctx.reply("⚠️ Ma'lumot topilmadi. Qaytadan tekshiring.");
+            return;
+        }
+
+        const {
+            fullName,
+            birthday,
+            visaType,
+            applicationNo,
+            status,
+            applicationDate,
+            rejectReason,
+            pdfUrl
+        } = saveData.pendingSave;
+
+        try {
+            const cabinetUser = await getUserByTelegramId(telegramId);
+            if (!cabinetUser) {
+                await ctx.reply('⚠️ Kabinet ulanmagan. Avval /cabinet orqali ulaning.');
+                return;
+            }
+            const userId = cabinetUser.id;
+
+            const existing = await db.execute({
+                sql: 'SELECT passport, deletedAt FROM students WHERE passport = ? AND userId = ?',
+                args: [passport, userId]
+            });
+
+            if (existing.rows.length > 0) {
+                const row = existing.rows[0] as any;
+                if (!row.deletedAt) {
+                    await db.execute({
+                        sql: `UPDATE students SET
+                            fullName = ?, birthday = ?, visaType = ?, applicationNo = ?,
+                            status = ?, applicationDate = ?, rejectReason = ?, pdfUrl = ?,
+                            lastChecked = datetime('now')
+                        WHERE passport = ? AND userId = ?`,
+                        args: [
+                            fullName.toUpperCase().trim(), birthday, visaType, applicationNo || '',
+                            status || 'Pending', applicationDate || '', rejectReason || '', pdfUrl || '',
+                            passport, userId
+                        ]
+                    });
+                    await ctx.reply(`✅ *${passport}* kabinetda yangilandi.`, { parse_mode: 'Markdown' });
+                } else {
+                    await db.execute({
+                        sql: `UPDATE students SET
+                            deletedAt = NULL, fullName = ?, birthday = ?, visaType = ?,
+                            applicationNo = ?, status = ?, applicationDate = ?, rejectReason = ?, pdfUrl = ?,
+                            lastChecked = datetime('now')
+                        WHERE passport = ? AND userId = ?`,
+                        args: [
+                            fullName.toUpperCase().trim(), birthday, visaType, applicationNo || '',
+                            status || 'Pending', applicationDate || '', rejectReason || '', pdfUrl || '',
+                            passport, userId
+                        ]
+                    });
+                    await ctx.reply(`✅ *${passport}* kabinetga qayta qo'shildi.`, { parse_mode: 'Markdown' });
+                }
+            } else {
+                await db.execute({
+                    sql: `INSERT INTO students (
+                        passport, fullName, birthday, studentId, status,
+                        lastChecked, rejectReason, pdfUrl, apiResponse,
+                        batchSelected, createdAt, userId, visaType, applicationNo, applicationDate
+                    ) VALUES (?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?)`,
+                    args: [
+                        passport, fullName.toUpperCase().trim(), birthday, '',
+                        status || 'Pending', rejectReason || '', pdfUrl || '',
+                        JSON.stringify({ status, detail: status }), 0,
+                        userId, visaType, applicationNo || '', applicationDate || ''
+                    ]
+                });
+                await ctx.reply(`✅ *${passport}* kabinetga saqlandi!`, { parse_mode: 'Markdown' });
+            }
+
+            await clearSessionState(telegramId);
+        } catch (err: any) {
+            console.error('[Save to Cabinet Error]:', err.message);
+            await ctx.reply(`❌ Saqlashda xatolik: ${err.message}`);
+        }
+        return;
+    }
 }
+
 
 /**
  * Helper to display the manual visa check result back to the user.
@@ -678,7 +785,8 @@ async function displayCheckResult(
     visaType: string,
     applicationNo: string,
     fullName: string,
-    birthday: string
+    birthday: string,
+    telegramId?: number
 ) {
     if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
         await ctx.reply(
@@ -713,6 +821,31 @@ async function displayCheckResult(
         });
     } catch (err: any) {
         console.error('[Manual Check Database Save Error]:', err.message);
+    }
+
+    // If user is signed into a cabinet, offer to save this student there
+    if (telegramId) {
+        try {
+            const cabinetUser = await getUserByTelegramId(telegramId);
+            if (cabinetUser) {
+                // Store pending save data in session so the callback can retrieve it
+                await setSessionState(telegramId, 'awaiting_cabinet_save', {
+                    pendingSave: {
+                        passport: passport.toUpperCase().trim(),
+                        fullName: fullName.toUpperCase().trim(),
+                        birthday,
+                        visaType,
+                        applicationNo,
+                        status: result.latestStatus || 'Pending',
+                        applicationDate: result.latestDate || '',
+                        rejectReason: result.rejectionReason || '',
+                        pdfUrl: result.pdfUrl || ''
+                    }
+                });
+            }
+        } catch (err: any) {
+            console.error('[Cabinet Save Check Error]:', err.message);
+        }
     }
     
     const emoji = getStatusEmoji(result.latestStatus);
@@ -752,4 +885,29 @@ async function displayCheckResult(
         reply_markup: inlineKeyboard,
         link_preview_options: { is_disabled: true }
     });
+
+    // Show cabinet save prompt if user is connected
+    if (telegramId) {
+        try {
+            const cabinetUser = await getUserByTelegramId(telegramId);
+            if (cabinetUser) {
+                const passportKey = passport.toUpperCase().trim();
+                await ctx.reply(
+                    `💾 Bu talabani kabinetga saqlansinmi?`,
+                    {
+                        reply_markup: {
+                            inline_keyboard: [
+                                [
+                                    { text: '✅ Ha', callback_data: `save_to_cabinet:yes:${passportKey}` },
+                                    { text: '❌ Yo\'q', callback_data: `save_to_cabinet:no:${passportKey}` }
+                                ]
+                            ]
+                        }
+                    }
+                );
+            }
+        } catch (err: any) {
+            console.error('[Cabinet Prompt Error]:', err.message);
+        }
+    }
 }
