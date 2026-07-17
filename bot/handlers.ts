@@ -110,9 +110,9 @@ export async function handleTextMessage(ctx: Context) {
         const visaType = session.data.visaType;
         const passport = text.toUpperCase();
         
-        // Search if we have matching student details in our CRM database
+        // Search if we have matching student details in our CRM database or manual check history
         try {
-            const dbRes = await db.execute({
+            let dbRes = await db.execute({
                 sql: `
                     SELECT fullname, birthday, visa_type
                     FROM students
@@ -122,6 +122,19 @@ export async function handleTextMessage(ctx: Context) {
                 `,
                 args: [passport]
             });
+
+            // If not found in CRM students, fallback to bot_manual_refreshes
+            if (dbRes.rows.length === 0) {
+                dbRes = await db.execute({
+                    sql: `
+                        SELECT fullname, birthday, visa_type
+                        FROM bot_manual_refreshes
+                        WHERE passport = ?
+                        LIMIT 1
+                    `,
+                    args: [passport]
+                });
+            }
             
             if (dbRes.rows.length > 0) {
                 const row = dbRes.rows[0] as any;
