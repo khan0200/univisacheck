@@ -307,9 +307,8 @@ export async function handleCallbackQuery(ctx: Context) {
                     }).catch(() => {});
                 }
                 const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport} da o'zgarish yo'q 🤷🏻`);
-                setTimeout(() => {
-                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
-                }, 3000);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }
         }
         return;
@@ -682,9 +681,8 @@ export async function handleCallbackQuery(ctx: Context) {
                     }).catch(() => {});
                 }
                 const noChangeMsg = await ctx.reply(`🔄 Pasport ${passport} da o'zgarish yo'q 🤷🏻`);
-                setTimeout(() => {
-                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
-                }, 3000);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
             }
         } catch (err: any) {
             // Delete the status message
