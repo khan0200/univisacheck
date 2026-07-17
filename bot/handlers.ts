@@ -823,22 +823,13 @@ async function displayCheckResult(
         console.error('[Manual Check Database Save Error]:', err.message);
     }
 
-    if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
-        const replyMarkup = telegramId ? await getMenuKeyboard(telegramId) : mainMenuKeyboard;
-        await ctx.reply(
-            `🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`,
-            {
-                reply_markup: replyMarkup
-            }
-        );
-        return;
-    }
-
-    // If user is signed into a cabinet, offer to save this student there
+    // If user is signed into a cabinet, prepare pending save state in session
+    let isCabinetConnected = false;
     if (telegramId) {
         try {
             const cabinetUser = await getUserByTelegramId(telegramId);
             if (cabinetUser) {
+                isCabinetConnected = true;
                 // Store pending save data in session so the callback can retrieve it
                 await setSessionState(telegramId, 'awaiting_cabinet_save', {
                     pendingSave: {
@@ -847,16 +838,45 @@ async function displayCheckResult(
                         birthday,
                         visaType,
                         applicationNo,
-                        status: result.latestStatus || 'Pending',
-                        applicationDate: result.latestDate || '',
-                        rejectReason: result.rejectionReason || '',
-                        pdfUrl: result.pdfUrl || ''
+                        status: result.found ? (result.latestStatus || 'Pending') : 'Pending',
+                        applicationDate: result.found ? (result.latestDate || '') : '',
+                        rejectReason: result.found ? (result.rejectionReason || '') : '',
+                        pdfUrl: result.found ? (result.pdfUrl || '') : ''
                     }
                 });
             }
         } catch (err: any) {
             console.error('[Cabinet Save Check Error]:', err.message);
         }
+    }
+
+    if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
+        const replyMarkup = telegramId ? await getMenuKeyboard(telegramId) : mainMenuKeyboard;
+        await ctx.reply(
+            `🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`,
+            {
+                reply_markup: replyMarkup
+            }
+        );
+
+        // Offer to save to cabinet even if no result found
+        if (isCabinetConnected) {
+            const passportKey = passport.toUpperCase().trim();
+            await ctx.reply(
+                `💾 Bu talabani kabinetga saqlansinmi?`,
+                {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                { text: '✅ Ha', callback_data: `save_to_cabinet:yes:${passportKey}` },
+                                { text: '❌ Yo\'q', callback_data: `save_to_cabinet:no:${passportKey}` }
+                            ]
+                        ]
+                    }
+                }
+            );
+        }
+        return;
     }
     
     const emoji = getStatusEmoji(result.latestStatus);
@@ -898,27 +918,20 @@ async function displayCheckResult(
     });
 
     // Show cabinet save prompt if user is connected
-    if (telegramId) {
-        try {
-            const cabinetUser = await getUserByTelegramId(telegramId);
-            if (cabinetUser) {
-                const passportKey = passport.toUpperCase().trim();
-                await ctx.reply(
-                    `💾 Bu talabani kabinetga saqlansinmi?`,
-                    {
-                        reply_markup: {
-                            inline_keyboard: [
-                                [
-                                    { text: '✅ Ha', callback_data: `save_to_cabinet:yes:${passportKey}` },
-                                    { text: '❌ Yo\'q', callback_data: `save_to_cabinet:no:${passportKey}` }
-                                ]
-                            ]
-                        }
-                    }
-                );
+    if (isCabinetConnected) {
+        const passportKey = passport.toUpperCase().trim();
+        await ctx.reply(
+            `💾 Bu talabani kabinetga saqlansinmi?`,
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: '✅ Ha', callback_data: `save_to_cabinet:yes:${passportKey}` },
+                            { text: '❌ Yo\'q', callback_data: `save_to_cabinet:no:${passportKey}` }
+                        ]
+                    ]
+                }
             }
-        } catch (err: any) {
-            console.error('[Cabinet Prompt Error]:', err.message);
-        }
+        );
     }
 }
