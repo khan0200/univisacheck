@@ -343,7 +343,7 @@ async function displayCheckResult(
 ) {
     if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
         await ctx.reply(
-            `Double check your passport number, Fullname, Birthdate`,
+            `🚫 No result\n\nDouble check your passport number, Fullname, Birthdate`,
             {
                 reply_markup: mainMenuKeyboard
             }
