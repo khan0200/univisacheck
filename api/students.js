@@ -116,15 +116,7 @@ module.exports = async (req, res) => {
             // only be revived by the same user who deleted it; otherwise a passport
             // held by someone else's row (active or soft-deleted) is a hard conflict.
             if (isRename) {
-                const collision = await db.execute({
-                    sql: 'SELECT passport, userId, deletedAt FROM students WHERE passport = ?',
-                    args: [passport]
-                });
-                if (collision.rows.length > 0 && collision.rows[0].userId !== userId) {
-                    res.status(409).json({ error: `Passport ${passport} is already in use by another student.` });
-                    return;
-                }
-
+                // Ensure the user owns the original student
                 const ownsOriginal = await db.execute({
                     sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ?',
                     args: [originalPassport, userId]
@@ -133,13 +125,24 @@ module.exports = async (req, res) => {
                     res.status(404).json({ error: 'Student not found.' });
                     return;
                 }
-            } else {
-                const globalMatch = await db.execute({
-                    sql: 'SELECT passport, userId, deletedAt FROM students WHERE passport = ?',
-                    args: [passport]
+
+                // Check if the new passport already exists for this user (and is active)
+                const collision = await db.execute({
+                    sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+                    args: [passport, userId]
                 });
-                if (globalMatch.rows.length > 0 && globalMatch.rows[0].userId !== userId) {
-                    res.status(409).json({ error: `Passport ${passport} is already in use by another student.` });
+                if (collision.rows.length > 0) {
+                    res.status(409).json({ error: `Passport ${passport} is already in use under your account.` });
+                    return;
+                }
+            } else {
+                // Only check if the passport already exists for this user (and is active)
+                const userMatch = await db.execute({
+                    sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+                    args: [passport, userId]
+                });
+                if (userMatch.rows.length > 0) {
+                    res.status(409).json({ error: `Passport ${passport} is already in use under your account.` });
                     return;
                 }
             }
