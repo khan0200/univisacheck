@@ -265,7 +265,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 inline_keyboard: isApproved
                     ? [
                         [{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }],
-                        [{ text: '📄 Vizani yuklash', callback_data: `download_pdf:${res.student.passport}` }]
+                        [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${res.student.passport}` }]
                       ]
                     : [
                         [{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }]
@@ -482,7 +482,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 inline_keyboard: isApproved
                     ? [
                         [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }],
-                        [{ text: '📄 Vizani yuklash', callback_data: `download_pdf:${student.passport}` }]
+                        [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${student.passport}` }]
                       ]
                     : [
                         [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }]
@@ -633,7 +633,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 inline_keyboard: isApproved
                     ? [
                         [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }],
-                        [{ text: '📄 Vizani yuklash', callback_data: `download_pdf:${passport}` }]
+                        [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport}` }]
                       ]
                     : [
                         [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }]
@@ -738,7 +738,7 @@ async function displayCheckResult(
         inline_keyboard: isApproved
             ? [
                 [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }],
-                [{ text: '📄 Vizani yuklash', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
+                [{ text: '📥 Viza (pdf)', callback_data: `download_pdf:${passport.toUpperCase().trim()}` }]
               ]
             : [
                 [{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]
