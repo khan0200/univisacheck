@@ -32,9 +32,12 @@ export async function handleTextMessage(ctx: Context) {
     
     const text = ctx.message?.text?.trim() || '';
     
-    // Check if user wants to cancel
-    if (text === '<Ortga') {
+    // Check if user wants to cancel/back out of the current flow.
+    if (text === '<' || text === '<Ortga') {
         await clearSessionState(telegramId);
+        await ctx.reply('Asosiy menu', {
+            reply_markup: await getMenuKeyboard(telegramId)
+        });
         return;
     }
     
