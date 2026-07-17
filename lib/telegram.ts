@@ -29,9 +29,9 @@ bot.command('check', handleCheckCommand);
 bot.command('help', handleHelpCommand);
 
 // ── Register Reply Keyboard Listeners (hears) ──
-bot.hears('📂 Cabinet', handleCabinetMenu);
-bot.hears('🔍 Check Visa', handleCheckCommand);
-bot.hears('⚙ Account', handleAccountMenu);
+bot.hears('📂 Kabinet', handleCabinetMenu);
+bot.hears('🔍 Tekshirish', handleCheckCommand);
+bot.hears('⚙ Profil', handleAccountMenu);
 
 // ── Register Message & Callback Processors ──
 bot.on('message:text', handleTextMessage);

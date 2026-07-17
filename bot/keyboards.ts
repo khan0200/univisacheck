@@ -11,8 +11,8 @@ import { Keyboard, InlineKeyboard } from 'grammy';
  * Uses resized, persistent layouts.
  */
 export const mainMenuKeyboard = new Keyboard()
-    .text('📂 Cabinet').text('🔍 Check Visa').row()
-    .text('⚙ Account')
+    .text('📂 Kabinet').text('🔍 Tekshirish').row()
+    .text('⚙ Profil')
     .resized()
     .selected(true); // Keep keyboard persistent and open by default
 
@@ -22,35 +22,35 @@ export const mainMenuKeyboard = new Keyboard()
  */
 export function getStudentCardKeyboard(passport: string): InlineKeyboard {
     return new InlineKeyboard()
-        .text('🔄 Refresh', `refresh:${passport.toUpperCase().trim()}`);
+        .text('🔄 Yangilash', `refresh:${passport.toUpperCase().trim()}`);
 }
 
 /**
  * Inline keyboard to choose Visa Type during /check conversation.
  */
 export const visaTypeKeyboard = new InlineKeyboard()
-    .text('Embassy (Diplomatic Mission)', 'check_type:Embassy').row()
-    .text('E-Visa (Individual)', 'check_type:E-Visa');
+    .text('Elchixona', 'check_type:Embassy').row()
+    .text('Elektron (E-Visa)', 'check_type:E-Visa');
 
 /**
  * Inline keyboard to choose Cabinet Category.
  */
 export const cabinetMenuKeyboard = new InlineKeyboard()
-    .text('⏳ Pending', 'cabinet_tab:pending')
-    .text('📄 Application', 'cabinet_tab:application').row()
-    .text('❌ Cancelled', 'cabinet_tab:cancelled')
-    .text('🟢 Approved', 'cabinet_tab:approved');
+    .text('⏳ Kutilmoqda', 'cabinet_tab:pending')
+    .text('📄 Arizalar', 'cabinet_tab:application').row()
+    .text('❌ Rad etildi', 'cabinet_tab:cancelled')
+    .text('🟢 Tasdiqlandi', 'cabinet_tab:approved');
 
 /**
  * Inline keyboard for Account menu actions.
  */
 export const accountMenuKeyboard = new InlineKeyboard()
-    .text('🔴 Disconnect Account', 'account:disconnect');
+    .text('🔴 Chiqish', 'account:disconnect');
 
 /**
  * Simple cancellation button for input dialogues.
  */
 export const cancelKeyboard = new Keyboard()
-    .text('❌ Cancel')
+    .text('❌ Bekor qilish')
     .resized()
     .oneTime();

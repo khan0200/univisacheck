@@ -27,9 +27,9 @@ export async function handleTextMessage(ctx: Context) {
     const text = ctx.message?.text?.trim() || '';
     
     // Check if user wants to cancel
-    if (text === '❌ Cancel') {
+    if (text === '❌ Bekor qilish') {
         await clearSessionState(telegramId);
-        await ctx.reply('❌ Action cancelled.', {
+        await ctx.reply('❌ Bekor qilindi.', {
             reply_markup: mainMenuKeyboard
         });
         return;
@@ -40,7 +40,7 @@ export async function handleTextMessage(ctx: Context) {
     
     if (session.state === 'idle') {
         // Fallback for unexpected messages
-        await ctx.reply('👋 Choose an option from the menu below or send /help to view commands.', {
+        await ctx.reply('👋 Menudan bo\'limni tanlang yoki /help yuboring.', {
             reply_markup: mainMenuKeyboard
         });
         return;
@@ -49,12 +49,12 @@ export async function handleTextMessage(ctx: Context) {
     // ── Cabinet Connection Flow ──
     if (session.state === 'awaiting_email') {
         if (text.length < 2) {
-            await ctx.reply('⚠️ Please enter a valid Email address or Consulting name:');
+            await ctx.reply('⚠️ Email yoki konsaltig nomini kiriting:');
             return;
         }
         
         await setSessionState(telegramId, 'awaiting_password', { email: text });
-        await ctx.reply('🗝 Please enter your cabinet *Password*:\n\n_(Note: Your password is encrypted and stored securely using AES-256)_', {
+        await ctx.reply('🗝 Parolni kiriting:', {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
         });
@@ -63,7 +63,7 @@ export async function handleTextMessage(ctx: Context) {
     
     if (session.state === 'awaiting_password') {
         const email = session.data.email;
-        await ctx.reply('⌛ *Verifying credentials and connecting account...*', { parse_mode: 'Markdown' });
+        await ctx.reply('⌛ *Tekshirilmoqda...*', { parse_mode: 'Markdown' });
         
         const connectResult = await connectUser(
             telegramId,
@@ -76,7 +76,7 @@ export async function handleTextMessage(ctx: Context) {
         
         if (!connectResult.success) {
             await clearSessionState(telegramId);
-            await ctx.reply(`❌ *Connection Failed*\n\n${connectResult.error}`, {
+            await ctx.reply(`❌ *Xatolik*\n\n${connectResult.error}`, {
                 parse_mode: 'Markdown',
                 reply_markup: mainMenuKeyboard
             });
@@ -84,7 +84,7 @@ export async function handleTextMessage(ctx: Context) {
         }
         
         await clearSessionState(telegramId);
-        await ctx.reply('✅ *Connected successfully!*', {
+        await ctx.reply('✅ *Muvaffaqiyatli ulindi!*', {
             parse_mode: 'Markdown',
             reply_markup: mainMenuKeyboard
         });
@@ -97,7 +97,7 @@ export async function handleTextMessage(ctx: Context) {
     // ── One-Off Manual check flow ──
     if (session.state === 'awaiting_check_passport') {
         if (!PASSPORT_REGEX.test(text)) {
-            await ctx.reply('⚠️ Invalid passport format. Expected 2 letters followed by 7 numbers (e.g. AA1234567). Please try again:');
+            await ctx.reply('⚠️ Pasport xato. Misol: AA1234567. Qaytadan kiriting:');
             return;
         }
         
@@ -132,13 +132,13 @@ export async function handleTextMessage(ctx: Context) {
                     const inlineKeyboard = {
                         inline_keyboard: [
                             [{ text: `${dbName}`, callback_data: 'autofill:yes' }],
-                            [{ text: '👤 Enter details manually', callback_data: 'autofill:no' }]
+                            [{ text: '👤 Qo\'lda kiritish', callback_data: 'autofill:no' }]
                         ]
                     };
                     
                     await ctx.reply(
-                        `🔍 *Matches Found in Database*\n\n` +
-                        `We found matching student details for passport *${passport}*. Is this the student?`,
+                        `🔍 *Ma'lumot topildi*\n\n` +
+                        `Pasport *${passport}* bo'yicha talaba topildi. Bu shu talabami?`,
                         {
                             parse_mode: 'Markdown',
                             reply_markup: inlineKeyboard
@@ -152,7 +152,7 @@ export async function handleTextMessage(ctx: Context) {
         }
         
         await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
-        await ctx.reply('👤 Please enter the student\'s *Full Name* (in English, matching passport):', {
+        await ctx.reply('👤 Talabaning *Ism-familiyasi*ni kiriting (inglizcha, pasportdagidek):', {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
         });
@@ -161,13 +161,13 @@ export async function handleTextMessage(ctx: Context) {
     
     if (session.state === 'awaiting_check_name') {
         if (text.length < 2) {
-            await ctx.reply('⚠️ Name too short. Please enter the full name:');
+            await ctx.reply('⚠️ Ism juda qisqa. To\'liq kiriting:');
             return;
         }
         
         const { visaType, passport } = session.data;
         await setSessionState(telegramId, 'awaiting_check_dob', { visaType, passport, fullName: text.toUpperCase() });
-        await ctx.reply('📅 Please enter the student\'s *Date of Birth* (format: YYYY-MM-DD, e.g. 2005-03-18):', {
+        await ctx.reply('📅 Talabaning *Tug\'ilgan kuni* (format: YYYY-MM-DD, misol: 2005-03-18):', {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
         });
@@ -176,7 +176,7 @@ export async function handleTextMessage(ctx: Context) {
     
     if (session.state === 'awaiting_check_dob') {
         if (!DATE_REGEX.test(text)) {
-            await ctx.reply('⚠️ Invalid date format. Please use YYYY-MM-DD format (e.g. 2005-03-18):');
+            await ctx.reply('⚠️ Sana xato. Format: YYYY-MM-DD (misol: 2005-03-18):');
             return;
         }
         
@@ -184,21 +184,21 @@ export async function handleTextMessage(ctx: Context) {
         const birthday = text;
         
         if (visaType === 'Embassy') {
-            await ctx.reply('⌛ *Wait for visa.go.kr portal...*', { parse_mode: 'Markdown' });
+            await ctx.reply('⌛ *Kutib turing...*', { parse_mode: 'Markdown' });
             try {
                 const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
                 await clearSessionState(telegramId);
                 await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday);
             } catch (err: any) {
                 await clearSessionState(telegramId);
-                await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`, {
+                await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
                     reply_markup: mainMenuKeyboard
                 });
             }
         } else {
             // E-Visa needs application number
             await setSessionState(telegramId, 'awaiting_check_appno', { visaType, passport, fullName, birthday });
-            await ctx.reply('📄 Please enter the *E-Visa Application Number* (e.g. 6595150001):', {
+            await ctx.reply('📄 E-Visa ariza raqamini kiriting (misol: 6595150001):', {
                 parse_mode: 'Markdown',
                 reply_markup: cancelKeyboard
             });
@@ -208,12 +208,12 @@ export async function handleTextMessage(ctx: Context) {
     
     if (session.state === 'awaiting_check_appno') {
         if (text.length < 5) {
-            await ctx.reply('⚠️ Invalid application number. Please enter it again:');
+            await ctx.reply('⚠️ Ariza raqami xato. Qaytadan kiriting:');
             return;
         }
         
         const { passport, fullName, birthday } = session.data;
-        await ctx.reply('⌛ *Wait for visa.go.kr portal...*', { parse_mode: 'Markdown' });
+        await ctx.reply('⌛ *Kutib turing...*', { parse_mode: 'Markdown' });
         
         try {
             const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'E-Visa', text);
@@ -221,7 +221,7 @@ export async function handleTextMessage(ctx: Context) {
             await displayCheckResult(ctx, checkRes, passport, 'E-Visa', text, fullName, birthday);
         } catch (err: any) {
             await clearSessionState(telegramId);
-            await ctx.reply(`❌ *Visa check failed* due to a network or portal error: ${err.message}`, {
+            await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
                 reply_markup: mainMenuKeyboard
             });
         }
@@ -244,7 +244,7 @@ export async function handleCallbackQuery(ctx: Context) {
         const passport = callbackData.split(':')[1];
         
         // 1. Send temporary refreshing status message
-        const statusMsg = await ctx.reply(`🔄 *Refreshing status for passport ${passport}...*`, { parse_mode: 'Markdown' });
+        const statusMsg = await ctx.reply(`🔄 *Pasport ${passport} yangilanmoqda...*`, { parse_mode: 'Markdown' });
         
         const res = await refreshStudent(telegramId, passport);
         
@@ -252,7 +252,7 @@ export async function handleCallbackQuery(ctx: Context) {
         await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
         
         if (!res.success) {
-            await ctx.reply(`❌ Failed to check: ${res.error}`);
+            await ctx.reply(`❌ Yangilash xatosi: ${res.error}`);
             return;
         }
         
@@ -267,7 +267,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 }
                 await ctx.reply(cardText, {
                     reply_markup: {
-                        inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `refresh:${res.student.passport}` }]]
+                        inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }]]
                     }
                 });
             } else {
@@ -275,7 +275,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 if (cardMessage) {
                     await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, cardText, {
                         reply_markup: {
-                            inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `refresh:${res.student.passport}` }]]
+                            inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `refresh:${res.student.passport}` }]]
                         }
                     }).catch(() => {});
                 }
@@ -288,7 +288,7 @@ export async function handleCallbackQuery(ctx: Context) {
     if (callbackData === 'account:connect') {
         await clearSessionState(telegramId);
         await setSessionState(telegramId, 'awaiting_email', {});
-        await ctx.reply('🔒 *Cabinet Login Flow*\n\nPlease enter your cabinet *Email address* or *Consulting name*:', {
+        await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki konsaltig nomini kiriting:', {
             parse_mode: 'Markdown'
         });
         return;
@@ -298,12 +298,12 @@ export async function handleCallbackQuery(ctx: Context) {
     if (callbackData === 'account:disconnect') {
         const success = await disconnectUser(telegramId);
         if (success) {
-            await ctx.reply('🔌 *Account unlinked successfully.* Your credentials, session tokens, and cache associations have been removed.', {
+            await ctx.reply('🔌 *Kabinet o\'chirildi.*', {
                 parse_mode: 'Markdown',
                 reply_markup: mainMenuKeyboard
             });
         } else {
-            await ctx.reply('⚠️ Account was not connected.');
+            await ctx.reply('⚠️ Profil ulanmagan.');
         }
         return;
     }
@@ -316,7 +316,7 @@ export async function handleCallbackQuery(ctx: Context) {
         const visaType = callbackData.split(':')[1];
         
         await setSessionState(telegramId, 'awaiting_check_passport', { visaType });
-        await ctx.reply('🔍 *Instant Visa Check*\n\nPlease enter the *Passport number* (e.g., AA1234567):', {
+        await ctx.reply('🔍 *Tezkor tekshirish*\n\nPasport raqamini kiriting (misol: AA1234567):', {
             parse_mode: 'Markdown',
             reply_markup: cancelKeyboard
         });
@@ -349,18 +349,18 @@ export async function handleCallbackQuery(ctx: Context) {
             const inlineKeyboard = {
                 inline_keyboard: [
                     [
-                        { text: '✅ Yes', callback_data: 'autofill_confirm:yes' },
-                        { text: '❌ No', callback_data: 'autofill_confirm:no' }
+                        { text: '✅ Ha', callback_data: 'autofill_confirm:yes' },
+                        { text: '❌ Yo\'q', callback_data: 'autofill_confirm:no' }
                     ]
                 ]
             };
             
             await ctx.reply(
-                `🔍 *Verify Student Details*\n\n` +
-                `👤 *Name:* ${autofill.fullName}\n` +
-                `📅 *DOB:* ${autofill.birthday}\n` +
-                `✈️ *Visa Type:* ${visaType}\n\n` +
-                `*Is this correct?*`,
+                `🔍 *Ma'lumotlarni tekshiring*\n\n` +
+                `👤 *Ism:* ${autofill.fullName}\n` +
+                `📅 *Tug'ilgan sana:* ${autofill.birthday}\n` +
+                `✈️ *Visa turi:* ${visaType}\n\n` +
+                `*Ma'lumotlar to'g'rimi?*`,
                 {
                     parse_mode: 'Markdown',
                     reply_markup: inlineKeyboard
@@ -370,7 +370,7 @@ export async function handleCallbackQuery(ctx: Context) {
             // User chose manual entry
             const { passport, visaType } = session.data;
             await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
-            await ctx.reply('👤 Please enter the student\'s *Full Name* (in English, matching passport):', {
+            await ctx.reply('👤 Talabaning *Ism-familiyasi*ni kiriting (inglizcha, pasportdagidek):', {
                 parse_mode: 'Markdown',
                 reply_markup: cancelKeyboard
             });
@@ -395,21 +395,21 @@ export async function handleCallbackQuery(ctx: Context) {
         
         if (confirm === 'yes') {
             if (visaType === 'Embassy') {
-                await ctx.reply('⌛ *Wait for visa.go.kr portal...*', { parse_mode: 'Markdown' });
+                await ctx.reply('⌛ *Kutib turing...*', { parse_mode: 'Markdown' });
                 try {
                     const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '');
                     await clearSessionState(telegramId);
                     await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday);
                 } catch (err: any) {
                     await clearSessionState(telegramId);
-                    await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`, {
+                    await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`, {
                         reply_markup: mainMenuKeyboard
                     });
                 }
             } else {
                 // E-Visa track: prompt for application number (do NOT load it automatically)
                 await setSessionState(telegramId, 'awaiting_check_appno', { visaType, passport, fullName, birthday });
-                await ctx.reply('📄 Please enter the *E-Visa Application Number* (e.g. 6595150001):', {
+                await ctx.reply('📄 E-Visa ariza raqamini kiriting (misol: 6595150001):', {
                     parse_mode: 'Markdown',
                     reply_markup: cancelKeyboard
                 });
@@ -417,7 +417,7 @@ export async function handleCallbackQuery(ctx: Context) {
         } else {
             // User rejected confirm
             await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport });
-            await ctx.reply('👤 Please enter the student\'s *Full Name* (in English, matching passport):', {
+            await ctx.reply('👤 Talabaning *Ism-familiyasi*ni kiriting (inglizcha, pasportdagidek):', {
                 parse_mode: 'Markdown',
                 reply_markup: cancelKeyboard
             });
@@ -453,15 +453,16 @@ export async function handleCallbackQuery(ctx: Context) {
         });
         
         const categoryTitle = tab.charAt(0).toUpperCase() + tab.slice(1);
+        const uzCategoryTitle = tab === 'pending' ? 'Kutilmoqda' : tab === 'approved' ? 'Tasdiqlandi' : tab === 'cancelled' ? 'Rad etildi' : 'Arizalar';
         
         if (filtered.length === 0) {
-            await ctx.reply(`📭 No students found in the *${categoryTitle}* category.`, {
+            await ctx.reply(`📭 Bo'limda talabalar topilmadi.`, {
                 parse_mode: 'Markdown'
             });
             return;
         }
         
-        await ctx.reply(`📂 *Cabinet - ${categoryTitle}* (${filtered.length} students)`, {
+        await ctx.reply(`📂 *Kabinet - ${uzCategoryTitle}* (${filtered.length} ta talaba)`, {
             parse_mode: 'Markdown'
         });
         
@@ -470,7 +471,7 @@ export async function handleCallbackQuery(ctx: Context) {
             const cardText = formatStudentCard(student);
             const inlineKeyboard = {
                 inline_keyboard: [
-                    [{ text: '🔄 Refresh', callback_data: `refresh:${student.passport}` }]
+                    [{ text: '🔄 Yangilash', callback_data: `refresh:${student.passport}` }]
                 ]
             };
             await ctx.reply(cardText, {
@@ -485,7 +486,7 @@ export async function handleCallbackQuery(ctx: Context) {
         const passport = callbackData.split(':')[1].toUpperCase().trim();
         
         // 1. Send temporary refreshing status message
-        const statusMsg = await ctx.reply(`🔄 *Refreshing status for passport ${passport}...*`, { parse_mode: 'Markdown' });
+        const statusMsg = await ctx.reply(`🔄 *Pasport raqami ${passport} yangilanmoqda...*`, { parse_mode: 'Markdown' });
         
         try {
             // 2. Fetch manual check details from database
@@ -497,7 +498,7 @@ export async function handleCallbackQuery(ctx: Context) {
             if (res.rows.length === 0) {
                 // Delete the status message
                 await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
-                await ctx.reply(`❌ Failed to check: details not found. Please run a new check using /check.`);
+                await ctx.reply(`❌ Pasport topilmadi. Qaytadan /check orqali qidiring.`);
                 return;
             }
             
@@ -519,7 +520,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 if (cardMessage) {
                     await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
                 }
-                await ctx.reply(`🚫 No result\n\nDouble check your passport number, Fullname, Birthdate`, {
+                await ctx.reply(`🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`, {
                     reply_markup: mainMenuKeyboard
                 });
                 return;
@@ -531,19 +532,19 @@ export async function handleCallbackQuery(ctx: Context) {
             
             const checkedStr = formatLastChecked(new Date().toISOString());
             const resultText = 
-                `🔍 *Visa Application Status Check*\n\n` +
+                `🔍 *Visa statusini tekshirish*\n\n` +
                 `${fullName.toUpperCase()}\n` +
                 `${passport.toUpperCase()}\n` +
                 `${birthday}\n\n` +
-                `✈️ *Visa Type:* ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
-                (visaType === 'E-Visa' ? `🏢 *Invitee:* ${checkRes.invitingCompany || 'N/A'}\n` : '') +
-                (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
-                `📅 *Application Date:* ${checkRes.latestDate || 'N/A'}\n` +
-                `🔄 *Status:* ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n` +
-                `Checked: ${checkedStr}\n\n` +
-                `*Result:* ${desc}\n` +
-                (checkRes.rejectionReason ? `\n⚠️ *Reason:* ${checkRes.rejectionReason}\n` : '') +
-                (checkRes.pdfUrl && isApproved ? `\n📄 [Download Visa Certificate](${checkRes.pdfUrl})\n` : '');
+                `✈️ *Visa turi:* ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
+                (visaType === 'E-Visa' ? `🏢 *Hamkor:* ${checkRes.invitingCompany || 'N/A'}\n` : '') +
+                (visaType === 'E-Visa' ? `📄 *Ariza raqami:* ${applicationNo}\n` : '') +
+                `📅 *Topshirilgan sana:* ${checkRes.latestDate || 'N/A'}\n` +
+                `🔄 *Holati:* ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n` +
+                `Tekshirildi: ${checkedStr}\n\n` +
+                `*Natija:* ${desc}\n` +
+                (checkRes.rejectionReason ? `\n⚠️ *Sababi:* ${checkRes.rejectionReason}\n` : '') +
+                (checkRes.pdfUrl && isApproved ? `\n📄 [Visa sertifikatini yuklash](${checkRes.pdfUrl})\n` : '');
                 
             const currentText = cardMessage?.text || '';
             const changed = !currentText.toLowerCase().includes(checkRes.latestStatus.toLowerCase());
@@ -555,7 +556,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 await ctx.reply(resultText, {
                     parse_mode: 'Markdown',
                     reply_markup: {
-                        inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `mrefresh:${passport}` }]]
+                        inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }]]
                     },
                     link_preview_options: { is_disabled: true }
                 });
@@ -564,7 +565,7 @@ export async function handleCallbackQuery(ctx: Context) {
                     await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, resultText, {
                         parse_mode: 'Markdown',
                         reply_markup: {
-                            inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `mrefresh:${passport}` }]]
+                            inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport}` }]]
                         },
                         link_preview_options: { is_disabled: true }
                     }).catch(() => {});
@@ -573,7 +574,7 @@ export async function handleCallbackQuery(ctx: Context) {
         } catch (err: any) {
             // Delete the status message
             await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
-            await ctx.reply(`❌ *Visa check failed* due to network or portal error: ${err.message}`);
+            await ctx.reply(`❌ *Tekshirish xatosi:* ${err.message}`);
         }
         return;
     }
@@ -593,7 +594,7 @@ async function displayCheckResult(
 ) {
     if (!result.found || (result.latestStatus || '').toUpperCase() === 'UNKNOWN') {
         await ctx.reply(
-            `🚫 No result\n\nDouble check your passport number, Fullname, Birthdate`,
+            `🚫 Natija yo'q\n\nPasport, Ism va Tug'ilgan kunni tekshiring`,
             {
                 reply_markup: mainMenuKeyboard
             }
@@ -632,24 +633,24 @@ async function displayCheckResult(
     
     const checkedStr = formatLastChecked(new Date().toISOString());
     const resultText = 
-        `🔍 *Visa Application Status Check*\n\n` +
+        `🔍 *Visa statusini tekshirish*\n\n` +
         `${fullName.toUpperCase()}\n` +
         `${passport.toUpperCase()}\n` +
         `${birthday}\n\n` +
-        `✈️ *Visa Type:* ${result.statusOfResidence || result.visaKind || visaType}\n` +
-        (visaType === 'E-Visa' ? `🏢 *Invitee:* ${result.invitingCompany || 'N/A'}\n` : '') +
-        (visaType === 'E-Visa' ? `📄 *Application Number:* ${applicationNo}\n` : '') +
-        `📅 *Application Date:* ${result.latestDate || 'N/A'}\n` +
-        `🔄 *Status:* ${emoji} *${result.latestStatus.toUpperCase()}*\n` +
-        `Checked: ${checkedStr}\n\n` +
-        `*Result:* ${desc}\n` +
-        (result.rejectionReason ? `\n⚠️ *Reason:* ${result.rejectionReason}\n` : '') +
-        (result.pdfUrl && isApproved ? `\n📄 [Download Visa Certificate](${result.pdfUrl})\n` : '');
+        `✈️ *Visa turi:* ${result.statusOfResidence || result.visaKind || visaType}\n` +
+        (visaType === 'E-Visa' ? `🏢 *Hamkor:* ${result.invitingCompany || 'N/A'}\n` : '') +
+        (visaType === 'E-Visa' ? `📄 *Ariza raqami:* ${applicationNo}\n` : '') +
+        `📅 *Topshirilgan sana:* ${result.latestDate || 'N/A'}\n` +
+        `🔄 *Holati:* ${emoji} *${result.latestStatus.toUpperCase()}*\n` +
+        `Tekshirildi: ${checkedStr}\n\n` +
+        `*Natija:* ${desc}\n` +
+        (result.rejectionReason ? `\n⚠️ *Sababi:* ${result.rejectionReason}\n` : '') +
+        (result.pdfUrl && isApproved ? `\n📄 [Visa sertifikatini yuklash](${result.pdfUrl})\n` : '');
         
     await ctx.reply(resultText, {
         parse_mode: 'Markdown',
         reply_markup: {
-            inline_keyboard: [[{ text: '🔄 Refresh', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]]
+            inline_keyboard: [[{ text: '🔄 Yangilash', callback_data: `mrefresh:${passport.toUpperCase().trim()}` }]]
         },
         link_preview_options: { is_disabled: true }
     });

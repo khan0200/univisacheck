@@ -62,13 +62,13 @@ export async function clearSessionState(telegramId: number): Promise<void> {
 export async function handleStart(ctx: Context) {
     await clearSessionState(ctx.from?.id || 0);
     const welcomeText = 
-        `Welcome to *Korea Visa Check* Bot! 🇰🇷🤖\n\n` +
-        `This bot allows you to:\n` +
-        `• Connect your VisaCheck agency cabinet\n` +
-        `• Monitor and synchronize your students' visa statuses\n` +
-        `• Get real-time status change notifications\n` +
-        `• Run instant one-off visa checks\n\n` +
-        `Use the menu below to navigate.`;
+        `Koreya visa tekshirish botiga xush kelibsiz! 🇰🇷🤖\n\n` +
+        `Imkoniyatlar:\n` +
+        `• VisaCheck kabinetini ulash\n` +
+        `• Talabalar visa statusini kuzatish\n` +
+        `• O'zgarishlar haqida bildirishnoma olish\n` +
+        `• Visa statusini tezkor tekshirish\n\n` +
+        `Menudan foydalaning.`;
     
     await ctx.reply(welcomeText, {
         parse_mode: 'Markdown',
@@ -89,7 +89,7 @@ export async function handleCabinetCommand(ctx: Context) {
     // Check if already connected
     const activeUser = await getUserByTelegramId(telegramId);
     if (activeUser) {
-        await ctx.reply(`✅ Your account is already connected to: *${activeUser.email}*`, {
+        await ctx.reply(`✅ Profil ulangan: *${activeUser.email}*`, {
             parse_mode: 'Markdown',
             reply_markup: mainMenuKeyboard
         });
@@ -98,7 +98,7 @@ export async function handleCabinetCommand(ctx: Context) {
     
     // Start login state machine
     await setSessionState(telegramId, 'awaiting_email', {});
-    await ctx.reply('🔒 *Cabinet Login Flow*\n\nPlease enter your cabinet *Email address* or *Consulting name*:', {
+    await ctx.reply('🔒 *Kabinetga kirish*\n\nEmail yoki konsaltig nomini kiriting:', {
         parse_mode: 'Markdown'
     });
 }
@@ -112,7 +112,7 @@ export async function handleCheckCommand(ctx: Context) {
     if (!telegramId) return;
     
     await setSessionState(telegramId, 'awaiting_check_type', {});
-    await ctx.reply('✈️ Select the *Visa application mode*:', {
+    await ctx.reply('✈️ *Visa turini tanlang*:', {
         parse_mode: 'Markdown',
         reply_markup: visaTypeKeyboard
     });
@@ -123,18 +123,17 @@ export async function handleCheckCommand(ctx: Context) {
  */
 export async function handleHelpCommand(ctx: Context) {
     const helpText = 
-        `ℹ️ *Visa Checker Bot Guide*\n\n` +
-        `*Commands:*\n` +
-        `/start - Open main menu & welcome message\n` +
-        `/cabinet - Connect your VisaCheck account\n` +
-        `/check - Perform a manual visa status check\n` +
-        `/help - View this help menu\n\n` +
-        `*Main Menu Buttons:*\n` +
-        `📂 *Cabinet* - View your registered students & refresh individual statuses\n` +
-        `🔍 *Check Visa* - Check any visa directly without linking cabinet\n` +
-        `🔄 *Refresh All* - Query and refresh all cabinet students at once\n` +
-        `⚙ *Account* - Manage connection settings & disconnect account\n\n` +
-        `Need help? Contact the consulting administrator.`;
+        `ℹ️ *Bot bo'yicha qo'llanma*\n\n` +
+        `*Buyruqlar:*\n` +
+        `/start - Botni boshlash\n` +
+        `/cabinet - Kabinetni ulash\n` +
+        `/check - Visani tekshirish\n` +
+        `/help - Yordam menyusi\n\n` +
+        `*Menyular:*\n` +
+        `📂 *Kabinet* - Talabalar ro'yxati\n` +
+        `🔍 *Tekshirish* - Visani to'g'ridan-to'g'ri tekshirish\n` +
+        `⚙ *Profil* - Sozlamalar va chiqish\n\n` +
+        `Savollar uchun administratorga murojaat qiling.`;
         
     await ctx.reply(helpText, {
         parse_mode: 'Markdown',
@@ -152,11 +151,11 @@ export async function handleCabinetMenu(ctx: Context) {
     
     const user = await getUserByTelegramId(telegramId);
     if (!user) {
-        await ctx.reply('⚠️ Please connect your cabinet account first by running /cabinet or selecting ⚙ Account.');
+        await ctx.reply('⚠️ Oldin profilni ulang (/cabinet yoki ⚙ Profil orqali).');
         return;
     }
     
-    await ctx.reply('📂 *Cabinet Categories*\n\nSelect a category to view students:', {
+    await ctx.reply('📂 *Kategoriyalar*\n\nKerakli bo\'limni tanlang:', {
         parse_mode: 'Markdown',
         reply_markup: cabinetMenuKeyboard
     });
@@ -174,13 +173,13 @@ export async function handleAccountMenu(ctx: Context) {
     const user = await getUserByTelegramId(telegramId);
     if (!user) {
         const welcomeText = 
-            `⚙ *Account Management*\n\n` +
-            `Status: 🛑 *Not Connected*\n\n` +
-            `To connect your existing VisaCheck account, click the button below:`;
+            `⚙ *Profilni boshqarish*\n\n` +
+            `Holat: 🛑 *Ulanmagan*\n\n` +
+            `VisaCheck kabinetini ulash uchun tugmani bosing:`;
             
         const inlineKeyboard = {
             inline_keyboard: [
-                [{ text: '🔑 Connect Cabinet', callback_data: 'account:connect' }]
+                [{ text: '🔑 Kabinetni ulash', callback_data: 'account:connect' }]
             ]
         };
         await ctx.reply(welcomeText, {
@@ -191,21 +190,20 @@ export async function handleAccountMenu(ctx: Context) {
     }
     
     const students = await getStudentsByTelegramId(telegramId);
-    
     const connectedSince = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '--';
     
     const accountText = 
-        `⚙ *Connected Account Details*\n\n` +
-        `👤 *Consulting Name:* ${user.username}\n` +
-        `📧 *Current Email:* \`${user.email}\`\n` +
-        `📅 *Connected Since:* ${connectedSince}\n` +
-        `🎓 *Students Count:* ${students.length}\n` +
-        `🔄 *Last Connection Refresh:* Connected successfully\n\n` +
-        `To unlink your cabinet account from Telegram, press the button below:`;
+        `⚙ *Profil ma'lumotlari*\n\n` +
+        `👤 *Konsaltig:* ${user.username}\n` +
+        `📧 *Email:* \`${user.email}\`\n` +
+        `📅 *Ulangan sana:* ${connectedSince}\n` +
+        `🎓 *Talabalar soni:* ${students.length}\n` +
+        `🔄 *Holat:* Muvaffaqiyatli ulangan\n\n` +
+        `Kabinetni o'chirish uchun quyidagi tugmani bosing:`;
         
     const inlineKeyboard = {
         inline_keyboard: [
-            [{ text: '🔴 Disconnect Account', callback_data: 'account:disconnect' }]
+            [{ text: '🔴 Chiqish', callback_data: 'account:disconnect' }]
         ]
     };
     

@@ -44,25 +44,25 @@ export function getStatusEmoji(status: string): string {
 export function getStatusDescription(status: string): string {
     const normalized = String(status || '').toLowerCase();
     if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
-        return 'Congratulations 🎉';
+        return 'Tabriklaymiz 🎉';
     }
     if (normalized.includes('cancel') || normalized.includes('reject')) {
-        return 'Your application has been rejected/cancelled.';
+        return 'Arizangiz rad etildi.';
     }
     if (normalized.includes('received') || normalized.includes('app/')) {
-        return '⏳ Your application is in process.';
+        return '⏳ Arizangiz jarayonda.';
     }
     if (normalized.includes('under review')) {
-        return '🔎 Your application is under review.';
+        return '🔎 Ko\'rib chiqilmoqda.';
     }
-    return 'Status updated.';
+    return 'Status yangilandi.';
 }
 
 /**
  * Formats a Telegram student card message.
  */
 export function formatLastChecked(dateString: string): string {
-    if (!dateString) return 'Never';
+    if (!dateString) return 'Hech qachon';
     const date = new Date(dateString);
     try {
         const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' });
@@ -75,7 +75,7 @@ export function formatLastChecked(dateString: string): string {
             hour12: true
         });
         if (todayStr === dateStr) {
-            return `Today at ${timePart}`;
+            return `Bugun, ${timePart}`;
         } else {
             const datePart = date.toLocaleDateString('en-US', {
                 timeZone: 'Asia/Tashkent',
@@ -96,7 +96,7 @@ export function formatLastChecked(dateString: string): string {
         
         const nowUz = new Date(new Date().getTime() + (new Date().getTimezoneOffset() * 60000) + (3600000 * 5));
         if (nowUz.toDateString() === uzDate.toDateString()) {
-            return `Today at ${timePart}`;
+            return `Bugun, ${timePart}`;
         } else {
             return `${uzDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${timePart}`;
         }
@@ -112,25 +112,25 @@ export function formatStudentCard(student: Student, isUpdate: boolean = false, o
     
     if (isUpdate && oldStatus && oldStatus !== student.status) {
         return [
-            `Visa Status Update`,
+            `Visa holati o'zgardi`,
             ``,
             `${student.studentId || '--'}`,
             `${student.fullName}`,
             ``,
-            `Old: ${oldStatus.toUpperCase()}`,
-            `New: ${emoji} ${student.status.toUpperCase()}`,
-            `Checked: ${checkedStr}`
+            `Eski: ${oldStatus.toUpperCase()}`,
+            `Yangi: ${emoji} ${student.status.toUpperCase()}`,
+            `Tekshirildi: ${checkedStr}`
         ].join('\n');
     }
     
     return [
-        `Visa Status`,
+        `Visa statusi`,
         ``,
         `${student.studentId || '--'}`,
         `${student.fullName}`,
         ``,
         `${emoji} ${student.status.toUpperCase()}`,
-        `Checked: ${checkedStr}`
+        `Tekshirildi: ${checkedStr}`
     ].join('\n');
 }
 
@@ -189,7 +189,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
         });
         
         if (result.rows.length === 0) {
-            return { success: false, changed: false, oldStatus: '', error: 'Student not found in your cabinet.' };
+            return { success: false, changed: false, oldStatus: '', error: 'Talaba kabinetingizdan topilmadi.' };
         }
         
         const row = result.rows[0] as any;
