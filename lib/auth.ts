@@ -13,6 +13,7 @@ import jwt from 'jsonwebtoken';
 import db from './turso';
 import { encrypt, decrypt } from './encryption';
 import { signToken, JWT_SECRET } from '../api/auth-helper';
+import { t, Lang } from './i18n';
 
 export interface BotUser {
     id: number;
@@ -38,27 +39,28 @@ export async function connectUser(
     firstName: string | null,
     lastName: string | null,
     emailInput: string,
-    passwordInput: string
+    passwordInput: string,
+    lang: Lang = 'uz'
 ): Promise<{ success: boolean; error?: string; user?: BotUser }> {
     try {
         const email = emailInput.trim().toLowerCase();
-        
+
         // Find existing cabinet user by email or username
         const result = await db.execute({
             sql: 'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(username) = ?',
             args: [email, email]
         });
-        
+
         if (result.rows.length === 0) {
-            return { success: false, error: 'Account not found. Please register on the website first.' };
+            return { success: false, error: t('login_account_not_found', lang) };
         }
-        
+
         const user = result.rows[0] as any;
-        
+
         // Verify password
         const passwordMatch = await bcrypt.compare(passwordInput, user.password);
         if (!passwordMatch) {
-            return { success: false, error: 'Invalid password. Please check your credentials.' };
+            return { success: false, error: t('login_invalid_password', lang) };
         }
         
         // Generate JWT session for this subscriber

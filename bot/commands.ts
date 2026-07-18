@@ -104,7 +104,10 @@ export async function handleCabinetCommand(ctx: Context) {
     }
     
     await setSessionState(telegramId, 'awaiting_email', {});
-    await ctx.reply(t('login_title', lang), { parse_mode: 'Markdown' });
+    await ctx.reply(t('login_title', lang), {
+        parse_mode: 'Markdown',
+        reply_markup: getMainMenuKeyboard(null, lang)
+    });
 }
 
 /**

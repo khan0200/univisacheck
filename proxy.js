@@ -634,7 +634,7 @@ const server = http.createServer(async (req, res) => {
                     birthday,
                     ``,
                     `✈️ *Visa turi:* ${visaType === 'E-Visa' ? 'E-Visa' : 'Embassy'}`,
-                    ...(visaType === 'E-Visa' && invitingCompany ? [`🏢 *Hamkor:* ${invitingCompany}`] : []),
+                    ...(visaType === 'E-Visa' && invitingCompany ? [`🏢 *Taklif:* ${invitingCompany}`] : []),
                     ...(visaType === 'E-Visa' && applicationNo ? [`📄 *Ariza raqami:* ${applicationNo}`] : []),
                     `📅 *Topshirilgan sana:* ${applicationDate || 'N/A'}`,
                     `🔄 *Holati:* ${emoji} *${newStatus.toUpperCase()}*`,

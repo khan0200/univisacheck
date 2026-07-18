@@ -188,7 +188,7 @@ module.exports = async (req, res) => {
         const labels = {
             title:     lang === 'en' ? '🔍 *Visa Status Check*'          : '🔍 *Visa statusini tekshirish*',
             visaLbl:   lang === 'en' ? '✈️ *Visa type:*'                  : '✈️ *Visa turi:*',
-            partner:   lang === 'en' ? '🏢 *Partner:*'                    : '🏢 *Hamkor:*',
+            partner:   lang === 'en' ? '🏢 *Partner:*'                    : '🏢 *Taklif:*',
             appNo:     lang === 'en' ? '📄 *Application No:*'             : '📄 *Ariza raqami:*',
             submitted: lang === 'en' ? '📅 *Submitted date:*'             : '📅 *Topshirilgan sana:*',
             status:    lang === 'en' ? '🔄 *Status:*'                     : '🔄 *Holati:*',

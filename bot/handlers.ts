@@ -36,7 +36,7 @@ export async function handleTextMessage(ctx: Context) {
     const lang = await getLang(telegramId);
     
     // Check if user wants to cancel/back out
-    if (text === '⬅️ Orqaga' || text === '⬅️ Back' || text === '⬅ Orqaga' || text.toLowerCase().includes('orqaga') || text === '<' || text === '<Ortga') {
+    if (text === '⬅️ Orqaga' || text === '⬅️ Back' || text === '⬅ Orqaga' || text.toLowerCase().includes('orqaga') || text === '<') {
         await clearSessionState(telegramId);
         await ctx.reply(t('main_menu', lang), {
             reply_markup: await getMenuKeyboard(telegramId)
@@ -79,7 +79,8 @@ export async function handleTextMessage(ctx: Context) {
             ctx.from?.first_name || '',
             ctx.from?.last_name || '',
             email,
-            text
+            text,
+            lang
         );
         
         if (!connectResult.success) {
@@ -626,7 +627,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 `${t('notif_result', lang)} ${desc}\n` +
                 (checkRes.rejectionReason ? `\n${t('notif_reason', lang)} ${checkRes.rejectionReason}\n` : '') +
                 (checkRes.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${checkRes.previousRejectionReason}\n` : '') +
-                (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [Visa sertifikatini yuklash](${checkRes.pdfUrl})\n` : '');
+                (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${checkRes.pdfUrl})\n` : '');
                 
             const currentText = cardMessage?.text || '';
             const changed = !currentText.toLowerCase().includes(checkRes.latestStatus.toLowerCase());
@@ -877,7 +878,7 @@ async function displayCheckResult(
         `${t('notif_result', lang)} ${desc}\n` +
         (result.rejectionReason ? `\n${t('notif_reason', lang)} ${result.rejectionReason}\n` : '') +
         (result.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${result.previousRejectionReason}\n` : '') +
-        (result.pdfUrl && canDownloadPdf ? `\n📄 [${lang === 'en' ? 'Download visa certificate' : 'Visa sertifikatini yuklash'}](${result.pdfUrl})\n` : '');
+        (result.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${result.pdfUrl})\n` : '');
         
     const inlineKeyboard = {
         inline_keyboard: canDownloadPdf

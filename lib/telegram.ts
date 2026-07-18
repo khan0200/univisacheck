@@ -32,7 +32,7 @@ bot.command('help', handleHelpCommand);
 // ── Register Reply Keyboard Listeners (hears) ──
 // Match both UZ and EN variants of each button label so language switching works
 bot.hears(['📂 Kabinet', '📂 Cabinet'], handleCabinetMenu);
-bot.hears(['🔍 Tekshirish', '🔍 Check'], handleCheckCommand);
+bot.hears(['🔍 Vizani tekshirish', '🔍 Check'], handleCheckCommand);
 bot.hears(['⚙️ Sozlamalar', '⚙️ Settings'], handleSettingsMenu);
 bot.hears(/^⚙ /, handleAccountMenu); // profile label: ⚙ {username}
 bot.hears(['⚙ Consultingni ulash', '⚙ Connect Consulting'], handleAccountMenu);
