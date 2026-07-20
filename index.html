@@ -349,21 +349,39 @@
         .hero-bot-tip {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             margin-top: 0px;
             margin-bottom: 28px;
             font-size: 14px;
-            color: #1e40af;
-            background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.18);
-            padding: 10px 16px;
-            border-radius: var(--radius-sm);
+            font-weight: 500;
+            color: #1e293b;
+            background: #ffffff;
+            border: 1px solid rgba(37, 99, 235, 0.28);
+            padding: 10px 18px;
+            border-radius: 100px;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.10);
+            max-width: 100%;
+        }
+        .hero-bot-tip-icon {
+            width: 24px;
+            height: 24px;
+            background: #2563eb;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+        }
+        .hero-bot-tip-icon svg {
+            width: 12px;
+            height: 12px;
+            stroke: #ffffff;
         }
         .hero-bot-tip a {
             color: #2563eb;
-            font-weight: 700;
+            font-weight: 800;
             text-decoration: none;
-            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            border-bottom: 1.5px solid rgba(37, 99, 235, 0.4);
             transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
         }
         .hero-bot-tip a:hover {
@@ -427,28 +445,30 @@
             gap: 8px;
             padding: 12px 22px;
             min-height: 48px;
-            background: rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border);
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.14);
             border-radius: var(--radius);
-            color: var(--text);
+            color: #1d1d1f;
             font-family: var(--font);
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             cursor: pointer;
-            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
             letter-spacing: -0.01em;
             white-space: nowrap;
             -webkit-tap-highlight-color: transparent;
         }
         .btn-ghost:hover {
-            background: rgba(0, 0, 0, 0.09);
-            border-color: var(--border-hov);
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.28);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
             transform: translateY(-1px);
-            color: var(--text);
+            color: #1d1d1f;
         }
         .btn-ghost:active { transform: translateY(0); }
-        .btn-ghost svg { width: 17px; height: 17px; flex-shrink: 0; }
+        .btn-ghost svg { width: 17px; height: 17px; flex-shrink: 0; stroke: #1d1d1f; }
 
         /* ─── FEATURE STRIP ───────────────────────────────────────── */
         .feature-strip {
@@ -1391,11 +1411,13 @@
             
             <!-- Telegram Bot Tip Banner -->
             <div class="hero-bot-tip">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px;height:14px;color:#60a5fa;flex-shrink:0;">
-                    <path d="m22 2-7 20-4-9-9-4Z"/>
-                    <path d="M22 2 11 13"/>
-                </svg>
-                <span>Telegram bot orqali viza holatini kuzatib boring: <a href="https://t.me/Koreavizabot" target="_blank" rel="noopener">@Koreavizabot</a></span>
+                <div class="hero-bot-tip-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m22 2-7 20-4-9-9-4Z"/>
+                        <path d="M22 2 11 13"/>
+                    </svg>
+                </div>
+                <span>Telegram bot: <a href="https://t.me/Koreavizabot" target="_blank" rel="noopener">@Koreavizabot</a> orqali viza holatini kuzatib boring</span>
             </div>
 
             <div class="hero-trust" aria-label="Ishonch ko'rsatkichlari">
