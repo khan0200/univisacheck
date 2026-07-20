@@ -48,7 +48,7 @@ const translations: Record<string, Record<Lang, string>> = {
     connect_first_slash:    { uz: '⚠️ Consulting Kabineti ulanmagan. Avval /cabinet orqali login va parollarni terib ulaning.', en: '⚠️ Cabinet not connected. Connect first via /cabinet.' },
 
     // ── Account info ───────────────────────────────────────────────────────
-    account_not_connected:  { uz: '⚙ *Profilni boshqarish*\n\nHolat: 🛑 *Ulanmagan*\n\nVisaCheck kabinetini ulash uchun tugmani bosing:', en: '⚙ *Profile Management*\n\nStatus: 🛑 *Not connected*\n\nPress the button to connect your VisaCheck cabinet:' },
+    account_not_connected:  { uz: '⚙ *Profilni boshqarish*\n\nHolat: 🛑 *Ulanmagan*\n\nSalomKorea kabinetini ulash uchun tugmani bosing:', en: '⚙ *Profile Management*\n\nStatus: 🛑 *Not connected*\n\nPress the button to connect your SalomKorea cabinet:' },
     account_info:           { uz: '⚙ *Consulting ma\'lumotlari*\n\n👤 *Consulting:* {username}\n📧 *Email:* `{email}`\n📅 *Ulangan sana:* {date}\n🎓 *Talabalar soni:* {count}\n🔄 *Holat:* Muvaffaqiyatli ulangan\n\nKabinetni o\'chirish uchun quyidagi tugmani bosing:', en: '⚙ *Account Details*\n\n👤 *Consulting:* {username}\n📧 *Email:* `{email}`\n📅 *Connected since:* {date}\n🎓 *Total students:* {count}\n🔄 *Status:* Connected\n\nPress the button below to disconnect:' },
 
     // ── Cabinet categories ─────────────────────────────────────────────────
@@ -118,7 +118,7 @@ const translations: Record<string, Record<Lang, string>> = {
     // ── Welcome / help ─────────────────────────────────────────────────────
     welcome:    {
         uz: 'Viza arizalarini tekshirish botiga xush kelibsiz! 🇰🇷🤖\n\nMenudan foydalaning.',
-        en: 'Welcome to the Korea Visa Checker bot! 🇰🇷🤖\n\nFeatures:\n• Connect your VisaCheck cabinet\n• Track student visa statuses\n• Receive status change notifications\n• Quick manual visa check\n\nUse the menu below.'
+        en: 'Welcome to the SalomKorea bot! 🇰🇷🤖\n\nFeatures:\n• Connect your SalomKorea cabinet\n• Track student visa statuses\n• Receive status change notifications\n• Quick manual visa check\n\nUse the menu below.'
     },
     help: {
         uz: 'ℹ️ *Bot bo\'yicha qo\'llanma*\n\n*Buyruqlar:*\n/start - Botni boshlash\n/cabinet - Kabinetni ulash\n/check - Visani tekshirish\n/help - Yordam menyusi\n\n*Menyular:*\n📂 *Kabinet* - Talabalar ro\'yxati\n🔍 *Tekshirish* - Visani to\'g\'ridan-to\'g\'ri tekshirish\n⚙ *Consulting* - Sozlamalar va chiqish\n\nSavollar uchun administratorga murojaat qiling. Admin: @khan0200',

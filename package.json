@@ -1,7 +1,7 @@
 {
-  "name": "visacheck",
+  "name": "salomkorea",
   "version": "1.0.0",
-  "description": "VisaCheck — Visa Status Checker Application",
+  "description": "SalomKorea — Visa & Education Application",
   "main": "proxy.js",
   "scripts": {
     "dev": "node proxy.js",

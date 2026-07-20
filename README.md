@@ -1,6 +1,6 @@
-# VisaCheck
+# SalomKorea
 
-A modern, real-time visa status tracking application for university students applying for Korean visas.
+A modern, real-time visa status tracking and education portal application for university students applying for Korean visas.
 
 ## Features
 
