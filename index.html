@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -22,14 +22,14 @@
         :root {
             --red:       #e8304a;
             --red-dark:  #c4243c;
-            --red-glow:  rgba(232,48,74,0.30);
-            --bg:        #09090f;
-            --bg-card:   rgba(255,255,255,0.04);
-            --border:    rgba(255,255,255,0.08);
-            --border-hov:rgba(255,255,255,0.14);
-            --text:      #f0f0f5;
-            --text-2:    rgba(255,255,255,0.60);
-            --text-3:    rgba(255,255,255,0.35);
+            --red-glow:  rgba(232,48,74,0.25);
+            --bg:        #f5f5f7;
+            --bg-card:   rgba(255,255,255,0.85);
+            --border:    rgba(0,0,0,0.08);
+            --border-hov:rgba(0,0,0,0.16);
+            --text:      #1d1d1f;
+            --text-2:    #515154;
+            --text-3:    #86868b;
             --font:      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             --ease:      cubic-bezier(0.32,0.72,0,1);
             --dur:       0.22s;
@@ -42,8 +42,8 @@
             --sp-sm: 16px;
             --sp-md: 24px;
             --sp-lg: 40px;
-            --sp-xl: 64px;
-            --sp-2xl:96px;
+            --sp-xl: 48px;
+            --sp-2xl:64px;
             --max-w: 1280px;
             --nav-h: 64px;
         }
@@ -52,12 +52,22 @@
 
         body {
             font-family: var(--font);
-            background: var(--bg);
+            background-color: #f5f5f7;
+            position: relative;
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: url('hero-bg-vector.png') center top / cover no-repeat;
+            opacity: 0.20;
+            pointer-events: none;
         }
 
         /* ─── SKIP LINK ───────────────────────────────────────────── */
@@ -85,10 +95,11 @@
             border-bottom: 1px solid transparent;
         }
         #mainNav.scrolled {
-            background: rgba(9,9,15,0.90);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(24px) saturate(160%);
             -webkit-backdrop-filter: blur(24px) saturate(160%);
             border-color: var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
         .nav-inner {
             max-width: var(--max-w);
@@ -146,7 +157,7 @@
         }
         .nav-links a:hover {
             color: var(--text);
-            background: rgba(255,255,255,0.06);
+            background: rgba(0, 0, 0, 0.05);
         }
 
         /* Right side */
@@ -161,7 +172,7 @@
             align-items: center;
             gap: 6px;
             padding: 9px 18px;
-            background: rgba(255,255,255,0.07);
+            background: rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             color: var(--text);
@@ -175,7 +186,7 @@
             min-height: 40px;
         }
         .btn-cabinet:hover {
-            background: rgba(255,255,255,0.12);
+            background: rgba(0, 0, 0, 0.09);
             border-color: var(--border-hov);
         }
         .btn-cabinet svg { width: 15px; height: 15px; }
@@ -195,7 +206,7 @@
             transition: background var(--dur) var(--ease);
             -webkit-tap-highlight-color: transparent;
         }
-        .nav-hamburger:hover { background: rgba(255,255,255,0.07); }
+        .nav-hamburger:hover { background: rgba(0, 0, 0, 0.05); }
         .nav-hamburger span {
             display: block;
             width: 22px; height: 2px;
@@ -215,7 +226,7 @@
             position: fixed;
             inset: 0;
             z-index: 190;
-            background: rgba(9,9,15,0.97);
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             flex-direction: column;
@@ -256,7 +267,7 @@
         .mobile-menu-links a:hover,
         .mobile-menu-links a:focus {
             color: var(--text);
-            background: rgba(255,255,255,0.05);
+            background: rgba(0, 0, 0, 0.04);
         }
         .mobile-menu-footer {
             margin-top: auto;
@@ -272,25 +283,27 @@
         /* ─── HERO ────────────────────────────────────────────────── */
         .hero {
             position: relative;
+            min-height: 100vh;
             min-height: 100svh;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             overflow: hidden;
         }
         .hero-bg {
             position: absolute;
             inset: 0;
-            background: url('korea-hero.png') center 30% / cover no-repeat;
-            transform: scale(1.04);
-            will-change: transform;
+            z-index: 1;
+            background: url('hero-bg-vector.png') center top / cover no-repeat;
+            opacity: 1;
         }
         .hero-bg::after {
             content: '';
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(to right,  rgba(9,9,15,0.80) 0%, rgba(9,9,15,0.45) 55%, rgba(9,9,15,0.15) 100%),
-                linear-gradient(to bottom, rgba(9,9,15,0.30) 0%, transparent 35%, rgba(9,9,15,0.60) 75%, rgba(9,9,15,1) 100%);
+                linear-gradient(to right,  rgba(245,245,247,0.50) 0%, rgba(245,245,247,0.15) 50%, transparent 100%),
+                linear-gradient(to bottom, transparent 65%, rgba(245,245,247,0.80) 100%);
         }
         .hero-content {
             position: relative;
@@ -298,74 +311,69 @@
             flex: 1;
             display: flex;
             align-items: center;
-            padding: calc(var(--nav-h) + 56px) var(--sp-lg) var(--sp-xl);
+            padding: calc(var(--nav-h) + 64px) var(--sp-lg) 48px;
             max-width: var(--max-w);
             margin: 0 auto;
             width: 100%;
         }
-        .hero-inner { max-width: 560px; width: 100%; }
+        .hero-inner { max-width: 620px; width: 100%; }
 
         .hero h1 {
-            font-size: clamp(30px, 6vw, 62px);
+            font-size: clamp(34px, 6vw, 64px);
             font-weight: 900;
-            line-height: 1.06;
+            line-height: 1.08;
             letter-spacing: -0.04em;
-            color: var(--text);
-            margin-bottom: 18px;
-            animation: fadeUp 0.7s 0.1s both;
+            color: #1d1d1f;
+            margin-bottom: 22px;
         }
         .hero h1 em {
             font-style: normal;
-            background: linear-gradient(135deg, #ff6a7e 0%, #e8304a 50%, #ff9a3c 100%);
+            background: linear-gradient(135deg, #e8304a 0%, #ff6a7e 50%, #ff9a3c 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         .hero-sub {
-            font-size: clamp(15px, 2vw, 17px);
-            color: var(--text-2);
+            font-size: clamp(16px, 2vw, 19px);
+            color: #515154;
             line-height: 1.65;
-            margin-bottom: var(--sp-lg);
-            max-width: 460px;
-            animation: fadeUp 0.7s 0.2s both;
+            margin-bottom: 32px;
+            max-width: 500px;
         }
         .hero-actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 28px;
-            animation: fadeUp 0.7s 0.3s both;
+            gap: 12px;
+            margin-bottom: 32px;
         }
         .hero-bot-tip {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-top: -6px;
-            margin-bottom: 24px;
-            font-size: 13.5px;
-            color: var(--text-2);
+            margin-top: 0px;
+            margin-bottom: 28px;
+            font-size: 14px;
+            color: #1e40af;
             background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.15);
-            padding: 8px 14px;
+            border: 1px solid rgba(37, 99, 235, 0.18);
+            padding: 10px 16px;
             border-radius: var(--radius-sm);
-            animation: fadeUp 0.7s 0.35s both;
         }
         .hero-bot-tip a {
-            color: #60a5fa;
+            color: #2563eb;
             font-weight: 700;
             text-decoration: none;
-            border-bottom: 1px solid rgba(96, 165, 250, 0.3);
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
             transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
         }
         .hero-bot-tip a:hover {
-            color: #93c5fd;
-            border-color: #93c5fd;
+            color: #1d4ed8;
+            border-color: #1d4ed8;
         }
         .hero-trust {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px 24px;
-            animation: fadeUp 0.7s 0.4s both;
+            gap: 16px 28px;
         }
         .hero-trust-item {
             display: flex;
@@ -373,11 +381,11 @@
             gap: 6px;
             font-size: 13px;
             font-weight: 500;
-            color: var(--text-3);
+            color: var(--text-2);
         }
         .hero-trust-item svg {
             width: 14px; height: 14px;
-            color: #30d158;
+            color: #16a34a;
             flex-shrink: 0;
         }
 
@@ -419,7 +427,7 @@
             gap: 8px;
             padding: 12px 22px;
             min-height: 48px;
-            background: rgba(255,255,255,0.07);
+            background: rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             color: var(--text);
@@ -434,7 +442,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         .btn-ghost:hover {
-            background: rgba(255,255,255,0.12);
+            background: rgba(0, 0, 0, 0.09);
             border-color: var(--border-hov);
             transform: translateY(-1px);
             color: var(--text);
@@ -446,7 +454,7 @@
         .feature-strip {
             position: relative;
             z-index: 3;
-            background: rgba(9,9,15,0.70);
+            background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border-top: 1px solid var(--border);
@@ -460,18 +468,18 @@
             -ms-overflow-style: none;
             max-width: var(--max-w);
             margin: 0 auto;
-            padding: 24px var(--sp-lg);
-            gap: 16px;
+            padding: 16px var(--sp-lg);
+            gap: 14px;
         }
         .feature-strip-scroll::-webkit-scrollbar { display: none; }
         .feature-item {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            padding: 20px;
+            padding: 16px 18px;
             min-width: 220px;
             flex-shrink: 0;
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.85);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             cursor: pointer;
@@ -479,26 +487,28 @@
             text-decoration: none;
             color: var(--text);
             position: relative;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         }
         .feature-item:hover {
-            background: rgba(255,255,255,0.05);
+            background: #ffffff;
             border-color: var(--border-hov);
             transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
         .feature-item:hover .feature-icon {
             background: var(--red);
             border-color: transparent;
+            color: #fff;
         }
         .feature-icon {
             width: 34px; height: 34px;
             min-width: 34px;
-            background: rgba(255,255,255,0.06);
+            background: rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             display: grid;
             place-items: center;
-            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
             margin-bottom: 4px;
         }
         .feature-icon svg { display: block; }
@@ -520,6 +530,12 @@
             margin: 0 auto;
             padding: var(--sp-2xl) var(--sp-lg);
         }
+        #universitetlar .section-wrap {
+            padding-bottom: 24px;
+        }
+        #sorovnoma .section-wrap {
+            padding-top: 24px;
+        }
         .section-eyebrow {
             display: inline-flex;
             align-items: center;
@@ -529,7 +545,7 @@
             letter-spacing: 0.10em;
             text-transform: uppercase;
             color: var(--red);
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .section-eyebrow::before {
             content: '';
@@ -545,14 +561,14 @@
             letter-spacing: -0.04em;
             line-height: 1.1;
             color: var(--text);
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .section-sub {
             font-size: clamp(14px, 1.5vw, 16px);
             color: var(--text-2);
-            line-height: 1.70;
+            line-height: 1.65;
             max-width: 520px;
-            margin-bottom: var(--sp-xl);
+            margin-bottom: 32px;
         }
         .divider {
             height: 1px;
@@ -607,18 +623,18 @@
             gap: 12px;
             margin-top: 24px;
             padding: 16px 20px;
-            background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.2);
+            background: rgba(37, 99, 235, 0.06);
+            border: 1px solid rgba(37, 99, 235, 0.18);
             border-radius: var(--radius-lg);
             font-size: 14px;
-            color: #93c5fd;
+            color: #1e40af;
             width: 100%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
         }
         .telegram-icon {
             width: 20px;
             height: 20px;
-            color: #60a5fa;
+            color: #2563eb;
             flex-shrink: 0;
         }
         .telegram-text {
@@ -626,15 +642,15 @@
             font-weight: 500;
         }
         .telegram-text a {
-            color: #3b82f6;
+            color: #2563eb;
             font-weight: 700;
             text-decoration: none;
-            border-bottom: 1.5px solid rgba(59, 130, 246, 0.3);
+            border-bottom: 1.5px solid rgba(37, 99, 235, 0.3);
             transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
         }
         .telegram-text a:hover {
-            color: #60a5fa;
-            border-color: #60a5fa;
+            color: #1d4ed8;
+            border-color: #1d4ed8;
         }
 
         /* ─── DOCUMENTS ───────────────────────────────────────────── */
@@ -651,7 +667,7 @@
             font-weight: 700;
             border-radius: 100px;
             border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(0, 0, 0, 0.03);
             color: var(--text-2);
             cursor: pointer;
             transition: all var(--dur) var(--ease);
@@ -662,13 +678,13 @@
         .doc-tab-btn:hover {
             border-color: var(--border-hov);
             color: var(--text);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.06);
         }
         .doc-tab-btn.active {
-            background: rgba(232, 48, 74, 0.15);
-            color: #ff6a7e;
-            border-color: rgba(232, 48, 74, 0.4);
-            box-shadow: 0 4px 16px rgba(232, 48, 74, 0.2);
+            background: rgba(232, 48, 74, 0.10);
+            color: var(--red);
+            border-color: rgba(232, 48, 74, 0.35);
+            box-shadow: 0 4px 16px rgba(232, 48, 74, 0.12);
         }
         .doc-tab-pane {
             display: none;
@@ -682,9 +698,9 @@
             font-size: 14px;
             font-weight: 700;
             border-radius: 100px;
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            background: rgba(59, 130, 246, 0.12);
-            color: #60a5fa;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            background: rgba(37, 99, 235, 0.08);
+            color: #2563eb;
             cursor: pointer;
             transition: all var(--dur) var(--ease);
             display: inline-flex;
@@ -693,10 +709,10 @@
             margin-left: auto;
         }
         .btn-pdf-download:hover {
-            background: rgba(59, 130, 246, 0.22);
-            border-color: #60a5fa;
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+            background: rgba(37, 99, 235, 0.16);
+            border-color: #2563eb;
+            color: #1d4ed8;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
             transform: translateY(-1px);
         }
         @media (max-width: 640px) {
@@ -728,14 +744,14 @@
             font-weight: 700;
             padding: 3px 10px;
             border-radius: 100px;
-            background: rgba(232, 48, 74, 0.15);
-            color: #ff6a7e;
-            border: 1px solid rgba(232, 48, 74, 0.3);
+            background: rgba(232, 48, 74, 0.08);
+            color: var(--red);
+            border: 1px solid rgba(232, 48, 74, 0.22);
         }
         .doc-section-title.title-parent .doc-badge-tag {
-            background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(37, 99, 235, 0.08);
+            color: #2563eb;
+            border-color: rgba(37, 99, 235, 0.22);
         }
 
         .docs-grid {
@@ -855,7 +871,7 @@
             align-items: center;
             gap: 8px;
             flex-wrap: wrap;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(0, 0, 0, 0.04);
             padding: 6px;
             border-radius: 14px;
             border: 1px solid var(--border);
@@ -877,24 +893,24 @@
         }
         .uni-tab:hover {
             color: var(--text);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.06);
         }
         .uni-tab.active {
-            background: rgba(232, 48, 74, 0.15);
+            background: var(--red);
             color: #fff;
-            border: 1px solid rgba(232, 48, 74, 0.35);
-            box-shadow: 0 4px 12px rgba(232, 48, 74, 0.15);
+            border: none;
+            box-shadow: 0 4px 14px var(--red-glow);
         }
         .uni-tab .tab-count {
             padding: 2px 7px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.08);
             border-radius: 20px;
             font-size: 11px;
             font-weight: 700;
         }
         .uni-tab.active .tab-count {
-            background: var(--red);
-            color: #fff;
+            background: #ffffff;
+            color: var(--red);
         }
         .uni-search-box {
             position: relative;
@@ -908,7 +924,7 @@
             width: 100%;
             height: 44px;
             padding: 0 38px 0 40px;
-            background: rgba(255, 255, 255, 0.04);
+            background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 12px;
             color: var(--text);
@@ -919,8 +935,8 @@
         }
         .uni-search-box input:focus {
             border-color: rgba(232, 48, 74, 0.5);
-            background: rgba(255, 255, 255, 0.07);
-            box-shadow: 0 0 0 3px rgba(232, 48, 74, 0.15);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(232, 48, 74, 0.12);
         }
         .uni-search-box .search-icon {
             position: absolute;
@@ -1003,10 +1019,10 @@
         .uni-table-wrapper {
             width: 100%;
             overflow-x: auto;
-            background: var(--bg-card);
+            background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             margin-bottom: 10px;
         }
         .uni-table-3col {
@@ -1018,7 +1034,7 @@
             min-width: 600px;
         }
         .uni-table-3col th {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.025);
             color: var(--text);
             font-weight: 700;
             padding: 14px 18px;
@@ -1026,35 +1042,71 @@
             width: 33.333%;
         }
         .uni-table-3col tr {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
             transition: background 0.15s ease;
         }
         .uni-table-3col tr:last-child {
             border-bottom: none;
         }
         .uni-table-3col tr:hover {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(0, 0, 0, 0.02);
         }
         .uni-table-3col td {
-            padding: 12px 18px;
+            padding: 10px 14px;
             color: var(--text);
             font-weight: 600;
             vertical-align: middle;
-            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            border-right: 1px solid rgba(0, 0, 0, 0.04);
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         .uni-table-3col td:last-child {
             border-right: none;
         }
-        .uni-table-3col td .uni-num-prefix {
+        .uni-cell-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .uni-num-prefix {
             color: var(--text-3);
             font-weight: 700;
             font-size: 12px;
-            margin-right: 6px;
-            display: inline-block;
-            min-width: 24px;
+            flex-shrink: 0;
+            min-width: 22px;
+        }
+        .uni-cell-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .uni-name-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 0;
+        }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 7px;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1.1;
+            border-radius: 100px;
+            background: var(--red);
+            color: #ffffff;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(232, 48, 74, 0.25);
+            white-space: nowrap;
         }
 
         .uni-results-meta {
@@ -1066,7 +1118,7 @@
         .uni-no-results {
             text-align: center;
             padding: 48px 20px;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(0, 0, 0, 0.02);
             border: 1px dashed var(--border);
             border-radius: var(--radius-lg);
             color: var(--text-2);
@@ -1085,7 +1137,7 @@
 
         /* ─── SO'ROVNOMA SECTION ──────────────────────────────────── */
         .sorov-card {
-            background: var(--bg-card);
+            background: #ffffff;
             border: 1px solid var(--border);
             border-radius: var(--radius-xl);
             padding: var(--sp-xl);
@@ -1095,27 +1147,28 @@
             align-items: center;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
         }
         .sorov-card::after {
             content: '';
             position: absolute;
             bottom: -80px; left: -80px;
             width: 260px; height: 260px;
-            background: radial-gradient(circle, rgba(0,52,120,0.18) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);
             pointer-events: none;
         }
         .sorov-steps { list-style: none; display: flex; flex-direction: column; gap: 16px; }
         .sorov-step { display: flex; align-items: flex-start; gap: 14px; }
         .sorov-step-num {
             width: 28px; height: 28px; min-width: 28px;
-            background: rgba(232,48,74,0.12);
+            background: rgba(232,48,74,0.08);
             border: 1px solid rgba(232,48,74,0.22);
             border-radius: 50%;
             display: grid;
             place-items: center;
             font-size: 12px;
             font-weight: 800;
-            color: #ff6a7e;
+            color: var(--red);
         }
         .sorov-step-text h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
         .sorov-step-text p { font-size: 13px; color: var(--text-2); line-height: 1.5; }
@@ -1123,14 +1176,14 @@
         .sorov-cta { text-align: center; position: relative; z-index: 1; }
         .sorov-cta-icon {
             width: 60px; height: 60px;
-            background: rgba(232,48,74,0.10);
+            background: rgba(232,48,74,0.08);
             border: 1px solid rgba(232,48,74,0.20);
             border-radius: 16px;
             display: grid;
             place-items: center;
             margin: 0 auto 20px;
         }
-        .sorov-cta-icon svg { width: 28px; height: 28px; color: #ff6a7e; }
+        .sorov-cta-icon svg { width: 28px; height: 28px; color: var(--red); }
         .sorov-cta h3 {
             font-size: clamp(18px, 2vw, 22px);
             font-weight: 800;
@@ -1155,6 +1208,7 @@
         /* ─── FOOTER ──────────────────────────────────────────────── */
         footer {
             border-top: 1px solid var(--border);
+            background: #ffffff;
         }
         .footer-inner {
             max-width: var(--max-w);
@@ -1166,7 +1220,7 @@
             gap: var(--sp-md);
             flex-wrap: wrap;
         }
-        .footer-logo { font-size: 15px; font-weight: 700; color: var(--text-3); letter-spacing: -0.03em; }
+        .footer-logo { font-size: 15px; font-weight: 700; color: var(--text-2); letter-spacing: -0.03em; }
         .footer-logo span { color: var(--red); }
         .footer-nav {
             display: flex;
@@ -1177,11 +1231,11 @@
         }
         .footer-nav a {
             font-size: 13px;
-            color: var(--text-3);
+            color: var(--text-2);
             text-decoration: none;
             transition: color var(--dur);
         }
-        .footer-nav a:hover { color: var(--text-2); }
+        .footer-nav a:hover { color: var(--text); }
         .footer-copy { font-size: 12px; color: var(--text-3); }
 
         /* ─── ANIMATIONS ──────────────────────────────────────────── */
@@ -1265,7 +1319,7 @@
 
         <!-- Desktop nav links -->
         <ul class="nav-links" role="list">
-            <li><a href="#viza-tekshirish" onclick="smoothScroll(event,'viza-tekshirish')">Viza tekshirish</a></li>
+            <li><a href="visa-status.html">Viza tekshirish</a></li>
             <li><a href="#hujjatlar" onclick="smoothScroll(event,'hujjatlar')">Hujjatlar</a></li>
             <li><a href="#universitetlar" onclick="smoothScroll(event,'universitetlar')">Universitetlar</a></li>
             <li><a href="#sorovnoma" onclick="smoothScroll(event,'sorovnoma')">So'rovnoma</a></li>
@@ -1289,7 +1343,7 @@
 <!-- ─── MOBILE MENU ─────────────────────────────────────────────────── -->
 <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobil menyu" aria-modal="true">
     <ul class="mobile-menu-links" role="list">
-        <li><a href="#viza-tekshirish" onclick="closeMobileMenu(); smoothScroll(event,'viza-tekshirish')">Viza tekshirish</a></li>
+        <li><a href="visa-status.html" onclick="closeMobileMenu()">Viza tekshirish</a></li>
         <li><a href="#hujjatlar" onclick="closeMobileMenu(); smoothScroll(event,'hujjatlar')">Hujjatlar</a></li>
         <li><a href="#universitetlar" onclick="closeMobileMenu(); smoothScroll(event,'universitetlar')">Universitetlar</a></li>
         <li><a href="#sorovnoma" onclick="closeMobileMenu(); smoothScroll(event,'sorovnoma')">So'rovnoma</a></li>
@@ -1312,9 +1366,9 @@
 
     <div class="hero-content" id="main-content">
         <div class="hero-inner">
-            <h1>Koreyadagi ta'lim<br>uchun <em>eng ishonchli</em><br>xizmat</h1>
+            <h1>Janubiy Koreya universitetlari<br>va <em>viza olish.</em></h1>
             <p class="hero-sub">
-                Universitetlarga ariza topshirish, viza holatini kuzatish va barcha hujjatlarni to'g'ri rasmiylashtirishda professional yordam.
+                Bilganlarimizni siz bilan baham ko'ramiz!
             </p>
             <div class="hero-actions">
                 <a href="#sorovnoma" class="btn-primary" onclick="smoothScroll(event,'sorovnoma')" id="heroCtaPrimary">
@@ -1347,10 +1401,6 @@
             <div class="hero-trust" aria-label="Ishonch ko'rsatkichlari">
                 <div class="hero-trust-item">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                    200+ muvaffaqiyatli talaba
-                </div>
-                <div class="hero-trust-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                     Rasmiy visa.go.kr ma'lumotlari
                 </div>
                 <div class="hero-trust-item">
@@ -1364,24 +1414,6 @@
     <!-- Feature Strip -->
     <div class="feature-strip">
         <div class="feature-strip-scroll" role="list" aria-label="Xizmatlar">
-            <a href="#viza-tekshirish" class="feature-item" onclick="smoothScroll(event,'viza-tekshirish')" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
-                        <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>
-                    </svg>
-                </div>
-                <div class="feature-title">Viza holati</div>
-                <div class="feature-desc">Real vaqtda tekshiruv</div>
-            </a>
-            <div class="feature-item" style="cursor:default;" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                </div>
-                <div class="feature-title">90%+ natija</div>
-                <div class="feature-desc">Ijobiy viza ko'rsatkichi</div>
-            </div>
             <a href="#hujjatlar" class="feature-item" onclick="smoothScroll(event,'hujjatlar')" role="listitem">
                 <div class="feature-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
@@ -1389,7 +1421,7 @@
                     </svg>
                 </div>
                 <div class="feature-title">Hujjatlar</div>
-                <div class="feature-desc">To'liq tekshiruv ro'yxati</div>
+                <div class="feature-desc">D2 yoki D4 vizasini olish uchun kerakli hujjatlar</div>
             </a>
             <a href="#universitetlar" class="feature-item" onclick="smoothScroll(event,'universitetlar')" role="listitem">
                 <div class="feature-icon" aria-hidden="true">
@@ -1398,7 +1430,7 @@
                     </svg>
                 </div>
                 <div class="feature-title">Universitetlar</div>
-                <div class="feature-desc">12+ hamkor universitet</div>
+                <div class="feature-desc">Janubiy Koreyaning 150 dan ortiq universitetlari</div>
             </a>
             <a href="#sorovnoma" class="feature-item" onclick="smoothScroll(event,'sorovnoma')" role="listitem">
                 <div class="feature-icon" aria-hidden="true">
@@ -1407,50 +1439,12 @@
                     </svg>
                 </div>
                 <div class="feature-title">So'rovnoma</div>
-                <div class="feature-desc">Ariza jarayonini boshlang</div>
+                <div class="feature-desc">Sizga aloqaga chiqib, bepul ma'lumot beriladi</div>
             </a>
         </div>
     </div>
 </section>
 
-<!-- ─── VIZA TEKSHIRISH ─────────────────────────────────────────────── -->
-<div id="viza-tekshirish">
-    <div class="section-wrap">
-        <div class="section-eyebrow">Viza tekshirish</div>
-        <h2 class="section-h2">Viza holatini<br>real vaqtda tekshiring</h2>
-        <p class="section-sub">visa.go.kr orqali to'g'ridan-to'g'ri va xavfsiz ulanib, ariza holatini bir zumda bilib oling.</p>
-
-        <div class="visa-check-card">
-            <div class="visa-check-left">
-                <h3>Tezkor tekshiruv</h3>
-                <p>Passport raqami, to'liq ism va tug'ilgan sana bilan viza ariza holatini tekshiring. Natijalar visa.go.kr rasmiy bazasidan olinadi.</p>
-                <p class="meta">Koreya vizasi (Embassy) &nbsp;·&nbsp; Elektron viza (E-Visa)</p>
-            </div>
-            <div style="flex-shrink:0;">
-                <a href="visa-status.html" class="btn-primary" id="visaCheckBtn" style="font-size:16px; padding: 15px 32px; min-height:52px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:19px;height:19px">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.35-4.35"/>
-                    </svg>
-                    Viza holatini tekshirish
-                </a>
-            </div>
-        </div>
-
-        <!-- Telegram Bot Banner -->
-        <div class="telegram-banner">
-            <svg class="telegram-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m22 2-7 20-4-9-9-4Z"/>
-                <path d="M22 2 11 13"/>
-            </svg>
-            <div class="telegram-text">
-                Telegram bot orqali viza holatini kuzatib boring: <a href="https://t.me/Koreavizabot" target="_blank" rel="noopener">@Koreavizabot</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="divider"></div>
 
 <!-- ─── HUJJATLAR ────────────────────────────────────────────────────── -->
 <div id="hujjatlar">
@@ -1751,7 +1745,7 @@
             </div>
         </div>
 
-        <p class="docs-note">Hujjatlar ro'yxati universitetga va viza turiga qarab farqlanishi mumkin. Aniq ma'lumot uchun kompaniyamizga murojaat qiling.</p>
+        <p class="docs-note">Hujjatlar ro'yxati universitetga va viza turiga qarab farqlanishi mumkin.</p>
     </div>
 </div>
 
@@ -1760,7 +1754,8 @@
 <!-- ─── UNIVERSITETLAR ───────────────────────────────────────────────── -->
 <div id="universitetlar">
     <div class="section-wrap">
-        <h2 class="section-h2">Koreyadagi universitetlar<br>va rasmiy maqomlar</h2>
+        <div class="section-eyebrow">Universitetlar ro'yxati</div>
+        <h2 class="section-h2">Janubiy Koreya universitetlari</h2>
 
         <!-- Control Bar: Tabs & Search -->
         <div class="uni-controls">
@@ -1820,7 +1815,7 @@
     <div class="section-wrap">
         <div class="section-eyebrow">So'rovnoma to'ldirish</div>
         <h2 class="section-h2">Universitetga ariza<br>topshirish jarayoni</h2>
-        <p class="section-sub">Kompaniyamiz orqali ariza topshirish uchun quyidagi bosqichlarni bajaring.</p>
+        <p class="section-sub">Ariza topshirish uchun quyidagi bosqichlarni bajaring.</p>
 
         <div class="sorov-card">
             <div>
@@ -1842,22 +1837,22 @@
                     <li class="sorov-step">
                         <div class="sorov-step-num" aria-hidden="true">3</div>
                         <div class="sorov-step-text">
-                            <h4>Kompaniyamizga topshiring</h4>
+                            <h4>Hujjatlarni topshirish</h4>
                             <p>Hujjatlar tekshiriladi va universitetga rasmiy ariza yuboriladi.</p>
                         </div>
                     </li>
                     <li class="sorov-step">
                         <div class="sorov-step-num" aria-hidden="true">4</div>
                         <div class="sorov-step-text">
-                            <h4>Viza arizasini rasmiylashtiramiz</h4>
+                            <h4>Viza arizasini rasmiylashtirish</h4>
                             <p>Qabul maktubi kelgach, elchixonaga viza uchun hujjatlar topshiriladi.</p>
                         </div>
                     </li>
                     <li class="sorov-step">
                         <div class="sorov-step-num" aria-hidden="true">5</div>
                         <div class="sorov-step-text">
-                            <h4>Koreya — sizni kutmoqda!</h4>
-                            <p>Viza tasdiqlangach, yo'l harakatini tayyorlashda yordam beramiz.</p>
+                            <h4>Koreyaga safar</h4>
+                            <p>Viza tasdiqlangach, Koreyaga safarga tayyorgarlik ko'riladi.</p>
                         </div>
                     </li>
                 </ul>
@@ -1872,7 +1867,7 @@
                     </svg>
                 </div>
                 <h3>Boshlashga tayyormisiz?</h3>
-                <p>So'rovnomani to'ldiring va mutaxassislarimiz 24 soat ichida siz bilan bog'lanadi.</p>
+                <p>So'rovnomani to'ldiring va ma'lumotlaringiz ko'rib chiqiladi.</p>
                 <a href="https://forms.gle/" target="_blank" rel="noopener noreferrer" class="btn-primary" id="sorovnomaBtn" style="font-size:15px; min-height:52px; padding: 14px 28px;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -1895,7 +1890,7 @@
         </div>
         <div class="footer-nav-wrap">
             <ul class="footer-nav" role="list">
-                <li><a href="#viza-tekshirish" onclick="smoothScroll(event,'viza-tekshirish')">Viza tekshirish</a></li>
+                <li><a href="visa-status.html">Viza tekshirish</a></li>
                 <li><a href="#hujjatlar" onclick="smoothScroll(event,'hujjatlar')">Hujjatlar</a></li>
                 <li><a href="#universitetlar" onclick="smoothScroll(event,'universitetlar')">Universitetlar</a></li>
                 <li><a href="visa-status.html">Status checker</a></li>
@@ -2135,6 +2130,68 @@
         return list;
     }
 
+    const WORLD_RANKINGS = {
+        "SEOUL NATIONAL UNIVERSITY": "TOP 50",
+        "KAIST (KOREA ADVANCED INSTITUTE OF SCIENCE AND TECHNOLOGY)": "TOP 100",
+        "KAIST": "TOP 100",
+        "YONSEI UNIVERSITY": "TOP 100",
+        "KOREA UNIVERSITY": "TOP 100",
+        "POHANG UNIVERSITY OF SCIENCE AND TECHNOLOGY (POSTECH)": "TOP 100",
+        "POSTECH": "TOP 100",
+        "SUNGKYUNKWAN UNIVERSITY (SKKU)": "TOP 150",
+        "SKKU": "TOP 150",
+        "HANYANG UNIVERSITY": "TOP 200",
+        "HANYANG UNIVERSITY(ERICA CAMPUS)": "TOP 200",
+        "ULSAN NATIONAL INSTITUTE OF SCIENCE AND TECHNOLOGY (UNIST)": "TOP 200",
+        "UNIST": "TOP 200",
+        "GIST(GWANGJU INSTITUTE OF SCIENCE AND TECHNOLOGY)": "TOP 300",
+        "GIST": "TOP 300",
+        "KYUNG HEE UNIVERSITY": "TOP 350",
+        "SEJONG UNIVERSITY": "TOP 400",
+        "CHUNG-ANG UNIVERSITY": "TOP 500",
+        "EWHA WOMANS UNIVERSITY": "TOP 500",
+        "KYUNGPOOK NATIONAL UNIVERSITY": "TOP 500",
+        "PUSAN NATIONAL UNIVERSITY": "TOP 500",
+        "SOGANG UNIVERSITY": "TOP 500",
+        "AJOU UNIVERSITY": "TOP 700",
+        "INHA UNIVERSITY": "TOP 700",
+        "CHONNAM NATIONAL UNIVERSITY": "TOP 700",
+        "JEONBUK NATIONAL UNIVERSITY": "TOP 700",
+        "HANKUK UNIVERSITY OF FOREIGN STUDIES": "TOP 800",
+        "KONKUK UNIVERSITY": "TOP 800",
+        "KONKUK UNIVERSITY GLOCAL CAMPUS": "TOP 800",
+        "GYEONGSANG NATIONAL UNIVERSITY": "TOP 800",
+        "THE CATHOLIC UNIVERSITY OF KOREA": "TOP 800",
+        "UNIVERSITY OF SEOUL": "TOP 850",
+        "CHUNGNAM NATIONAL UNIVERSITY(CNU)": "TOP 850",
+        "YEUNGNAM UNIVERSITY": "TOP 850",
+        "KOOKMIN UNIVERSITY": "TOP 950",
+        "DANKOOK UNIVERSITY": "TOP 950",
+        "CHUNGBUK NATIONAL UNIVERSITY": "TOP 950",
+        "HALLYM UNIVERSITY": "TOP 1000",
+        "KWANGWOON UNIVERSITY": "TOP 1000",
+        "SEOUL NATIONAL UNIVERSITY OF SCIENCE AND TECHNOLOGY": "TOP 1000",
+        "UNIVERSITY OF ULSAN": "TOP 1000",
+        "SOONGSIL UNIVERSITY": "TOP 1000",
+        "INCHEON NATIONAL UNIVERSITY": "TOP 1000"
+    };
+
+    function formatUniCell(name, num) {
+        if (!name) return '';
+        const key = name.toUpperCase().trim();
+        const rank = WORLD_RANKINGS[key];
+        const badgeHtml = rank ? `<span class="rank-badge">${rank}</span>` : '';
+        return `
+            <div class="uni-cell-container" title="${name}">
+                <span class="uni-num-prefix">${num}.</span>
+                <div class="uni-cell-inner">
+                    <span class="uni-name-text">${name}</span>
+                    ${badgeHtml}
+                </div>
+            </div>
+        `;
+    }
+
     function render3ColTable(items, startNum = 1) {
         if (!items || items.length === 0) return '';
         
@@ -2153,9 +2210,9 @@
 
             rowsHtml += `
                 <tr>
-                    <td>${name1 ? `<span class="uni-num-prefix">${startNum + i}.</span>${name1}` : ''}</td>
-                    <td>${name2 ? `<span class="uni-num-prefix">${startNum + i + 1}.</span>${name2}` : ''}</td>
-                    <td>${name3 ? `<span class="uni-num-prefix">${startNum + i + 2}.</span>${name3}` : ''}</td>
+                    <td>${name1 ? formatUniCell(name1, startNum + i) : ''}</td>
+                    <td>${name2 ? formatUniCell(name2, startNum + i + 1) : ''}</td>
+                    <td>${name3 ? formatUniCell(name3, startNum + i + 2) : ''}</td>
                 </tr>
             `;
         }
