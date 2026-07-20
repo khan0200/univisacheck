@@ -281,121 +281,16 @@
             position: absolute;
             inset: 0;
             background: url('korea-hero.png') center 30% / cover no-repeat;
-            overflow: hidden;
-        }
-        .hero-video-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
-            opacity: 0.55;
-            z-index: 0;
+            transform: scale(1.04);
+            will-change: transform;
         }
         .hero-bg::after {
             content: '';
             position: absolute;
             inset: 0;
-            z-index: 1;
             background:
-                linear-gradient(to right,  rgba(9,9,15,0.88) 0%, rgba(9,9,15,0.60) 55%, rgba(9,9,15,0.30) 100%),
-                linear-gradient(to bottom, rgba(9,9,15,0.40) 0%, transparent 35%, rgba(9,9,15,0.70) 75%, rgba(9,9,15,1) 100%);
-        }
-
-        /* Intro Video Button */
-        .btn-intro-video {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: rgba(232,48,74,0.15);
-            border: 1px solid rgba(232,48,74,0.4);
-            border-radius: var(--radius);
-            color: #fff;
-            font-family: var(--font);
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--dur) var(--ease);
-            white-space: nowrap;
-        }
-        .btn-intro-video:hover {
-            background: var(--red);
-            border-color: var(--red);
-            box-shadow: 0 0 20px var(--red-glow);
-            transform: translateY(-2px);
-        }
-
-        /* ─── INTRO VIDEO MODAL ────────────────────────────────────── */
-        .intro-modal-backdrop {
-            position: fixed;
-            inset: 0;
-            z-index: 999;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s var(--ease);
-        }
-        .intro-modal-backdrop.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .intro-modal-content {
-            position: relative;
-            width: 100%;
-            max-width: 920px;
-            background: #09090f;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            border: 1px solid var(--border);
-            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-            transform: scale(0.92);
-            transition: transform 0.3s var(--ease);
-        }
-        .intro-modal-backdrop.active .intro-modal-content {
-            transform: scale(1);
-        }
-        .intro-modal-close {
-            position: absolute;
-            top: 14px;
-            right: 16px;
-            z-index: 10;
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: grid;
-            place-items: center;
-            transition: background 0.2s;
-        }
-        .intro-modal-close:hover {
-            background: var(--red);
-        }
-        .intro-modal-video-wrap {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%;
-            background: #000;
-        }
-        .intro-modal-video-wrap video {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
+                linear-gradient(to right,  rgba(9,9,15,0.80) 0%, rgba(9,9,15,0.45) 55%, rgba(9,9,15,0.15) 100%),
+                linear-gradient(to bottom, rgba(9,9,15,0.30) 0%, transparent 35%, rgba(9,9,15,0.60) 75%, rgba(9,9,15,1) 100%);
         }
         .hero-content {
             position: relative;
@@ -955,68 +850,6 @@
         .footer-nav a:hover { color: var(--text-2); }
         .footer-copy { font-size: 12px; color: var(--text-3); }
 
-        /* ─── VIDEO SHOWCASE SECTION ─────────────────────────────────── */
-        .video-container-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            margin-top: var(--sp-md);
-            transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-        }
-        .video-container-card:hover {
-            border-color: rgba(232,48,74,0.4);
-            box-shadow: 0 25px 60px rgba(232,48,74,0.15);
-        }
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 aspect ratio */
-            background: #000;
-        }
-        .video-wrapper video {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            border: none;
-            outline: none;
-        }
-        .video-info-bar {
-            padding: 18px var(--sp-md);
-            background: rgba(15,15,25,0.95);
-            backdrop-filter: blur(12px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            border-top: 1px solid var(--border);
-        }
-        .video-brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .video-brand img {
-            height: 42px;
-            width: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            object-fit: contain;
-        }
-        .video-brand strong {
-            display: block;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .video-brand p {
-            font-size: 13px;
-            color: var(--text-2);
-            margin-top: 2px;
-        }
-
         /* ─── ANIMATIONS ──────────────────────────────────────────── */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(24px); }
@@ -1099,7 +932,6 @@
         <!-- Desktop nav links -->
         <ul class="nav-links" role="list">
             <li><a href="#viza-tekshirish" onclick="smoothScroll(event,'viza-tekshirish')">Viza tekshirish</a></li>
-            <li><a href="#video-section" onclick="smoothScroll(event,'video-section')">Video qo'llanma</a></li>
             <li><a href="#hujjatlar" onclick="smoothScroll(event,'hujjatlar')">Hujjatlar</a></li>
             <li><a href="#universitetlar" onclick="smoothScroll(event,'universitetlar')">Universitetlar</a></li>
             <li><a href="#sorovnoma" onclick="smoothScroll(event,'sorovnoma')">So'rovnoma</a></li>
@@ -1142,12 +974,7 @@
 
 <!-- ─── HERO ────────────────────────────────────────────────────────── -->
 <section class="hero" id="home">
-    <div class="hero-bg" id="heroBg" aria-hidden="true">
-        <video autoplay loop muted playsinline class="hero-video-bg">
-            <source src="video and logo/intro video.mp4" type="video/mp4">
-            <source src="intro-video.mp4" type="video/mp4">
-        </video>
-    </div>
+    <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
 
     <div class="hero-content" id="main-content">
         <div class="hero-inner">
@@ -1165,12 +992,6 @@
                     </svg>
                     So'rovnoma to'ldirish
                 </a>
-                <button type="button" class="btn-intro-video" onclick="openIntroModal()" id="heroIntroBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    <span>Intro Video</span>
-                </button>
                 <a href="visa-status.html" class="btn-ghost" id="heroCtaSecondary">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="8"/>
@@ -1290,36 +1111,6 @@
             </svg>
             <div class="telegram-text">
                 Telegram bot orqali viza holatini kuzatib boring: <a href="https://t.me/Koreavizabot" target="_blank" rel="noopener">@Koreavizabot</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="divider"></div>
-
-<!-- ─── VIDEO TAQDIMOT ───────────────────────────────────────────────── -->
-<div id="video-section">
-    <div class="section-wrap">
-        <div class="section-eyebrow">Video Qo'llanma</div>
-        <h2 class="section-h2">SalomKorea video taqdimoti</h2>
-        <p class="section-sub">Koreya vizasi, universitet arizalari va platformadan foydalanish bo'yicha atroflicha ko'rsatma.</p>
-
-        <div class="video-container-card">
-            <div class="video-wrapper">
-                <video controls playsinline poster="korea-hero.png" preload="metadata">
-                    <source src="video and logo/intro video.mp4" type="video/mp4">
-                    <source src="intro-video.mp4" type="video/mp4">
-                    Brauzeringiz videoni qo'llab-quvvatlamaydi.
-                </video>
-            </div>
-            <div class="video-info-bar">
-                <div class="video-brand">
-                    <img src="video and logo/LOGO.png" alt="SalomKorea Logo">
-                    <div>
-                        <strong>SalomKorea Rasmiy Video Qo'llanmasi</strong>
-                        <p>Koreyadagi ta'lim va viza arizalarini to'liq boshqarish</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -1516,51 +1307,7 @@
     </div>
 </footer>
 
-<!-- ─── INTRO VIDEO MODAL ───────────────────────────────────────────── -->
-<div class="intro-modal-backdrop" id="introModal" role="dialog" aria-modal="true" aria-label="SalomKorea Intro Video">
-    <div class="intro-modal-content">
-        <button class="intro-modal-close" onclick="closeIntroModal()" aria-label="Close intro video">&times;</button>
-        <div class="intro-modal-video-wrap">
-            <video id="introModalVideo" controls playsinline poster="korea-hero.png">
-                <source src="video and logo/intro video.mp4" type="video/mp4">
-                <source src="intro-video.mp4" type="video/mp4">
-                Brauzeringiz videoni qo'llab-quvvatlamaydi.
-            </video>
-        </div>
-    </div>
-</div>
-
 <script>
-    // ── Intro Video Modal controls ────────────────────────────────────
-    function openIntroModal() {
-        const modal = document.getElementById('introModal');
-        const video = document.getElementById('introModalVideo');
-        if (modal) {
-            modal.classList.add('active');
-            if (video) {
-                video.currentTime = 0;
-                video.play().catch(() => {});
-            }
-        }
-    }
-
-    function closeIntroModal() {
-        const modal = document.getElementById('introModal');
-        const video = document.getElementById('introModalVideo');
-        if (modal) {
-            modal.classList.remove('active');
-            if (video) video.pause();
-        }
-    }
-
-    // Close modal on escape or backdrop click
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeIntroModal();
-    });
-    document.getElementById('introModal')?.addEventListener('click', e => {
-        if (e.target === document.getElementById('introModal')) closeIntroModal();
-    });
-
     // ── Navbar scroll effect ──────────────────────────────────────────
     const nav = document.getElementById('mainNav');
     window.addEventListener('scroll', () => {
