@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -638,16 +638,121 @@
         }
 
         /* ─── DOCUMENTS ───────────────────────────────────────────── */
+        .doc-tabs-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .doc-tab-btn {
+            padding: 12px 22px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-2);
+            cursor: pointer;
+            transition: all var(--dur) var(--ease);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .doc-tab-btn:hover {
+            border-color: var(--border-hov);
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .doc-tab-btn.active {
+            background: rgba(232, 48, 74, 0.15);
+            color: #ff6a7e;
+            border-color: rgba(232, 48, 74, 0.4);
+            box-shadow: 0 4px 16px rgba(232, 48, 74, 0.2);
+        }
+        .doc-tab-pane {
+            display: none;
+        }
+        .doc-tab-pane.active {
+            display: block;
+            animation: fadeIn 0.25s ease-out;
+        }
+        .btn-pdf-download {
+            padding: 12px 22px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 100px;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            cursor: pointer;
+            transition: all var(--dur) var(--ease);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .btn-pdf-download:hover {
+            background: rgba(59, 130, 246, 0.22);
+            border-color: #60a5fa;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+            transform: translateY(-1px);
+        }
+        @media (max-width: 640px) {
+            .btn-pdf-download {
+                margin-left: 0;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        .doc-section-block {
+            margin-bottom: 32px;
+        }
+        .doc-section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-section-title h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .doc-section-title .doc-badge-tag {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 100px;
+            background: rgba(232, 48, 74, 0.15);
+            color: #ff6a7e;
+            border: 1px solid rgba(232, 48, 74, 0.3);
+        }
+        .doc-section-title.title-parent .doc-badge-tag {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
         .docs-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
+        @media (max-width: 768px) {
+            .docs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         .doc-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 20px 22px;
+            padding: 18px 20px;
             display: flex;
             align-items: flex-start;
             gap: 14px;
@@ -657,6 +762,12 @@
             background: rgba(255,255,255,0.06);
             border-color: var(--border-hov);
             transform: translateY(-2px);
+        }
+        .doc-card.doc-parent-card {
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+        .doc-card.doc-parent-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
         }
         .doc-num {
             width: 30px; height: 30px;
@@ -669,17 +780,58 @@
             font-weight: 800;
             color: #fff;
         }
+        .doc-card.doc-parent-card .doc-num {
+            background: #3b82f6;
+        }
         .doc-info h4 {
             font-size: 14px;
             font-weight: 700;
             margin-bottom: 4px;
             color: var(--text);
-            line-height: 1.3;
+            line-height: 1.35;
         }
         .doc-info p {
             font-size: 13px;
             color: var(--text-2);
             line-height: 1.55;
+        }
+        .doc-sublist {
+            margin-top: 6px;
+            padding-left: 0;
+            list-style: none;
+        }
+        .doc-sublist li {
+            font-size: 12.5px;
+            color: var(--text-2);
+            margin-bottom: 4px;
+            position: relative;
+            padding-left: 14px;
+        }
+        .doc-sublist li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #60a5fa;
+        }
+        .doc-note-callout {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-left: 4px solid #ef4444;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-top: 20px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #f87171;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .doc-note-callout svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            stroke: #f87171;
         }
         .docs-note {
             margin-top: 20px;
@@ -689,59 +841,241 @@
         }
 
         /* ─── UNIVERSITIES ────────────────────────────────────────── */
-        .unis-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+        .uni-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 24px;
+            margin-bottom: 24px;
         }
-        .uni-card {
-            background: var(--bg-card);
+        .uni-tabs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px;
+            border-radius: 14px;
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 20px 18px;
-            transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
         }
-        .uni-card:hover {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(232,48,74,0.25);
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
-        }
-        .uni-flag {
+        .uni-tab {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            width: 36px; height: 36px;
-            background: rgba(232,48,74,0.10);
-            border: 1px solid rgba(232,48,74,0.18);
-            border-radius: var(--radius-sm);
+            gap: 8px;
+            padding: 10px 18px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: var(--text-2);
+            font-family: var(--font);
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+        }
+        .uni-tab:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .uni-tab.active {
+            background: rgba(232, 48, 74, 0.15);
+            color: #fff;
+            border: 1px solid rgba(232, 48, 74, 0.35);
+            box-shadow: 0 4px 12px rgba(232, 48, 74, 0.15);
+        }
+        .uni-tab .tab-count {
+            padding: 2px 7px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
             font-size: 11px;
+            font-weight: 700;
+        }
+        .uni-tab.active .tab-count {
+            background: var(--red);
+            color: #fff;
+        }
+        .uni-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-width: 280px;
+            flex: 1;
+            max-width: 380px;
+        }
+        .uni-search-box input {
+            width: 100%;
+            height: 44px;
+            padding: 0 38px 0 40px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s var(--ease);
+        }
+        .uni-search-box input:focus {
+            border-color: rgba(232, 48, 74, 0.5);
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 0 0 3px rgba(232, 48, 74, 0.15);
+        }
+        .uni-search-box .search-icon {
+            position: absolute;
+            left: 12px;
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-3);
+            pointer-events: none;
+        }
+        .uni-search-box .search-clear-btn {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--text-3);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .uni-search-box .search-clear-btn:hover {
+            color: var(--text);
+        }
+
+        /* Banner callout for descriptions */
+        .uni-banner-callout {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--red);
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text);
+        }
+        .uni-banner-callout p + p {
+            margin-top: 10px;
+        }
+        .uni-banner-callout.banner-1percent {
+            border-left-color: #ff4d6d;
+            background: rgba(232, 48, 74, 0.06);
+        }
+        .uni-banner-callout.banner-licensed {
+            border-left-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.06);
+        }
+        .uni-banner-callout.banner-restricted {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.06);
+        }
+
+        /* 3-Column Table Styles (Names Only) */
+        .uni-group-block {
+            margin-bottom: 28px;
+        }
+        .uni-group-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .uni-group-header .accent-bar {
+            width: 4px;
+            height: 20px;
+            background: #ff4d6d;
+            border-radius: 2px;
+        }
+        .uni-group-header .accent-bar.accent-college {
+            background: #3b82f6;
+        }
+        .uni-group-header .accent-bar.accent-restricted {
+            background: #ef4444;
+        }
+        .uni-group-header h3 {
+            font-size: 17px;
             font-weight: 800;
-            letter-spacing: 0.04em;
-            color: #ff6a7e;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .uni-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
             margin-bottom: 10px;
         }
-        .uni-name {
-            font-size: 13px;
-            font-weight: 700;
+        .uni-table-3col {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13.5px;
+            table-layout: fixed;
+            min-width: 600px;
+        }
+        .uni-table-3col th {
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text);
-            margin-bottom: 4px;
-            line-height: 1.3;
+            font-weight: 700;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            width: 33.333%;
         }
-        .uni-city {
-            font-size: 11.5px;
-            color: var(--text-3);
-            margin-bottom: 8px;
+        .uni-table-3col tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.15s ease;
         }
-        .uni-badge {
-            display: inline-block;
-            padding: 2px 9px;
-            background: rgba(232,48,74,0.12);
-            border: 1px solid rgba(232,48,74,0.22);
-            border-radius: 100px;
-            font-size: 11px;
+        .uni-table-3col tr:last-child {
+            border-bottom: none;
+        }
+        .uni-table-3col tr:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .uni-table-3col td {
+            padding: 12px 18px;
+            color: var(--text);
             font-weight: 600;
-            color: #ff6a7e;
+            vertical-align: middle;
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .uni-table-3col td:last-child {
+            border-right: none;
+        }
+        .uni-table-3col td .uni-num-prefix {
+            color: var(--text-3);
+            font-weight: 700;
+            font-size: 12px;
+            margin-right: 6px;
+            display: inline-block;
+            min-width: 24px;
+        }
+
+        .uni-results-meta {
+            font-size: 13.5px;
+            color: var(--text-2);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        .uni-no-results {
+            text-align: center;
+            padding: 48px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-lg);
+            color: var(--text-2);
+        }
+        .uni-no-results svg {
+            width: 36px;
+            height: 36px;
+            stroke: var(--text-3);
+            margin-bottom: 12px;
         }
         .unis-note {
             margin-top: 20px;
@@ -1122,67 +1456,301 @@
 <div id="hujjatlar">
     <div class="section-wrap">
         <div class="section-eyebrow">Hujjatlar ro'yxati</div>
-        <h2 class="section-h2">Elchixonaga topshiriladigan<br>hujjatlar ro'yxati</h2>
-        <p class="section-sub">D-2 (talaba) va D-4 (til o'rganish) vizalari uchun zarur hujjatlar to'plami.</p>
+        <h2 class="section-h2">D-2 va D-4 vizalari uchun<br>Elchixonaga topshiriladigan hujjatlar</h2>
+        <p class="section-sub">Universitet turiga qarab elchixonaga topshiriladigan hujjatlar ro'yxati bilan tanishing.</p>
 
-        <div class="docs-grid">
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">1</div>
-                <div class="doc-info">
-                    <h4>Pasport (asl nusxa)</h4>
-                    <p>Muddati kamida 6 oy qolgan amal qiluvchi pasport. Barcha eski pasportlar ham ilovada bo'lishi kerak.</p>
+        <!-- Document Section Tab Buttons -->
+        <div class="doc-tabs-wrapper">
+            <button type="button" class="doc-tab-btn active" data-doc-tab="percent1" onclick="switchDocTab('percent1')">
+                🥇 1% Universitetlar uchun
+            </button>
+            <button type="button" class="doc-tab-btn" data-doc-tab="standard" onclick="switchDocTab('standard')">
+                📄 Standart hujjatlar
+            </button>
+            <button type="button" class="btn-pdf-download" onclick="downloadDocPDF()" aria-label="PDF formatida checklist yuklab olish">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                PDF Checklist yuklab olish
+            </button>
+        </div>
+
+        <!-- TAB 1: 1% Universitetlar uchun -->
+        <div id="docTabPercent1" class="doc-tab-pane active">
+            <!-- Banner Callout -->
+            <div class="uni-banner-callout banner-1percent" style="margin-bottom: 24px;">
+                <p><strong>🥇 1% Universitetlar uchun yengillashtirilgan tartib</strong></p>
+                <p>Hujjatlar yengillashtirilgan tartibda tekshiriladi, ota ona daromadi va 31 kunlik KDB bank hisoboti kerak emas.</p>
+            </div>
+
+            <!-- TALABA HUJJATLARI -->
+            <div class="doc-section-block">
+                <div class="doc-section-title">
+                    <h3>🎓 TALABA HUJJATLARI</h3>
+                    <span class="doc-badge-tag">11 ta hujjat</span>
+                </div>
+                <div class="docs-grid">
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">1</div>
+                        <div class="doc-info">
+                            <h4>Zagran pasport</h4>
+                            <p>Asli va 2 ta rangli nusxasi.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">2</div>
+                        <div class="doc-info">
+                            <h4>Bio pasport yoki ID kartasi</h4>
+                            <p>Nusxasi orqa va oldi tomoni.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">3</div>
+                        <div class="doc-info">
+                            <h4>Admission (Taklifnoma)</h4>
+                            <p>Universitet beradi.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">4</div>
+                        <div class="doc-info">
+                            <h4>Business Registration</h4>
+                            <p>Universitet litsenziyasi — Universitet beradi.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">5</div>
+                        <div class="doc-info">
+                            <h4>Bitiruv hujjati (Diplom / Shahodatnoma)</h4>
+                            <p>Apostil, QR-code, imzo va muhr bilan.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">6</div>
+                        <div class="doc-info">
+                            <h4>Til bilish sertifikati</h4>
+                            <p>TOPIK 3, Sejong SKA 321 ball, Sejong 1+, IELTS 5.5+.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">7</div>
+                        <div class="doc-info">
+                            <h4>Tug'ilganlik guvohnomasi (Metrka)</h4>
+                            <p>Tarjimasi bilan.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">8</div>
+                        <div class="doc-info">
+                            <h4>Ota-ona nikoh guvohnomasi (ZAGS)</h4>
+                            <p>Tarjimasi bilan.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">9</div>
+                        <div class="doc-info">
+                            <h4>Nikoh holati haqida ma'lumotnoma</h4>
+                            <p>Nikohda turganligi/turmaganligi — Tarjimasi bilan.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">10</div>
+                        <div class="doc-info">
+                            <h4>Fotosurat (3.5 × 4.5 sm)</h4>
+                            <p>Oq fonda — 2 dona.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">11</div>
+                        <div class="doc-info">
+                            <h4>Study Plan (O'quv rejasi)</h4>
+                            <p>Koreys yoki ingliz tilida talaba tomonidan qo'lda yoziladi.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">2</div>
-                <div class="doc-info">
-                    <h4>Viza anketa blanki</h4>
-                    <p>Elektron imzolangan yoki qo'lda to'ldirilgan viza so'rovi blanki (2 nusxa).</p>
+
+            <!-- OTA-ONA HUJJATLARI -->
+            <div class="doc-section-block">
+                <div class="doc-section-title title-parent">
+                    <h3>👨‍👩‍👦 OTA-ONA HUJJATLARI</h3>
+                    <span class="doc-badge-tag">1 ta hujjat</span>
                 </div>
-            </div>
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">3</div>
-                <div class="doc-info">
-                    <h4>Fotosurat (3×4 sm)</h4>
-                    <p>Oq fonda, oxirgi 6 oy ichida olingan raqamli fotosurat — 2 dona. Ko'zoynak va bosh kiyimsiz.</p>
-                </div>
-            </div>
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">4</div>
-                <div class="doc-info">
-                    <h4>Universitetdan taklif xati (CoE)</h4>
-                    <p>Certificate of Eligibility — Koreyalik universitetdan rasmiy chaqiruv xati (asl + nusxa).</p>
-                </div>
-            </div>
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">5</div>
-                <div class="doc-info">
-                    <h4>Diplom yoki attestat</h4>
-                    <p>O'rta maktab yoki oliy ta'lim diplomining notarial tasdiqlangan tarjimasi (koreyscha yoki inglizcha).</p>
-                </div>
-            </div>
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">6</div>
-                <div class="doc-info">
-                    <h4>Bank ko'chirmasi</h4>
-                    <p>So'nggi 3 oy ichidagi bank hisobi ko'chirmasi. Minimal balans — $3 000 yoki ekvivalent summa.</p>
-                </div>
-            </div>
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">7</div>
-                <div class="doc-info">
-                    <h4>Tibbiy sug'urta polisi</h4>
-                    <p>Koreya hududida amal qiluvchi tibbiy sug'urta, minimal muddati — 1 yil.</p>
-                </div>
-            </div>
-            <div class="doc-card">
-                <div class="doc-num" aria-hidden="true">8</div>
-                <div class="doc-info">
-                    <h4>Viza to'lovi cheki</h4>
-                    <p>Elchixona viza yig'imi: D-2 — $60, D-4 — $60. To'lov naqd yoki kartada qabul qilinadi.</p>
+                <div class="docs-grid">
+                    <div class="doc-card doc-parent-card">
+                        <div class="doc-num" aria-hidden="true">1</div>
+                        <div class="doc-info">
+                            <h4>Ota-Ona bio pasport yoki ID kartasi</h4>
+                            <p>Nusxasi orqa va oldi tomoni.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- TAB 2: Standart hujjatlar -->
+        <div id="docTabStandard" class="doc-tab-pane">
+            <!-- Banner Callout -->
+            <div class="uni-banner-callout banner-licensed" style="margin-bottom: 24px;">
+                <p><strong>📄 Standart viza tekshiruvi hujjatlari</strong></p>
+                <p>Akkreditatsiyalangan hamda boshqa universitetlarga ariza topshirganda talab etiladigan standart hujjatlar to'plami.</p>
+            </div>
+
+            <!-- TALABA HUJJATLARI -->
+            <div class="doc-section-block">
+                <div class="doc-section-title">
+                    <h3>🎓 TALABA HUJJATLARI</h3>
+                    <span class="doc-badge-tag">12 ta hujjat</span>
+                </div>
+                <div class="docs-grid">
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">1</div>
+                        <div class="doc-info">
+                            <h4>Zagran pasport</h4>
+                            <p>Asli va rangli nusxasi — 2 dona.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">2</div>
+                        <div class="doc-info">
+                            <h4>Bio pasport yoki ID kartasi</h4>
+                            <p>Nusxasi orqa va oldi tomoni ko'rinishi shart.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">3</div>
+                        <div class="doc-info">
+                            <h4>Admission (Taklifnoma)</h4>
+                            <p>Universitet tomonidan berilgan rasmiy chaqiruv xati.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">4</div>
+                        <div class="doc-info">
+                            <h4>Business Registration</h4>
+                            <p>Universitet litsenziyasi (Universitet beradi).</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">5</div>
+                        <div class="doc-info">
+                            <h4>Bitiruv hujjati (Diplom / Shahodatnoma)</h4>
+                            <p>Eng oxirgi o'qish joyidan bitiruv hujjati (Apostil bilan, QR-code, imzo va muhr bo'lishi shart).</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">6</div>
+                        <div class="doc-info">
+                            <h4>Talaba nomidagi 1 oylik KDB bank hisobi</h4>
+                            <p>KDB ilovasidan olinadigan ma'lumotnoma: Shaharga qarab $12,500 – $15,500.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">7</div>
+                        <div class="doc-info">
+                            <h4>Til bilish sertifikati</h4>
+                            <p>TOPIK 3+, Sejong maktabi (SKA) 321+ ball, Sejong koreys tili 1+ yoki IELTS 5.5+.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">8</div>
+                        <div class="doc-info">
+                            <h4>Tug'ilganlik guvohnomasi (Metrka)</h4>
+                            <p>Rasmiy tarjimasi bilan birga taqdim etiladi.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">9</div>
+                        <div class="doc-info">
+                            <h4>Ota-onasining nikoh guvohnomasi (ZAGS)</h4>
+                            <p>Rasmiy tarjimasi bilan birga taqdim etiladi.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">10</div>
+                        <div class="doc-info">
+                            <h4>Nikoh holati haqida ma'lumotnoma</h4>
+                            <p>Nikohda turganligi yoki turmaganligi haqida hujjat (Tarjima shart).</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">11</div>
+                        <div class="doc-info">
+                            <h4>Fotosurat (3.5 × 4.5 sm)</h4>
+                            <p>Orqasi oq fonda — 2 dona.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card">
+                        <div class="doc-num" aria-hidden="true">12</div>
+                        <div class="doc-info">
+                            <h4>Study Plan (O'quv rejasi)</h4>
+                            <p>Koreys yoki Ingliz tilida talaba tomonidan qo'lda yoziladi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTA-ONA HUJJATLARI -->
+            <div class="doc-section-block">
+                <div class="doc-section-title title-parent">
+                    <h3>👨‍👩‍👦 OTA-ONA HUJJATLARI</h3>
+                    <span class="doc-badge-tag">5 ta hujjat</span>
+                </div>
+                <div class="docs-grid">
+                    <div class="doc-card doc-parent-card">
+                        <div class="doc-num" aria-hidden="true">1</div>
+                        <div class="doc-info">
+                            <h4>Ota-Ona bio pasport yoki ID kartasi</h4>
+                            <p>Nusxasi orqa va oldi tomoni ko'rinishi shart.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card doc-parent-card">
+                        <div class="doc-num" aria-hidden="true">2</div>
+                        <div class="doc-info">
+                            <h4>Mehnat daftarchasidan ko'chirma</h4>
+                            <p>My.gov.uz portali orqali olingan, tarjimasi bilan.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card doc-parent-card">
+                        <div class="doc-num" aria-hidden="true">3</div>
+                        <div class="doc-info">
+                            <h4>Yillik daromad ma'lumotnomasi</h4>
+                            <p>Oxirgi 1 yillik (My.gov.uz portali) — Tarjimasi bilan.</p>
+                        </div>
+                    </div>
+                    <div class="doc-card doc-parent-card">
+                        <div class="doc-num" aria-hidden="true">4</div>
+                        <div class="doc-info">
+                            <h4>Mulk va Transport hujjatlari (agar mavjud bo'lsa)</h4>
+                            <ul class="doc-sublist">
+                                <li>Yer va ko'chmas mulk (davreestr.uz portalidan kadastr) — Tarjimasi bilan.</li>
+                                <li>Shaxsiy transport guvohnomasi (Texpassport) — Tarjimasi bilan.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="doc-card doc-parent-card">
+                        <div class="doc-num" aria-hidden="true">5</div>
+                        <div class="doc-info">
+                            <h4>Bank balansidan ko'chirma</h4>
+                            <p>QR-code ga ega Ota-Ona nomidagi 1 kunlik bank balansidan ko'chirma.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning Callout Note -->
+                <div class="doc-note-callout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <div>Yer va ko'chmas mulk hamda shaxsiy transport vositasini ro'yxatdan o'tkazganligiga 3 oydan ko'p bo'lishi kerak!</div>
+                </div>
+            </div>
+        </div>
+
         <p class="docs-note">Hujjatlar ro'yxati universitetga va viza turiga qarab farqlanishi mumkin. Aniq ma'lumot uchun kompaniyamizga murojaat qiling.</p>
     </div>
 </div>
@@ -1192,25 +1760,56 @@
 <!-- ─── UNIVERSITETLAR ───────────────────────────────────────────────── -->
 <div id="universitetlar">
     <div class="section-wrap">
-        <div class="section-eyebrow">Hamkor universitetlar</div>
-        <h2 class="section-h2">Koreyadagi<br>yetakchi universitetlar</h2>
-        <p class="section-sub">Kompaniyamiz hamkorlik qiluvchi Koreya universitetlari ro'yxati.</p>
+        <h2 class="section-h2">Koreyadagi universitetlar<br>va rasmiy maqomlar</h2>
 
-        <div class="unis-grid">
-            <div class="uni-card"><div class="uni-flag">AN</div><div class="uni-name">Anyang University</div><div class="uni-city">Anyang, Gyeonggi-do</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">JJ</div><div class="uni-name">Jeonju University</div><div class="uni-city">Jeonju, Jeollabuk-do</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">WS</div><div class="uni-name">Woosong University</div><div class="uni-city">Daejeon</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">PT</div><div class="uni-name">Pyeongtaek University</div><div class="uni-city">Pyeongtaek, Gyeonggi-do</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">CA</div><div class="uni-name">Chung-Ang University</div><div class="uni-city">Seoul</div><div class="uni-badge">D-2</div></div>
-            <div class="uni-card"><div class="uni-flag">IH</div><div class="uni-name">Inha University</div><div class="uni-city">Incheon</div><div class="uni-badge">D-2</div></div>
-            <div class="uni-card"><div class="uni-flag">SC</div><div class="uni-name">Soonchunhyang University</div><div class="uni-city">Asan, Chungcheongnam-do</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">DJ</div><div class="uni-name">Daejeon University</div><div class="uni-city">Daejeon</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">HN</div><div class="uni-name">Hannam University</div><div class="uni-city">Daejeon</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">KY</div><div class="uni-name">Konyang University</div><div class="uni-city">Cheonan</div><div class="uni-badge">D-2 · D-4</div></div>
-            <div class="uni-card"><div class="uni-flag">DK</div><div class="uni-name">Dankook University</div><div class="uni-city">Yongin / Cheonan</div><div class="uni-badge">D-2</div></div>
-            <div class="uni-card"><div class="uni-flag">EU</div><div class="uni-name">Eulji University</div><div class="uni-city">Seongnam / Daejeon</div><div class="uni-badge">D-2 · D-4</div></div>
+        <!-- Control Bar: Tabs & Search -->
+        <div class="uni-controls">
+            <div class="uni-tabs" role="tablist" aria-label="Universitet toifalari">
+                <button type="button" class="uni-tab active" data-tab="1percent" onclick="switchUniTab('1percent')" role="tab" aria-selected="true">
+                    <span>🥇 1% Universitetlar</span>
+                    <span class="tab-count" id="count1Percent">38</span>
+                </button>
+                <button type="button" class="uni-tab" data-tab="licensed" onclick="switchUniTab('licensed')" role="tab" aria-selected="false">
+                    <span>📜 Akkreditatsiyaga ega</span>
+                    <span class="tab-count" id="countLicensed">126</span>
+                </button>
+                <button type="button" class="uni-tab" data-tab="restricted" onclick="switchUniTab('restricted')" role="tab" aria-selected="false">
+                    <span>⚠️ Cheklovga tushgan</span>
+                    <span class="tab-count" id="countRestricted">39</span>
+                </button>
+                <button type="button" class="uni-tab" data-tab="all" onclick="switchUniTab('all')" role="tab" aria-selected="false">
+                    <span>🌐 Barchasi</span>
+                    <span class="tab-count" id="countAll">203</span>
+                </button>
+            </div>
+
+            <div class="uni-search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="uniSearchInput" placeholder="Universitet nomini izlang..." oninput="handleUniSearch(this.value)" autocomplete="off">
+                <button type="button" id="uniSearchClear" class="search-clear-btn" onclick="clearUniSearch()" style="display:none;" aria-label="Qidiruvni tozalash">✕</button>
+            </div>
         </div>
-        <p class="unis-note">Ro'yxat doimiy yangilanib boradi. Boshqa universitetlar haqida ma'lumot olish uchun murojaat qiling.</p>
+
+        <!-- Description Callout Banner for active tab -->
+        <div id="uniBannerCallout" class="uni-banner-callout banner-1percent"></div>
+
+        <!-- Grouped 3-Column Tables View for Active Tab -->
+        <div id="uniGroupsContainer">
+            <!-- Dynamic Subheaders & 3-Column Tables populated by JS -->
+        </div>
+
+        <div id="uniNoResults" class="uni-no-results" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <p>Kiritilgan so'rov bo'yicha universitet topilmadi.</p>
+        </div>
+
+        <p class="unis-note">Ma'lumotlar Koreya Respublikasi Adliya vazirligi va Ta'lim vazirligi rasmiy akkreditatsiya hamda litsenziyalash ro'yxatiga muvofiq keltirilgan.</p>
     </div>
 </div>
 
@@ -1382,6 +1981,501 @@
         el.style.opacity = '0';
         observer.observe(el);
     });
+
+    // ── Universitetlar ma'lumotlar bazasi va boshqaruv kodi ──────────
+    const UNI_DATA = {
+        accredited35: [
+            "AJOU UNIVERSITY", "BUSAN UNIVERSITY OF FOREIGN STUDIES", "CHUNG-ANG UNIVERSITY", 
+            "CHUNGNAM NATIONAL UNIVERSITY(CNU)", "DANKOOK UNIVERSITY", "DONGGUK UNIVERSITY(SEOUL)", 
+            "DUKSUNG WOMEN`S UNIVERSITY", "EWHA WOMANS UNIVERSITY", "HANSUNG UNIVERSITY", 
+            "HANYANG UNIVERSITY", "HONGIK UNIVERSITY", "INHA UNIVERSITY", 
+            "JEJU NATIONAL UNIVERSITY", "JOONGBU UNIVERSITY", "KEIMYUNG UNIVERSITY", 
+            "KONKUK UNIVERSITY", "KONYANG UNIVERSITY", "KOREA AEROSPACE UNIVERSITY", 
+            "KOREA UNIVERSITY", "KYUNG HEE UNIVERSITY", "KYUNGPOOK NATIONAL UNIVERSITY", 
+            "KYUNGSUNG UNIVERSITY", "POHANG UNIVERSITY OF SCIENCE AND TECHNOLOGY (POSTECH)", 
+            "PUSAN NATIONAL UNIVERSITY", "SEJONG UNIVERSITY", "SEOKYEONG UNIVERSITY", 
+            "SEOUL THEOLOGICAL UNIVERSITY", "SEOUL WOMEN`S UNIVERSITY", "SOOKMYUNG WOMEN`S UNIVERSITY", 
+            "SUNGKYUL UNIVERSITY", "SUNGKYUNKWAN UNIVERSITY (SKKU)", "SUNGSHIN WOMEN`S UNIVERSITY", 
+            "SUNMOON UNIVERSITY", "ULSAN NATIONAL INSTITUTE OF SCIENCE AND TECHNOLOGY (UNIST)", 
+            "UNIVERSITY OF SEOUL"
+        ],
+        accreditedColleges3: [
+            "INHA TECHNICAL COLLEGE", "KYUNGBOK UNIVERSITY", "ULSAN COLLEGE"
+        ],
+        licensedUnis: [
+            "AJOU UNIVERSITY", "ANYANG UNIVERSITY", "BAEKSEOK UNIVERSITY", "BUSAN UNIVERSITY OF FOREIGN STUDIES", "CHA UNIVERSITY", "CHANGSHIN UNIVERSITY", "CHANGWON NATIONAL UNIVERSITY", "CHEONGJU UNIVERSITY", "CHONNAM NATIONAL UNIVERSITY", "CHOSUN UNIVERSITY", "CHUNG-ANG UNIVERSITY", "CHUNGBUK NATIONAL UNIVERSITY", "CHUNGNAM NATIONAL UNIVERSITY(CNU)", "DAEGU CATHOLIC UNIVERSITY", "DAEGU HAANY UNIVERSITY", "DAEGU UNIVERSITY", "DAEJEON UNIVERSITY", "DAEJIN UNIVERSITY", "DAESHIN UNIVERSITY", "DANKOOK UNIVERSITY", "DONG-A UNIVERSITY", "DONG-EUI UNIVERSITY", "DONGDUK WOMENS UNIVERSITY", "DONGGUK UNIVERSITY (WISE CAMPUS)", "DONGGUK UNIVERSITY(SEOUL)", "DONGSEO UNIVERSITY", "DONGSHIN UNIVERSITY", "DUKSUNG WOMEN`S UNIVERSITY", "EULJI UNIVERSITY", "EWHA WOMANS UNIVERSITY", "GACHON UNIVERSITY", "GANGSEO UNIVERSITY", "GIMCHEON UNIVERSITY", "GIST(GWANGJU INSTITUTE OF SCIENCE AND TECHNOLOGY)", "GWANGJU UNIVERSITY", "GYEONGKUK NATIONAL UNIVERSITY", "GYEONGSANG NATIONAL UNIVERSITY", "HALLYM UNIVERSITY", "HANBAT NATIONAL UNIVERSITY", "HANDONG GLOBAL UNIVERSITY", "HANKUK UNIVERSITY OF FOREIGN STUDIES", "HANNAM UNIVERSITY", "HANSEI UNIVERSITY", "HANSEO UNIVERSITY", "HANSUNG UNIVERSITY", "HANYANG UNIVERSITY", "HANYANG UNIVERSITY(ERICA CAMPUS)", "HONGIK UNIVERSITY", "HOSEO UNIVERSITY", "INCHEON NATIONAL UNIVERSITY", "INHA UNIVERSITY", "INJE UNIVERSITY", "JEJU NATIONAL UNIVERSITY", "JEONBUK NATIONAL UNIVERSITY", "JEONJU UNIVERSITY", "JOONGBU UNIVERSITY", "JUNGWON UNIVERSITY", "KAIST (KOREA ADVANCED INSTITUTE OF SCIENCE AND TECHNOLOGY)", "KANGNAM UNIVERSITY", "KANGWON NATIONAL UNIVERSITY(CHUNCHEON)", "KANGWON NATIONAL UNIVERSITY(GANGNEUNG)", "KANGWON NATIONAL UNIVERSITY(SAMCHEOK)", "KANGWON NATIONAL UNIVERSITY(WONJU)", "KEIMYUNG UNIVERSITY", "KONGJU NATIONAL UNIVERSITY", "KONKUK UNIVERSITY", "KONKUK UNIVERSITY GLOCAL CAMPUS", "KONYANG UNIVERSITY", "KOOKMIN UNIVERSITY", "KOREA AEROSPACE UNIVERSITY", "KOREA MARITIME & OCEAN UNIVERSITY", "KOREA NATIONAL UNIVERSITY OF EDUCATION", "KOREA NATIONAL UNIVERSITY OF TRANSPORTATION", "KOREA NAZARENE UNIVERSITY", "KOREA UNIVERSITY", "KOREA UNIVERSITY(SEJONG)", "KOREAN BIBLE UNIVERSITY", "KOREATECH(KOREA UNIVERSITY OF TECHNOLOGY AND EDUCATION)", "KOSIN UNIVERSITY", "KUMOH NATIONAL INSTITUTE OF TECHNOLOGY", "KUNSAN NATIONAL UNIVERSITY", "KWANGJU WOMEN'S UNIVERSITY", "KWANGWOON UNIVERSITY", "KYONGGI UNIVERSITY", "KYUNG HEE UNIVERSITY", "KYUNGDONG UNIVERSITY", "KYUNGIL UNIVERSITY", "KYUNGNAM UNIVERSITY", "KYUNGPOOK NATIONAL UNIVERSITY", "KYUNGSUNG UNIVERSITY", "KYUNGWOON UNIVERSITY", "MOKPO NATIONAL UNIVERSITY", "MOKWON UNIVERSITY", "MYONGJI UNIVERSITY(SEOUL CAMPUS)", "NAMSEOUL UNIVERSITY", "PAI CHAI UNIVERSITY", "POHANG UNIVERSITY OF SCIENCE AND TECHNOLOGY (POSTECH)", "PUKYONG NATIONAL UNIVERSITY", "PUSAN NATIONAL UNIVERSITY", "PYEONGTAEK UNIVERSITY", "SAHMYOOK UNIVERSITY", "SANGMYUNG UNIVERSITY", "SEJONG UNIVERSITY", "SEMYUNG UNIVERSITY", "SEOKYEONG UNIVERSITY", "SEOUL CHRISTIAN UNIVERSITY", "SEOUL NATIONAL UNIVERSITY", "SEOUL NATIONAL UNIVERSITY OF SCIENCE AND TECHNOLOGY", "SEOUL THEOLOGICAL UNIVERSITY", "SEOUL WOMEN`S UNIVERSITY", "SHINHAN UNIVERSITY", "SILLA UNIVERSITY", "SOGANG UNIVERSITY", "SOOKMYUNG WOMEN`S UNIVERSITY", "SOONCHUNHYANG UNIVERSITY", "SOONGSIL UNIVERSITY", "SUNCHON NATIONAL UNIVERSITY", "SUNGKONGHOE UNIVERSITY", "SUNGKYUL UNIVERSITY", "SUNGKYUNKWAN UNIVERSITY (SKKU)", "SUNGSHIN WOMEN`S UNIVERSITY", "SUNMOON UNIVERSITY", "THE CATHOLIC UNIVERSITY OF KOREA", "TONGMYONG UNIVERSITY", "UIDUK UNIVERSITY", "ULSAN NATIONAL INSTITUTE OF SCIENCE AND TECHNOLOGY (UNIST)", "UNIVERSITY OF SEOUL", "UNIVERSITY OF ULSAN", "WONKWANG UNIVERSITY", "WOOSONG UNIVERSITY", "WOOSUK UNIVERSITY", "YEUNGNAM UNIVERSITY", "YONSEI UNIVERSITY", "YONSEI UNIVERSITY MIRAE CAMPUS", "YOUNGSAN UNIVERSITY"
+        ],
+        licensedColleges: [
+            "ANSAN UNIVERSITY", "BUCHEON UNIVERSITY", "BUSAN INSTITUTE OF SCIENCE AND TECHNOLOGY", "CHANGWON NATIONAL UNIVERSITY NAMHAE CAMPUS", "CHEJU HALLA UNIVERSITY", "DAELIM UNIVERSITY COLLEGE", "DONG-EUI INSTITUTE OF TECHNOLOGY", "DONGWON ISTITUTE OF SCIENCE AND TECHNOLOGY", "HANYANG WOMEN`S UNIVERSITY", "INDUK UNIVERSITY", "INHA TECHNICAL COLLEGE", "JANGAN COLLEGE", "JEJU TOURISM UNIVERSITY", "JEONBUK SCIENCE COLLEGE", "KEIMYUNG COLLEGE UNIVERSITY", "KOREA UNIVERSITY OF MEDIA ARTS", "KUNJANG UNIVERSITY COLLEGE", "KYUNG NAM COLLEGE OF INFORMATION & TECHNOLOGY", "KYUNGBOK UNIVERSITY", "KYUNGIN WOMEN'S UNIVERSITY", "MOKPO SCIENCE UNIVERSITY", "MYONGJI COLLEGE", "OSAN UNIVERSITY", "SEOJEONG UNIVERSITY", "SEOUL INSTITUTE OF THE ARTS", "TONGWON UNIVERSITY", "ULSAN COLLEGE", "UNIVERSITY OF GYEONGNAM GEOCHANG", "VISION COLLEGE OF JEONJU", "WONKWANG HEALTH SCIENCE UNIVERSITY", "YEUNGJIN UNIVERSITY", "YEUNGNAM UNIVERSITY COLLEGE", "YONG-IN ARTS & SCIENCE UNIVERSITY"
+        ],
+        restrictedDegree: [
+            "Nambu University", "Uiduk University", "Joong-Ang Sangha University", "The University of Suwon", "Yewon Arts University", "Jeonju University", "Kosin University", "Geumgang University", "Halla University", "Daegu Technical University", "Woosong Information College", "Dongwon Institute of Science & Technology", "Yeungnam University College", "Jeonju Kijeon College", "Cheju Halla University", "Kangwon Tourism College", "Korea Lift College", "TLBU Graduate Law School", "Ezra Bible Institute for Graduate Studies"
+        ],
+        restrictedLanguage: [
+            "Soonchunhyang University", "Kumoh National Institute of Technology", "Dong-eui University", "Yongin University", "Dongduk Women's University", "Mokpo National University", "Sangji University", "Yewon Arts University", "U1 University", "Changwon National University", "Chodang University", "Halla University", "Chongshin University", "Daegu Health College", "Dongwon Institute of Science & Technology", "Keimyung College University", "Suncheon Cheongam College", "Catholic Sangji College", "Kyongbuk Science College", "TLBU Graduate Law School"
+        ]
+    };
+
+    let activeUniTab = '1percent';
+    let uniSearchQuery = '';
+
+    function initUniSection() {
+        const el35 = document.getElementById('uniList35');
+        const elCol3 = document.getElementById('uniListColleges3');
+        if (el35) el35.textContent = UNI_DATA.accredited35.join(', ');
+        if (elCol3) elCol3.textContent = UNI_DATA.accreditedColleges3.join(', ');
+    }
+
+    const UNI_DESCRIPTIONS = {
+        '1percent': `
+            <p><strong>🥇 1% Universitetlar (Akkreditatsiyadan o'tgan)</strong></p>
+            <p>Ushbu universitetlar talabalarga yaratilgan sharoit, bitiruvchilarning ishga joylashish ko'rsatkichi va universitetdan talabalarni ketib qolish ko'rsatgichi 1% dan ham past bo'lganligi sababli Koreyaning eng nufuzli universitetlari qatoriga kiritilgan.</p>
+            <p>Ushbu universitetlarga topshirganda Elchixona tomonidan Viza uchun talabalardan ota ona daromadi va 31 kunlik KDB bankshot so'ralmaydi. Hujjatlar tekshiruvi yengillashtirilgan tartibda amalga oshiriladi.</p>
+        `,
+        'licensed': `
+            <p><strong>📜 Akkreditatsiyaga ega universitetlar</strong></p>
+            <p>Bu universitetlar orasida nufuzli universitetlar ham bor, ota ona daromadi, 31 kunlik KDB bankshot standart tekshiruv asosida amalga oshiriladi.</p>
+        `,
+        'restricted': `
+            <p><strong>⚠️ Cheklovga tushgan universitetlar</strong></p>
+            <p>Ushbu universitetlarga topshirganda talabaning hujjatlari elchixona tomonidan qattiqlashtirilgan tartibda tekshiruvdan o'tadi. Talabalardan 31 kundan ko'p miqdorda muzlatilgan KDB bankshot so'ralishi mumkin, bundan tashqari 3-6 oylik KDB bank tarixi so'ralishi mumkin.</p>
+        `,
+        'all': `
+            <p><strong>🌐 Barcha universitetlar va rasmiy maqomlar (A dan Z gacha)</strong></p>
+            <p>Koreya Respublikasining barcha 1% akkreditatsiyalangan, akkreditatsiyaga ega hamda vaqtinchalik cheklov o'rnatilgan universitet va kollejlari umumiy jadvali (A dan Z gacha alifbo bo'yicha saralangan).</p>
+        `
+    };
+
+    function initUniSection() {
+        updateTabCounts();
+        renderUniView();
+    }
+
+    function updateTabCounts() {
+        const allItems = buildUnifiedList();
+        const c1 = allItems.filter(i => i.status === '1percent').length;
+        const cLic = allItems.filter(i => i.status === 'licensed').length;
+        const cRes = allItems.filter(i => i.status === 'restricted').length;
+        const cAll = allItems.length;
+
+        const el1 = document.getElementById('count1Percent');
+        const elLic = document.getElementById('countLicensed');
+        const elRes = document.getElementById('countRestricted');
+        const elAll = document.getElementById('countAll');
+
+        if (el1) el1.textContent = c1;
+        if (elLic) elLic.textContent = cLic;
+        if (elRes) elRes.textContent = cRes;
+        if (elAll) elAll.textContent = cAll;
+    }
+
+    function switchUniTab(tabName) {
+        activeUniTab = tabName;
+        document.querySelectorAll('.uni-tab').forEach(tab => {
+            const isActive = tab.dataset.tab === tabName;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        renderUniView();
+    }
+
+    function handleUniSearch(val) {
+        uniSearchQuery = (val || '').trim().toLowerCase();
+        const clearBtn = document.getElementById('uniSearchClear');
+        if (clearBtn) clearBtn.style.display = uniSearchQuery ? 'block' : 'none';
+        renderUniView();
+    }
+
+    function clearUniSearch() {
+        const input = document.getElementById('uniSearchInput');
+        if (input) input.value = '';
+        uniSearchQuery = '';
+        const clearBtn = document.getElementById('uniSearchClear');
+        if (clearBtn) clearBtn.style.display = 'none';
+        renderUniView();
+    }
+
+    function buildUnifiedList() {
+        const list = [];
+        const addedMap = new Map();
+
+        function add(name, status, category, details) {
+            const key = name.toUpperCase().trim();
+            if (!addedMap.has(key)) {
+                const item = { name, status, category, details };
+                addedMap.set(key, item);
+                list.push(item);
+            } else {
+                const existing = addedMap.get(key);
+                // Preserve 1% status if already registered as 1%
+                if (status === '1percent') {
+                    existing.status = '1percent';
+                }
+                if (details && !existing.details.includes(details)) {
+                    existing.details += (existing.details ? ' · ' : '') + details;
+                }
+            }
+        }
+
+        // 1. Add 1% universities first
+        UNI_DATA.accredited35.forEach(u => add(u, '1percent', 'Universitet (1%)', '1% Akkreditatsiyadan o\'tgan · Yengillashtirilgan viza'));
+        UNI_DATA.accreditedColleges3.forEach(c => add(c, '1percent', 'Kollej (1%)', '1% Akkreditatsiyadan o\'tgan kollej · Yengillashtirilgan viza'));
+
+        // 2. Add Licensed / Accredited universities
+        UNI_DATA.licensedUnis.forEach(u => add(u, 'licensed', 'Universitet', 'Akkreditatsiyaga ega · Standart viza tekshiruvi'));
+        UNI_DATA.licensedColleges.forEach(c => add(c, 'licensed', 'Kollej', 'Akkreditatsiyaga ega kollej · Standart viza tekshiruvi'));
+
+        // 3. Add Restricted universities
+        UNI_DATA.restrictedDegree.forEach(u => add(u, 'restricted', 'Bakalavr/Magistr taqiq', '1 yil cheklov · Qattiqlashtirilgan viza'));
+        UNI_DATA.restrictedLanguage.forEach(u => add(u, 'restricted', 'Til kursi taqiq', '1 yil cheklov · Qattiqlashtirilgan viza'));
+
+        // Sort A to Z
+        list.sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+
+        return list;
+    }
+
+    function render3ColTable(items, startNum = 1) {
+        if (!items || items.length === 0) return '';
+        
+        // Sort A to Z
+        const sorted = [...items].sort((a, b) => {
+            const nameA = typeof a === 'string' ? a : a.name;
+            const nameB = typeof b === 'string' ? b : b.name;
+            return nameA.localeCompare(nameB, 'en', { sensitivity: 'base' });
+        });
+
+        let rowsHtml = '';
+        for (let i = 0; i < sorted.length; i += 3) {
+            const name1 = typeof sorted[i] === 'string' ? sorted[i] : sorted[i]?.name;
+            const name2 = typeof sorted[i + 1] === 'string' ? sorted[i + 1] : sorted[i + 1]?.name;
+            const name3 = typeof sorted[i + 2] === 'string' ? sorted[i + 2] : sorted[i + 2]?.name;
+
+            rowsHtml += `
+                <tr>
+                    <td>${name1 ? `<span class="uni-num-prefix">${startNum + i}.</span>${name1}` : ''}</td>
+                    <td>${name2 ? `<span class="uni-num-prefix">${startNum + i + 1}.</span>${name2}` : ''}</td>
+                    <td>${name3 ? `<span class="uni-num-prefix">${startNum + i + 2}.</span>${name3}` : ''}</td>
+                </tr>
+            `;
+        }
+
+        return `
+            <div class="uni-table-wrapper">
+                <table class="uni-table-3col" aria-label="Universitetlar jadvali">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nomi</th>
+                            <th scope="col">Nomi</th>
+                            <th scope="col">Nomi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function renderUniView() {
+        const bannerCallout = document.getElementById('uniBannerCallout');
+        const groupsContainer = document.getElementById('uniGroupsContainer');
+        const noResultsEl   = document.getElementById('uniNoResults');
+
+        // Update Banner Callout text & class
+        if (bannerCallout) {
+            bannerCallout.className = `uni-banner-callout banner-${activeUniTab}`;
+            bannerCallout.innerHTML = UNI_DESCRIPTIONS[activeUniTab] || UNI_DESCRIPTIONS['all'];
+        }
+
+        const matchSearch = name => !uniSearchQuery || name.toLowerCase().includes(uniSearchQuery);
+
+        let groups = [];
+        let totalResults = 0;
+
+        if (activeUniTab === '1percent') {
+            const unis = UNI_DATA.accredited35.filter(matchSearch);
+            const colleges = UNI_DATA.accreditedColleges3.filter(matchSearch);
+            totalResults = unis.length + colleges.length;
+
+            if (unis.length > 0) {
+                groups.push({
+                    title: `1% Universitetlar (${unis.length})`,
+                    accent: '',
+                    items: unis
+                });
+            }
+            if (colleges.length > 0) {
+                groups.push({
+                    title: `1% lik kollejlar (${colleges.length})`,
+                    accent: 'accent-college',
+                    items: colleges
+                });
+            }
+        } else if (activeUniTab === 'licensed') {
+            const percentSet = new Set([...UNI_DATA.accredited35, ...UNI_DATA.accreditedColleges3].map(u => u.toUpperCase().trim()));
+            const unis = UNI_DATA.licensedUnis.filter(u => !percentSet.has(u.toUpperCase().trim()) && matchSearch(u));
+            const colleges = UNI_DATA.licensedColleges.filter(c => !percentSet.has(c.toUpperCase().trim()) && matchSearch(c));
+            totalResults = unis.length + colleges.length;
+
+            if (unis.length > 0) {
+                groups.push({
+                    title: `Akkreditatsiyaga ega universitetlar (${unis.length})`,
+                    accent: 'accent-college',
+                    items: unis
+                });
+            }
+            if (colleges.length > 0) {
+                groups.push({
+                    title: `Akkreditatsiyaga ega kollejlar (${colleges.length})`,
+                    accent: 'accent-college',
+                    items: colleges
+                });
+            }
+        } else if (activeUniTab === 'restricted') {
+            const degreeUnis = UNI_DATA.restrictedDegree.filter(matchSearch);
+            const langUnis = UNI_DATA.restrictedLanguage.filter(matchSearch);
+            totalResults = degreeUnis.length + langUnis.length;
+
+            if (degreeUnis.length > 0) {
+                groups.push({
+                    title: `Bakalavrga qabul qilingan talabalarga viza berish tartibi qiyinlashtirilgan universitetlar (${degreeUnis.length})`,
+                    accent: 'accent-restricted',
+                    items: degreeUnis
+                });
+            }
+            if (langUnis.length > 0) {
+                groups.push({
+                    title: `Til kursiga qabul qilingan talabalarga viza berish tartibi qiyinlashtirilgan universitetlar (${langUnis.length})`,
+                    accent: 'accent-restricted',
+                    items: langUnis
+                });
+            }
+        } else {
+            const allUnisMap = new Map();
+            const allCollegesMap = new Map();
+
+            [...UNI_DATA.accredited35, ...UNI_DATA.licensedUnis, ...UNI_DATA.restrictedDegree].forEach(u => {
+                const key = u.toUpperCase().trim();
+                if (!allUnisMap.has(key)) allUnisMap.set(key, u);
+            });
+            [...UNI_DATA.accreditedColleges3, ...UNI_DATA.licensedColleges, ...UNI_DATA.restrictedLanguage].forEach(c => {
+                const key = c.toUpperCase().trim();
+                if (!allCollegesMap.has(key)) allCollegesMap.set(key, c);
+            });
+
+            const unis = Array.from(allUnisMap.values()).filter(matchSearch);
+            const colleges = Array.from(allCollegesMap.values()).filter(matchSearch);
+            totalResults = unis.length + colleges.length;
+
+            if (unis.length > 0) {
+                groups.push({
+                    title: `Barcha Universitetlar (${unis.length})`,
+                    accent: '',
+                    items: unis
+                });
+            }
+            if (colleges.length > 0) {
+                groups.push({
+                    title: `Barcha Kollejlar (${colleges.length})`,
+                    accent: 'accent-college',
+                    items: colleges
+                });
+            }
+        }
+
+        if (totalResults === 0) {
+            if (groupsContainer) groupsContainer.innerHTML = '';
+            if (noResultsEl) noResultsEl.style.display = 'block';
+            return;
+        }
+
+        if (noResultsEl) noResultsEl.style.display = 'none';
+
+        if (groupsContainer) {
+            groupsContainer.innerHTML = groups.map(g => `
+                <div class="uni-group-block">
+                    <div class="uni-group-header">
+                        <span class="accent-bar ${g.accent}"></span>
+                        <h3>${g.title}</h3>
+                    </div>
+                    ${render3ColTable(g.items)}
+                </div>
+            `).join('');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initUniSection();
+    });
+</script>
+<script>
+    function switchDocTab(tabName) {
+        document.querySelectorAll('.doc-tab-btn').forEach(function(btn) {
+            var isActive = btn.dataset.docTab === tabName;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        var p1 = document.getElementById('docTabPercent1');
+        var std = document.getElementById('docTabStandard');
+        if (p1 && std) {
+            p1.classList.toggle('active', tabName === 'percent1');
+            std.classList.toggle('active', tabName === 'standard');
+        }
+    }
+
+    function downloadDocPDF() {
+        var activeTabBtn = document.querySelector('.doc-tab-btn.active');
+        var is1Percent = !activeTabBtn || activeTabBtn.dataset.docTab === 'percent1';
+        var titleText = is1Percent
+            ? 'Koreya Vizasi (D-2/D-4) - 1% Universitetlar Hujjatlari'
+            : 'Koreya Vizasi (D-2/D-4) - Standart Hujjatlar';
+
+        var studentDocs = is1Percent ? [
+            ['Zagran pasport', 'Asli va 2 ta rangli nusxasi.'],
+            ['Bio pasport yoki ID kartasi', 'Nusxasi orqa va oldi tomoni.'],
+            ['Admission (Taklifnoma)', 'Universitet beradi.'],
+            ['Business Registration', 'Universitet litsenziyasi (Universitet beradi).'],
+            ['Bitiruv hujjati (Diplom/Shahodatnoma)', 'Apostil, QR-code, imzo va muhr bilan.'],
+            ['Til bilish sertifikati', 'TOPIK 3, Sejong SKA 321 ball, Sejong 1+, IELTS 5.5+.'],
+            ["Tug'ilganlik guvohnomasi (Metrka)", 'Tarjimasi bilan.'],
+            ['Ota-ona nikoh guvohnomasi (ZAGS)', 'Tarjimasi bilan.'],
+            ["Nikoh holati haqida ma'lumotnoma", "Nikohda turganligi/turmaganligi - Tarjimasi bilan."],
+            ['Fotosurat (3.5 x 4.5 sm)', 'Oq fonda - 2 dona.'],
+            ["Study Plan (O'quv rejasi)", "Koreys yoki ingliz tilida talaba tomonidan qo'lda yoziladi."]
+        ] : [
+            ['Zagran pasport', 'Asli va 2 ta rangli nusxasi.'],
+            ['Bio pasport yoki ID kartasi', "Nusxasi orqa va oldi tomoni ko'rinishi shart."],
+            ['Admission (Taklifnoma)', 'Universitet tomonidan berilgan rasmiy chaqiruv xati.'],
+            ['Business Registration', 'Universitet litsenziyasi (Universitet beradi).'],
+            ['Bitiruv hujjati (Diplom/Shahodatnoma)', "Eng oxirgi o'qish joyidan bitiruv hujjati (Apostil bilan, QR-code, imzo va muhr bo'lishi shart)."],
+            ['Talaba nomidagi 1 oylik KDB bank hisobi', "KDB ilovasidan olinadigan ma'lumotnoma: Shaharga qarab $12,500 - $15,500."],
+            ['Til bilish sertifikati', 'TOPIK 3+, Sejong SKA 321 ball, Sejong 1+, IELTS 5.5+.'],
+            ["Tug'ilganlik guvohnomasi (Metrka)", 'Rasmiy tarjimasi bilan birga taqdim etiladi.'],
+            ['Ota-onasining nikoh guvohnomasi (ZAGS)', 'Rasmiy tarjimasi bilan birga taqdim etiladi.'],
+            ["Nikoh holati haqida ma'lumotnoma", 'Nikohda turganligi yoki turmaganligi haqida hujjat (Tarjima shart).'],
+            ['Fotosurat (3.5 x 4.5 sm)', 'Orqasi oq fonda - 2 dona.'],
+            ["Study Plan (O'quv rejasi)", "Koreys yoki Ingliz tilida talaba tomonidan qo'lda yoziladi."]
+        ];
+
+        var parentDocs = is1Percent ? [
+            ['Ota-Ona bio pasport yoki ID kartasi', 'Nusxasi orqa va oldi tomoni.']
+        ] : [
+            ['Ota-Ona bio pasport yoki ID kartasi', "Nusxasi orqa va oldi tomoni ko'rinishi shart."],
+            ["Mehnat daftarchasidan ko'chirma", 'My.gov.uz portali orqali olingan, tarjimasi bilan.'],
+            ["Yillik daromad ma'lumotnomasi", 'Oxirgi 1 yillik (My.gov.uz portali) - Tarjimasi bilan.'],
+            ['Mulk va Transport hujjatlari', 'Yer va ko\'chmas mulk (kadastr) hamda Shaxsiy transport texpasporti - Tarjimasi bilan.'],
+            ["Bank balansidan ko'chirma", "QR-code ga ega Ota-Ona nomidagi 1 kunlik bank balansidan ko'chirma."]
+        ];
+
+        var pw = window.open('', '_blank');
+        if (!pw) { alert('Pop-up bloklangan. Ruxsat bering va qayta bosing.'); return; }
+        var d = pw.document;
+        d.open();
+        d.write('<!DOCTYPE html>');
+        d.close();
+
+        var head = d.head || d.createElement('head');
+        if (!d.head) d.documentElement.insertBefore(head, d.body);
+
+        var meta = d.createElement('meta');
+        meta.setAttribute('charset', 'UTF-8');
+        head.appendChild(meta);
+
+        var titleEl = d.createElement('title');
+        titleEl.textContent = titleText;
+        head.appendChild(titleEl);
+
+        var style = d.createElement('style');
+        style.textContent = 'body{font-family:Arial,sans-serif;padding:24px;color:#0f172a;line-height:1.5;margin:0}' +
+            '.hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e2e8f0;padding-bottom:12px;margin-bottom:20px}' +
+            '.logo{font-size:22px;font-weight:800;color:#e8304a}.sub{font-size:13px;color:#64748b;margin-top:4px}' +
+            'h2{font-size:14px;margin:20px 0 8px;color:#1e293b;text-transform:uppercase;letter-spacing:.5px;border-left:4px solid #e8304a;padding-left:10px}' +
+            'h2.p{border-left-color:#3b82f6}table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px}' +
+            'th{background:#f8fafc;color:#334155;font-weight:700;text-align:left;padding:8px;border:1px solid #cbd5e1}' +
+            'td{padding:7px 8px;border:1px solid #cbd5e1;vertical-align:top}' +
+            '.ftr{margin-top:24px;border-top:1px solid #e2e8f0;padding-top:10px;font-size:11px;color:#94a3b8;text-align:center}' +
+            '@media print{body{padding:12px}button{display:none}}tr{page-break-inside:avoid}';
+        head.appendChild(style);
+
+        var body = d.body || d.createElement('body');
+        if (!d.body) d.documentElement.appendChild(body);
+
+        function el(tag, attrs, text) {
+            var e = d.createElement(tag);
+            if (attrs) Object.keys(attrs).forEach(function(k) { e.setAttribute(k, attrs[k]); });
+            if (text !== undefined) e.textContent = text;
+            return e;
+        }
+
+        function makeTable(docs, section) {
+            var h2 = el('h2', section === 'parent' ? {class:'p'} : {});
+            h2.textContent = section === 'parent'
+                ? 'OTA-ONA HUJJATLARI (' + docs.length + ' ta)'
+                : 'TALABA HUJJATLARI (' + docs.length + ' ta)';
+            body.appendChild(h2);
+
+            var tbl = el('table');
+            var thead = el('thead');
+            var hr = el('tr');
+            ['Belgi','No','Hujjat Nomi','Izoh va Talablar'].forEach(function(txt, i) {
+                var th = el('th', i===0?{style:'width:36px;text-align:center'}:i===1?{style:'width:32px;text-align:center'}:i===2?{style:'width:38%'}:{});
+                th.textContent = txt;
+                hr.appendChild(th);
+            });
+            thead.appendChild(hr);
+            tbl.appendChild(thead);
+
+            var tbody = el('tbody');
+            docs.forEach(function(doc, idx) {
+                var tr = el('tr');
+                var tdCheck = el('td', {style:'text-align:center;font-size:16px;'});
+                tdCheck.textContent = '\u25A1';
+                var tdNum = el('td', {style:'text-align:center;font-weight:bold;color:#475569'});
+                tdNum.textContent = idx + 1;
+                var tdName = el('td', {style:'font-weight:bold;color:#1e293b'});
+                tdName.textContent = doc[0];
+                var tdDesc = el('td', {style:'color:#334155'});
+                tdDesc.textContent = doc[1];
+                tr.appendChild(tdCheck);
+                tr.appendChild(tdNum);
+                tr.appendChild(tdName);
+                tr.appendChild(tdDesc);
+                tbody.appendChild(tr);
+            });
+            tbl.appendChild(tbody);
+            body.appendChild(tbl);
+        }
+
+        var hdr = el('div', {class:'hdr'});
+        var hdrLeft = el('div');
+        var logo = el('div', {class:'logo'}); logo.textContent = 'Uni Bridge'; hdrLeft.appendChild(logo);
+        var sub = el('div', {class:'sub'}); sub.textContent = "Koreya Vizasi Hujjatlar Tekshiruv Ro'yxati"; hdrLeft.appendChild(sub);
+        var hdrRight = el('div', {style:'text-align:right;font-size:12px;color:#64748b'});
+        hdrRight.innerHTML = 'Sana: ' + new Date().toLocaleDateString('uz-UZ') + '<br><strong>' + (is1Percent ? '1% Universitetlar' : 'Standart Viza') + '</strong>';
+        hdr.appendChild(hdrLeft); hdr.appendChild(hdrRight);
+        body.appendChild(hdr);
+
+        var titleDiv = el('div', {style:'font-size:14px;font-weight:bold;margin-bottom:16px;color:#0f172a'});
+        titleDiv.textContent = titleText;
+        body.appendChild(titleDiv);
+
+        makeTable(studentDocs, 'student');
+        makeTable(parentDocs, 'parent');
+
+        if (!is1Percent) {
+            var warn = el('div', {style:'margin-top:16px;padding:12px;border:1px solid #fca5a5;background:#fef2f2;border-radius:6px;color:#991b1b;font-weight:bold;font-size:12px'});
+            warn.textContent = "Ogohlantirish: Yer va ko'chmas mulk hamda shaxsiy transport vositasini ro'yxatdan o'tkazganligiga 3 oydan ko'p bo'lishi kerak!";
+            body.appendChild(warn);
+        }
+
+        var ftr = el('div', {class:'ftr'});
+        ftr.textContent = "Ma'lumotlar Koreya Respublikasi Adliya vazirligi va Elchixonasi talablariga muvofiq shakllantirilgan. © Uni Bridge.";
+        body.appendChild(ftr);
+
+        setTimeout(function() { try { pw.focus(); pw.print(); } catch(e) {} }, 500);
+    }
 </script>
 </body>
 </html>
