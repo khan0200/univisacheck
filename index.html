@@ -2497,13 +2497,13 @@
         var style = d.createElement('style');
         style.textContent = 'body{font-family:Arial,sans-serif;padding:24px;color:#0f172a;line-height:1.5;margin:0}' +
             '.hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e2e8f0;padding-bottom:12px;margin-bottom:20px}' +
-            '.logo{font-size:22px;font-weight:800;color:#e8304a}.sub{font-size:13px;color:#64748b;margin-top:4px}' +
+            '.logo{font-size:24px;font-weight:900;color:#e8304a;letter-spacing:-0.03em}.sub{font-size:13px;color:#64748b;margin-top:4px}' +
             'h2{font-size:14px;margin:20px 0 8px;color:#1e293b;text-transform:uppercase;letter-spacing:.5px;border-left:4px solid #e8304a;padding-left:10px}' +
             'h2.p{border-left-color:#3b82f6}table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px}' +
             'th{background:#f8fafc;color:#334155;font-weight:700;text-align:left;padding:8px;border:1px solid #cbd5e1}' +
             'td{padding:7px 8px;border:1px solid #cbd5e1;vertical-align:top}' +
             '.ftr{margin-top:24px;border-top:1px solid #e2e8f0;padding-top:10px;font-size:11px;color:#94a3b8;text-align:center}' +
-            '@media print{body{padding:12px}button{display:none}}tr{page-break-inside:avoid}';
+            '@media print{.no-print{display:none !important}body{padding:12px}}tr{page-break-inside:avoid}';
         head.appendChild(style);
 
         var body = d.body || d.createElement('body');
@@ -2515,6 +2515,14 @@
             if (text !== undefined) e.textContent = text;
             return e;
         }
+
+        var actionNav = el('div', {class:'no-print', style:'margin-bottom:20px;padding:12px 18px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.04)'});
+        var navText = el('span', {style:'font-size:13.5px;font-weight:600;color:#1e293b'}, 'Hujjatlar ro\'yxati tayyor. Chop etish yoki PDF formatida saqlash uchun tugmani bosing:');
+        var printBtn = el('button', {style:'padding:10px 22px;background:#e8304a;color:#ffffff;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(232,48,74,0.3);display:inline-flex;align-items:center;gap:8px'}, '🖨️ Chop etish / PDF saqlash');
+        printBtn.onclick = function() { pw.print(); };
+        actionNav.appendChild(navText);
+        actionNav.appendChild(printBtn);
+        body.appendChild(actionNav);
 
         function makeTable(docs, section) {
             var h2 = el('h2', section === 'parent' ? {class:'p'} : {});
@@ -2557,7 +2565,7 @@
 
         var hdr = el('div', {class:'hdr'});
         var hdrLeft = el('div');
-        var logo = el('div', {class:'logo'}); logo.textContent = 'Uni Bridge'; hdrLeft.appendChild(logo);
+        var logo = el('div', {class:'logo'}); logo.textContent = 'SalomKorea'; hdrLeft.appendChild(logo);
         var sub = el('div', {class:'sub'}); sub.textContent = "Koreya Vizasi Hujjatlar Tekshiruv Ro'yxati"; hdrLeft.appendChild(sub);
         var hdrRight = el('div', {style:'text-align:right;font-size:12px;color:#64748b'});
         hdrRight.innerHTML = 'Sana: ' + new Date().toLocaleDateString('uz-UZ') + '<br><strong>' + (is1Percent ? '1% Universitetlar' : 'Standart Viza') + '</strong>';
@@ -2578,10 +2586,9 @@
         }
 
         var ftr = el('div', {class:'ftr'});
-        ftr.textContent = "Ma'lumotlar Koreya Respublikasi Adliya vazirligi va Elchixonasi talablariga muvofiq shakllantirilgan. © Uni Bridge.";
+        ftr.textContent = "Ma'lumotlar Koreya Respublikasi Adliya vazirligi va Elchixonasi talablariga muvofiq shakllantirilgan. © SalomKorea.";
         body.appendChild(ftr);
-
-        setTimeout(function() { try { pw.focus(); pw.print(); } catch(e) {} }, 500);
+    }
     }
 </script>
 </body>
