@@ -23,8 +23,12 @@
     <div id="mainAppWrapper" class="container-fluid main-wrapper p-4">
 
         <!-- Server-load notice -->
-        <div class="server-load-notice">
-            Only <i class="bi bi-check-circle"></i> select students whose visa results near! Please reduce server load and error!
+        <div class="server-load-notice" id="serverLoadNotice">
+            <span>Only <i class="bi bi-check-circle"></i> select students whose visa results near! Please reduce server load and error!</span>
+            <button id="closeNoticeBtn" class="notice-skip-btn" aria-label="Skip warning">
+                <span class="countdown-num">3</span>
+                <span class="close-icon">&times;</span>
+            </button>
         </div>
 
         <!-- Main Content -->

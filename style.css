@@ -120,20 +120,97 @@ body {
   box-shadow: var(--glass-shadow);
 }
 
-/* Server-load notice — ghost text, sits above the toolbar */
+/* Server-load notice banner with countdown skip button */
 .server-load-notice {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   font-size: 12.5px;
   font-weight: 500;
   color: var(--danger);
-  opacity: 0.55;
-  padding: 2px 12px 10px;
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.15);
+  border-radius: 12px;
+  padding: 10px 48px 10px 16px;
+  margin-bottom: 16px;
   letter-spacing: 0.01em;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 80px;
+  opacity: 1;
+}
+
+[data-theme="dark"] .server-load-notice {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.server-load-notice.fade-out {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  overflow: hidden;
 }
 
 .server-load-notice i {
-  font-size: 12px;
-  vertical-align: -1px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.notice-skip-btn {
+  position: absolute;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--danger);
+  background: transparent;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.notice-skip-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.notice-skip-btn .countdown-num {
+  display: none;
+  line-height: 1;
+}
+
+.notice-skip-btn .close-icon {
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: normal;
+}
+
+.notice-skip-btn.counting .countdown-num {
+  display: inline-block;
+}
+
+.notice-skip-btn.counting .close-icon {
+  display: none;
+}
+
+.notice-skip-btn.counting {
+  pointer-events: none;
+  background: var(--danger);
+  color: #fff;
 }
 
 /* Compact Toolbar */

@@ -124,6 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init Dark Mode
     initDarkMode();
+
+    // Start Server Load Notice Countdown
+    startNoticeCountdown();
 });
 
 function setupEventListeners() {
@@ -1990,3 +1993,44 @@ window.toggleProfilePw = function(inputId, btn) {
         icon.className = 'bi bi-eye';
     }
 };
+
+// Start countdown for server load notice and auto-dismiss after clicking X and counting 3, 2, 1
+function startNoticeCountdown() {
+    const notice = document.getElementById('serverLoadNotice');
+    const closeBtn = document.getElementById('closeNoticeBtn');
+    const countdownNum = closeBtn ? closeBtn.querySelector('.countdown-num') : null;
+    if (!notice || !closeBtn || !countdownNum) return;
+
+    let secondsLeft = 3;
+    let timer = null;
+    let isCounting = false;
+
+    const dismissNotice = () => {
+        if (timer) {
+            clearInterval(timer);
+            timer = null;
+        }
+        notice.classList.add('fade-out');
+        setTimeout(() => {
+            notice.remove();
+        }, 400); // matches the 0.4s transition in CSS
+    };
+
+    closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (isCounting) return; // Prevent multiple countdown triggers
+
+        isCounting = true;
+        closeBtn.classList.add('counting');
+        countdownNum.textContent = secondsLeft; // Show '3' immediately inside the button
+
+        timer = setInterval(() => {
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                dismissNotice();
+            } else {
+                countdownNum.textContent = secondsLeft;
+            }
+        }, 1000);
+    });
+}
