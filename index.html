@@ -134,7 +134,9 @@
             font-weight: 800;
             letter-spacing: -0.04em;
         }
-        .nav-logo-text span { color: var(--red); }
+        .nav-logo-text .logo-salom { color: #0b192c; }
+        .nav-logo-text .logo-korea { color: var(--red); }
+        .text-dark-blue { color: #0b192c; }
 
         /* Desktop Links */
         .nav-links {
@@ -580,8 +582,15 @@
             font-weight: 800;
             letter-spacing: -0.04em;
             line-height: 1.1;
-            color: var(--text);
+            color: #0b192c;
             margin-bottom: 12px;
+        }
+        .section-h2 em {
+            font-style: normal;
+            background: linear-gradient(135deg, #e8304a 0%, #ff6a7e 50%, #ff9a3c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .section-sub {
             font-size: clamp(14px, 1.5vw, 16px);
@@ -1334,7 +1343,7 @@
     <div class="nav-inner">
         <a href="#home" class="nav-logo" aria-label="SalomKorea — Bosh sahifa">
             <img src="video and logo/LOGO.png" alt="SalomKorea Logo" class="nav-logo-img" style="height:36px; width:auto; border-radius:8px; object-fit:contain;">
-            <div class="nav-logo-text">Salom<span>Korea</span></div>
+            <div class="nav-logo-text"><span class="logo-salom">Salom</span><span class="logo-korea">Korea</span></div>
         </a>
 
         <!-- Desktop nav links -->
@@ -1386,7 +1395,7 @@
 
     <div class="hero-content" id="main-content">
         <div class="hero-inner">
-            <h1>Janubiy Koreya universitetlari<br>va <em>viza olish.</em></h1>
+            <h1><span class="text-dark-blue">Janubiy Koreya universitetlari<br>va </span><em>viza olish.</em></h1>
             <p class="hero-sub">
                 Bilganlarimizni siz bilan baham ko'ramiz!
             </p>
@@ -1472,7 +1481,7 @@
 <div id="hujjatlar">
     <div class="section-wrap">
         <div class="section-eyebrow">Hujjatlar ro'yxati</div>
-        <h2 class="section-h2">D-2 va D-4 vizalari uchun<br>Elchixonaga topshiriladigan hujjatlar</h2>
+        <h2 class="section-h2"><span class="text-dark-blue">D-2 va D-4 vizalari uchun<br>Elchixonaga </span><em>topshiriladigan hujjatlar</em></h2>
         <p class="section-sub">Universitet turiga qarab elchixonaga topshiriladigan hujjatlar ro'yxati bilan tanishing.</p>
 
         <!-- Document Section Tab Buttons -->
@@ -1777,7 +1786,7 @@
 <div id="universitetlar">
     <div class="section-wrap">
         <div class="section-eyebrow">Universitetlar ro'yxati</div>
-        <h2 class="section-h2">Janubiy Koreya universitetlari</h2>
+        <h2 class="section-h2"><span class="text-dark-blue">Janubiy </span><em>Koreya universitetlari</em></h2>
 
         <!-- Control Bar: Tabs & Search -->
         <div class="uni-controls">
