@@ -323,27 +323,51 @@
             flex: 1;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            gap: 40px;
             padding: calc(var(--nav-h) + 64px) var(--sp-lg) 48px;
             max-width: var(--max-w);
             margin: 0 auto;
             width: 100%;
         }
         .hero-inner { max-width: 620px; width: 100%; }
+        
+        .hero-image-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            max-width: 550px;
+            animation: floatImage 6s ease-in-out infinite;
+        }
+        .hero-image-right img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.06));
+            mix-blend-mode: multiply;
+        }
+        @keyframes floatImage {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0); }
+        }
+
+        @media (max-width: 1024px) {
+            .hero-image-right { display: none; }
+        }
 
         .hero h1 {
             font-size: clamp(38px, 7vw, 72px);
-            font-weight: 900;
-            line-height: 1.06;
-            letter-spacing: -0.04em;
-            color: #1d1d1f;
-            margin-bottom: 22px;
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            color: #1e3a8a;
+            margin-bottom: 24px;
         }
         .hero h1 em {
             font-style: normal;
-            background: linear-gradient(135deg, #4338ca 0%, #1e40af 50%, #0f172a 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #1e3a8a;
         }
         .hero-sub {
             font-size: clamp(16px, 2vw, 19px);
@@ -427,7 +451,7 @@
             gap: 8px;
             padding: 13px 24px;
             min-height: 48px;
-            background: var(--red);
+            background: #1e3a8a;
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: var(--radius);
             color: #fff;
@@ -440,11 +464,11 @@
             letter-spacing: -0.01em;
             white-space: nowrap;
             -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 4px 14px var(--red-glow), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 14px rgba(30, 58, 138, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
         .btn-primary:hover {
-            background: var(--red-dark);
-            box-shadow: 0 8px 24px var(--red-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            background: #172554;
+            box-shadow: 0 8px 24px rgba(23, 37, 84, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
             transform: translateY(-1px);
             color: #fff;
         }
@@ -459,15 +483,15 @@
             padding: 12px 22px;
             min-height: 48px;
             background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            border: 1px solid transparent;
             border-radius: var(--radius);
-            color: #1d1d1f;
+            color: #1e293b;
             font-family: var(--font);
             font-size: 15px;
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
             transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             letter-spacing: -0.01em;
             white-space: nowrap;
@@ -475,10 +499,10 @@
         }
         .btn-ghost:hover {
             background: #ffffff;
-            border-color: rgba(0, 0, 0, 0.15);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            border-color: rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
             transform: translateY(-1px);
-            color: #1d1d1f;
+            color: #1e293b;
         }
         .btn-ghost:active { transform: translateY(0); }
         .btn-ghost svg { width: 17px; height: 17px; flex-shrink: 0; stroke: #1d1d1f; }
@@ -536,15 +560,16 @@
             color: #fff;
         }
         .feature-icon {
-            width: 34px; height: 34px;
-            min-width: 34px;
-            background: rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            display: grid;
-            place-items: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #334155;
+            margin-bottom: 12px;
+            width: 44px;
+            height: 44px;
+            background: #f1f5f9;
+            border-radius: 12px;
             transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
-            margin-bottom: 4px;
         }
         .feature-icon svg { display: block; }
         .feature-title {
@@ -1477,7 +1502,7 @@
 
     <div class="hero-content" id="main-content">
         <div class="hero-inner">
-            <h1><span class="text-dark-blue">Janubiy Koreya universitetlari<br>va </span><em>viza olish.</em></h1>
+            <h1>Janubiy Koreya universitetlari<br>va <em>viza olish.</em></h1>
             <p class="hero-sub">
                 Bilganlarimizni siz bilan baham ko'ramiz!
             </p>
@@ -1521,6 +1546,10 @@
                     Bepul maslahat
                 </div>
             </div>
+        </div>
+
+        <div class="hero-image-right">
+            <img src="video and logo/Space.png" alt="SalomKorea Illustration" />
         </div>
     </div>
 
