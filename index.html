@@ -134,9 +134,9 @@
             font-weight: 800;
             letter-spacing: -0.04em;
         }
-        .nav-logo-text .logo-salom { color: #0b192c; }
+        .nav-logo-text .logo-salom { color: #1e40af !important; }
         .nav-logo-text .logo-korea { color: var(--red); }
-        .text-dark-blue { color: #0b192c; }
+        .text-dark-blue { color: #1e40af !important; }
 
         /* Desktop Links */
         .nav-links {
@@ -582,7 +582,7 @@
             font-weight: 800;
             letter-spacing: -0.04em;
             line-height: 1.1;
-            color: #0b192c;
+            color: #1e40af;
             margin-bottom: 12px;
         }
         .section-h2 em {
@@ -695,25 +695,27 @@
             font-size: 14px;
             font-weight: 700;
             border-radius: 100px;
-            border: 1px solid var(--border);
-            background: rgba(0, 0, 0, 0.03);
-            color: var(--text-2);
+            border: 1.5px solid rgba(0, 0, 0, 0.12);
+            background: #ffffff;
+            color: #334155;
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             transition: all var(--dur) var(--ease);
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
         .doc-tab-btn:hover {
-            border-color: var(--border-hov);
-            color: var(--text);
-            background: rgba(0, 0, 0, 0.06);
+            border-color: rgba(0, 0, 0, 0.25);
+            color: #0f172a;
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
         .doc-tab-btn.active {
-            background: rgba(232, 48, 74, 0.10);
-            color: var(--red);
-            border-color: rgba(232, 48, 74, 0.35);
-            box-shadow: 0 4px 16px rgba(232, 48, 74, 0.12);
+            background: #ffffff;
+            color: #e8304a;
+            border-color: #e8304a;
+            box-shadow: 0 4px 16px rgba(232, 48, 74, 0.20);
         }
         .doc-tab-pane {
             display: none;
@@ -727,10 +729,11 @@
             font-size: 14px;
             font-weight: 700;
             border-radius: 100px;
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            background: rgba(37, 99, 235, 0.08);
+            border: 1.5px solid rgba(37, 99, 235, 0.35);
+            background: #ffffff;
             color: #2563eb;
             cursor: pointer;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
             transition: all var(--dur) var(--ease);
             display: inline-flex;
             align-items: center;
@@ -738,10 +741,10 @@
             margin-left: auto;
         }
         .btn-pdf-download:hover {
-            background: rgba(37, 99, 235, 0.16);
+            background: #2563eb;
             border-color: #2563eb;
-            color: #1d4ed8;
-            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.30);
             transform: translateY(-1px);
         }
         @media (max-width: 640px) {
@@ -910,25 +913,28 @@
             align-items: center;
             gap: 8px;
             padding: 10px 18px;
-            background: transparent;
-            border: none;
-            border-radius: 10px;
-            color: var(--text-2);
+            background: #ffffff;
+            border: 1.5px solid rgba(0, 0, 0, 0.12);
+            border-radius: 100px;
+            color: #334155;
             font-family: var(--font);
-            font-size: 13.5px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             transition: all 0.2s var(--ease);
         }
         .uni-tab:hover {
-            color: var(--text);
-            background: rgba(0, 0, 0, 0.06);
+            color: #0f172a;
+            border-color: rgba(0, 0, 0, 0.25);
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
         .uni-tab.active {
-            background: var(--red);
-            color: #fff;
-            border: none;
-            box-shadow: 0 4px 14px var(--red-glow);
+            background: #e8304a;
+            color: #ffffff;
+            border-color: #e8304a;
+            box-shadow: 0 4px 16px rgba(232, 48, 74, 0.30);
         }
         .uni-tab .tab-count {
             padding: 2px 7px;
@@ -991,30 +997,35 @@
 
         /* Banner callout for descriptions */
         .uni-banner-callout {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--red);
-            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            border-left: 5px solid var(--red);
+            border-radius: 16px;
             padding: 20px 24px;
             margin-bottom: 24px;
-            font-size: 14px;
-            line-height: 1.7;
-            color: var(--text);
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: #334155;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         }
         .uni-banner-callout p + p {
             margin-top: 10px;
         }
+        .uni-banner-callout strong {
+            color: #0f172a;
+            font-size: 15.5px;
+        }
         .uni-banner-callout.banner-1percent {
-            border-left-color: #ff4d6d;
-            background: rgba(232, 48, 74, 0.06);
+            border-left-color: #e8304a;
+            background: #ffffff;
         }
         .uni-banner-callout.banner-licensed {
-            border-left-color: #3b82f6;
-            background: rgba(59, 130, 246, 0.06);
+            border-left-color: #2563eb;
+            background: #ffffff;
         }
         .uni-banner-callout.banner-restricted {
             border-left-color: #ef4444;
-            background: rgba(239, 68, 68, 0.06);
+            background: #ffffff;
         }
 
         /* 3-Column Table Styles (Names Only) */
