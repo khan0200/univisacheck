@@ -1628,8 +1628,8 @@ async function checkVisaStatus(student) {
 
         const API_BASE = CONFIG.API.PROXY_URL;
 
-        // Single POST — proxy handles CSRF + multipart and returns JSON
-        const response = await fetch(API_BASE, {
+        // Single POST — proxy handles CSRF + multipart and returns JSON (use authFetch to include Auth token)
+        const response = await authFetch(API_BASE, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1675,6 +1675,29 @@ async function checkVisaStatus(student) {
         
         // Construct the apiResponse field for UI reason parsing
         student.apiResponse = { status: newStatus, detail: data.detail || '' };
+
+        // Explicitly persist updated student status into DB so page refresh keeps updated status
+        try {
+            await authFetch(STUDENTS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    passport: student.passport,
+                    fullName: student.fullName,
+                    birthday: student.birthday,
+                    status: newStatus,
+                    applicationDate: applicationDate,
+                    rejectReason: rejectionReason,
+                    pdfUrl: pdfUrl,
+                    apiResponse: student.apiResponse,
+                    lastChecked: student.lastChecked,
+                    visaType: student.visaType || 'Embassy',
+                    applicationNo: student.applicationNo || ''
+                })
+            });
+        } catch (dbSaveErr) {
+            debug(`DB Save Error for ${student.passport}:`, dbSaveErr);
+        }
 
         // Update DOM row
         updateSingleRow(student);

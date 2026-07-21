@@ -207,6 +207,7 @@ module.exports = async (req, res) => {
             const birthday = body.birthday !== undefined ? body.birthday.trim() : null;
             const studentId = body.studentId !== undefined ? body.studentId.trim() : null;
             const status = body.status !== undefined ? body.status : null;
+            const applicationDate = body.applicationDate !== undefined ? body.applicationDate.trim() : null;
             const rejectReason = body.rejectReason !== undefined ? body.rejectReason : (body.rejectionReason !== undefined ? body.rejectionReason : null);
             const pdfUrl = body.pdfUrl !== undefined ? body.pdfUrl : null;
             const apiResponse = body.apiResponse !== undefined ? (typeof body.apiResponse === 'object' ? JSON.stringify(body.apiResponse) : body.apiResponse) : null;
@@ -233,9 +234,9 @@ module.exports = async (req, res) => {
                 const sql = `
                     INSERT INTO students (
                         passport, fullName, birthday, studentId, status,
-                        lastChecked, rejectReason, pdfUrl, apiResponse,
+                        applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
                         batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
                 `;
                 await db.execute({
                     sql,
@@ -245,6 +246,7 @@ module.exports = async (req, res) => {
                         birthday || '',
                         studentId || '',
                         status || 'Pending',
+                        applicationDate || '',
                         lastChecked || new Date().toISOString(),
                         rejectReason || '',
                         pdfUrl || '',
@@ -268,6 +270,7 @@ module.exports = async (req, res) => {
                 if (birthday !== null) { updateFields.push('birthday = ?'); args.push(birthday); }
                 if (studentId !== null) { updateFields.push('studentId = ?'); args.push(studentId); }
                 if (status !== null) { updateFields.push('status = ?'); args.push(status); }
+                if (applicationDate !== null) { updateFields.push('applicationDate = ?'); args.push(applicationDate); }
                 if (lastChecked !== null) { updateFields.push('lastChecked = ?'); args.push(lastChecked); }
                 if (rejectReason !== null) { updateFields.push('rejectReason = ?'); args.push(rejectReason); }
                 if (pdfUrl !== null) { updateFields.push('pdfUrl = ?'); args.push(pdfUrl); }

@@ -74,43 +74,49 @@ module.exports = async (req, res) => {
         // DB updates via lib/cabinet.ts:refreshStudent(), so we skip them here.
         const { verifyToken } = require('./auth-helper');
         const authUser = verifyToken(req);
-        if (authUser && authUser.userId) {
-            try {
-                const lastChecked = new Date().toISOString();
-                await db.execute({
-                    sql: `
-                        UPDATE students 
-                        SET status = ?, 
-                            applicationDate = ?, 
-                            rejectReason = ?, 
-                            pdfUrl = ?, 
-                            apiResponse = ?, 
-                            lastChecked = ?
-                        WHERE passport = ? AND userId = ?
-                    `,
-                    args: [
-                        parsed.status || 'Pending',
-                        parsed.applicationDate || '',
-                        parsed.rejectionReason || '',
-                        parsed.pdfUrl || '',
-                        JSON.stringify({
-                            status: parsed.status,
-                            detail: parsed.detail,
-                            visaExpiry: parsed.visaExpiry || '',
-                            visaKind: parsed.visaKind || '',
-                            statusOfResidence: parsed.statusOfResidence || '',
-                            entryDate: parsed.entryDate || '',
-                            entryPurpose: parsed.entryPurpose || '',
-                            invitingCompany: parsed.invitingCompany || ''
-                        }),
-                        lastChecked,
-                        passport,
-                        authUser.userId
-                    ]
-                });
-            } catch (dbErr) {
-                console.error('[Vercel DB Update] Error updating student visa status:', dbErr.message);
+        try {
+            const lastChecked = new Date().toISOString();
+            const sql = (authUser && authUser.userId)
+                ? `UPDATE students 
+                   SET status = ?, 
+                       applicationDate = ?, 
+                       rejectReason = ?, 
+                       pdfUrl = ?, 
+                       apiResponse = ?, 
+                       lastChecked = ?
+                   WHERE passport = ? AND userId = ?`
+                : `UPDATE students 
+                   SET status = ?, 
+                       applicationDate = ?, 
+                       rejectReason = ?, 
+                       pdfUrl = ?, 
+                       apiResponse = ?, 
+                       lastChecked = ?
+                   WHERE passport = ?`;
+            const args = [
+                parsed.status || 'Pending',
+                parsed.applicationDate || '',
+                parsed.rejectionReason || '',
+                parsed.pdfUrl || '',
+                JSON.stringify({
+                    status: parsed.status,
+                    detail: parsed.detail,
+                    visaExpiry: parsed.visaExpiry || '',
+                    visaKind: parsed.visaKind || '',
+                    statusOfResidence: parsed.statusOfResidence || '',
+                    entryDate: parsed.entryDate || '',
+                    entryPurpose: parsed.entryPurpose || '',
+                    invitingCompany: parsed.invitingCompany || ''
+                }),
+                lastChecked,
+                passport
+            ];
+            if (authUser && authUser.userId) {
+                args.push(authUser.userId);
             }
+            await db.execute({ sql, args });
+        } catch (dbErr) {
+            console.error('[Vercel DB Update] Error updating student visa status:', dbErr.message);
         }
 
         res.status(200).json(parsed);

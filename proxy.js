@@ -423,16 +423,17 @@ async function updateStudentDb(passport, parsed, inputData = {}) {
             // New record — insert with full data so autofill works next time
             await db.execute({
                 sql: `INSERT INTO students
-                      (passport, fullName, birthday, studentId, status, lastChecked,
+                      (passport, fullName, birthday, studentId, status, applicationDate, lastChecked,
                        rejectReason, pdfUrl, apiResponse, batchSelected,
                        batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo)
-                      VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'),?,?,?)`,
+                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),?,?,?)`,
                 args: [
                     passport,
                     inputData.fullName    || '',
                     inputData.birthday    || '',
                     '',
                     parsed.status         || 'Pending',
+                    parsed.applicationDate || '',
                     lastChecked,
                     parsed.rejectionReason || '',
                     parsed.pdfUrl          || '',
