@@ -280,6 +280,11 @@ export async function handleCallbackQuery(ctx: Context) {
     // ── Individual Refresh Button Click ──
     if (callbackData.startsWith('refresh:')) {
         const passport = callbackData.split(':')[1];
+        const cardMessage = ctx.callbackQuery?.message;
+
+        if (cardMessage) {
+            await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
+        }
         
         const statusMsg = await ctx.reply(t('refreshing', lang), { parse_mode: 'Markdown' });
         
@@ -294,7 +299,6 @@ export async function handleCallbackQuery(ctx: Context) {
         
         if (res.student) {
             const cardText = formatStudentCard(res.student, res.changed, res.oldStatus, lang);
-            const cardMessage = ctx.callbackQuery?.message;
             const isApproved = ['approved', 'visa used', 'issued'].some(s => (res.student?.status || '').toLowerCase().includes(s));
             const canDownloadPdf = isApproved && (res.student.visaType || '').toLowerCase() !== 'e-visa';
             
@@ -309,17 +313,9 @@ export async function handleCallbackQuery(ctx: Context) {
                       ]
             };
             
-            if (res.changed) {
-                if (cardMessage) {
-                    await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
-                }
-                await ctx.reply(cardText, { reply_markup: inlineKeyboard });
-            } else {
-                if (cardMessage) {
-                    await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, cardText, {
-                        reply_markup: inlineKeyboard
-                    }).catch(() => {});
-                }
+            await ctx.reply(cardText, { reply_markup: inlineKeyboard });
+            
+            if (!res.changed) {
                 const noChangeMsg = await ctx.reply(t('no_change', lang, { name: res.student.fullName.toUpperCase() }));
                 await new Promise(resolve => setTimeout(resolve, 5000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
@@ -570,6 +566,11 @@ export async function handleCallbackQuery(ctx: Context) {
     // ── Manual Check Refresh Button Click ──
     if (callbackData.startsWith('mrefresh:')) {
         const passport = callbackData.split(':')[1].toUpperCase().trim();
+        const cardMessage = ctx.callbackQuery?.message;
+
+        if (cardMessage) {
+            await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
+        }
         
         const statusMsg = await ctx.reply(t('refreshing', lang), { parse_mode: 'Markdown' });
         
@@ -595,12 +596,7 @@ export async function handleCallbackQuery(ctx: Context) {
             
             await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
             
-            const cardMessage = ctx.callbackQuery?.message;
-            
             if (!checkRes.found || (checkRes.latestStatus || '').toUpperCase() === 'UNKNOWN') {
-                if (cardMessage) {
-                    await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
-                }
                 await ctx.reply(t('no_result', lang), {
                     reply_markup: await getMenuKeyboard(telegramId)
                 });
@@ -643,23 +639,13 @@ export async function handleCallbackQuery(ctx: Context) {
                       ]
             };
             
-            if (changed) {
-                if (cardMessage) {
-                    await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {});
-                }
-                await ctx.reply(resultText, {
-                    parse_mode: 'Markdown',
-                    reply_markup: inlineKeyboard,
-                    link_preview_options: { is_disabled: true }
-                });
-            } else {
-                if (cardMessage) {
-                    await ctx.api.editMessageText(ctx.chat!.id, cardMessage.message_id, resultText, {
-                        parse_mode: 'Markdown',
-                        reply_markup: inlineKeyboard,
-                        link_preview_options: { is_disabled: true }
-                    }).catch(() => {});
-                }
+            await ctx.reply(resultText, {
+                parse_mode: 'Markdown',
+                reply_markup: inlineKeyboard,
+                link_preview_options: { is_disabled: true }
+            });
+
+            if (!changed) {
                 const noChangeMsg = await ctx.reply(t('no_change', lang, { name: fullName.toUpperCase() }));
                 await new Promise(resolve => setTimeout(resolve, 5000));
                 await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
