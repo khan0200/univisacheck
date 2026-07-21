@@ -1615,6 +1615,70 @@
             }
             .uni-table-3col tr { border-bottom: none !important; }
             .uni-table-3col td:empty { display: none; } /* Hide empty trailing cells from the 3-col JS layout */
+
+            /* Top university cards 2x2 grid layout on mobile */
+            .top-unis-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                padding: 8px 0 24px;
+                overflow-x: visible;
+            }
+            .top-uni-card {
+                min-width: 0;
+                width: 100%;
+            }
+            .top-uni-img-wrap {
+                height: 120px;
+            }
+            .top-uni-location {
+                padding: 4px 8px;
+                font-size: 10px;
+                top: 10px;
+                left: 10px;
+            }
+            .top-uni-logo {
+                width: 44px;
+                height: 44px;
+                bottom: -22px;
+                border-width: 2px;
+            }
+            .top-uni-logo img, .top-uni-logo svg {
+                width: 32px;
+                height: 32px;
+            }
+            .top-uni-content {
+                padding: 30px 10px 14px;
+            }
+            .top-uni-title {
+                font-size: 14px;
+                line-height: 1.25;
+            }
+            .top-uni-subtitle {
+                font-size: 11px;
+                margin-bottom: 12px;
+            }
+            .top-uni-stats {
+                gap: 4px;
+                margin-bottom: 12px;
+            }
+            .top-uni-stat-val {
+                font-size: 12px;
+            }
+            .top-uni-stat-label {
+                font-size: 9.5px;
+            }
+            .top-uni-badges {
+                gap: 4px;
+                margin-bottom: 12px;
+            }
+            .top-uni-badge {
+                padding: 3px 6px;
+                font-size: 9.5px;
+            }
+            .top-uni-link {
+                font-size: 12.5px;
+            }
         }
 
         /* Small Mobile: ≤480px */
