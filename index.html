@@ -1642,6 +1642,208 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* ─── UNIVERSITY DETAILS MODAL ────────────────────────────────────── */
+        .uni-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 4, 53, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .uni-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .uni-modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            max-width: 660px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 4, 53, 0.35);
+            position: relative;
+            transform: scale(0.94) translateY(12px);
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            border: 1px solid rgba(0, 0, 128, 0.12);
+        }
+        .uni-modal-overlay.active .uni-modal-card {
+            transform: scale(1) translateY(0);
+        }
+        .uni-modal-close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            z-index: 10;
+            color: var(--text-2);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+        }
+        .uni-modal-close-btn:hover {
+            background: #ffffff;
+            color: var(--dark-navy);
+            transform: scale(1.08);
+        }
+        .uni-modal-cover {
+            position: relative;
+            height: 210px;
+            width: 100%;
+            background-color: #f1f5f9;
+        }
+        .uni-modal-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .uni-modal-cover-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(0, 4, 53, 0.85);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .uni-modal-body {
+            padding: 24px 28px 32px;
+        }
+        .uni-modal-header-info {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .uni-modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark-navy);
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        .uni-modal-subtitle {
+            font-size: 14px;
+            color: var(--text-3);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+        .uni-modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .uni-modal-tag {
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(0, 0, 128, 0.08);
+            color: var(--navy-blue);
+            border: 1px solid rgba(0, 0, 128, 0.15);
+        }
+        .uni-modal-tag.tag-1percent {
+            background: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+        .uni-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+            background: #f8fafc;
+            padding: 16px 18px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        @media (max-width: 540px) {
+            .uni-modal-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .uni-modal-body {
+                padding: 20px 18px 24px;
+            }
+        }
+        .uni-modal-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .uni-modal-stat-label {
+            font-size: 11px;
+            color: var(--text-3);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .uni-modal-stat-val {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: var(--dark-navy);
+        }
+        .uni-modal-section-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--dark-navy);
+            margin: 22px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .uni-modal-text {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.65;
+        }
+        .uni-modal-majors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .uni-modal-major-badge {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.12);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .uni-modal-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
@@ -2151,7 +2353,7 @@
                         </div>
                         
                         <div class="top-uni-action">
-                            <a href="#" class="top-uni-link">View Details &rarr;</a>
+                            <a href="javascript:void(0)" onclick="openUniModal('Yonsei University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -2202,7 +2404,7 @@
                         </div>
                         
                         <div class="top-uni-action">
-                            <a href="#" class="top-uni-link">View Details &rarr;</a>
+                            <a href="javascript:void(0)" onclick="openUniModal('Korea University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -2253,7 +2455,7 @@
                         </div>
                         
                         <div class="top-uni-action">
-                            <a href="#" class="top-uni-link">View Details &rarr;</a>
+                            <a href="javascript:void(0)" onclick="openUniModal('Seoul National University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -2304,7 +2506,7 @@
                         </div>
                         
                         <div class="top-uni-action">
-                            <a href="#" class="top-uni-link">View Details &rarr;</a>
+                            <a href="javascript:void(0)" onclick="openUniModal('Ajou University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -2738,8 +2940,9 @@
         const key = name.toUpperCase().trim();
         const rank = WORLD_RANKINGS[key];
         const badgeHtml = rank ? `<span class="rank-badge">${rank}</span>` : '';
+        const safeName = name.replace(/'/g, "\\'");
         return `
-            <div class="uni-cell-container" title="${name}">
+            <div class="uni-cell-container" title="${name} - Batafsil ko'rish uchun bosing" onclick="openUniModal('${safeName}')" style="cursor:pointer;">
                 <span class="uni-num-prefix">${num}.</span>
                 <div class="uni-cell-inner">
                     <span class="uni-name-text">${name}</span>
@@ -3122,6 +3325,269 @@
         ftr.textContent = "Ma'lumotlar Koreya Respublikasi Adliya vazirligi va Elchixonasi talablariga muvofiq shakllantirilgan. © SalomKorea.";
         body.appendChild(ftr);
     }
+</script>
+
+<!-- ─── UNIVERSITY DETAILS MODAL ────────────────────────────────────── -->
+<div class="uni-modal-overlay" id="uniDetailsModal" role="dialog" aria-modal="true" aria-labelledby="uniModalTitle" onclick="handleModalOverlayClick(event)">
+    <div class="uni-modal-card">
+        <button type="button" class="uni-modal-close-btn" onclick="closeUniModal()" aria-label="Yopish">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div class="uni-modal-cover">
+            <img id="uniModalImg" src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80" alt="University Campus">
+            <div class="uni-modal-cover-badge" id="uniModalLocation">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span id="uniModalLocText">SEOUL</span>
+            </div>
+        </div>
+        <div class="uni-modal-body">
+            <div class="uni-modal-header-info">
+                <div>
+                    <h3 class="uni-modal-title" id="uniModalTitle">Yonsei University</h3>
+                    <div class="uni-modal-subtitle" id="uniModalKorean">연세대학교</div>
+                    <div class="uni-modal-tags" id="uniModalTags">
+                        <span class="uni-modal-tag tag-1percent">🥇 1% Akkreditatsiyadan o'tgan</span>
+                        <span class="uni-modal-tag">Private University</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="uni-modal-grid">
+                <div class="uni-modal-stat-item">
+                    <span class="uni-modal-stat-label">QS Reyting</span>
+                    <span class="uni-modal-stat-val" id="uniModalQs">#79</span>
+                </div>
+                <div class="uni-modal-stat-item">
+                    <span class="uni-modal-stat-label">Tashkil etilgan</span>
+                    <span class="uni-modal-stat-val" id="uniModalFounded">1885</span>
+                </div>
+                <div class="uni-modal-stat-item">
+                    <span class="uni-modal-stat-label">Kontrakt (semestr)</span>
+                    <span class="uni-modal-stat-val" id="uniModalTuition">$3,800 - $5,000</span>
+                </div>
+                <div class="uni-modal-stat-item">
+                    <span class="uni-modal-stat-label">Til talabi</span>
+                    <span class="uni-modal-stat-val" id="uniModalLang">TOPIK 3+ / IELTS 5.5+</span>
+                </div>
+                <div class="uni-modal-stat-item">
+                    <span class="uni-modal-stat-label">Ta'lim turi</span>
+                    <span class="uni-modal-stat-val" id="uniModalType">Bakalavr / Magistr</span>
+                </div>
+                <div class="uni-modal-stat-item">
+                    <span class="uni-modal-stat-label">Viza Rejimi</span>
+                    <span class="uni-modal-stat-val" id="uniModalVisaStatus">Yengillashtirilgan</span>
+                </div>
+            </div>
+
+            <div class="uni-modal-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy-blue)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Viza imtiyozlari va Hujjatlar tartibi
+            </div>
+            <p class="uni-modal-text" id="uniModalVisaDetails">
+                1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.
+            </p>
+
+            <div class="uni-modal-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy-blue)"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                Universitet haqida
+            </div>
+            <p class="uni-modal-text" id="uniModalDesc">
+                Yonsei University Koreyaning eng nufuzli 'SKY' uchligiga kiradi. Xalqaro talabalar uchun oliy darajadagi ta'lim va zamonaviy kampus infrastrukturasiga ega.
+            </p>
+
+            <div class="uni-modal-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy-blue)"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                Ommabop Yo'nalishlar
+            </div>
+            <div class="uni-modal-majors" id="uniModalMajors">
+                <span class="uni-modal-major-badge">Biznes va Boshqaruv</span>
+                <span class="uni-modal-major-badge">Kompyuter muhandisligi</span>
+            </div>
+
+            <div class="uni-modal-actions">
+                <a href="#sorovnoma" class="btn-primary" onclick="closeUniModal(); smoothScroll(event,'sorovnoma')" style="flex:1; justify-content:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="17" height="17">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    Ushbu universitetga topshirish
+                </a>
+                <button type="button" class="btn-ghost" onclick="closeUniModal()">Yopish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── University Details Modal Logic ────────────────────────────────
+    const TOP_UNI_DETAILS = {
+        "YONSEI UNIVERSITY": {
+            name: "Yonsei University",
+            koreanName: "연세대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "#79 (TOP 100)",
+            founded: "1885-yil",
+            tuition: "$4,000 - $5,500 / semestr",
+            language: "TOPIK 3+ / IELTS 5.5+",
+            type: "Xususiy Universitet",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            visaStatus: "Yengillashtirilgan (1%)",
+            visaDetails: "1% yengillashtirilgan viza tartibi amal qiladi. Elchixona arizalarni tezlashtirilgan ko'rinishda ko'rib chiqadi. Ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish shart emas.",
+            description: "Yonsei University Janubiy Koreyadagi eng nufuzli SKY uchligiga kiruvchi yetakchi universitetdir. Xalqaro talabalar uchun ingliz tili hamda koreys tilidagi 150 dan ortiq yo'nalishlar va stipendiyalar taklif etiladi.",
+            majors: ["Biznes va Boshqaruv", "Underwood International College (UIC)", "Kompyuter va Dasturlash", "Tibbiyot", "Xalqaro Iqtisodiyot"]
+        },
+        "KOREA UNIVERSITY": {
+            name: "Korea University",
+            koreanName: "고려대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "#74 (TOP 100)",
+            founded: "1905-yil",
+            tuition: "$3,800 - $5,200 / semestr",
+            language: "TOPIK 3+ / IELTS 5.5+",
+            type: "Xususiy Universitet",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            visaStatus: "Yengillashtirilgan (1%)",
+            visaDetails: "1% yengillashtirilgan viza tartibi. Hujjatlar elchixona tomonidan yengillashtirilgan shartlar asosida tekshiriladi.",
+            description: "Koreya Respublikasining eng mashhur va nufuzli tadqiqot universitetlaridan biri. SKY akademiyasining ajralmas qismi bo'lib, xalqaro miqyosda yuqori o'ringa ega.",
+            majors: ["Axborot Texnologiyalari (IT)", "Xalqaro Biznes", "Huquqshunoslik", "Muhandislik Fanlari", "Koreys Tili va Madaniyati"]
+        },
+        "SEOUL NATIONAL UNIVERSITY": {
+            name: "Seoul National University",
+            koreanName: "서울대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "#41 (TOP 50)",
+            founded: "1946-yil",
+            tuition: "$2,500 - $3,800 / semestr",
+            language: "TOPIK 3+ / IELTS 6.0+",
+            type: "Davlat Universiteti",
+            statusTag: "📜 Akkreditatsiyaga ega (Milliy)",
+            is1Percent: false,
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Milliy davlat universiteti standarti bo'yicha viza rasmiylashtiriladi. Hukumat grantlari (GKS) hamda universitet stipendiyalari juda ko'p ajratiladi.",
+            description: "Janubiy Koreyaning #1 raqamli eng nufuzli davlat universiteti. Mamlakatning eng iqtidorli talabalari va xalqaro olimlarini birlashtiruvchi markaz.",
+            majors: ["Kompyuter Ilmlari", "Elektrotexnika", "Iqtisodiyot va Moliya", "Arxitektura", "Tabiiy va Aniq Fanlar"]
+        },
+        "AJOU UNIVERSITY": {
+            name: "Ajou University",
+            koreanName: "아주대학교",
+            location: "SUWON",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "#551-560",
+            founded: "1973-yil",
+            tuition: "$3,200 - $4,300 / semestr",
+            language: "TOPIK 3 / IELTS 5.5",
+            type: "Xususiy Universitet",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            visaStatus: "Yengillashtirilgan (1%)",
+            visaDetails: "1% yengillashtirilgan viza tartibi. KDB bankshot va ota-ona daromad ma'lumotnomasi so'ralmaydi.",
+            description: "Seul yaqinidagi Suvon shahrida joylashgan yetakchi muhandislik va IT universiteti. O'zbek talabalari orasida juda ommabop bo'lib, ko'plab o'quv va til grantlari taqdim etadi.",
+            majors: ["Dasturlash va AI", "Avtomobil Muhandisligi", "Xalqaro Biznes (GSI)", "Media va Kommunikatsiya", "Sanoat Muhandisligi"]
+        }
+    };
+
+    function openUniModal(uniName) {
+        if (!uniName) return;
+        const key = uniName.toUpperCase().trim();
+        const details = TOP_UNI_DETAILS[key] || generateDynamicUniDetails(uniName);
+
+        document.getElementById('uniModalTitle').textContent = details.name;
+        document.getElementById('uniModalKorean').textContent = details.koreanName || '';
+        document.getElementById('uniModalImg').src = details.img;
+        document.getElementById('uniModalLocText').textContent = details.location || 'KOREA';
+        document.getElementById('uniModalQs').textContent = details.qsRank || 'Akkreditatsiyalangan';
+        document.getElementById('uniModalFounded').textContent = details.founded || 'Koreya';
+        document.getElementById('uniModalTuition').textContent = details.tuition || '$3,000 - $4,500';
+        document.getElementById('uniModalLang').textContent = details.language || 'TOPIK 3 / IELTS 5.5';
+        document.getElementById('uniModalType').textContent = details.type || 'Universitet';
+        document.getElementById('uniModalVisaStatus').textContent = details.visaStatus || 'Standard';
+        document.getElementById('uniModalVisaDetails').textContent = details.visaDetails || '';
+        document.getElementById('uniModalDesc').textContent = details.description || '';
+
+        // Render Tags
+        const tagsContainer = document.getElementById('uniModalTags');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = `
+                <span class="uni-modal-tag ${details.is1Percent ? 'tag-1percent' : ''}">${details.statusTag}</span>
+                <span class="uni-modal-tag">${details.type}</span>
+                <span class="uni-modal-tag">📍 ${details.location}</span>
+            `;
+        }
+
+        // Render Majors
+        const majorsContainer = document.getElementById('uniModalMajors');
+        if (majorsContainer) {
+            majorsContainer.innerHTML = (details.majors || ["Biznes", "IT & Dasturlash", "Koreys Tili", "Muhandislik"])
+                .map(m => `<span class="uni-modal-major-badge">${m}</span>`).join('');
+        }
+
+        const modalOverlay = document.getElementById('uniDetailsModal');
+        if (modalOverlay) {
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function generateDynamicUniDetails(name) {
+        const key = name.toUpperCase().trim();
+        const is1Percent = UNI_DATA.accredited35.some(u => u.toUpperCase().trim() === key) ||
+                           UNI_DATA.accreditedColleges3.some(c => c.toUpperCase().trim() === key);
+        const isRestricted = UNI_DATA.restrictedDegree.some(u => u.toUpperCase().trim() === key) ||
+                             UNI_DATA.restrictedLanguage.some(l => l.toUpperCase().trim() === key);
+        const rank = WORLD_RANKINGS[key];
+
+        let statusTag = is1Percent ? "🥇 1% Akkreditatsiyadan o'tgan" : isRestricted ? "⚠️ Cheklovga tushgan" : "📜 Akkreditatsiyaga ega";
+        let visaStatus = is1Percent ? "Yengillashtirilgan (1%)" : isRestricted ? "Qattiqlashtirilgan (Cheklov)" : "Standart Tekshiruv";
+        let visaDetails = is1Percent
+            ? "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI."
+            : isRestricted
+            ? "Ushbu universitetga topshirganda elchixona tomonidan viza arizasi va hujjatlar qattiqlashtirilgan tartibda tekshiriladi. 31 kunlik muzlatilgan KDB bank ko'chirmasi va qo'shimcha ma'lumotnomalar so'ralishi mumkin."
+            : "Standart viza tekshiruvi tartibi. Elchixonaga talab etiladigan standart hujjatlar to'plami va KDB bank ko'chirmasi taqdim etiladi.";
+
+        return {
+            name: name,
+            koreanName: "한국 대학교",
+            location: "KOREA",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: rank || "Rasmiy Ro'yxatda",
+            founded: "Koreya",
+            tuition: "$2,800 - $4,500 / semestr",
+            language: "TOPIK 3 / IELTS 5.5",
+            type: name.toLowerCase().includes("college") ? "Kollej" : "Universitet",
+            statusTag: statusTag,
+            is1Percent: is1Percent,
+            visaStatus: visaStatus,
+            visaDetails: visaDetails,
+            description: `${name} — Koreya Respublikasi Ta'lim vazirligi hamda Adliya vazirligi rasmiy akkreditatsiyasiga ega ta'lim muassasasi. Xalqaro talabalar uchun bakalavr, magistratura va til kurslari dasturlarini taklif etadi.`,
+            majors: ["Biznes va Boshqaruv", "IT & Axborot Texnologiyalari", "Koreys tili va madaniyati", "Xalqaro munosabatlar", "Muhandislik"]
+        };
+    }
+
+    function closeUniModal() {
+        const modalOverlay = document.getElementById('uniDetailsModal');
+        if (modalOverlay) {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function handleModalOverlayClick(e) {
+        if (e.target.classList.contains('uni-modal-overlay')) {
+            closeUniModal();
+        }
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeUniModal();
+    });
 </script>
 </body>
 </html>
