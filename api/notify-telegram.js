@@ -22,6 +22,30 @@ function escapeTelegramText(value) {
     return String(value || '').replace(/[<>&]/g, '');
 }
 
+function normalizeStatus(status) {
+    const s = String(status || '').trim().toLowerCase();
+    if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) {
+        return 'pending';
+    }
+    if (s.includes('approved') || s.includes('visa used') || s.includes('issued')) {
+        return 'approved';
+    }
+    if (s.includes('cancel') || s.includes('reject')) {
+        return 'cancelled';
+    }
+    if (s.includes('received') || s.includes('app/')) {
+        return 'received';
+    }
+    if (s.includes('under review')) {
+        return 'under review';
+    }
+    return s;
+}
+
+function isSameStatus(status1, status2) {
+    return normalizeStatus(status1) === normalizeStatus(status2);
+}
+
 function getStatusEmoji(status) {
     const normalized = String(status || '').toLowerCase();
 
@@ -170,11 +194,17 @@ module.exports = async (req, res) => {
     const visaType = escapeTelegramText(body.visaType || 'Embassy');
     const applicationNo = escapeTelegramText(body.applicationNo);
     const birthday = escapeTelegramText(body.birthday);
+    const oldStatus = escapeTelegramText(body.oldStatus);
     const newStatus = escapeTelegramText(body.newStatus);
     const applicationDate = escapeTelegramText(body.applicationDate);
     const rejectionReason = escapeTelegramText(body.rejectionReason);
     const previousRejectionReason = escapeTelegramText(body.previousRejectionReason);
     const invitingCompany = escapeTelegramText(body.invitingCompany);
+
+    if (oldStatus && isSameStatus(oldStatus, newStatus)) {
+        res.status(200).json({ ok: true, skipped: 'No actual status change (Pending and Unknown are equivalent)' });
+        return;
+    }
 
     const emoji = getStatusEmoji(newStatus);
     const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s));

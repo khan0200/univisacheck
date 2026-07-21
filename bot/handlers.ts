@@ -9,7 +9,7 @@ import { connectUser, disconnectUser, getUserByTelegramId } from '../lib/auth';
 import { checkStudentVisaStatus, downloadStudentVisaPdf } from '../lib/visa';
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands';
 import { getMainMenuKeyboard, mainMenuKeyboard, getCancelKeyboard, getVisaTypeKeyboard, getSettingsKeyboard } from './keyboards';
-import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked } from '../lib/cabinet';
+import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked, isSameStatus } from '../lib/cabinet';
 import { getLang, setLang, t, Lang } from '../lib/i18n';
 import db from '../lib/turso';
 
@@ -629,8 +629,8 @@ export async function handleCallbackQuery(ctx: Context) {
                 (checkRes.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${checkRes.previousRejectionReason}\n` : '') +
                 (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${checkRes.pdfUrl})\n` : '');
                 
-            const currentText = cardMessage?.text || '';
-            const changed = !currentText.toLowerCase().includes(checkRes.latestStatus.toLowerCase());
+            const oldStatus = row.status || 'Pending';
+            const changed = !isSameStatus(oldStatus, checkRes.latestStatus);
             
             const inlineKeyboard = {
                 inline_keyboard: canDownloadPdf

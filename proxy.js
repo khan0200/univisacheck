@@ -567,6 +567,7 @@ const server = http.createServer(async (req, res) => {
                     studentId = '',
                     visaType = 'Embassy',
                     applicationNo = '',
+                    oldStatus = '',
                     newStatus = '',
                     applicationDate = '',
                     rejectionReason = '',
@@ -574,6 +575,22 @@ const server = http.createServer(async (req, res) => {
                     invitingCompany = '',
                     birthday = ''
                 } = payload;
+
+                const normStatus = s => {
+                    const str = String(s || '').trim().toLowerCase();
+                    if (!str || str === 'pending' || str === 'unknown' || str.includes('error')) return 'pending';
+                    if (str.includes('approved') || str.includes('visa used') || str.includes('issued')) return 'approved';
+                    if (str.includes('cancel') || str.includes('reject')) return 'cancelled';
+                    if (str.includes('received') || str.includes('app/')) return 'received';
+                    if (str.includes('under review')) return 'under review';
+                    return str;
+                };
+
+                if (oldStatus && normStatus(oldStatus) === normStatus(newStatus)) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ ok: true, skipped: 'No actual status change (Pending and Unknown are equivalent)' }));
+                    return;
+                }
 
                 const getEmoji = s => {
                     const l = s.toLowerCase();

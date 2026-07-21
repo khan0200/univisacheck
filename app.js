@@ -1660,8 +1660,18 @@ async function checkVisaStatus(student) {
         const invitingCompany = data.invitingCompany || '';
         const oldStatus = student.status || 'Unknown';
 
-        // NOTIFICATION LOGIC
-        if (oldStatus !== 'Unknown' && oldStatus.toLowerCase() !== newStatus.toLowerCase()) {
+        const normStatus = (s) => {
+            const str = String(s || '').trim().toLowerCase();
+            if (!str || str === 'pending' || str === 'unknown' || str.includes('error')) return 'pending';
+            if (str.includes('approved') || str.includes('visa used') || str.includes('issued')) return 'approved';
+            if (str.includes('cancel') || str.includes('reject')) return 'cancelled';
+            if (str.includes('received') || str.includes('app/')) return 'received';
+            if (str.includes('under review')) return 'under review';
+            return str;
+        };
+
+        // NOTIFICATION LOGIC (Only notify on real status change; Pending and Unknown are equivalent)
+        if (normStatus(oldStatus) !== normStatus(newStatus)) {
             showNotification(student.fullName, oldStatus, newStatus);
             await sendTelegramNotification(student, oldStatus, newStatus, applicationDate, rejectionReason, pdfUrl, previousRejectionReason, invitingCompany);
         }

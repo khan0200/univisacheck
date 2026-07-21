@@ -24,6 +24,30 @@ export interface Student {
     telegram_user_id: number | null;
 }
 
+export function normalizeStatus(status: string): string {
+    const s = String(status || '').trim().toLowerCase();
+    if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) {
+        return 'pending';
+    }
+    if (s.includes('approved') || s.includes('visa used') || s.includes('issued')) {
+        return 'approved';
+    }
+    if (s.includes('cancel') || s.includes('reject')) {
+        return 'cancelled';
+    }
+    if (s.includes('received') || s.includes('app/')) {
+        return 'received';
+    }
+    if (s.includes('under review')) {
+        return 'under review';
+    }
+    return s;
+}
+
+export function isSameStatus(status1: string, status2: string): boolean {
+    return normalizeStatus(status1) === normalizeStatus(status2);
+}
+
 export function getStatusEmoji(status: string): string {
     const normalized = String(status || '').toLowerCase();
     if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
@@ -112,7 +136,7 @@ export function formatStudentCard(student: Student, isUpdate: boolean = false, o
     const emoji = getStatusEmoji(student.status);
     const checkedStr = formatLastChecked(student.lastChecked, lang);
     
-    if (isUpdate && oldStatus && oldStatus !== student.status) {
+    if (isUpdate && oldStatus && !isSameStatus(oldStatus, student.status)) {
         return [
             lang === 'en' ? 'Visa status changed' : 'Visa holati o\'zgardi',
             ``,
@@ -239,7 +263,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
         
         const oldStatus = student.status;
         const newStatus = liveStatus.latestStatus;
-        const changed = oldStatus.toLowerCase() !== newStatus.toLowerCase();
+        const changed = !isSameStatus(oldStatus, newStatus);
         const now = new Date().toISOString();
         
         // 3. Update student in database (keeping both camelCase and snake_case in sync)
