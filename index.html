@@ -4973,7 +4973,8 @@
         const modalHeader = document.querySelector('.uni-modal-header');
         const modalPrimaryBtn = document.querySelector('.uni-modal-primary-btn');
         if (modalHeader) {
-            modalHeader.style.background = `linear-gradient(135deg, ${brandColor} 0%, #000435 100%)`;
+            // Background is managed by CSS now for the bright theme
+            modalHeader.style.background = '';
         }
         if (modalPrimaryBtn) {
             modalPrimaryBtn.style.background = `linear-gradient(135deg, ${brandColor} 0%, #000435 100%)`;
