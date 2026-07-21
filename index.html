@@ -2057,214 +2057,282 @@
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 4, 53, 0.65);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s var(--ease);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .uni-modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
+
+        /* ─── MODAL CARD ─── */
         .uni-modal-card {
-            background: #ffffff;
-            border-radius: var(--radius-xl);
+            background: #0d1117;
+            border-radius: 20px;
             width: 100%;
-            max-width: 680px;
-            max-height: 90vh;
+            max-width: 660px;
+            max-height: 92vh;
             overflow-y: auto;
+            overflow-x: hidden;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 128, 0.25);
-            transform: scale(0.94) translateY(10px);
-            transition: transform 0.3s var(--ease);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.04),
+                0 32px 64px -12px rgba(0,0,0,0.7),
+                0 8px 24px rgba(0,0,0,0.4);
+            transform: scale(0.96) translateY(16px);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
         }
+        .uni-modal-card::-webkit-scrollbar { width: 4px; }
+        .uni-modal-card::-webkit-scrollbar-track { background: transparent; }
+        .uni-modal-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
         .uni-modal-overlay.active .uni-modal-card {
             transform: scale(1) translateY(0);
         }
+
+        /* ─── CLOSE BTN ─── */
         .uni-modal-close {
             position: absolute;
-            top: 14px; right: 14px;
-            width: 36px; height: 36px;
+            top: 16px; right: 16px;
+            width: 34px; height: 34px;
             border-radius: 50%;
-            background: rgba(0, 4, 53, 0.65);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: #ffffff;
-            font-size: 16px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.75);
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 25;
+            z-index: 30;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         .uni-modal-close:hover {
-            background: rgba(0, 4, 53, 0.85);
-            transform: scale(1.05);
+            background: rgba(255,255,255,0.16);
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.3);
         }
 
-        .uni-modal-header {
-            padding: 20px 24px 22px;
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--dark-navy) 100%);
-            color: #ffffff !important;
-        }
-        .uni-modal-header-top {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .uni-modal-location {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            color: #ffffff !important;
-        }
-        .uni-modal-tags {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .uni-modal-tag {
-            background: rgba(255, 255, 255, 0.18);
-            color: #ffffff !important;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-        }
-        .uni-modal-tag.tag-1percent {
-            background: #eab308;
-            color: #000435 !important;
-        }
-        .uni-modal-title {
-            font-size: 24px;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 4px;
-            color: #ffffff !important;
-        }
-        .uni-modal-korean {
-            font-size: 14px;
-            opacity: 0.9;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #ffffff !important;
-        }
-        .uni-modal-address {
-            font-size: 12.5px;
-            opacity: 0.85;
-            line-height: 1.4;
-            color: #ffffff !important;
-        }
+        /* ─── BANNER ─── */
         .uni-modal-banner {
             width: 100%;
-            height: 220px;
+            height: 210px;
             overflow: hidden;
-            background: #000435;
+            background: #0d1117;
             position: relative;
+            border-radius: 20px 20px 0 0;
+        }
+        .uni-modal-banner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(13,17,23,0) 30%, rgba(13,17,23,0.85) 100%);
         }
         .uni-modal-banner img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
 
-        /* Nav Tabs */
+        /* ─── HEADER (below banner) ─── */
+        .uni-modal-header {
+            padding: 22px 28px 20px;
+            background: #0d1117;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: #ffffff;
+        }
+        .uni-modal-header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .uni-modal-location {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+        }
+        .uni-modal-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .uni-modal-tag {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+        .uni-modal-tag.tag-1percent {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: rgba(212, 175, 55, 0.4);
+            color: #d4af37;
+            font-weight: 700;
+        }
+        .uni-modal-title {
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 5px;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+        .uni-modal-korean {
+            font-size: 13px;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.5px;
+        }
+        .uni-modal-address {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            line-height: 1.5;
+            letter-spacing: 0.1px;
+        }
+
+        /* ─── NAV TABS ─── */
         .uni-modal-nav-tabs {
             display: flex;
-            background: #f1f5f9;
-            border-bottom: 1px solid var(--border);
-            padding: 4px 8px 0;
-            gap: 4px;
+            background: #0d1117;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0 20px;
+            gap: 0;
         }
         .uni-modal-tab-btn {
             flex: 1;
-            padding: 12px 10px;
+            padding: 14px 8px;
             border: none;
             background: transparent;
             font-family: var(--font);
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-2);
-            border-bottom: 3px solid transparent;
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            border-bottom: 2px solid transparent;
             cursor: pointer;
             transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .uni-modal-tab-btn:hover {
+            color: rgba(255,255,255,0.65);
         }
         .uni-modal-tab-btn.active {
-            color: var(--navy-blue);
-            border-bottom-color: var(--navy-blue);
-            background: #ffffff;
-            border-radius: 8px 8px 0 0;
+            color: #ffffff;
+            border-bottom-color: #d4af37;
         }
 
-        /* Body & Panes */
+        /* ─── BODY & PANES ─── */
         .uni-modal-body {
-            padding: 20px 24px;
+            padding: 24px 28px;
+            background: #0d1117;
         }
         .uni-modal-tab-pane {
             display: none;
         }
         .uni-modal-tab-pane.active {
             display: block;
+            animation: pmFadeIn 0.22s ease both;
+        }
+        @keyframes pmFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
+        /* ─── STAT GRID ─── */
         .uni-modal-grid-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 1px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
         }
         .uni-modal-stat-box {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 16px;
+            background: #13181f;
+            padding: 16px 18px;
         }
         .stat-box-label {
             display: block;
-            font-size: 11px;
-            color: var(--text-3);
+            font-size: 9.5px;
+            color: rgba(255,255,255,0.3);
             text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 4px;
+            font-weight: 700;
+            letter-spacing: 1.1px;
+            margin-bottom: 6px;
         }
         .stat-box-val {
             font-size: 14px;
-            font-weight: 700;
-            color: var(--dark-navy);
+            font-weight: 600;
+            color: #e8edf2;
+            line-height: 1.3;
         }
 
+        /* ─── SECTION HEADING ─── */
+        .uni-modal-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
         .uni-modal-subblock {
-            margin-bottom: 20px;
+            margin-bottom: 28px;
         }
         .uni-modal-subblock h4 {
-            font-size: 15px;
+            font-size: 10px;
             font-weight: 700;
-            color: var(--dark-navy);
-            margin-bottom: 10px;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
+
+        /* ─── LANG BOX ─── */
         .uni-modal-lang-box {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
+            background: #13181f;
+            border: 1px solid rgba(255,255,255,0.06);
             border-radius: 10px;
-            padding: 12px 16px;
+            padding: 16px 18px;
             font-size: 13px;
-            color: #166534;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.7;
         }
         .uni-modal-lang-box p {
             margin-bottom: 6px;
@@ -2272,125 +2340,166 @@
         .uni-modal-lang-box p:last-child {
             margin-bottom: 0;
         }
+        .uni-modal-lang-box strong {
+            color: rgba(255,255,255,0.85);
+            font-weight: 600;
+        }
 
+        /* ─── VISA BADGE ─── */
         .uni-modal-visa-badge {
-            display: inline-block;
-            background: #dbeafe;
-            color: #1e40af;
-            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+            font-size: 11px;
             font-weight: 700;
-            padding: 4px 12px;
+            letter-spacing: 0.5px;
+            padding: 6px 14px;
             border-radius: 100px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         .uni-modal-desc {
             font-size: 13.5px;
-            color: var(--text-2);
-            line-height: 1.6;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.75;
         }
 
+        /* ─── CHECKLIST ROWS ─── */
         .uni-modal-checklist {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 1px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 14px;
         }
         .checklist-item {
-            font-size: 13px;
-            padding: 10px 14px;
-            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12.5px;
+            padding: 13px 18px;
+            background: #13181f;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.4;
         }
-        .checklist-item.check-no {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
+        .checklist-item strong {
+            font-weight: 600;
+            white-space: nowrap;
         }
-        .checklist-item.check-yes {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
+        .checklist-item.check-no strong {
+            color: #f87171;
+        }
+        .checklist-item.check-yes strong {
+            color: #d4af37;
         }
 
-        /* Grant Imtiyozlar Grid */
+        /* ─── GRANTS GRID ─── */
         .grants-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 1px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            overflow: hidden;
             margin-bottom: 16px;
         }
         .grant-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 16px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            background: #13181f;
+            padding: 16px 20px;
         }
         .grant-cert {
-            font-size: 13.5px;
-            font-weight: 700;
-            color: var(--dark-navy);
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 0.3px;
         }
         .grant-percent {
-            font-size: 16px;
-            font-weight: 800;
-            color: #2563eb;
+            font-size: 20px;
+            font-weight: 700;
+            color: #d4af37;
+            letter-spacing: -0.5px;
         }
         .grants-other-box {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 12px;
+            background: #13181f;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-left: 3px solid rgba(212, 175, 55, 0.5);
+            border-radius: 8px;
             padding: 14px 18px;
-            color: #0369a1;
-            font-size: 13.5px;
-            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            line-height: 1.6;
         }
         .grants-other-box h5 {
-            font-size: 12px;
+            font-size: 9.5px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-            color: #0284c7;
+            letter-spacing: 1.4px;
+            margin-bottom: 6px;
+            color: rgba(212, 175, 55, 0.7);
+            font-weight: 700;
         }
 
-        /* Tracks List */
+        /* ─── TRACKS ─── */
         .track-block {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
+        .track-block:last-child { margin-bottom: 0; }
         .track-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
+            font-size: 10px;
             font-weight: 700;
-            margin-bottom: 8px;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .track-title.english-track { color: #2563eb; }
-        .track-title.korean-track { color: #dc2626; }
+        .track-title.english-track { color: rgba(96, 165, 250, 0.8); }
+        .track-title.korean-track  { color: rgba(248, 113, 113, 0.8); }
         .track-list {
             list-style: none;
-            padding-left: 24px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            overflow: hidden;
         }
         .track-list li {
-            position: relative;
             font-size: 13.5px;
-            color: var(--text);
-            margin-bottom: 6px;
+            color: rgba(255,255,255,0.65);
+            padding: 13px 18px;
+            background: #13181f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .track-list li::before {
-            content: '•';
-            position: absolute;
-            left: -14px;
-            color: var(--navy-blue);
-            font-weight: bold;
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.6);
+            flex-shrink: 0;
         }
 
+        /* ─── MODAL FOOTER ─── */
         .uni-modal-footer {
-            padding: 16px 24px;
-            border-top: 1px solid var(--border);
-            background: #ffffff;
+            padding: 18px 28px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: #0d1117;
             display: flex;
             justify-content: flex-end;
         }
@@ -2398,19 +2507,21 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 28px;
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--dark-navy) 100%);
-            color: #ffffff;
+            padding: 11px 26px;
+            background: #d4af37;
+            color: #0d1117;
             font-weight: 700;
-            font-size: 14px;
-            border-radius: 100px;
+            font-size: 12.5px;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
             text-decoration: none;
-            box-shadow: 0 4px 14px rgba(0, 0, 128, 0.2);
             transition: all 0.2s ease;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
         .uni-modal-primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 128, 0.35);
+            background: #e6c44a;
+            box-shadow: 0 0 28px rgba(212, 175, 55, 0.4);
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -3083,17 +3194,11 @@
             <div id="uniModalAddress" class="uni-modal-address">📍 World cup-ro 206, Yeongtong-gu, Suwon-si, Gyeonggi-do, South Korea</div>
         </div>
 
-        <!-- 3. Tabs Navigation (Ma'lumot / Mutaxassisliklar / Imtiyozlar) -->
+        <!-- 3. Tabs Navigation -->
         <div class="uni-modal-nav-tabs">
-            <button type="button" class="uni-modal-tab-btn active" onclick="switchUniModalTab('info')">
-                <span>ℹ️ MA'LUMOT</span>
-            </button>
-            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('majors')">
-                <span>📖 MUTAXASSISLIKLAR</span>
-            </button>
-            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('grants')">
-                <span>🏆 IMTIYOZLAR</span>
-            </button>
+            <button type="button" class="uni-modal-tab-btn active" onclick="switchUniModalTab('info')">Ma'lumot</button>
+            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('majors')">Mutaxassisliklar</button>
+            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('grants')">Imtiyozlar</button>
         </div>
 
         <!-- Body Content Tabs -->
@@ -3120,7 +3225,7 @@
                 </div>
 
                 <div class="uni-modal-subblock">
-                    <h4>🌐 Til Talablari</h4>
+                    <h4>Til Talablari</h4>
                     <div id="uniModalLangDetails" class="uni-modal-lang-box">
                         <p><strong>Korean Track:</strong> TOPIK Level 3+ recommended (yoki Ajou Korean Language Test)</p>
                         <p><strong>English Track:</strong> IELTS 5.5+ | TOEFL iBT 71+ | TEPS 600+</p>
@@ -3128,19 +3233,18 @@
                 </div>
 
                 <div class="uni-modal-subblock">
-                    <h4>🛡️ Viza &amp; Bank Shartlari</h4>
+                    <h4>Viza &amp; Bank Shartlari</h4>
                     <div class="uni-modal-visa-badge" id="uniModalVisaStatus">Yengillashtirilgan (1%)</div>
-                    <p id="uniModalVisaDetails" class="uni-modal-desc"></p>
-                    
+                    <p id="uniModalVisaDetails" class="uni-modal-desc" style="margin-bottom:14px;"></p>
                     <div id="uniModalBankReqs" class="uni-modal-checklist">
-                        <div class="checklist-item check-no">❌ Ota-ona daromad manbai ma'lumotnomasi: <strong>Talab etilmaydi</strong></div>
-                        <div class="checklist-item check-no">❌ 1-Oylik KDB bank ko'chirmasi: <strong>Talab etilmaydi</strong></div>
-                        <div class="checklist-item check-yes">ℹ️ Qabuldan so'ng 1 kunlik KDB bank ko'chirmasi: <strong>$16,000 USD</strong></div>
+                        <div class="checklist-item check-no"><span>Ota-ona daromad manbai ma'lumotnomasi</span><strong>Talab etilmaydi</strong></div>
+                        <div class="checklist-item check-no"><span>1-Oylik KDB bank ko'chirmasi</span><strong>Talab etilmaydi</strong></div>
+                        <div class="checklist-item check-yes"><span>Qabuldan so'ng 1 kunlik KDB ko'chirmasi</span><strong>$16,000 USD</strong></div>
                     </div>
                 </div>
 
                 <div class="uni-modal-subblock">
-                    <h4>📝 Universitet haqida</h4>
+                    <h4>Universitet haqida</h4>
                     <p id="uniModalDesc" class="uni-modal-desc"></p>
                 </div>
             </div>
