@@ -2940,9 +2940,8 @@
         const key = name.toUpperCase().trim();
         const rank = WORLD_RANKINGS[key];
         const badgeHtml = rank ? `<span class="rank-badge">${rank}</span>` : '';
-        const safeName = name.replace(/'/g, "\\'");
         return `
-            <div class="uni-cell-container" title="${name} - Batafsil ko'rish uchun bosing" onclick="openUniModal('${safeName}')" style="cursor:pointer;">
+            <div class="uni-cell-container" title="${name}">
                 <span class="uni-num-prefix">${num}.</span>
                 <div class="uni-cell-inner">
                     <span class="uni-name-text">${name}</span>
