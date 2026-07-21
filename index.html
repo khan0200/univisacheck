@@ -1908,6 +1908,79 @@
             padding-top: 20px;
             border-top: 1px solid var(--border);
         }
+
+        /* ─── TOP CARDS SEARCH BAR ───────────────────────────────────────── */
+        .top-cards-search-wrap {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            max-width: 540px;
+            width: 100%;
+        }
+        .top-cards-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .top-cards-search-box input {
+            width: 100%;
+            height: 46px;
+            padding: 0 40px 0 42px;
+            background: #ffffff;
+            border: 1.5px solid rgba(0, 0, 128, 0.18);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            box-shadow: 0 3px 12px rgba(0, 0, 128, 0.04);
+            transition: all 0.2s var(--ease);
+        }
+        .top-cards-search-box input:focus {
+            border-color: var(--navy-blue);
+            box-shadow: 0 0 0 3.5px rgba(0, 0, 128, 0.12), 0 4px 16px rgba(0, 0, 128, 0.06);
+        }
+        .top-cards-search-icon {
+            position: absolute;
+            left: 14px;
+            width: 18px;
+            height: 18px;
+            stroke: var(--navy-blue);
+            pointer-events: none;
+        }
+        .top-cards-clear-btn {
+            position: absolute;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.06);
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            color: var(--text-2);
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        .top-cards-clear-btn:hover {
+            background: rgba(0, 0, 0, 0.12);
+            color: var(--dark-navy);
+        }
+        .top-cards-no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 32px 20px;
+            background: #ffffff;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-lg);
+            color: var(--text-2);
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -2367,6 +2440,18 @@
         <div class="section-eyebrow">Universitetlar ro'yxati</div>
         <h2 class="section-h2"><span class="text-dark-blue">Janubiy </span><em>Koreya universitetlari</em></h2>
 
+        <!-- TOP CARDS SEARCH BAR -->
+        <div class="top-cards-search-wrap">
+            <div class="top-cards-search-box">
+                <svg class="top-cards-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="topCardsSearchInput" placeholder="Nufuzli universitetlarni qidirish (Yonsei, Korea, SNU, Ajou...)" oninput="filterTopUniCards(this.value)" autocomplete="off">
+                <button type="button" id="topCardsSearchClear" class="top-cards-clear-btn" onclick="clearTopCardsSearch()" style="display:none;" aria-label="Qidiruvni tozalash">✕</button>
+            </div>
+        </div>
+
         <!-- TOP UNIVERSITIES CAROUSEL -->
         <div class="top-unis-wrapper">
             
@@ -2573,6 +2658,10 @@
                             <a href="javascript:void(0)" onclick="openUniModal('Ajou University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
                         </div>
                     </div>
+                </div>
+
+                <div id="topCardsNoResults" class="top-cards-no-results" style="display:none;">
+                    🔍 Kiritilgan so'rov bo'yicha kartochka topilmadi. Boshqa universitet nomini izlab ko'ring.
                 </div>
             </div>
         </div>
@@ -3651,6 +3740,39 @@
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') closeUniModal();
     });
+
+    // ── Top University Cards Search Bar Filter ────────────────────────
+    function filterTopUniCards(val) {
+        const query = (val || '').trim().toLowerCase();
+        const clearBtn = document.getElementById('topCardsSearchClear');
+        if (clearBtn) clearBtn.style.display = query ? 'flex' : 'none';
+
+        const cards = document.querySelectorAll('.top-unis-grid .top-uni-card');
+        const noResultsMsg = document.getElementById('topCardsNoResults');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const title = (card.querySelector('.top-uni-title')?.textContent || '').toLowerCase();
+            const subtitle = (card.querySelector('.top-uni-subtitle')?.textContent || '').toLowerCase();
+            const location = (card.querySelector('.top-uni-location')?.textContent || '').toLowerCase();
+            const badges = (card.querySelector('.top-uni-badges')?.textContent || '').toLowerCase();
+
+            const isMatch = !query || title.includes(query) || subtitle.includes(query) || location.includes(query) || badges.includes(query);
+            
+            card.style.display = isMatch ? 'flex' : 'none';
+            if (isMatch) visibleCount++;
+        });
+
+        if (noResultsMsg) {
+            noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    }
+
+    function clearTopCardsSearch() {
+        const input = document.getElementById('topCardsSearchInput');
+        if (input) input.value = '';
+        filterTopUniCards('');
+    }
 </script>
 </body>
 </html>
