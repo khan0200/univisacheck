@@ -2050,6 +2050,359 @@
             stroke: var(--navy-blue);
             flex-shrink: 0;
         }
+
+        /* ─── UNIVERSITY DETAILS MODAL STYLES ───────────────────────────── */
+        .uni-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 4, 53, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s var(--ease);
+        }
+        .uni-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .uni-modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 128, 0.25);
+            transform: scale(0.94) translateY(10px);
+            transition: transform 0.3s var(--ease);
+        }
+        .uni-modal-overlay.active .uni-modal-card {
+            transform: scale(1) translateY(0);
+        }
+        .uni-modal-close {
+            position: absolute;
+            top: 16px; right: 16px;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background 0.2s ease;
+        }
+        .uni-modal-close:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .uni-modal-header {
+            padding: 28px 24px 20px;
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--dark-navy) 100%);
+            color: #ffffff;
+        }
+        .uni-modal-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .uni-modal-location {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .uni-modal-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .uni-modal-tag {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        .uni-modal-tag.tag-1percent {
+            background: #eab308;
+            color: #000435;
+        }
+        .uni-modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .uni-modal-korean {
+            font-size: 14px;
+            opacity: 0.85;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .uni-modal-address {
+            font-size: 12px;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+        .uni-modal-banner {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            background: #000435;
+        }
+        .uni-modal-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Nav Tabs */
+        .uni-modal-nav-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-bottom: 1px solid var(--border);
+            padding: 4px 8px 0;
+            gap: 4px;
+        }
+        .uni-modal-tab-btn {
+            flex: 1;
+            padding: 12px 10px;
+            border: none;
+            background: transparent;
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-2);
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .uni-modal-tab-btn.active {
+            color: var(--navy-blue);
+            border-bottom-color: var(--navy-blue);
+            background: #ffffff;
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* Body & Panes */
+        .uni-modal-body {
+            padding: 20px 24px;
+        }
+        .uni-modal-tab-pane {
+            display: none;
+        }
+        .uni-modal-tab-pane.active {
+            display: block;
+        }
+
+        .uni-modal-grid-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .uni-modal-stat-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+        .stat-box-label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .stat-box-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark-navy);
+        }
+
+        .uni-modal-subblock {
+            margin-bottom: 20px;
+        }
+        .uni-modal-subblock h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--dark-navy);
+            margin-bottom: 10px;
+        }
+        .uni-modal-lang-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #166534;
+        }
+        .uni-modal-lang-box p {
+            margin-bottom: 6px;
+        }
+        .uni-modal-lang-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .uni-modal-visa-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 10px;
+        }
+        .uni-modal-desc {
+            font-size: 13.5px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        .uni-modal-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .checklist-item {
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+        .checklist-item.check-no {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+        .checklist-item.check-yes {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        /* Grant Imtiyozlar Grid */
+        .grants-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .grant-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+        .grant-cert {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--dark-navy);
+        }
+        .grant-percent {
+            font-size: 16px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+        .grants-other-box {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #0369a1;
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+        .grants-other-box h5 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            color: #0284c7;
+        }
+
+        /* Tracks List */
+        .track-block {
+            margin-bottom: 16px;
+        }
+        .track-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .track-title.english-track { color: #2563eb; }
+        .track-title.korean-track { color: #dc2626; }
+        .track-list {
+            list-style: none;
+            padding-left: 24px;
+        }
+        .track-list li {
+            position: relative;
+            font-size: 13.5px;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .track-list li::before {
+            content: '•';
+            position: absolute;
+            left: -14px;
+            color: var(--navy-blue);
+            font-weight: bold;
+        }
+
+        .uni-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            background: #ffffff;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .uni-modal-primary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--dark-navy) 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 100px;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 128, 0.2);
+            transition: all 0.2s ease;
+        }
+        .uni-modal-primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 128, 0.35);
+        }
     </style>
 </head>
 <body>
@@ -2693,6 +3046,120 @@
         <div class="footer-copy">© 2026 · Barcha huquqlar himoyalangan</div>
     </div>
 </footer>
+
+<!-- ─── UNIVERSITY DETAILS MODAL ────────────────────────────────────── -->
+<div id="uniDetailsModal" class="uni-modal-overlay" onclick="handleModalOverlayClick(event)">
+    <div class="uni-modal-card" role="dialog" aria-modal="true" aria-labelledby="uniModalTitle">
+        <!-- Close Button -->
+        <button type="button" class="uni-modal-close" onclick="closeUniModal()" aria-label="Yopish">✕</button>
+
+        <!-- Header -->
+        <div class="uni-modal-header">
+            <div class="uni-modal-header-top">
+                <div class="uni-modal-location">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span id="uniModalLocText">SUWON</span>
+                </div>
+                <div id="uniModalTags" class="uni-modal-tags">
+                    <!-- Dynamic Badges -->
+                </div>
+            </div>
+            <h2 id="uniModalTitle" class="uni-modal-title">Ajou University</h2>
+            <div id="uniModalKorean" class="uni-modal-korean">아주대학교</div>
+            <div id="uniModalAddress" class="uni-modal-address">📍 World cup-ro 206, Yeongtong-gu, Suwon-si, Gyeonggi-do, South Korea</div>
+        </div>
+
+        <!-- Banner Image -->
+        <div class="uni-modal-banner">
+            <img id="uniModalImg" src="" alt="University Campus" onerror="this.onerror=null;this.src='korea-hero.png';">
+        </div>
+
+        <!-- Tabs Navigation (Ma'lumot / Mutaxassisliklar / Imtiyozlar) -->
+        <div class="uni-modal-nav-tabs">
+            <button type="button" class="uni-modal-tab-btn active" onclick="switchUniModalTab('info')">
+                <span>ℹ️ MA'LUMOT</span>
+            </button>
+            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('majors')">
+                <span>📖 MUTAXASSISLIKLAR</span>
+            </button>
+            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('grants')">
+                <span>🏆 IMTIYOZLAR</span>
+            </button>
+        </div>
+
+        <!-- Body Content Tabs -->
+        <div class="uni-modal-body">
+            <!-- TAB 1: MA'LUMOT -->
+            <div id="uniModalTabInfo" class="uni-modal-tab-pane active">
+                <div class="uni-modal-grid-stats">
+                    <div class="uni-modal-stat-box">
+                        <span class="stat-box-label">QS / THE Rank</span>
+                        <span id="uniModalQs" class="stat-box-val">THE #401-500</span>
+                    </div>
+                    <div class="uni-modal-stat-box">
+                        <span class="stat-box-label">Tashkil topgan</span>
+                        <span id="uniModalFounded" class="stat-box-val">1973-yil</span>
+                    </div>
+                    <div class="uni-modal-stat-box">
+                        <span class="stat-box-label">Kontrakt narxi</span>
+                        <span id="uniModalTuition" class="stat-box-val">4.1 - 5.3 mln KRW</span>
+                    </div>
+                    <div class="uni-modal-stat-box">
+                        <span class="stat-box-label">Ariza to'lovi</span>
+                        <span id="uniModalAppFee" class="stat-box-val">150,000 KRW</span>
+                    </div>
+                </div>
+
+                <div class="uni-modal-subblock">
+                    <h4>🌐 Til Talablari</h4>
+                    <div id="uniModalLangDetails" class="uni-modal-lang-box">
+                        <p><strong>Korean Track:</strong> TOPIK Level 3+ recommended (yoki Ajou Korean Language Test)</p>
+                        <p><strong>English Track:</strong> IELTS 5.5+ | TOEFL iBT 71+ | TEPS 600+</p>
+                    </div>
+                </div>
+
+                <div class="uni-modal-subblock">
+                    <h4>🛡️ Viza &amp; Bank Shartlari</h4>
+                    <div class="uni-modal-visa-badge" id="uniModalVisaStatus">Yengillashtirilgan (1%)</div>
+                    <p id="uniModalVisaDetails" class="uni-modal-desc"></p>
+                    
+                    <div id="uniModalBankReqs" class="uni-modal-checklist">
+                        <div class="checklist-item check-no">❌ Ota-ona daromad manbai ma'lumotnomasi: <strong>Talab etilmaydi</strong></div>
+                        <div class="checklist-item check-no">❌ 1-Oylik KDB bank ko'chirmasi: <strong>Talab etilmaydi</strong></div>
+                        <div class="checklist-item check-yes">ℹ️ Qabuldan so'ng 1 kunlik KDB bank ko'chirmasi: <strong>$16,000 USD</strong></div>
+                    </div>
+                </div>
+
+                <div class="uni-modal-subblock">
+                    <h4>📝 Universitet haqida</h4>
+                    <p id="uniModalDesc" class="uni-modal-desc"></p>
+                </div>
+            </div>
+
+            <!-- TAB 2: MUTAXASSISLIKLAR -->
+            <div id="uniModalTabMajors" class="uni-modal-tab-pane">
+                <div id="uniModalTracksContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- TAB 3: IMTIYOZLAR -->
+            <div id="uniModalTabGrants" class="uni-modal-tab-pane">
+                <div id="uniModalGrantsContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer CTA -->
+        <div class="uni-modal-footer">
+            <a href="https://forms.gle/" target="_blank" rel="noopener noreferrer" class="uni-modal-primary-btn">
+                <span>Ariza topshirish</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+        </div>
+    </div>
+</div>
 
 <script>
     // ── Navbar scroll effect ──────────────────────────────────────────
@@ -3536,10 +4003,12 @@
             name: "Ajou University",
             koreanName: "아주대학교",
             location: "SUWON",
+            address: "📍 World cup-ro 206, Yeongtong-gu, Suwon-si, Gyeonggi-do, South Korea",
             img: "https://www.ajou.ac.kr/app/board/attach/image/thumb_88961_1627950670000.do",
             qsRank: "THE 401-500",
             founded: "1973",
             programs: "120+",
+            appFee: "150,000 KRW",
             badge1: "Outstanding 2026",
             badge2: "Korea #8 Comprehensive",
             badge1Class: "badge-gold",
@@ -3547,10 +4016,24 @@
             statusTag: "🥇 2026 Outstanding Certified",
             is1Percent: true,
             tuition: "4,134,000 - 5,366,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
+            language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+ | TEPS 600+",
             visaStatus: "Yengillashtirilgan (1%)",
+            visaDetails: "2026-yil Koreya Ta'lim vazirligi tomonidan 8-yil davomida uzluksiz IEQAS akkreditatsiyasidan o'tgan 'Outstanding Certified University' unvoni berilgan. 1% yengillashtirilgan viza tartibi (ota-ona daromadi va 31 kunlik KDB so'ralmaydi).",
+            kdb1DayAfterAdmission: "$16,000 USD",
             description: "Ajou Universiteti THE World University Rankings 2026 reytingida dunyoda TOP 400 (401-500th) va Koreyada 8-o'rindagi nufuzli universitet. TOPIK 3-6 hamda IELTS 5.5-8.0 ballariga 30%-100% grantlar ajratiladi.",
-            majors: ["Software & Computer Engineering", "International Business (English)", "Cyber Security", "Mechanical Engineering", "Digital Media"]
+            englishTrackMajors: ["Business Administration", "International Business", "IT Business"],
+            koreanTrackMajors: ["Business Administration", "International Business", "English Language and Literature"],
+            scholarships: [
+                { cert: "IELTS 5.5", percent: "30%" },
+                { cert: "IELTS 6.5", percent: "50%" },
+                { cert: "IELTS 7.0", percent: "70%" },
+                { cert: "IELTS 8.0", percent: "100%" },
+                { cert: "TOPIK 3", percent: "30%" },
+                { cert: "TOPIK 4", percent: "50%" },
+                { cert: "TOPIK 5", percent: "70%" },
+                { cert: "TOPIK 6", percent: "100%" }
+            ],
+            otherGrantsNote: "Til sertifikati yuqori talabalar 4 Yilgacha grant yutib olishi mumkin"
         },
         {
             name: "Anyang University",
@@ -4354,11 +4837,35 @@
         renderTopUniCards();
     }
 
+    function switchUniModalTab(tabName) {
+        const btns = document.querySelectorAll('.uni-modal-tab-btn');
+        const panes = document.querySelectorAll('.uni-modal-tab-pane');
+        btns.forEach(b => b.classList.remove('active'));
+        panes.forEach(p => p.classList.remove('active'));
+
+        if (tabName === 'info') {
+            if (btns[0]) btns[0].classList.add('active');
+            const pane = document.getElementById('uniModalTabInfo');
+            if (pane) pane.classList.add('active');
+        } else if (tabName === 'majors') {
+            if (btns[1]) btns[1].classList.add('active');
+            const pane = document.getElementById('uniModalTabMajors');
+            if (pane) pane.classList.add('active');
+        } else if (tabName === 'grants') {
+            if (btns[2]) btns[2].classList.add('active');
+            const pane = document.getElementById('uniModalTabGrants');
+            if (pane) pane.classList.add('active');
+        }
+    }
+
     function openUniModal(uniName) {
         if (!uniName) return;
         const key = uniName.toUpperCase().trim();
         const details = TOP_UNIS_DATA.find(u => u.name.toUpperCase().trim() === key || u.name.toLowerCase() === uniName.toLowerCase())
                         || generateDynamicUniDetails(uniName);
+
+        const addrEl = document.getElementById('uniModalAddress');
+        if (addrEl) addrEl.textContent = details.address || '📍 World cup-ro 206, Yeongtong-gu, Suwon-si, Gyeonggi-do, South Korea';
 
         document.getElementById('uniModalTitle').textContent = details.name;
         document.getElementById('uniModalKorean').textContent = details.koreanName || '';
@@ -4367,8 +4874,10 @@
         document.getElementById('uniModalQs').textContent = details.qsRank || 'Akkreditatsiyalangan';
         document.getElementById('uniModalFounded').textContent = details.founded || 'Koreya';
         document.getElementById('uniModalTuition').textContent = details.tuition || '$3,000 - $4,500 / semestr';
-        document.getElementById('uniModalLang').textContent = details.language || 'TOPIK 3 / IELTS 5.5';
-        document.getElementById('uniModalType').textContent = details.badge2 || details.type || 'Universitet';
+        
+        const appFeeEl = document.getElementById('uniModalAppFee');
+        if (appFeeEl) appFeeEl.textContent = details.appFee || '150,000 KRW';
+
         document.getElementById('uniModalVisaStatus').textContent = details.visaStatus || 'Standard';
         document.getElementById('uniModalVisaDetails').textContent = details.visaDetails || (details.is1Percent ? "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI." : "Standart viza tekshiruvi tartibi.");
         document.getElementById('uniModalDesc').textContent = details.description || '';
@@ -4394,12 +4903,59 @@
             `;
         }
 
-        // Render Majors
-        const majorsContainer = document.getElementById('uniModalMajors');
-        if (majorsContainer) {
-            majorsContainer.innerHTML = (details.majors || ["Biznes", "IT & Dasturlash", "Koreys Tili", "Muhandislik"])
-                .map(m => `<span class="uni-modal-major-badge" style="border-color:${brandColor}44; color:${brandColor};">${m}</span>`).join('');
+        // Render Tracks in Tab 2 (MUTAXASSISLIKLAR)
+        const tracksContainer = document.getElementById('uniModalTracksContainer');
+        if (tracksContainer) {
+            const engTrack = details.englishTrackMajors || ["Business Administration", "International Business", "IT Business"];
+            const korTrack = details.koreanTrackMajors || ["Business Administration", "International Business", "English Language and Literature"];
+
+            tracksContainer.innerHTML = `
+                <div class="track-block">
+                    <div class="track-title english-track">🌐 ENGLISH TRACK:</div>
+                    <ul class="track-list">
+                        ${engTrack.map(m => `<li>${m}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="track-block">
+                    <div class="track-title korean-track">🈴 KOREAN TRACK:</div>
+                    <ul class="track-list">
+                        ${korTrack.map(m => `<li>${m}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
         }
+
+        // Render Grants in Tab 3 (IMTIYOZLAR)
+        const grantsContainer = document.getElementById('uniModalGrantsContainer');
+        if (grantsContainer) {
+            const grantsList = details.scholarships || [
+                { cert: "IELTS 5.5", percent: "30%" },
+                { cert: "IELTS 6.5", percent: "50%" },
+                { cert: "IELTS 7.0", percent: "70%" },
+                { cert: "IELTS 8.0", percent: "100%" },
+                { cert: "TOPIK 3", percent: "30%" },
+                { cert: "TOPIK 4", percent: "50%" },
+                { cert: "TOPIK 5", percent: "70%" },
+                { cert: "TOPIK 6", percent: "100%" }
+            ];
+
+            grantsContainer.innerHTML = `
+                <div class="grants-grid">
+                    ${grantsList.map(g => `
+                        <div class="grant-card">
+                            <span class="grant-cert">${g.cert}</span>
+                            <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="grants-other-box">
+                    <h5>Boshqa imtiyozlar:</h5>
+                    <p>${details.otherGrantsNote || "Til sertifikati yuqori talabalar 4 Yilgacha grant yutib olishi mumkin"}</p>
+                </div>
+            `;
+        }
+
+        switchUniModalTab('info');
 
         const modalOverlay = document.getElementById('uniDetailsModal');
         if (modalOverlay) {
