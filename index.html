@@ -1980,6 +1980,36 @@
             font-weight: 600;
             width: 100%;
         }
+
+        /* ─── YANA BUTTON (TOP UNIS PAGINATION) ─────────────────────────── */
+        .top-unis-load-more-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+            width: 100%;
+        }
+        .btn-load-more-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 30px;
+            background: #ffffff;
+            border: 1.5px solid var(--navy-blue);
+            color: var(--navy-blue);
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 128, 0.08);
+            transition: all 0.25s var(--ease);
+        }
+        .btn-load-more-top:hover {
+            background: var(--navy-blue);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 128, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -2406,8 +2436,7 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="doc-card doc-parent-card">
-                        <div class="doc-num" aria-hidden="true">5</div>
+<div class="doc-num" aria-hidden="true">5</div>
                         <div class="doc-info">
                             <h4>Bank balansidan ko'chirma</h4>
                             <p>QR-code ga ega Ota-Ona nomidagi 1 kunlik bank balansidan ko'chirma.</p>
@@ -2453,215 +2482,22 @@
 
         <!-- TOP UNIVERSITIES CAROUSEL -->
         <div class="top-unis-wrapper">
-            
-            <div class="top-unis-grid">
-                <!-- Card 1: Yonsei -->
-                <div class="top-uni-card">
-                    <div class="top-uni-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80" alt="Yonsei University Campus" loading="lazy" onerror="this.onerror=null;this.src='korea-hero.png';">
-                        <div class="top-uni-location">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            SEOUL
-                        </div>
-                        <div class="top-uni-logo">
-                            <svg viewBox="0 0 24 24" fill="#000080"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                    </div>
-                    <div class="top-uni-content">
-                        <div class="top-uni-title">Yonsei University</div>
-                        <div class="top-uni-subtitle">연세대학교</div>
-                        
-                        <div class="top-uni-stats">
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">79</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                    QS Rank
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">1885</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                                    Founded
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">150+</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                    Programs
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="top-uni-badges">
-                            <span class="top-uni-badge badge-blue">Top 100 in the World</span>
-                            <span class="top-uni-badge">Private University</span>
-                        </div>
-                        
-                        <div class="top-uni-action">
-                            <a href="javascript:void(0)" onclick="openUniModal('Yonsei University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
-                        </div>
-                    </div>
-                </div>
+            <div id="topUnisGrid" class="top-unis-grid">
+                <!-- Dynamically populated by JS renderTopUniCards() -->
+            </div>
 
-                <!-- Card 2: Korea University -->
-                <div class="top-uni-card">
-                    <div class="top-uni-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80" alt="Korea University Campus" loading="lazy" onerror="this.onerror=null;this.src='korea-hero.png';">
-                        <div class="top-uni-location">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            SEOUL
-                        </div>
-                        <div class="top-uni-logo">
-                            <svg viewBox="0 0 24 24" fill="#b91c1c"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                    </div>
-                    <div class="top-uni-content">
-                        <div class="top-uni-title">Korea University</div>
-                        <div class="top-uni-subtitle">고려대학교</div>
-                        
-                        <div class="top-uni-stats">
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">74</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                    QS Rank
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">1905</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                                    Founded
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">130+</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                    Programs
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="top-uni-badges">
-                            <span class="top-uni-badge badge-blue">Top 100 in the World</span>
-                            <span class="top-uni-badge">Private University</span>
-                        </div>
-                        
-                        <div class="top-uni-action">
-                            <a href="javascript:void(0)" onclick="openUniModal('Korea University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
-                        </div>
-                    </div>
-                </div>
+            <div id="topCardsNoResults" class="top-cards-no-results" style="display:none;">
+                🔍 Kiritilgan so'rov bo'yicha kartochka topilmadi. Boshqa universitet nomini izlab ko'ring.
+            </div>
 
-                <!-- Card 3: Seoul National University -->
-                <div class="top-uni-card">
-                    <div class="top-uni-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80" alt="Seoul National University Campus" loading="lazy" onerror="this.onerror=null;this.src='korea-hero.png';">
-                        <div class="top-uni-location">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            SEOUL
-                        </div>
-                        <div class="top-uni-logo">
-                            <svg viewBox="0 0 24 24" fill="#0369a1"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                    </div>
-                    <div class="top-uni-content">
-                        <div class="top-uni-title">Seoul National University</div>
-                        <div class="top-uni-subtitle">서울대학교</div>
-                        
-                        <div class="top-uni-stats">
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">41</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                    QS Rank
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">1946</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                                    Founded
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">200+</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                    Programs
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="top-uni-badges">
-                            <span class="top-uni-badge badge-green">Top 50 in the World</span>
-                            <span class="top-uni-badge">National University</span>
-                        </div>
-                        
-                        <div class="top-uni-action">
-                            <a href="javascript:void(0)" onclick="openUniModal('Seoul National University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 4: Ajou University -->
-                <div class="top-uni-card">
-                    <div class="top-uni-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80" alt="Ajou University Campus" loading="lazy" onerror="this.onerror=null;this.src='korea-hero.png';">
-                        <div class="top-uni-location">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            SUWON
-                        </div>
-                        <div class="top-uni-logo">
-                            <svg viewBox="0 0 24 24" fill="#eab308"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                    </div>
-                    <div class="top-uni-content">
-                        <div class="top-uni-title">Ajou University</div>
-                        <div class="top-uni-subtitle">아주대학교</div>
-                        
-                        <div class="top-uni-stats">
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">551-560</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                    QS Rank
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">1973</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                                    Founded
-                                </span>
-                            </div>
-                            <div class="top-uni-stat">
-                                <span class="top-uni-stat-val">120+</span>
-                                <span class="top-uni-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                    Programs
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="top-uni-badges">
-                            <span class="top-uni-badge badge-gold">Top University</span>
-                            <span class="top-uni-badge">Private University</span>
-                        </div>
-                        
-                        <div class="top-uni-action">
-                            <a href="javascript:void(0)" onclick="openUniModal('Ajou University')" class="top-uni-link">Batafsil ma'lumot &rarr;</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="topCardsNoResults" class="top-cards-no-results" style="display:none;">
-                    🔍 Kiritilgan so'rov bo'yicha kartochka topilmadi. Boshqa universitet nomini izlab ko'ring.
-                </div>
+            <!-- YANA BUTTON (PAGINATION) -->
+            <div class="top-unis-load-more-wrap">
+                <button type="button" id="topUnisLoadMoreBtn" class="btn-load-more-top" onclick="loadMoreTopUnis()">
+                    <span>Yana ko'rsatish</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -3645,10 +3481,835 @@
         }
     };
 
+    // ── TOP UNIVERSITIES 36 DATASET (Sorted A-Z) ─────────────────────
+    const TOP_UNIS_DATA = [
+        {
+            name: "Ajou University",
+            koreanName: "아주대학교",
+            location: "SUWON",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 700",
+            founded: "1973",
+            programs: "120+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
+            brandColor: "#002b66",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,200,000 - 4,500,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Ajou Universiteti Koreyaning yetakchi tadqiqot va muhandislik universitetlaridan biri bo'lib, Suvon shahrida joylashgan. IT va Tibbiyot sohalari juda kuchli.",
+            majors: ["Software Engineering", "Business Administration", "Mechanical Engineering", "Medicine", "Media Studies"]
+        },
+        {
+            name: "Anyang University",
+            koreanName: "안양대학교",
+            location: "ANYANG",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Akkreditatsiyaga ega",
+            founded: "1948",
+            programs: "80+",
+            badge1: "Licensed Uni",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#1a365d",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,800,000 - 3,800,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.0+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Anyang Universiteti Seul aglomeratsiyasida joylashgan zamonaviy ta'lim muassasasi bo'lib, amaliy bilimlar va raqamli texnologiyalarga urg'u beradi.",
+            majors: ["Computer Science", "Global Business", "Digital Design", "Smart City Engineering"]
+        },
+        {
+            name: "Busan University of Foreign Studies",
+            koreanName: "부산외국어대학교",
+            location: "BUSAN",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Akkreditatsiya",
+            founded: "1981",
+            programs: "90+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Foreign Languages",
+            badge1Class: "badge-green",
+            brandColor: "#004080",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "2,600,000 - 3,600,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Busan Chet Tillari Universiteti (BUFS) xalqaro savdo va tillarni o'rganish bo'yicha Janubiy Koreyadagi eng mashhur universitetlardan biridir.",
+            majors: ["International Trade", "Korean Language", "Global Communication", "AI Software"]
+        },
+        {
+            name: "Chonnam National University",
+            koreanName: "전남대학교",
+            location: "GWANGJU",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 700",
+            founded: "1952",
+            programs: "160+",
+            badge1: "Top National",
+            badge2: "National University",
+            badge1Class: "badge-blue",
+            brandColor: "#003366",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,100,000 - 3,200,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Gvanju shahridagi eng yirik davlat universiteti. Arzon ta'lim narxlari va yuqori stipendiya dasturlari bilan ajralib turadi.",
+            majors: ["Electrical Engineering", "Agriculture", "Business Administration", "Biotechnology"]
+        },
+        {
+            name: "Chung-Ang University",
+            koreanName: "중앙대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 500",
+            founded: "1918",
+            programs: "150+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "TOP 500 World",
+            badge1Class: "badge-gold",
+            brandColor: "#004080",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,800,000 - 5,100,000 KRW / semestr",
+            language: "TOPIK 4+ yoki IELTS 6.0+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Seul markazida joylashgan CAU universiteti San'at, Media, Biznes va Muhandislik yo'nalishlarida Osiyoning yetakchi universitetidir.",
+            majors: ["Media & Communication", "Film & Theatre", "Business Administration", "Computer Science"]
+        },
+        {
+            name: "Chungbuk National University",
+            koreanName: "충북대학교",
+            location: "CHEONGJU",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 950",
+            founded: "1951",
+            programs: "140+",
+            badge1: "Licensed Uni",
+            badge2: "National University",
+            badge1Class: "badge-blue",
+            brandColor: "#003399",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,000,000 - 3,100,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Chongju shahridagi milliy universitet bo'lib, biotexnologiya va yarimo'tkazgichlar muhandisligi bo'yicha kuchli ilmiy markazga ega.",
+            majors: ["Semiconductor Engineering", "Veterinary Medicine", "Business", "Pharmacy"]
+        },
+        {
+            name: "Chungnam National University",
+            koreanName: "충남대학교",
+            location: "DAEJEON",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 850",
+            founded: "1952",
+            programs: "150+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "National University",
+            badge1Class: "badge-green",
+            brandColor: "#0f2b5c",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "2,200,000 - 3,300,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Daejeon ilmiy poytaxtida joylashgan yetakchi davlat universiteti. Daedeok R&D ilmiy parki bilan bevosita integratsiyalashgan.",
+            majors: ["Mechanical Engineering", "Computer Science", "Public Administration", "Chemistry"]
+        },
+        {
+            name: "Dong-A University",
+            koreanName: "동아대학교",
+            location: "BUSAN",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 1000",
+            founded: "1946",
+            programs: "110+",
+            badge1: "Busan Leader",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#002d62",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,900,000 - 4,000,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Busanning eng nufuzli xususiy universitetlaridan biri. Port va logistika, biznes va sport yo'nalishlarida kuchli.",
+            majors: ["International Logistics", "Business", "Sports Science", "Architecture"]
+        },
+        {
+            name: "Ewha Womans University",
+            koreanName: "이화여자대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 500",
+            founded: "1886",
+            programs: "140+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
+            brandColor: "#00462a",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,700,000 - 4,900,000 KRW / semestr",
+            language: "TOPIK 4+ yoki IELTS 6.0+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Dunyodagi eng yirik va nufuzli ayollar universiteti. Xalqaro aloqalar, biznes va gumanitar fanlarda Osiyo peshqadami.",
+            majors: ["International Studies", "Korean Studies", "Business Administration", "Cyber Security"]
+        },
+        {
+            name: "Hallym University",
+            koreanName: "한림대학교",
+            location: "CHUNCHEON",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 1000",
+            founded: "1982",
+            programs: "95+",
+            badge1: "Medical Leader",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#1c3d5a",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "3,000,000 - 4,200,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Tibbiyot va biologiya sohasida nufuzli tadqiqotlar o'tkazadigan shahar universiteti.",
+            majors: ["Biomedical Science", "Media & Software", "Global Business"]
+        },
+        {
+            name: "Hansung University",
+            koreanName: "한성대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Akkreditatsiya",
+            founded: "1972",
+            programs: "85+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Seoul Campus",
+            badge1Class: "badge-green",
+            brandColor: "#0a2540",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,200,000 - 4,200,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Seul markazida joylashgan zamonaviy universitet. Dizayn, K-Beauty, IT va Biznes fakultetlari xalqaro talabalar orasida ommabop.",
+            majors: ["Beauty & Fashion Design", "IT Convergence", "Global Business", "Smart Management"]
+        },
+        {
+            name: "Hanyang University",
+            koreanName: "한양대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 200",
+            founded: "1939",
+            programs: "180+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "TOP 200 World",
+            badge1Class: "badge-gold",
+            brandColor: "#0e2b5c",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "4,200,000 - 5,600,000 KRW / semestr",
+            language: "TOPIK 4+ yoki IELTS 6.0+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Koreyaning 'Muhandislik poytaxti' deb tan olingan TOP universitet. Samsung va Hyundai kompaniyalari bilan hamkorlik qiladi.",
+            majors: ["Computer Science & Engineering", "Mechanical Engineering", "Business School", "Data Science"]
+        },
+        {
+            name: "Hoseo University",
+            koreanName: "호서대학교",
+            location: "ASAN",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Licensed Uni",
+            founded: "1978",
+            programs: "90+",
+            badge1: "Venture Leader",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#003b73",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,900,000 - 3,900,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Venchur biznesi va innovatsiyalar bo'yicha ixtisoslashgan universitet. Talabalar startaplarini qo'llab-quvvatlaydi.",
+            majors: ["Venture Business", "Game Engineering", "Automotive Design", "Biotechnology"]
+        },
+        {
+            name: "Inha Technical College",
+            koreanName: "인하공업전문대학",
+            location: "INCHEON",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Kollej",
+            founded: "1958",
+            programs: "40+",
+            badge1: "1% Lik Kollej",
+            badge2: "Technical College",
+            badge1Class: "badge-green",
+            brandColor: "#003366",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "2,500,000 - 3,200,000 KRW / semestr",
+            language: "TOPIK 2+ yoki IELTS 5.0+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Aviatsiya va amaliy texnik ta'lim bo'yicha Koreyadagi eng mashhur kollej. Korean Air bilan yaqin aloqada.",
+            majors: ["Aviation Cabin Service", "Aircraft Maintenance", "Mechatronics", "Computer Information"]
+        },
+        {
+            name: "Inha University",
+            koreanName: "인하대학교",
+            location: "INCHEON",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 700",
+            founded: "1954",
+            programs: "130+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
+            brandColor: "#003865",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,400,000 - 4,600,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Incheon shahrida joylashgan nufuzli universitet. Muhandislik, Logistika va IT sohalarida xalqaro e'tirofga ega.",
+            majors: ["Logistics & Supply Chain", "Global Business", "Computer Engineering", "Aerospace Engineering"]
+        },
+        {
+            name: "Jeonbuk National University",
+            koreanName: "전북대학교",
+            location: "JEONJU",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 700",
+            founded: "1947",
+            programs: "160+",
+            badge1: "Top National",
+            badge2: "National University",
+            badge1Class: "badge-blue",
+            brandColor: "#002b49",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,000,000 - 3,100,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Jeonju shahrida joylashgan yetakchi davlat universiteti. Keng kampus va yuqori stipendiya dasturlariga ega.",
+            majors: ["Agricultural Life Science", "Smart Grid Engineering", "International Trade", "Korean Literature"]
+        },
+        {
+            name: "Joongbu University",
+            koreanName: "중부대학교",
+            location: "GOYANG",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Akkreditatsiya",
+            founded: "1983",
+            programs: "75+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Private University",
+            badge1Class: "badge-green",
+            brandColor: "#1e3a8a",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "2,800,000 - 3,700,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Seul yaqinidagi Goyang shahrida zamonaviy kampusga ega 1% akkreditatsiyali universitet.",
+            majors: ["Global Business", "Software Engineering", "K-Pop & Performing Arts", "Hotel Management"]
+        },
+        {
+            name: "KAIST",
+            koreanName: "한국과학기술원",
+            location: "DAEJEON",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 100 (#53)",
+            founded: "1971",
+            programs: "100+",
+            badge1: "TOP 100 World",
+            badge2: "National Institute",
+            badge1Class: "badge-gold",
+            brandColor: "#004184",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "Full Scholarship / 3,400,000 KRW",
+            language: "IELTS 6.5+ yoki TOEFL 83+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Janubiy Koreyaning #1 Texnologik Universiteti va dunyodagi eng nufuzli ilmiy-tadqiqot instituti. Barcha darslar ingliz tilida.",
+            majors: ["Artificial Intelligence", "Electrical Engineering", "Robotics", "Bio & Brain Engineering", "Physics"]
+        },
+        {
+            name: "Kangwon National University",
+            koreanName: "강원대학교",
+            location: "CHUNCHEON",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Top National",
+            founded: "1947",
+            programs: "150+",
+            badge1: "Top National",
+            badge2: "National University",
+            badge1Class: "badge-blue",
+            brandColor: "#002147",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,000,000 - 3,000,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Tabiat quynida joylashgan yirik milliy universitet. Arzon yotoqxona va arzon kontrakt narxlari taqdim etiladi.",
+            majors: ["Forestry", "Biotechnology", "Computer Science", "Business Administration"]
+        },
+        {
+            name: "Keimyung University",
+            koreanName: "계명대학교",
+            location: "DAEGU",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Akkreditatsiya",
+            founded: "1954",
+            programs: "120+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Private University",
+            badge1Class: "badge-green",
+            brandColor: "#0f2e5a",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "2,900,000 - 3,900,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Daegu shahrida joylashgan va Koreyadagi eng chiroyli arxitekturaga ega bo'lgan 1% akkreditatsiyali universitet.",
+            majors: ["International Business", "Korean Language", "Fashion Design", "Medicine"]
+        },
+        {
+            name: "Konkuk University",
+            koreanName: "건국대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 800",
+            founded: "1931",
+            programs: "140+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
+            brandColor: "#003466",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,800,000 - 4,800,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Seul markazida ko'l bo'yida joylashgan mashhur universitet. Biznes, Real Estate va IT sohalarida yetakchi.",
+            majors: ["Real Estate Science", "Business", "Biological Sciences", "Industrial Design"]
+        },
+        {
+            name: "Korea Aerospace University",
+            koreanName: "한국항공대학교",
+            location: "GOYANG",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Akkreditatsiya",
+            founded: "1952",
+            programs: "50+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Aviation Leader",
+            badge1Class: "badge-green",
+            brandColor: "#0b2545",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,500,000 - 4,700,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Janubiy Koreyadagi yagona aviatsiya va kosmonavtika bo'yicha ixtisoslashgan 1% akkreditatsiyali universitet.",
+            majors: ["Flight Operation", "Avionics Engineering", "Air Logistics", "Software"]
+        },
+        {
+            name: "Korea University",
+            koreanName: "고려대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 100 (#74)",
+            founded: "1905",
+            programs: "130+",
+            badge1: "TOP 100 World",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
+            brandColor: "#8b0000",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "4,200,000 - 5,600,000 KRW / semestr",
+            language: "TOPIK 4+ yoki IELTS 6.0+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Koreyaning SKY elita uchligiga kiruvchi eng qadimiy va shonli xususiy universiteti. Biznes va Huquq sohasida dunyo reytingida yuradi.",
+            majors: ["Business School", "Computer Science", "Cyber Defense", "International Studies", "Law"]
+        },
+        {
+            name: "Kyung Hee University",
+            koreanName: "경희대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 350",
+            founded: "1949",
+            programs: "160+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "TOP 350 World",
+            badge1Class: "badge-gold",
+            brandColor: "#700000",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,700,000 - 4,900,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Gotiya uslubidagi afsonaviy kampus va xalqaro turizm hamda sharqona tibbiyot bo'yicha Koreya yetakchisi.",
+            majors: ["Hospitality & Tourism", "Korean Medicine", "Management", "International Studies"]
+        },
+        {
+            name: "Kyungpook National University",
+            koreanName: "경북대학교",
+            location: "DAEGU",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 500",
+            founded: "1946",
+            programs: "170+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "National University",
+            badge1Class: "badge-green",
+            brandColor: "#b91c1c",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "2,200,000 - 3,300,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Daegu shahrida joylashgan eng yirik milliy universitet. Elektronika va IT muhandisligi bo'yicha kuchli IT bazaga ega.",
+            majors: ["Electronics Engineering", "Computer Science", "Business Administration", "Economics"]
+        },
+        {
+            name: "Kyungsung University",
+            koreanName: "경성대학교",
+            location: "BUSAN",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Akkreditatsiya",
+            founded: "1955",
+            programs: "90+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Busan Campus",
+            badge1Class: "badge-green",
+            brandColor: "#002d62",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "2,800,000 - 3,700,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Busan shahrining markazida joylashgan zamonaviy 1% akkreditatsiyali universitet. Media, Film va Biznes fakultetlari mashhur.",
+            majors: ["Digital Media", "Film & Performing Arts", "Global Business", "Hotel Management"]
+        },
+        {
+            name: "Namseoul University",
+            koreanName: "남서울대학교",
+            location: "CHEONAN",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Licensed Uni",
+            founded: "1994",
+            programs: "70+",
+            badge1: "Practical Training",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#1a365d",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,800,000 - 3,800,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.0+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Cheonan shahrida amaliy ta'lim beradigan universitet. VR/AR texnologiyalari va xalqaro almashinuv dasturlariga ega.",
+            majors: ["VR/AR Software", "Global Business", "Nursing", "Architecture"]
+        },
+        {
+            name: "Sejong University",
+            koreanName: "세종대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 400",
+            founded: "1940",
+            programs: "110+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "TOP 400 World",
+            badge1Class: "badge-gold",
+            brandColor: "#800000",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,600,000 - 4,700,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Seul markazida joylashgan mashhur universitet. Mehmonxona va Turizm boshqaruvi hamda Kompyuter Muhandisligi Osiyoda TOP o'rinlarda.",
+            majors: ["Hospitality & Tourism", "Computer Science", "Animation & Anime", "Business"]
+        },
+        {
+            name: "Sogang University",
+            koreanName: "서강대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 500",
+            founded: "1960",
+            programs: "100+",
+            badge1: "Top Business/IT",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
+            brandColor: "#990000",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "4,000,000 - 5,200,000 KRW / semestr",
+            language: "TOPIK 4+ yoki IELTS 6.0+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Seulning Sinchon hududida joylashgan juda nufuzli ilmiy universitet. Biznes va Iqtisodiyot sohasida kuchli bitiruvchilar tarmog'iga ega.",
+            majors: ["Business Administration", "Economics", "Computer Science", "Mass Communication"]
+        },
+        {
+            name: "Sungkyunkwan University (SKKU)",
+            koreanName: "성균관대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 150 (#145)",
+            founded: "1398",
+            programs: "170+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "TOP 150 World",
+            badge1Class: "badge-gold",
+            brandColor: "#004028",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "4,300,000 - 5,800,000 KRW / semestr",
+            language: "TOPIK 4+ yoki IELTS 6.0+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "1398-yilda tashkil etilgan Koreyaning eng qadimiy universiteti. Samsung korporatsiyasi tomonidan qo'llab-quvvatlanadigan texnologik va biznes yetakchisi.",
+            majors: ["Software Engineering", "Global Business", "Semiconductor Systems", "Medicine", "AI"]
+        },
+        {
+            name: "Sungshin Women`s University",
+            koreanName: "성신여자대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "1% Akkreditatsiya",
+            founded: "1936",
+            programs: "85+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Private University",
+            badge1Class: "badge-green",
+            brandColor: "#4a154b",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "3,300,000 - 4,400,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Seulda joylashgan yetakchi ayollar universiteti. Makiyaj, Dizayn, K-Beauty va Biznes yo'nalishlarida mashhur.",
+            majors: ["Make-up Design", "Global Business", "Computer Engineering", "Convergence Security"]
+        },
+        {
+            name: "Tongmyong University",
+            koreanName: "동명대학교",
+            location: "BUSAN",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Licensed Uni",
+            founded: "1996",
+            programs: "65+",
+            badge1: "IT & Logistics",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#0f2e5a",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,700,000 - 3,600,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.0+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Busandagi IT, Logistika va Superkompyuterlar markaziga ega bo'lgan innovatsion xususiy universitet.",
+            majors: ["AI Supercomputing", "Port Logistics", "Game Engineering", "Media Arts"]
+        },
+        {
+            name: "University of Seoul",
+            koreanName: "서울시립대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 850",
+            founded: "1918",
+            programs: "120+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "Public University",
+            badge1Class: "badge-gold",
+            brandColor: "#003366",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "1,500,000 - 2,400,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Seul Shahar Hukumati tomonidan moliyalashtiriladigan munitsipal universitet. Koreyadagi eng arzon va nufuzli ta'lim shaffofligini beradi.",
+            majors: ["Urban Planning", "Civil Engineering", "Taxation Science", "Computer Science"]
+        },
+        {
+            name: "Woosong University",
+            koreanName: "우송대학교",
+            location: "DAEJEON",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "SolBridge Int'l",
+            founded: "1954",
+            programs: "80+",
+            badge1: "SolBridge Business",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#002147",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "3,200,000 - 4,500,000 KRW / semestr",
+            language: "IELTS 5.5+ yoki TOPIK 3+",
+            visaStatus: "Standart Tekshiruv",
+            description: "SolBridge Xalqaro Biznes Maktabi va Culinary Arts maktabi bilan 100% ingliz tilida ta'lim beruvchi mashhur universitet.",
+            majors: ["SolBridge International Business", "Culinary Arts (SIHAN)", "AI & Media", "Railroad Management"]
+        },
+        {
+            name: "Yonsei University",
+            koreanName: "연세대학교",
+            location: "SEOUL",
+            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            qsRank: "TOP 100 (#79)",
+            founded: "1885",
+            programs: "150+",
+            badge1: "TOP 100 World",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
+            brandColor: "#000080",
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
+            tuition: "4,500,000 - 6,000,000 KRW / semestr",
+            language: "TOPIK 4+ yoki IELTS 6.5+",
+            visaStatus: "Yengillashtirilgan (1%)",
+            description: "Koreyadagi mashhur SKY uchligining yetakchi a'zosi. Underwood International College orqali to'liq ingliz tili yo'nalishlarini taklif etadi.",
+            majors: ["Underwood International College (UIC)", "Business Administration", "Medicine", "Biotechnology", "Economics"]
+        },
+        {
+            name: "Youngsan University",
+            koreanName: "영산대학교",
+            location: "BUSAN",
+            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Licensed Uni",
+            founded: "1992",
+            programs: "60+",
+            badge1: "Culinary & Hotel",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#1a365d",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,600,000 - 3,500,000 KRW / semestr",
+            language: "TOPIK 3+ yoki IELTS 5.0+",
+            visaStatus: "Standart Tekshiruv",
+            description: "Busan va Yangsan shaharlarida kampuslarga ega. Oshpazlik san'ati (Culinary), Mehmonxona va Turizm sohasi bo'yicha kuchli.",
+            majors: ["Hotel & Tourism", "Culinary Arts", "Beauty Art", "Cyber Security"]
+        }
+    ];
+
+    function getStepSize() {
+        return window.innerWidth <= 768 ? 4 : 8;
+    }
+
+    let topUnisVisibleCount = getStepSize();
+
+    function renderTopUniCards() {
+        const grid = document.getElementById('topUnisGrid');
+        if (!grid) return;
+
+        const loadMoreBtn = document.getElementById('topUnisLoadMoreBtn');
+        const noResultsMsg = document.getElementById('topCardsNoResults');
+        const query = (document.getElementById('topCardsSearchInput')?.value || '').trim().toLowerCase();
+
+        // Sort A to Z
+        const sorted = [...TOP_UNIS_DATA].sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+
+        // Filter cards
+        const filtered = sorted.filter(uni => {
+            if (!query) return true;
+            return uni.name.toLowerCase().includes(query) ||
+                   uni.koreanName.toLowerCase().includes(query) ||
+                   uni.location.toLowerCase().includes(query) ||
+                   uni.badge1.toLowerCase().includes(query) ||
+                   uni.badge2.toLowerCase().includes(query);
+        });
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '';
+            if (noResultsMsg) noResultsMsg.style.display = 'block';
+            if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+            return;
+        }
+
+        if (noResultsMsg) noResultsMsg.style.display = 'none';
+
+        const visibleItems = filtered.slice(0, topUnisVisibleCount);
+
+        grid.innerHTML = visibleItems.map(uni => `
+            <div class="top-uni-card" data-name="${uni.name}">
+                <div class="top-uni-img-wrap">
+                    <img src="${uni.img}" alt="${uni.name} Campus" loading="lazy" onerror="this.onerror=null;this.src='korea-hero.png';">
+                    <div class="top-uni-location">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        ${uni.location}
+                    </div>
+                    <div class="top-uni-logo" style="border-color: ${uni.brandColor};">
+                        <svg viewBox="0 0 24 24" fill="${uni.brandColor}"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                </div>
+                <div class="top-uni-content">
+                    <div class="top-uni-title">${uni.name}</div>
+                    <div class="top-uni-subtitle">${uni.koreanName}</div>
+                    
+                    <div class="top-uni-stats">
+                        <div class="top-uni-stat">
+                            <span class="top-uni-stat-val">${uni.qsRank}</span>
+                            <span class="top-uni-stat-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                QS Rank
+                            </span>
+                        </div>
+                        <div class="top-uni-stat">
+                            <span class="top-uni-stat-val">${uni.founded}</span>
+                            <span class="top-uni-stat-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                                Founded
+                            </span>
+                        </div>
+                        <div class="top-uni-stat">
+                            <span class="top-uni-stat-val">${uni.programs}</span>
+                            <span class="top-uni-stat-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                Programs
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="top-uni-badges">
+                        <span class="top-uni-badge ${uni.badge1Class || 'badge-blue'}">${uni.badge1}</span>
+                        <span class="top-uni-badge">${uni.badge2}</span>
+                    </div>
+                    
+                    <div class="top-uni-action">
+                        <a href="javascript:void(0)" onclick="openUniModal('${uni.name.replace(/'/g, "\\'")}')" class="top-uni-link" style="color: ${uni.brandColor};">Batafsil ma'lumot &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = visibleItems.length < filtered.length ? 'inline-flex' : 'none';
+        }
+    }
+
+    function loadMoreTopUnis() {
+        topUnisVisibleCount += getStepSize();
+        renderTopUniCards();
+    }
+
     function openUniModal(uniName) {
         if (!uniName) return;
         const key = uniName.toUpperCase().trim();
-        const details = TOP_UNI_DETAILS[key] || generateDynamicUniDetails(uniName);
+        const details = TOP_UNIS_DATA.find(u => u.name.toUpperCase().trim() === key || u.name.toLowerCase() === uniName.toLowerCase())
+                        || generateDynamicUniDetails(uniName);
 
         document.getElementById('uniModalTitle').textContent = details.name;
         document.getElementById('uniModalKorean').textContent = details.koreanName || '';
@@ -3656,19 +4317,30 @@
         document.getElementById('uniModalLocText').textContent = details.location || 'KOREA';
         document.getElementById('uniModalQs').textContent = details.qsRank || 'Akkreditatsiyalangan';
         document.getElementById('uniModalFounded').textContent = details.founded || 'Koreya';
-        document.getElementById('uniModalTuition').textContent = details.tuition || '$3,000 - $4,500';
+        document.getElementById('uniModalTuition').textContent = details.tuition || '$3,000 - $4,500 / semestr';
         document.getElementById('uniModalLang').textContent = details.language || 'TOPIK 3 / IELTS 5.5';
-        document.getElementById('uniModalType').textContent = details.type || 'Universitet';
+        document.getElementById('uniModalType').textContent = details.badge2 || details.type || 'Universitet';
         document.getElementById('uniModalVisaStatus').textContent = details.visaStatus || 'Standard';
-        document.getElementById('uniModalVisaDetails').textContent = details.visaDetails || '';
+        document.getElementById('uniModalVisaDetails').textContent = details.visaDetails || (details.is1Percent ? "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI." : "Standart viza tekshiruvi tartibi.");
         document.getElementById('uniModalDesc').textContent = details.description || '';
+
+        // Dynamic University Brand Color for Modal
+        const brandColor = details.brandColor || '#000080';
+        const modalHeader = document.querySelector('.uni-modal-header');
+        const modalPrimaryBtn = document.querySelector('.uni-modal-primary-btn');
+        if (modalHeader) {
+            modalHeader.style.background = `linear-gradient(135deg, ${brandColor} 0%, #000435 100%)`;
+        }
+        if (modalPrimaryBtn) {
+            modalPrimaryBtn.style.background = `linear-gradient(135deg, ${brandColor} 0%, #000435 100%)`;
+        }
 
         // Render Tags
         const tagsContainer = document.getElementById('uniModalTags');
         if (tagsContainer) {
             tagsContainer.innerHTML = `
                 <span class="uni-modal-tag ${details.is1Percent ? 'tag-1percent' : ''}">${details.statusTag}</span>
-                <span class="uni-modal-tag">${details.type}</span>
+                <span class="uni-modal-tag">${details.badge2 || 'Universitet'}</span>
                 <span class="uni-modal-tag">📍 ${details.location}</span>
             `;
         }
@@ -3677,7 +4349,7 @@
         const majorsContainer = document.getElementById('uniModalMajors');
         if (majorsContainer) {
             majorsContainer.innerHTML = (details.majors || ["Biznes", "IT & Dasturlash", "Koreys Tili", "Muhandislik"])
-                .map(m => `<span class="uni-modal-major-badge">${m}</span>`).join('');
+                .map(m => `<span class="uni-modal-major-badge" style="border-color:${brandColor}44; color:${brandColor};">${m}</span>`).join('');
         }
 
         const modalOverlay = document.getElementById('uniDetailsModal');
@@ -3717,6 +4389,7 @@
             is1Percent: is1Percent,
             visaStatus: visaStatus,
             visaDetails: visaDetails,
+            brandColor: "#000080",
             description: `${name} — Koreya Respublikasi Ta'lim vazirligi hamda Adliya vazirligi rasmiy akkreditatsiyasiga ega ta'lim muassasasi. Xalqaro talabalar uchun bakalavr, magistratura va til kurslari dasturlarini taklif etadi.`,
             majors: ["Biznes va Boshqaruv", "IT & Axborot Texnologiyalari", "Koreys tili va madaniyati", "Xalqaro munosabatlar", "Muhandislik"]
         };
@@ -3742,29 +4415,12 @@
 
     // ── Top University Cards Search Bar Filter ────────────────────────
     function filterTopUniCards(val) {
-        const query = (val || '').trim().toLowerCase();
+        const query = (val || '').trim();
         const clearBtn = document.getElementById('topCardsSearchClear');
         if (clearBtn) clearBtn.style.display = query ? 'flex' : 'none';
 
-        const cards = document.querySelectorAll('.top-unis-grid .top-uni-card');
-        const noResultsMsg = document.getElementById('topCardsNoResults');
-        let visibleCount = 0;
-
-        cards.forEach(card => {
-            const title = (card.querySelector('.top-uni-title')?.textContent || '').toLowerCase();
-            const subtitle = (card.querySelector('.top-uni-subtitle')?.textContent || '').toLowerCase();
-            const location = (card.querySelector('.top-uni-location')?.textContent || '').toLowerCase();
-            const badges = (card.querySelector('.top-uni-badges')?.textContent || '').toLowerCase();
-
-            const isMatch = !query || title.includes(query) || subtitle.includes(query) || location.includes(query) || badges.includes(query);
-            
-            card.style.display = isMatch ? 'flex' : 'none';
-            if (isMatch) visibleCount++;
-        });
-
-        if (noResultsMsg) {
-            noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
-        }
+        topUnisVisibleCount = getStepSize();
+        renderTopUniCards();
     }
 
     function clearTopCardsSearch() {
@@ -3772,6 +4428,11 @@
         if (input) input.value = '';
         filterTopUniCards('');
     }
+
+    // Initialize Top Uni Cards on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+        renderTopUniCards();
+    });
 </script>
 </body>
 </html>
