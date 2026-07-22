@@ -1658,6 +1658,7 @@ async function checkVisaStatus(student) {
         const pdfUrl = data.pdfUrl || '';
         const previousRejectionReason = data.previousRejectionReason || '';
         const invitingCompany = data.invitingCompany || '';
+        const entryDate = data.entryDate || '';
         const oldStatus = student.status || 'Unknown';
 
         const normStatus = (s) => {
@@ -1673,7 +1674,7 @@ async function checkVisaStatus(student) {
         // NOTIFICATION LOGIC (Only notify on real status change; Pending and Unknown are equivalent)
         if (normStatus(oldStatus) !== normStatus(newStatus)) {
             showNotification(student.fullName, oldStatus, newStatus);
-            await sendTelegramNotification(student, oldStatus, newStatus, applicationDate, rejectionReason, pdfUrl, previousRejectionReason, invitingCompany);
+            await sendTelegramNotification(student, oldStatus, newStatus, applicationDate, rejectionReason, pdfUrl, previousRejectionReason, invitingCompany, entryDate);
         }
 
         // Update local object
@@ -1683,8 +1684,18 @@ async function checkVisaStatus(student) {
         student.pdfUrl = pdfUrl;
         student.rejectReason = rejectionReason;
         
-        // Construct the apiResponse field for UI reason parsing
-        student.apiResponse = { status: newStatus, detail: data.detail || '' };
+        // Construct the apiResponse field for UI reason parsing — keep full data so bot can read entryDate
+        student.apiResponse = {
+            status: newStatus,
+            detail: data.detail || '',
+            entryDate: entryDate || '',
+            invitingCompany: invitingCompany || '',
+            visaExpiry: data.visaExpiry || '',
+            visaKind: data.visaKind || '',
+            statusOfResidence: data.statusOfResidence || '',
+            entryPurpose: data.entryPurpose || '',
+            previousRejectionReason: previousRejectionReason || ''
+        };
 
         // Explicitly persist updated student status into DB so page refresh keeps updated status
         try {
@@ -1699,7 +1710,7 @@ async function checkVisaStatus(student) {
                     applicationDate: applicationDate,
                     rejectReason: rejectionReason,
                     pdfUrl: pdfUrl,
-                    apiResponse: student.apiResponse,
+                    apiResponse: JSON.stringify(student.apiResponse),
                     lastChecked: student.lastChecked,
                     visaType: student.visaType || 'Embassy',
                     applicationNo: student.applicationNo || ''
@@ -1726,7 +1737,7 @@ async function checkVisaStatus(student) {
     }
 }
 
-async function sendTelegramNotification(student, oldStatus, newStatus, applicationDate, rejectionReason = '', pdfUrl = '', previousRejectionReason = '', invitingCompany = '') {
+async function sendTelegramNotification(student, oldStatus, newStatus, applicationDate, rejectionReason = '', pdfUrl = '', previousRejectionReason = '', invitingCompany = '', entryDate = '') {
     try {
         const payload = {
             fullName: student.fullName || '',
@@ -1742,6 +1753,7 @@ async function sendTelegramNotification(student, oldStatus, newStatus, applicati
             pdfUrl,
             previousRejectionReason,
             invitingCompany,
+            entryDate: entryDate || '',
             changedAt: new Date().toISOString()
         };
 
