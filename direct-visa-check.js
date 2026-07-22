@@ -127,8 +127,11 @@ function parseResult1_1(html) {
         if (entryDateMatch) {
             entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
         } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
-            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|WRT_DTM|UPDT_DTM|PROC_DTM)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
+            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|PRINT_YMD|CERT_YMD)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
             if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+        }
+        if (entryDate === (appl_dates[i] || '')) {
+            entryDate = '';
         }
 
         results.push({
@@ -211,8 +214,11 @@ function parseResult3_2(html) {
         if (entryDateMatch) {
             entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
         } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
-            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|WRT_DTM|UPDT_DTM|PROC_DTM)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
+            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|PRINT_YMD|CERT_YMD)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
             if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+        }
+        if (entryDate === (appl_dates[i] || '')) {
+            entryDate = '';
         }
 
         results.push({

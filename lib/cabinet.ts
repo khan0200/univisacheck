@@ -145,7 +145,8 @@ export function formatStudentCard(student: Student, isUpdate: boolean = false, o
     
     const partner = parsedApi.invitingCompany || '';
     const isApproved = ['approved', 'visa used', 'issued'].some(s => (student.status || '').toLowerCase().includes(s));
-    const visaGivenDate = parsedApi.entryDate || (isApproved ? (student.applicationDate || 'N/A') : '');
+    const rawGivenDate = parsedApi.entryDate || '';
+    const visaGivenDate = (rawGivenDate && rawGivenDate !== student.applicationDate) ? rawGivenDate : '';
     const statusOfResidence = parsedApi.statusOfResidence || parsedApi.visaKind || student.visaType || 'Embassy';
     const prevReason = parsedApi.previousRejectionReason || '';
 
