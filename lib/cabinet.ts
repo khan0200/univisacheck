@@ -149,26 +149,21 @@ export function formatStudentCard(student: Student, isUpdate: boolean = false, o
     const prevReason = parsedApi.previousRejectionReason || '';
 
     const labels = {
-        title:     lang === 'en' ? '🔍 *Visa Status Check*'          : '🔍 *Visa statusini tekshirish*',
-        visaLbl:   lang === 'en' ? '✈️ *Visa type:*'                  : '✈️ *Visa turi:*',
-        partner:   lang === 'en' ? '🏢 *Partner:*'                    : '🏢 *Taklif:*',
-        appNo:     lang === 'en' ? '📄 *Application No:*'             : '📄 *Ariza raqami:*',
-        submitted: lang === 'en' ? '📅 *Submitted date:*'             : '📅 *Topshirilgan sana:*',
-        status:    lang === 'en' ? '🔄 *Status:*'                     : '🔄 *Holati:*',
+        title:     lang === 'en' ? '🔍 Visa Status Check'             : '🔍 Visa statusini tekshirish',
+        visaLbl:   lang === 'en' ? '✈️ Visa type:'                     : '✈️ Visa turi:',
+        partner:   lang === 'en' ? '🏢 Partner:'                       : '🏢 Taklif:',
+        appNo:     lang === 'en' ? '📄 Application No:'                : '📄 Ariza raqami:',
+        submitted: lang === 'en' ? '📅 Submitted date:'                : '📅 Topshirilgan sana:',
+        status:    lang === 'en' ? '🔄 Status:'                        : '🔄 Holati:',
         givenDate: lang === 'en' ? '🗓️ Visa given date:'             : '🗓️ Visa berilgan sana:',
         checked:   lang === 'en' ? '🕒 Checked:'                         : '🕒 Tekshirildi:',
-        result:    lang === 'en' ? '*Result:*'                        : '*Natija:*',
-        reason:    lang === 'en' ? '⚠️ *Reason:*'                     : '⚠️ *Sababi:*',
+        result:    lang === 'en' ? 'Result:'                           : 'Natija:',
+        reason:    lang === 'en' ? '⚠️ Reason:'                        : '⚠️ Sababi:',
         prevResult:lang === 'en' ? 'Previous application result:\n🚫 Reason:' : 'Bundan oldingi ariza natijasi:\n🚫 Sababi:',
         na:        lang === 'en' ? 'N/A'                              : 'Yo\'q',
-        changed:   lang === 'en' ? 'Visa status changed'              : 'Visa holati o\'zgardi',
-        old:       lang === 'en' ? 'Old:'                             : 'Eski:',
-        new:       lang === 'en' ? 'New:'                             : 'Yangi:'
     };
 
-    const header = isUpdate && oldStatus && !isSameStatus(oldStatus, student.status) 
-        ? `${labels.changed}\n\n${labels.old} ${oldStatus.toUpperCase()}\n${labels.new} ${emoji} ${student.status.toUpperCase()}`
-        : `${labels.title}`;
+    const header = labels.title;
 
     const lines = [
         header,
@@ -181,7 +176,7 @@ export function formatStudentCard(student: Student, isUpdate: boolean = false, o
         ...(student.visaType === 'E-Visa' && partner ? [`${labels.partner} ${partner}`] : []),
         ...(student.visaType === 'E-Visa' && student.applicationNo ? [`${labels.appNo} ${student.applicationNo}`] : []),
         `${labels.submitted} ${student.applicationDate || labels.na}`,
-        `${labels.status} ${emoji} *${student.status.toUpperCase()}*`,
+        `${labels.status} ${emoji} ${student.status.toUpperCase()}`,
         ...(visaGivenDate ? [`${labels.givenDate} ${visaGivenDate}`] : []),
         ``,
         `${labels.checked} ${checkedStr}`,

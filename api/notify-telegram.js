@@ -216,16 +216,16 @@ module.exports = async (req, res) => {
         const desc = getStatusDescription(newStatus, lang);
         const checkedStr = formatLastChecked(nowIso, lang);
         const labels = {
-            title:     lang === 'en' ? '🔍 *Visa Status Check*'          : '🔍 *Visa statusini tekshirish*',
-            visaLbl:   lang === 'en' ? '✈️ *Visa type:*'                  : '✈️ *Visa turi:*',
-            partner:   lang === 'en' ? '🏢 *Partner:*'                    : '🏢 *Taklif:*',
-            appNo:     lang === 'en' ? '📄 *Application No:*'             : '📄 *Ariza raqami:*',
-            submitted: lang === 'en' ? '📅 *Submitted date:*'             : '📅 *Topshirilgan sana:*',
-            status:    lang === 'en' ? '🔄 *Status:*'                     : '🔄 *Holati:*',
+            title:     lang === 'en' ? '🔍 Visa Status Check'             : '🔍 Visa statusini tekshirish',
+            visaLbl:   lang === 'en' ? '✈️ Visa type:'                     : '✈️ Visa turi:',
+            partner:   lang === 'en' ? '🏢 Partner:'                       : '🏢 Taklif:',
+            appNo:     lang === 'en' ? '📄 Application No:'                : '📄 Ariza raqami:',
+            submitted: lang === 'en' ? '📅 Submitted date:'                : '📅 Topshirilgan sana:',
+            status:    lang === 'en' ? '🔄 Status:'                        : '🔄 Holati:',
             givenDate: lang === 'en' ? '🗓️ Visa given date:'             : '🗓️ Visa berilgan sana:',
             checked:   lang === 'en' ? '🕒 Checked:'                         : '🕒 Tekshirildi:',
-            result:    lang === 'en' ? '*Result:*'                        : '*Natija:*',
-            reason:    lang === 'en' ? '⚠️ *Reason:*'                     : '⚠️ *Sababi:*',
+            result:    lang === 'en' ? 'Result:'                           : 'Natija:',
+            reason:    lang === 'en' ? '⚠️ Reason:'                        : '⚠️ Sababi:',
             prevResult:lang === 'en' ? 'Previous application result:\n🚫 Reason:' : 'Bundan oldingi ariza natijasi:\n🚫 Sababi:',
         };
         return [
@@ -237,7 +237,7 @@ module.exports = async (req, res) => {
             ...(visaType === 'E-Visa' && invitingCompany ? [`${labels.partner} ${invitingCompany}`] : []),
             ...(visaType === 'E-Visa' && applicationNo   ? [`${labels.appNo} ${applicationNo}`]     : []),
             `${labels.submitted} ${applicationDate || 'N/A'}`,
-            `${labels.status} ${emoji} *${newStatus.toUpperCase()}*`,
+            `${labels.status} ${emoji} ${newStatus.toUpperCase()}`,
             ...(body.entryDate ? [`${labels.givenDate} ${escapeTelegramText(body.entryDate)}`] : []),
             '',
             `${labels.checked} ${checkedStr}`, '',
