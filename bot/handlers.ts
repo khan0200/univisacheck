@@ -611,15 +611,16 @@ export async function handleCallbackQuery(ctx: Context) {
             const checkedStr = formatLastChecked(new Date().toISOString());
             const resultText = 
                 `${t('notif_title', lang)}\n\n` +
-                `${fullName.toUpperCase()}\n` +
-                `${passport.toUpperCase()}\n` +
-                `${birthday}\n\n` +
+                `👤 ${fullName.toUpperCase()}\n` +
+                `🛂 ${passport.toUpperCase()}\n` +
+                `🎂 ${birthday}\n\n` +
                 `${t('notif_visa_type', lang)} ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
                 (visaType === 'E-Visa' ? `${t('notif_partner', lang)} ${checkRes.invitingCompany || t('notif_na', lang)}\n` : '') +
                 (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
                 `${t('notif_submitted', lang)} ${checkRes.latestDate || t('notif_na', lang)}\n` +
                 `${t('notif_status', lang)} ${emoji} *${checkRes.latestStatus.toUpperCase()}*\n` +
-                `${t('notif_checked', lang)} ${checkedStr}\n\n` +
+                (checkRes.entryDate ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:'} ${checkRes.entryDate}\n` : '') +
+                `\n${t('notif_checked', lang)} ${checkedStr}\n\n` +
                 `${t('notif_result', lang)} ${desc}\n` +
                 (checkRes.rejectionReason ? `\n${t('notif_reason', lang)} ${checkRes.rejectionReason}\n` : '') +
                 (checkRes.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${checkRes.previousRejectionReason}\n` : '') +
@@ -852,15 +853,16 @@ async function displayCheckResult(
     const checkedStr = formatLastChecked(new Date().toISOString());
     const resultText = 
         `${t('notif_title', lang)}\n\n` +
-        `${fullName.toUpperCase()}\n` +
-        `${passport.toUpperCase()}\n` +
-        `${birthday}\n\n` +
+        `👤 ${fullName.toUpperCase()}\n` +
+        `🛂 ${passport.toUpperCase()}\n` +
+        `🎂 ${birthday}\n\n` +
         `${t('notif_visa_type', lang)} ${result.statusOfResidence || result.visaKind || visaType}\n` +
         (visaType === 'E-Visa' ? `${t('notif_partner', lang)} ${result.invitingCompany || t('notif_na', lang)}\n` : '') +
         (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
         `${t('notif_submitted', lang)} ${result.latestDate || t('notif_na', lang)}\n` +
         `${t('notif_status', lang)} ${emoji} *${result.latestStatus.toUpperCase()}*\n` +
-        `${t('notif_checked', lang)} ${checkedStr}\n\n` +
+        (result.entryDate ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:'} ${result.entryDate}\n` : '') +
+        `\n${t('notif_checked', lang)} ${checkedStr}\n\n` +
         `${t('notif_result', lang)} ${desc}\n` +
         (result.rejectionReason ? `\n${t('notif_reason', lang)} ${result.rejectionReason}\n` : '') +
         (result.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${result.previousRejectionReason}\n` : '') +

@@ -132,7 +132,7 @@ const translations: Record<string, Record<Lang, string>> = {
     notif_app_no:           { uz: '📄 *Ariza raqami:*', en: '📄 *Application No:*' },
     notif_submitted:        { uz: '📅 *Topshirilgan sana:*', en: '📅 *Submitted date:*' },
     notif_status:           { uz: '🔄 *Holati:*', en: '🔄 *Status:*' },
-    notif_checked:          { uz: 'Tekshirildi:', en: 'Checked:' },
+    notif_checked:          { uz: '🕒 Tekshirildi:', en: '🕒 Checked:' },
     notif_result:           { uz: '*Natija:*', en: '*Result:*' },
     notif_reason:           { uz: '⚠️ *Sababi:*', en: '⚠️ *Reason:*' },
     notif_prev_reason:      { uz: 'Bundan oldingi ariza natijasi:\n🚫 Sababi:', en: 'Previous application result:\n🚫 Reason:' },

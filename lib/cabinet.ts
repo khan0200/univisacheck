@@ -22,6 +22,7 @@ export interface Student {
     visaType: string;
     applicationNo: string;
     telegram_user_id: number | null;
+    apiResponse?: string;
 }
 
 export function normalizeStatus(status: string): string {
@@ -135,29 +136,62 @@ export function formatLastChecked(dateString: string, lang: 'uz' | 'en' = 'uz'):
 export function formatStudentCard(student: Student, isUpdate: boolean = false, oldStatus: string = '', lang: 'uz' | 'en' = 'uz'): string {
     const emoji = getStatusEmoji(student.status);
     const checkedStr = formatLastChecked(student.lastChecked, lang);
+    const desc = getStatusDescription(student.status, lang);
     
-    if (isUpdate && oldStatus && !isSameStatus(oldStatus, student.status)) {
-        return [
-            lang === 'en' ? 'Visa status changed' : 'Visa holati o\'zgardi',
-            ``,
-            `${student.studentId || '--'}`,
-            `${student.fullName}`,
-            ``,
-            `${lang === 'en' ? 'Old' : 'Eski'}: ${oldStatus.toUpperCase()}`,
-            `${lang === 'en' ? 'New' : 'Yangi'}: ${emoji} ${student.status.toUpperCase()}`,
-            `${lang === 'en' ? 'Checked' : 'Tekshirildi'}: ${checkedStr}`
-        ].join('\n');
-    }
+    let parsedApi: any = {};
+    try {
+        parsedApi = JSON.parse(student.apiResponse || '{}');
+    } catch(e) {}
     
-    return [
-        lang === 'en' ? 'Visa status' : 'Visa statusi',
+    const partner = parsedApi.invitingCompany || '';
+    const visaGivenDate = parsedApi.entryDate || '';
+    const statusOfResidence = parsedApi.statusOfResidence || parsedApi.visaKind || student.visaType || 'Embassy';
+    const prevReason = parsedApi.previousRejectionReason || '';
+
+    const labels = {
+        title:     lang === 'en' ? '🔍 *Visa Status Check*'          : '🔍 *Visa statusini tekshirish*',
+        visaLbl:   lang === 'en' ? '✈️ *Visa type:*'                  : '✈️ *Visa turi:*',
+        partner:   lang === 'en' ? '🏢 *Partner:*'                    : '🏢 *Taklif:*',
+        appNo:     lang === 'en' ? '📄 *Application No:*'             : '📄 *Ariza raqami:*',
+        submitted: lang === 'en' ? '📅 *Submitted date:*'             : '📅 *Topshirilgan sana:*',
+        status:    lang === 'en' ? '🔄 *Status:*'                     : '🔄 *Holati:*',
+        givenDate: lang === 'en' ? '🗓️ Visa given date:'             : '🗓️ Visa berilgan sana:',
+        checked:   lang === 'en' ? '🕒 Checked:'                         : '🕒 Tekshirildi:',
+        result:    lang === 'en' ? '*Result:*'                        : '*Natija:*',
+        reason:    lang === 'en' ? '⚠️ *Reason:*'                     : '⚠️ *Sababi:*',
+        prevResult:lang === 'en' ? 'Previous application result:\n🚫 Reason:' : 'Bundan oldingi ariza natijasi:\n🚫 Sababi:',
+        na:        lang === 'en' ? 'N/A'                              : 'Yo\'q',
+        changed:   lang === 'en' ? 'Visa status changed'              : 'Visa holati o\'zgardi',
+        old:       lang === 'en' ? 'Old:'                             : 'Eski:',
+        new:       lang === 'en' ? 'New:'                             : 'Yangi:'
+    };
+
+    const header = isUpdate && oldStatus && !isSameStatus(oldStatus, student.status) 
+        ? `${labels.changed}\n\n${labels.old} ${oldStatus.toUpperCase()}\n${labels.new} ${emoji} ${student.status.toUpperCase()}`
+        : `${labels.title}`;
+
+    const lines = [
+        header,
         ``,
-        `${student.studentId || '--'}`,
-        `${student.fullName}`,
+        `👤 ${student.fullName.toUpperCase()}`,
+        `🛂 ${student.passport.toUpperCase()}`,
+        `🎂 ${student.birthday}`,
         ``,
-        `${emoji} ${student.status.toUpperCase()}`,
-        `${lang === 'en' ? 'Checked' : 'Tekshirildi'}: ${checkedStr}`
-    ].join('\n');
+        `${labels.visaLbl} ${student.visaType === 'E-Visa' ? 'E-Visa' : statusOfResidence}`,
+        ...(student.visaType === 'E-Visa' && partner ? [`${labels.partner} ${partner}`] : []),
+        ...(student.visaType === 'E-Visa' && student.applicationNo ? [`${labels.appNo} ${student.applicationNo}`] : []),
+        `${labels.submitted} ${student.applicationDate || labels.na}`,
+        `${labels.status} ${emoji} *${student.status.toUpperCase()}*`,
+        ...(visaGivenDate ? [`${labels.givenDate} ${visaGivenDate}`] : []),
+        ``,
+        `${labels.checked} ${checkedStr}`,
+        ``,
+        `${labels.result} ${desc}`,
+        ...(student.rejectReason ? [`${labels.reason} ${student.rejectReason}`] : []),
+        ...(prevReason ? [`\n${labels.prevResult} ${prevReason}`] : []),
+    ];
+
+    return lines.join('\n');
 }
 
 /**
@@ -188,7 +222,8 @@ export async function getStudentsByTelegramId(telegramId: number): Promise<Stude
             userId: Number(row.userId),
             visaType: row.visaType || row.visa_type || 'Embassy',
             applicationNo: row.applicationNo || row.application_no || '',
-            telegram_user_id: row.telegram_user_id ? Number(row.telegram_user_id) : null
+            telegram_user_id: row.telegram_user_id ? Number(row.telegram_user_id) : null,
+            apiResponse: row.apiResponse || row.api_response || '{}'
         }));
     } catch (err: any) {
         console.error('[Cabinet Service] Error fetching students:', err.message);
@@ -238,7 +273,8 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
             userId: Number(row.uId),
             visaType: row.visaType || row.visa_type || 'Embassy',
             applicationNo: row.applicationNo || row.application_no || '',
-            telegram_user_id: telegramId
+            telegram_user_id: telegramId,
+            apiResponse: row.apiResponse || row.api_response || '{}'
         };
         
         // 2. Query official visa portal
@@ -301,6 +337,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
         student.lastChecked = now;
         student.rejectReason = liveStatus.rejectionReason || '';
         student.pdfUrl = liveStatus.pdfUrl || '';
+        student.apiResponse = JSON.stringify(liveStatus);
         
         // 4. Log notification if status changed
         if (changed) {
