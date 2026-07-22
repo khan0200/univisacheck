@@ -238,7 +238,7 @@ module.exports = async (req, res) => {
             ...(visaType === 'E-Visa' && applicationNo   ? [`${labels.appNo} ${applicationNo}`]     : []),
             `${labels.submitted} ${applicationDate || 'N/A'}`,
             `${labels.status} ${emoji} ${newStatus.toUpperCase()}`,
-            ...(body.entryDate ? [`${labels.givenDate} ${escapeTelegramText(body.entryDate)}`] : []),
+            ...(isApproved ? [`${labels.givenDate} ${escapeTelegramText(body.entryDate || applicationDate || 'N/A')}`] : (body.entryDate ? [`${labels.givenDate} ${escapeTelegramText(body.entryDate)}`] : [])),
             '',
             `${labels.checked} ${checkedStr}`, '',
             `${labels.result} ${desc}`,

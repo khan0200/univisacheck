@@ -123,8 +123,13 @@ function parseResult1_1(html) {
         const statusKor = statusObj.text;
 
         let entryDate = '';
-        const entryDateMatch = statusKor.match(/(\d{4}\.\d{2}\.\d{2}\.?)/);
-        if (entryDateMatch) entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
+        const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/);
+        if (entryDateMatch) {
+            entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
+        } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
+            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|WRT_DTM|UPDT_DTM|PROC_DTM)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
+            if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+        }
 
         results.push({
             applicationDate: appl_dates[i] || '',
@@ -202,8 +207,13 @@ function parseResult3_2(html) {
         const statusKor = statusObj.text;
         
         let entryDate = '';
-        const entryDateMatch = statusKor.match(/(\d{4}\.\d{2}\.\d{2}\.?)/);
-        if (entryDateMatch) entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
+        const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/);
+        if (entryDateMatch) {
+            entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
+        } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
+            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|WRT_DTM|UPDT_DTM|PROC_DTM)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
+            if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+        }
 
         results.push({
             applicationDate: appl_dates[i] || '',

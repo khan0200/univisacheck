@@ -619,7 +619,7 @@ export async function handleCallbackQuery(ctx: Context) {
                 (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
                 `${t('notif_submitted', lang)} ${checkRes.latestDate || t('notif_na', lang)}\n` +
                 `${t('notif_status', lang)} ${emoji} ${checkRes.latestStatus.toUpperCase()}\n` +
-                (checkRes.entryDate ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:'} ${checkRes.entryDate}\n` : '') +
+                ((checkRes.entryDate || isApproved) ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:'} ${checkRes.entryDate || checkRes.latestDate || 'N/A'}\n` : '') +
                 `\n${t('notif_checked', lang)} ${checkedStr}\n\n` +
                 `${t('notif_result', lang)} ${desc}\n` +
                 (checkRes.rejectionReason ? `\n${t('notif_reason', lang)} ${checkRes.rejectionReason}\n` : '') +
@@ -861,7 +861,7 @@ async function displayCheckResult(
         (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
         `${t('notif_submitted', lang)} ${result.latestDate || t('notif_na', lang)}\n` +
         `${t('notif_status', lang)} ${emoji} ${result.latestStatus.toUpperCase()}\n` +
-        (result.entryDate ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:'} ${result.entryDate}\n` : '') +
+        ((result.entryDate || isApproved) ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:'} ${result.entryDate || result.latestDate || 'N/A'}\n` : '') +
         `\n${t('notif_checked', lang)} ${checkedStr}\n\n` +
         `${t('notif_result', lang)} ${desc}\n` +
         (result.rejectionReason ? `\n${t('notif_reason', lang)} ${result.rejectionReason}\n` : '') +

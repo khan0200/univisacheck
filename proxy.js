@@ -656,7 +656,7 @@ const server = http.createServer(async (req, res) => {
                     ...(visaType === 'E-Visa' && applicationNo ? [`📄 Ariza raqami: ${applicationNo}`] : []),
                     `📅 Topshirilgan sana: ${applicationDate || 'N/A'}`,
                     `🔄 Holati: ${emoji} ${newStatus.toUpperCase()}`,
-                    ...(payload.entryDate ? [`🗓️ Visa berilgan sana: ${payload.entryDate}`] : []),
+                    ...(isApproved ? [`🗓️ Visa berilgan sana: ${payload.entryDate || applicationDate || 'N/A'}`] : (payload.entryDate ? [`🗓️ Visa berilgan sana: ${payload.entryDate}`] : [])),
                     ``,
                     `🕒 Tekshirildi: ${checkedStr}`,
                     ``,
