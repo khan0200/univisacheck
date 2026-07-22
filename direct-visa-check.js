@@ -117,18 +117,30 @@ function parseResult1_1(html) {
 
     const purposes = [...html.matchAll(/id="SOJ_QUAL_NM"[^>]*>([^<]+)</g)].map(m => m[1].trim());
 
+    // Extract judgment dates (심사일자 = visa decision date) from JUDG_DTM fields
+    const judgDtmMatches = [...html.matchAll(/id="JUDG_DTM"[^>]*>([\s\S]*?)<\/div>/g)];
+    const judgDates = judgDtmMatches.map(m => {
+        const raw = stripTags(m[1]).trim();
+        return raw.replace(/\./g, '-').replace(/-$/,'');
+    });
+
     const count = Math.max(appl_dates.length, statusCount);
     for (let i = 0; i < count; i++) {
         const statusObj = statuses[i] || { text: '' };
         const statusKor = statusObj.text;
 
         let entryDate = '';
-        const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/);
-        if (entryDateMatch) {
-            entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
-        } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
-            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|PRINT_YMD|CERT_YMD)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
-            if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+        // First priority: JUDG_DTM (심사일자) field
+        if (judgDates[i] && judgDates[i].match(/\d{4}-\d{2}-\d{2}/)) {
+            entryDate = judgDates[i];
+        } else {
+            const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/);
+            if (entryDateMatch) {
+                entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
+            } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
+                const htmlDateMatch = html.match(/id="JUDG_DTM"[\s\S]{0,200}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
+                if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+            }
         }
         if (entryDate === (appl_dates[i] || '')) {
             entryDate = '';
@@ -204,18 +216,30 @@ function parseResult3_2(html) {
 
     const purposes = [...html.matchAll(/id="ENTRY_PURPOSE"[^>]*>([^<]+)</g)].map(m => m[1].trim());
 
+    // Extract judgment dates (심사일자 = visa decision date) from JUDG_YMD/JUDG_DTM fields
+    const judgDtmMatches3 = [...html.matchAll(/id="JUDG_(?:DTM|YMD)"[^>]*>([\s\S]*?)<\/(?:div|td)>/g)];
+    const judgDates3 = judgDtmMatches3.map(m => {
+        const raw = stripTags(m[1]).trim();
+        return raw.replace(/\./g, '-').replace(/-$/,'');
+    });
+
     const count = Math.max(appl_dates.length, statusCount);
     for (let i = 0; i < count; i++) {
         const statusObj = statuses[i] || { text: '' };
         const statusKor = statusObj.text;
         
         let entryDate = '';
-        const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/);
-        if (entryDateMatch) {
-            entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
-        } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
-            const htmlDateMatch = html.match(/(?:ISSUE_YMD|PERMIT_YMD|VAL_START_YMD|PRINT_YMD|CERT_YMD)[\s\S]{0,100}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
-            if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+        // First priority: JUDG_DTM (심사일자) field
+        if (judgDates3[i] && judgDates3[i].match(/\d{4}-\d{2}-\d{2}/)) {
+            entryDate = judgDates3[i];
+        } else {
+            const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/);
+            if (entryDateMatch) {
+                entryDate = entryDateMatch[1].replace(/\.$/,'').replace(/\./g,'-');
+            } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
+                const htmlDateMatch = html.match(/id="JUDG_(?:DTM|YMD)"[\s\S]{0,200}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i);
+                if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g,'-');
+            }
         }
         if (entryDate === (appl_dates[i] || '')) {
             entryDate = '';
