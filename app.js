@@ -208,7 +208,11 @@ function setupEventListeners() {
             // Apply Filter
             currentFilter = clickedTab.getAttribute('data-tab');
             bulkDeleteMode = false;
-            studentsData.forEach(s => s.batchSelected = false);
+            studentsData.forEach(s => {
+                if (!isApplicationStatus(s.status)) {
+                    s.batchSelected = false;
+                }
+            });
             updateCheckSelectedButton();
             updateDeleteSelectedButton();
             renderTable();
