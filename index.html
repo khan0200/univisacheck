@@ -25,7 +25,7 @@
             --red-glow:  rgba(0, 0, 128, 0.25);
             --navy-blue: #000080;
             --dark-navy: #000435;
-            --bg:        #f5f5f7;
+            --bg:        #f7f7f8;
             --bg-card:   #ffffff;
             --border:    rgba(0,0,0,0.08);
             --border-hov:rgba(0,0,0,0.16);
@@ -55,7 +55,7 @@
 
         body {
             font-family: var(--font);
-            background-color: #f5f5f7;
+            background-color: var(--bg);
             position: relative;
             color: var(--text);
             min-height: 100vh;
@@ -306,18 +306,7 @@
             position: absolute;
             inset: 0;
             z-index: 1;
-            background: 
-                radial-gradient(circle at 15% 50%, rgba(0, 0, 128, 0.12), transparent 50%),
-                radial-gradient(circle at 85% 30%, rgba(0, 4, 53, 0.08), transparent 50%);
-            background-color: var(--bg);
-        }
-        .hero-bg::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
-            background-size: 32px 32px;
-            opacity: 0.8;
+            background: transparent;
         }
         .hero-content {
             position: relative;
@@ -603,12 +592,11 @@
             padding: var(--sp-2xl) var(--sp-lg);
         }
 
-        /* Solid white background on all content sections — prevents the
-           body::before vector overlay from bleeding through cards/buttons */
+        /* Unified light gray background across all content sections */
         #hujjatlar,
         #universitetlar,
         #sorovnoma {
-            background: #ffffff;
+            background: transparent;
             position: relative;
             z-index: 1;
         }
@@ -1476,7 +1464,7 @@
         }
         .top-uni-stats {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 4px;
             margin-bottom: 18px;
         }
@@ -2171,24 +2159,34 @@
         }
         .uni-modal-tags {
             display: flex;
-            gap: 4px;
+            gap: 8px;
             flex-wrap: wrap;
             align-items: center;
+            margin-bottom: 10px;
         }
         .uni-modal-tag {
-            background: #f1f5f9;
+            padding: 4px 12px;
+            background: #f8fafc;
             border: 1px solid #e2e8f0;
-            color: #475569;
-            font-size: 10px;
+            border-radius: 100px;
+            font-size: 12px;
             font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 6px;
+            color: #475569;
         }
-        .uni-modal-tag.tag-1percent {
-            background: #fef08a;
-            border-color: #fde047;
-            color: #854d0e;
-            font-weight: 700;
+        .uni-modal-tag.badge-gold {
+            color: #b45309;
+            background: #fef3c7;
+            border-color: #fde68a;
+        }
+        .uni-modal-tag.badge-green {
+            color: #15803d;
+            background: #dcfce7;
+            border-color: #bbf7d0;
+        }
+        .uni-modal-tag.badge-blue {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border-color: #bfdbfe;
         }
         .uni-modal-title {
             font-size: 20px;
@@ -2675,9 +2673,18 @@
         <!-- TAB 1: 1% Universitetlar uchun -->
         <div id="docTabPercent1" class="doc-tab-pane active">
             <!-- Banner Callout -->
-            <div class="uni-banner-callout banner-1percent" style="margin-bottom: 24px; background: #ffffff !important; backdrop-filter: none !important;">
-                <p><strong>🥇 1% Universitetlar uchun yengillashtirilgan tartib</strong></p>
-                <p>Hujjatlar yengillashtirilgan tartibda tekshiriladi, ota ona daromadi va 31 kunlik KDB bank hisoboti kerak emas.</p>
+            <div class="uni-banner-callout banner-1percent" style="margin-bottom: 24px; background: #ffffff !important; backdrop-filter: none !important; border-radius: var(--radius-lg); padding: 20px 24px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+                <p style="font-size: 16px; font-weight: 800; color: #000080; margin-bottom: 12px;">🥇 1% Universitetlar (Outstanding Certified University)</p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; font-size: 13.5px; font-weight: 700; color: #15803d;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>31 kunlik KDB — <strong>Kerak emas</strong></span>
+                    </div>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; font-size: 13.5px; font-weight: 700; color: #15803d;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Rasmiy ota-ona daromadi — <strong>Kerak emas</strong></span>
+                    </div>
+                </div>
             </div>
 
             <!-- TALABA HUJJATLARI -->
@@ -3151,7 +3158,7 @@
 
         <!-- 1. Banner Image TOP -->
         <div class="uni-modal-banner">
-            <img id="uniModalImg" src="" alt="University Campus" onerror="this.onerror=null;this.src='korea-hero.png';">
+            <img id="uniModalImg" src="" alt="University Campus" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&amp;fit=crop&amp;w=800&amp;q=80';">
             <div class="uni-modal-location" style="position: absolute; bottom: 16px; left: 16px; z-index: 10;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                 <span id="uniModalLocText">SUWON</span>
@@ -3195,7 +3202,7 @@
                         <span id="uniModalTuition" class="stat-box-val">4.1 - 5.3 mln KRW</span>
                     </div>
                     <div class="uni-modal-stat-box">
-                        <span class="stat-box-label">Ariza to'lovi</span>
+                        <span class="stat-box-label">Application fee</span>
                         <span id="uniModalAppFee" class="stat-box-val">150,000 KRW</span>
                     </div>
                 </div>
@@ -3919,99 +3926,7 @@
     }
 </script>
 
-<!-- ─── UNIVERSITY DETAILS MODAL ────────────────────────────────────── -->
-<div class="uni-modal-overlay" id="uniDetailsModal" role="dialog" aria-modal="true" aria-labelledby="uniModalTitle" onclick="handleModalOverlayClick(event)">
-    <div class="uni-modal-card">
-        <button type="button" class="uni-modal-close-btn" onclick="closeUniModal()" aria-label="Yopish">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-        <div class="uni-modal-cover">
-            <img id="uniModalImg" src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80" alt="University Campus">
-            <div class="uni-modal-cover-badge" id="uniModalLocation">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <span id="uniModalLocText">SEOUL</span>
-            </div>
-        </div>
-        <div class="uni-modal-body">
-            <div class="uni-modal-header-info">
-                <div>
-                    <h3 class="uni-modal-title" id="uniModalTitle">Yonsei University</h3>
-                    <div class="uni-modal-subtitle" id="uniModalKorean">연세대학교</div>
-                    <div class="uni-modal-tags" id="uniModalTags">
-                        <span class="uni-modal-tag tag-1percent">🥇 1% Akkreditatsiyadan o'tgan</span>
-                        <span class="uni-modal-tag">Private University</span>
-                    </div>
-                </div>
-            </div>
 
-            <div class="uni-modal-grid">
-                <div class="uni-modal-stat-item">
-                    <span class="uni-modal-stat-label">QS Reyting</span>
-                    <span class="uni-modal-stat-val" id="uniModalQs">#79</span>
-                </div>
-                <div class="uni-modal-stat-item">
-                    <span class="uni-modal-stat-label">Tashkil etilgan</span>
-                    <span class="uni-modal-stat-val" id="uniModalFounded">1885</span>
-                </div>
-                <div class="uni-modal-stat-item">
-                    <span class="uni-modal-stat-label">Kontrakt (semestr)</span>
-                    <span class="uni-modal-stat-val" id="uniModalTuition">$3,800 - $5,000</span>
-                </div>
-                <div class="uni-modal-stat-item">
-                    <span class="uni-modal-stat-label">Til talabi</span>
-                    <span class="uni-modal-stat-val" id="uniModalLang">TOPIK 3+ / IELTS 5.5+</span>
-                </div>
-                <div class="uni-modal-stat-item">
-                    <span class="uni-modal-stat-label">Ta'lim turi</span>
-                    <span class="uni-modal-stat-val" id="uniModalType">Bakalavr / Magistr</span>
-                </div>
-                <div class="uni-modal-stat-item">
-                    <span class="uni-modal-stat-label">Viza Rejimi</span>
-                    <span class="uni-modal-stat-val" id="uniModalVisaStatus">Yengillashtirilgan</span>
-                </div>
-            </div>
-
-            <div class="uni-modal-section-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy-blue)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Viza imtiyozlari va Hujjatlar tartibi
-            </div>
-            <p class="uni-modal-text" id="uniModalVisaDetails">
-                1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.
-            </p>
-
-            <div class="uni-modal-section-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy-blue)"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                Universitet haqida
-            </div>
-            <p class="uni-modal-text" id="uniModalDesc">
-                Yonsei University Koreyaning eng nufuzli 'SKY' uchligiga kiradi. Xalqaro talabalar uchun oliy darajadagi ta'lim va zamonaviy kampus infrastrukturasiga ega.
-            </p>
-
-            <div class="uni-modal-section-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--navy-blue)"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                Ommabop Yo'nalishlar
-            </div>
-            <div class="uni-modal-majors" id="uniModalMajors">
-                <span class="uni-modal-major-badge">Biznes va Boshqaruv</span>
-                <span class="uni-modal-major-badge">Kompyuter muhandisligi</span>
-            </div>
-
-            <div class="uni-modal-actions">
-                <a href="#sorovnoma" class="btn-primary" onclick="closeUniModal(); smoothScroll(event,'sorovnoma')" style="flex:1; justify-content:center;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="17" height="17">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    Ushbu universitetga topshirish
-                </a>
-                <button type="button" class="btn-ghost" onclick="closeUniModal()">Yopish</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
     // ── University Details Modal Logic ────────────────────────────────
@@ -4080,14 +3995,14 @@
             statusTag: "🥇 2026 Outstanding Certified (1%)",
             is1Percent: true,
             visaStatus: "Yengillashtirilgan (1%)",
-            visaDetails: "2026-yil Koreya Ta'lim vazirligi tomonidan 8-yil davomida uzluksiz IEQAS akkreditatsiyasidan o'tgan 'Outstanding Certified University' (Alohida saralangan nufuzli akkreditatsiya) unvoni berilgan. 1% yengillashtirilgan viza tartibi amal qiladi (bankshot talab etilmaydi).",
+            visaDetails: "1% yengillashtirilgan viza tartibi amal qiladi. Elchixona arizalarni yengillashtirilgan shartlar asosida ko'rib chiqadi.",
             description: "Ajou Universiteti Suvon shahrida joylashgan bo'lib, THE World University Rankings 2026 reytingida dunyo bo'yicha TOP 400 (401-500th) hamda Koreyada umumiy universitetlar orasida 8-o'ringa ko'tarildi. O'zbekistondagi AUT (Toshkent Ajou) bilan dual-degree hamkorlik qiladi. TOPIK (3-6) hamda IELTS (5.5-8.0) ballariga 30% dan 100% gacha 1-semestr va o'qish davomidagi grantlar taqdim etiladi.",
             majors: ["Software & Computer Engineering", "International Business (English Track)", "Cyber Security", "Mechanical & Automotive Engineering", "Digital Media & AI"]
         }
     };
 
     // ── TOP UNIVERSITIES 36 DATASET (Sorted A-Z) ─────────────────────
-    const TOP_UNIS_DATA = [
+    let TOP_UNIS_DATA = [
         {
             name: "Ajou University",
             koreanName: "아주대학교",
@@ -4107,7 +4022,7 @@
             tuition: "4,134,000 - 5,366,000 KRW / semestr",
             language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+ | TEPS 600+",
             visaStatus: "Yengillashtirilgan (1%)",
-            visaDetails: "2026-yil Koreya Ta'lim vazirligi tomonidan 8-yil davomida uzluksiz IEQAS akkreditatsiyasidan o'tgan 'Outstanding Certified University' unvoni berilgan. 1% yengillashtirilgan viza tartibi (ota-ona daromadi va 31 kunlik KDB so'ralmaydi).",
+            visaDetails: "1% yengillashtirilgan viza tartibi amal qiladi. Elchixona arizalarni yengillashtirilgan shartlar asosida ko'rib chiqadi.",
             kdb1DayAfterAdmission: "$16,000 USD",
             description: "Ajou Universiteti THE World University Rankings 2026 reytingida dunyoda TOP 400 (401-500th) va Koreyada 8-o'rindagi nufuzli universitet. TOPIK 3-6 hamda IELTS 5.5-8.0 ballariga 30%-100% grantlar ajratiladi.",
             englishTrackMajors: ["Business Administration", "International Business", "IT Business"],
@@ -4127,11 +4042,12 @@
         {
             name: "Anyang University",
             koreanName: "안양대학교",
-            location: "ANYANG",
-            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            location: "ANYANG - SEOUL, ANYANG SI",
+            address: "📍 22 Samdeok-ro 37beon-gil, Manan-gu, Anyang-si, Gyeonggi-do, South Korea",
+            img: "https://pcnbwgqmunezqtoljdec.supabase.co/storage/v1/object/public/university-thumbnails/anyang-university-189.png",
             qsRank: "Akkreditatsiyaga ega",
             founded: "1948",
-            programs: "80+",
+            appFee: "100,000 KRW",
             badge1: "Licensed Uni",
             badge2: "Private University",
             badge1Class: "badge-blue",
@@ -4139,39 +4055,62 @@
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
             tuition: "2,800,000 - 3,800,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.0+",
-            visaStatus: "Standart Tekshiruv",
-            description: "Anyang Universiteti Seul aglomeratsiyasida joylashgan zamonaviy ta'lim muassasasi bo'lib, amaliy bilimlar va raqamli texnologiyalarga urg'u beradi.",
-            majors: ["Computer Science", "Global Business", "Digital Design", "Smart City Engineering"]
+            language: "TOPIK 3+ yoki IELTS 5.5+",
+            visaStatus: "Magistr E-Viza",
+            visaDetails: "Magistr E-Viza tartibi amal qiladi. Elchixonaga ota-ona daromadi va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$18,000 USD",
+            description: "Anyang Universiteti 1948-yilda tashkil topgan nufuzli xususiy universitetdir. Seul aglomeratsiyasining Anyang shahrida joylashgan bo'lib, global biznes, raqamli kontentlar va muhandislik sohalarida yuqori sifatli ta'lim beradi.",
+            englishTrackMajors: ["Business Administration"],
+            koreanTrackMajors: ["K-Contents and Business"],
+            scholarships: [
+                { cert: "IELTS 5.5", percent: "50%" },
+                { cert: "TOPIK 3", percent: "50%" }
+            ]
         },
         {
             name: "Busan University of Foreign Studies",
             koreanName: "부산외국어대학교",
             location: "BUSAN",
-            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
-            qsRank: "1% Akkreditatsiya",
+            address: "📍 65 Geumsaem-ro 485beon-gil, Geumjeong-gu, Busan, South Korea",
+            img: "https://uploaded.kcampus.kr/20230215_28972133_3ab9f0739c.jpg",
+            qsRank: "🥇 1% Universitet",
             founded: "1981",
-            programs: "90+",
-            badge1: "1% Akkreditatsiya",
-            badge2: "Foreign Languages",
-            badge1Class: "badge-green",
+            appFee: "80,000 KRW",
+            badge1: "🥇 1% Universitet",
+            badge2: "Private University",
+            badge1Class: "badge-gold",
             brandColor: "#004080",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
-            tuition: "2,600,000 - 3,600,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
+            tuition: "2,800,000 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5+",
             visaStatus: "Yengillashtirilgan (1%)",
-            description: "Busan Chet Tillari Universiteti (BUFS) xalqaro savdo va tillarni o'rganish bo'yicha Janubiy Koreyadagi eng mashhur universitetlardan biridir.",
-            majors: ["International Trade", "Korean Language", "Global Communication", "AI Software"]
+            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "Talab etilmaydi",
+            description: "Busan Chet Tillari Universiteti (BUFS) xalqaro savdo va tillarni o'rganish bo'yicha Janubiy Koreyadagi eng mashhur universitetlardan biridir. Darslar haftada 2 kun (2 days a week lessons) tashkil etiladi. Bu talabalarga ishlash va mustaqil o'qish uchun ajoyib imkoniyat beradi.",
+            englishTrackMajors: ["Business Administration", "Global Business", "Information Technology", "Global Korean Studies", "Global Studies"],
+            koreanTrackMajors: ["Korean Language and Literature"],
+            scholarships: [
+                { cert: "IELTS 5.5", percent: "30%" },
+                { cert: "IELTS 6.0", percent: "40%" },
+                { cert: "IELTS 6.5", percent: "50%" },
+                { cert: "IELTS 7.0", percent: "60%" },
+                { cert: "TOPIK 3", percent: "30%" },
+                { cert: "TOPIK 4", percent: "40%" },
+                { cert: "TOPIK 5", percent: "50%" },
+                { cert: "TOPIK 6", percent: "60%" }
+            ],
+            otherGrantsNote: "TOEFL HOME EDITION - 71+ KERAK. 1-Yil hamma Foundation o'qiydi, 2-Yildan yo'nalish tanlanadi."
         },
         {
             name: "Chonnam National University",
             koreanName: "전남대학교",
             location: "GWANGJU",
-            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
-            qsRank: "TOP 700",
+            address: "📍 77 Yongbong-ro, Buk-gu, Gwangju, 61186, South Korea",
+            img: "https://uploaded.kcampus.kr/20230831_61241760_ed2bf2d7ed.jpg",
+            qsRank: "QS Rank: #851-900",
             founded: "1952",
-            programs: "160+",
+            appFee: "50,000 KRW",
             badge1: "Top National",
             badge2: "National University",
             badge1Class: "badge-blue",
@@ -4179,50 +4118,79 @@
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
             tuition: "2,100,000 - 3,200,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
+            language: "TOPIK 3+ (Gwangju) / TOPIK 2+ (Yeosu) | IELTS 5.5+ | TOEFL 71+",
             visaStatus: "Standart Tekshiruv",
-            description: "Gvanju shahridagi eng yirik davlat universiteti. Arzon ta'lim narxlari va yuqori stipendiya dasturlari bilan ajralib turadi.",
-            majors: ["Electrical Engineering", "Agriculture", "Business Administration", "Biotechnology"]
+            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILADI.",
+            kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
+            description: "Chonnam National University (CNU) Gvanju shahridagi eng nufuzli milliy (davlat) universitet hisoblanadi. Arzon ta'lim narxlari va yuqori stipendiya dasturlari bilan ajralib turadi. Darslar haftada 4 kun (4 days a week lessons) tashkil etiladi.",
+            englishTrackMajors: ["Computer Science", "Business Administration"],
+            koreanTrackMajors: ["Computer Science", "Business Administration"],
+            scholarships: [
+                { cert: "IELTS 5.5+", percent: "50%" },
+                { cert: "TOPIK 3", percent: "30%" },
+                { cert: "TOPIK 4", percent: "70%" },
+                { cert: "TOPIK 5+", percent: "100%" }
+            ],
+            otherGrantsNote: "Arzon davlat universiteti. Milliy universitetlar orasida nufuzli o'ringa ega."
         },
         {
             name: "Chung-Ang University",
             koreanName: "중앙대학교",
             location: "SEOUL",
-            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
-            qsRank: "TOP 500",
-            founded: "1918",
-            programs: "150+",
-            badge1: "1% Akkreditatsiya",
+            address: "📍 84 Heukseok-ro, Dongjak-gu, Seoul, South Korea",
+            img: "https://uploaded.kcampus.kr/20230207_110028_28fed632f6.jpg",
+            qsRank: "QS Rank: #494",
+            founded: "1916",
+            appFee: "150,000 KRW",
+            badge1: "1% Akkreditatsiyadan o'tgan",
             badge2: "TOP 500 World",
             badge1Class: "badge-gold",
             brandColor: "#004080",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
             tuition: "3,800,000 - 5,100,000 KRW / semestr",
-            language: "TOPIK 4+ yoki IELTS 6.0+",
+            language: "TOPIK 4+ | IELTS 5.5+",
             visaStatus: "Yengillashtirilgan (1%)",
-            description: "Seul markazida joylashgan CAU universiteti San'at, Media, Biznes va Muhandislik yo'nalishlarida Osiyoning yetakchi universitetidir.",
-            majors: ["Media & Communication", "Film & Theatre", "Business Administration", "Computer Science"]
+            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$16,000 USD",
+            description: "Seul markazida joylashgan CAU universiteti San'at, Media, Biznes va Muhandislik yo'nalishlarida Osiyoning yetakchi universitetidir. Darslar haftada 4 kun (4 days a week lessons) tashkil etiladi.",
+            englishTrackMajors: ["Business Administration", "Computer Science"],
+            koreanTrackMajors: ["Business Administration", "Computer Science", "Media & Communication", "Film & Theatre"],
+            scholarships: [
+                { cert: "TOPIK 5", percent: "50%" },
+                { cert: "TOPIK 6", percent: "100%" }
+            ],
+            otherGrantsNote: "TOPIK 5 va 6 darajalari uchun maxsus semestr kontrakt chegirmalari mavjud."
         },
         {
             name: "Chungbuk National University",
             koreanName: "충북대학교",
             location: "CHEONGJU",
-            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
-            qsRank: "TOP 950",
+            address: "📍 Cheongju, Chungcheongbuk-do, South Korea",
+            img: "https://uploaded.kcampus.kr/20230714_38397916_25dd5a6ba7.jpg",
+            qsRank: "QS Rank: #1000-1200",
             founded: "1951",
-            programs: "140+",
-            badge1: "Licensed Uni",
-            badge2: "National University",
-            badge1Class: "badge-blue",
+            appFee: "50,000 KRW",
+            badge1: "Magistr E-Viza",
+            badge2: "1% Akkreditatsiya",
+            badge1Class: "badge-green",
             brandColor: "#003399",
-            statusTag: "📜 Akkreditatsiyaga ega",
-            is1Percent: false,
+            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
+            is1Percent: true,
             tuition: "2,000,000 - 3,100,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
-            visaStatus: "Standart Tekshiruv",
-            description: "Chongju shahridagi milliy universitet bo'lib, biotexnologiya va yarimo'tkazgichlar muhandisligi bo'yicha kuchli ilmiy markazga ega.",
-            majors: ["Semiconductor Engineering", "Veterinary Medicine", "Business", "Pharmacy"]
+            language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
+            visaStatus: "Magistr E-Viza",
+            visaDetails: "Magistr E-Viza tartibi amal qiladi. Elchixonaga ota-ona daromadi va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$13,000 USD",
+            description: "Cheongju shahridagi milliy universitet bo'lib, biotexnologiya va yarimo'tkazgichlar muhandisligi bo'yicha kuchli ilmiy markazga ega. Darslar haftada 1 kun (1 day a week lessons) tashkil etiladi.",
+            englishTrackMajors: ["Global Education", "Global Software Convergence"],
+            koreanTrackMajors: ["Global Education", "Global Software Convergence"],
+            scholarships: [
+                { cert: "IELTS 5.5+", percent: "40%" },
+                { cert: "TOPIK 3", percent: "40%" },
+                { cert: "TOPIK 4+", percent: "60%" }
+            ],
+            otherGrantsNote: "CEFR B2, EF SET B2+ va TEPS 600 (New TEPS 326) sertifikatlari ham til talabi sifatida qabul qilinadi."
         },
         {
             name: "Chungnam National University",
@@ -4770,7 +4738,7 @@
             location: "DAEJEON",
             img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
             qsRank: "SolBridge Int'l",
-            founded: "1954",
+            founded: "1995",
             programs: "80+",
             badge1: "SolBridge Business",
             badge2: "Private University",
@@ -4810,7 +4778,7 @@
             location: "BUSAN",
             img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
             qsRank: "Licensed Uni",
-            founded: "1992",
+            founded: "1997",
             programs: "60+",
             badge1: "Culinary & Hotel",
             badge2: "Private University",
@@ -4825,6 +4793,17 @@
             majors: ["Hotel & Tourism", "Culinary Arts", "Beauty Art", "Cyber Security"]
         }
     ];
+
+    // Load custom universities from localStorage if they exist, otherwise initialize them
+    if (!localStorage.getItem('custom_universities_v19')) {
+        localStorage.setItem('custom_universities_v19', JSON.stringify(TOP_UNIS_DATA));
+    } else {
+        try {
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v19'));
+        } catch (e) {
+            console.error('Error loading custom universities:', e);
+        }
+    }
 
     function getStepSize() {
         return window.innerWidth <= 768 ? 4 : 8;
@@ -4864,7 +4843,16 @@
 
         const visibleItems = filtered.slice(0, topUnisVisibleCount);
 
-        grid.innerHTML = visibleItems.map(uni => `
+        grid.innerHTML = visibleItems.map(uni => {
+            const isNational = (uni.badge2 && (uni.badge2.includes('National') || uni.badge2.includes('Public') || uni.badge2.includes('Institute'))) || 
+                               (uni.type && (uni.type.includes('Davlat') || uni.type.includes('Milliy'))) || 
+                               uni.name.toLowerCase().includes('national');
+            const typeLabel = isNational ? 'Milliy' : 'Xususiy';
+            const typeBadgeClass = isNational ? 'badge-green' : 'badge-blue';
+            const accLabel = uni.is1Percent ? '🥇 1% Universitet' : '📜 Akkreditatsiyaga ega';
+            const accBadgeClass = uni.is1Percent ? 'badge-gold' : 'badge-blue';
+
+            return `
             <div class="top-uni-card" data-name="${uni.name}">
                 <div class="top-uni-img-wrap">
                     <img src="${uni.img}" alt="${uni.name} Campus" loading="lazy" onerror="this.onerror=null;this.src='korea-hero.png';">
@@ -4895,26 +4883,15 @@
                                 Founded
                             </span>
                         </div>
-                        <div class="top-uni-stat">
-                            <span class="top-uni-stat-val">${uni.programs}</span>
-                            <span class="top-uni-stat-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                Programs
-                            </span>
-                        </div>
                     </div>
-                    
-                    <div class="top-uni-badges">
-                        <span class="top-uni-badge ${uni.badge1Class || 'badge-blue'}">${uni.badge1}</span>
-                        <span class="top-uni-badge">${uni.badge2}</span>
-                    </div>
-                    
+
                     <div class="top-uni-action">
                         <a href="javascript:void(0)" onclick="openUniModal('${uni.name.replace(/'/g, "\\'")}')" class="top-uni-link" style="color: ${uni.brandColor};">Batafsil ma'lumot &rarr;</a>
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
 
         if (loadMoreBtn) {
             loadMoreBtn.style.display = visibleItems.length < filtered.length ? 'inline-flex' : 'none';
@@ -4983,12 +4960,63 @@
             modalPrimaryBtn.style.background = `linear-gradient(135deg, ${brandColor} 0%, #000435 100%)`;
         }
 
-        // Render Tags
+        // Render Tags in Modal right below picture
         const tagsContainer = document.getElementById('uniModalTags');
         if (tagsContainer) {
+            const isNational = (details.badge2 && (details.badge2.includes('National') || details.badge2.includes('Public') || details.badge2.includes('Institute'))) || 
+                               (details.type && (details.type.includes('Davlat') || details.type.includes('Milliy'))) || 
+                               details.name.toLowerCase().includes('national');
+            const typeLabel = isNational ? 'Milliy' : 'Xususiy';
+            const typeBadgeClass = isNational ? 'badge-green' : 'badge-blue';
+            const visaStatusLabel = details.visaStatus || (details.is1Percent ? 'Yengillashtirilgan (1%)' : 'Standart Tekshiruv');
+            const visaBadgeClass = details.is1Percent ? 'badge-gold' : 'badge-blue';
+
             tagsContainer.innerHTML = `
-                <span class="uni-modal-tag ${details.is1Percent ? 'tag-1percent' : ''}">${details.statusTag}</span>
-                <span class="uni-modal-tag">${details.badge2 || 'Universitet'}</span>
+                <span class="uni-modal-tag ${visaBadgeClass}">${visaStatusLabel}</span>
+                <span class="uni-modal-tag ${typeBadgeClass}">${typeLabel}</span>
+            `;
+        }
+
+        // Render Language Requirements dynamically
+        const langEl = document.getElementById('uniModalLangDetails');
+        if (langEl) {
+            let html = '';
+            if (details.name === 'Anyang University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 3+</p>
+                    <p><strong>English Track:</strong> IELTS 5.5+</p>
+                `;
+            } else {
+                const parts = (details.language || "TOPIK 3+ | IELTS 5.5+").split('|');
+                const korPart = parts.find(p => p.toLowerCase().includes('topik')) || 'TOPIK 3+';
+                const engPart = parts.filter(p => !p.toLowerCase().includes('topik')).join(' | ') || 'IELTS 5.5+';
+                html = `
+                    <p><strong>Korean Track:</strong> ${korPart.trim()}</p>
+                    <p><strong>English Track:</strong> ${engPart.trim()}</p>
+                `;
+            }
+            langEl.innerHTML = html;
+        }
+
+        // Render Visa & Bank Requirements Checklist dynamically
+        const bankReqsEl = document.getElementById('uniModalBankReqs');
+        if (bankReqsEl) {
+            const isEVisa = details.visaStatus === 'Magistr E-Viza' || details.name === 'Anyang University';
+            
+            const kdbVal = details.kdb1DayAfterAdmission || (details.is1Percent ? '$16,000 USD' : '$18,000 USD');
+            const isKdbNotReq = kdbVal.toLowerCase().includes('emas') || kdbVal.toLowerCase().includes('etilmaydi');
+            const kdb1DayClass = isKdbNotReq ? 'check-no' : 'check-yes';
+
+            const parentIncomeStatus = (details.is1Percent || isEVisa) ? 'Talab etilmaydi' : 'Talab etiladi';
+            const parentIncomeClass = (details.is1Percent || isEVisa) ? 'check-no' : 'check-yes';
+            
+            const kdb31DayStatus = (details.is1Percent || isEVisa) ? 'Talab etilmaydi' : 'Talab etiladi';
+            const kdb31DayClass = (details.is1Percent || isEVisa) ? 'check-no' : 'check-yes';
+
+            bankReqsEl.innerHTML = `
+                <div class="checklist-item ${parentIncomeClass}"><span>Ota-ona daromad manbai ma'lumotnomasi</span><strong>${parentIncomeStatus}</strong></div>
+                <div class="checklist-item ${kdb31DayClass}"><span>1-Oylik KDB bank ko'chirmasi</span><strong>${kdb31DayStatus}</strong></div>
+                <div class="checklist-item ${kdb1DayClass}"><span>Qabuldan so'ng 1 kunlik KDB ko'chirmasi</span><strong>${kdbVal}</strong></div>
             `;
         }
 
