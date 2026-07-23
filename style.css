@@ -1931,7 +1931,7 @@ body.cabinet-body > * {
   z-index: 1;
 }
 
-[data-theme="dark"] body.cabinet-body {
+body.cabinet-body[data-theme="dark"] {
   background-color: #08090d;
   background-image: 
     radial-gradient(1200px circle at 50% -100px, rgba(59, 130, 246, 0.14), transparent 70%),
@@ -1943,7 +1943,7 @@ body.cabinet-body > * {
   background-attachment: fixed;
 }
 
-[data-theme="dark"] body.cabinet-body::before {
+body.cabinet-body[data-theme="dark"]::before {
   background-image: radial-gradient(rgba(59, 130, 246, 0.22) 1.2px, transparent 1.2px);
   background-size: 36px 36px;
   background-position: 18px 18px;
