@@ -4381,7 +4381,7 @@
             brandColor: "#0e2b5c",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
-            tuition: "4,200,000 - 5,600,000 KRW / semestr",
+            tuition: "5,279,000 - 7,820,000 KRW / semestr",
             language: "TOPIK 4+ | IELTS 6.0+ | TOEFL 80+",
             visaStatus: "Yengillashtirilgan (1%)",
             visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
@@ -4892,11 +4892,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v26')) {
-        localStorage.setItem('custom_universities_v26', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v27')) {
+        localStorage.setItem('custom_universities_v27', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v26'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v27'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
