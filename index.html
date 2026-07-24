@@ -2377,31 +2377,34 @@
         /* ─── GRANTS GRID ─── */
         .grants-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1px;
-            background: #e2e8f0;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            overflow: hidden;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
             margin-bottom: 14px;
         }
         .grant-card {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #ffffff;
-            padding: 12px 14px;
+            flex-direction: column;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            justify-content: center;
         }
         .grant-cert {
-            font-size: 13px;
-            font-weight: 600;
-            color: #475569;
+            font-size: 11px;
+            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
         }
         .grant-percent {
-            font-size: 16px;
-            font-weight: 800;
+            font-size: 15px;
+            font-weight: 700;
             color: #1d4ed8;
             letter-spacing: -0.3px;
+            line-height: 1.2;
         }
         .grants-other-box {
             background: #f8fafc;
@@ -4289,41 +4292,78 @@
             name: "Hallym University",
             koreanName: "한림대학교",
             location: "CHUNCHEON",
-            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
-            qsRank: "TOP 1000",
+            address: "📍 1 Hallymdaehak-gil, Chuncheon-si, Gangwon-do, South Korea",
+            img: "https://www.uia.no/studier/utveksling/avtaler/bilder/hallym-campus.jpg",
+            qsRank: "QS Rank: #1001-1200",
             founded: "1982",
             programs: "95+",
+            appFee: "65,000 KRW",
             badge1: "Medical Leader",
             badge2: "Private University",
             badge1Class: "badge-blue",
             brandColor: "#1c3d5a",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "3,000,000 - 4,200,000 KRW / semestr",
+            tuition: "3,673,800 - 4,773,800 KRW / semestr",
             language: "TOPIK 3+ yoki IELTS 5.5+",
             visaStatus: "Standart Tekshiruv",
-            description: "Tibbiyot va biologiya sohasida nufuzli tadqiqotlar o'tkazadigan shahar universiteti.",
-            majors: ["Biomedical Science", "Media & Software", "Global Business"]
+            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILADI.",
+            kdb1DayAfterAdmission: "$13,000 USD",
+            description: "Hallym University Gangwon viloyatining Chuncheon shahrida joylashgan nufuzli xususiy universitet. Tibbiyot, media va biznes yo'nalishlarida kuchli ta'lim dasturlariga ega.",
+            englishTrackMajors: ["Global Business"],
+            koreanTrackMajors: ["Culture Industry Management", "Korean-Chinese Translation & Interpretation"],
+            scholarships: [
+                { cert: "English Track / TOPIK 3", percent: "50% kontrakt (Half)" },
+                { cert: "TOPIK 4", percent: "60% kontrakt" },
+                { cert: "TOPIK 5", percent: "70% kontrakt" },
+                { cert: "TOPIK 6", percent: "80% kontrakt" },
+                { cert: "HU TOPIK / TOPIK 2", percent: "40% kontrakt" }
+            ],
+            otherGrantsNote: "Ingliz tili yo'nalishi (English Track) hamda TOPIK 3 darajaga ega bo'lganlar uchun 50% kontrakt chegirmasi beriladi. Yuqori darajalar (TOPIK 4-6) uchun 60% dan 80% gacha stipendiyalar taqdim etiladi. Universitet Seul tashqarisida (Chuncheon) joylashganligi sababli bank ko'chirmasi uchun $13,000 USD (16,000,000 KRW) yetarli deb hisoblanadi."
         },
         {
             name: "Hansung University",
             koreanName: "한성대학교",
             location: "SEOUL",
-            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+            address: "📍 116 Samseongyo-ro 16-gil, Seongbuk-gu, Seoul, South Korea",
+            img: "https://uploaded.kcampus.kr/1_0d0999c1_085a_412f_853c_36672db31a4f_76e03d9407.jpg",
             qsRank: "1% Akkreditatsiya",
             founded: "1972",
             programs: "85+",
+            appFee: "100,000 KRW",
             badge1: "1% Akkreditatsiya",
             badge2: "Seoul Campus",
             badge1Class: "badge-green",
             brandColor: "#0a2540",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
-            tuition: "3,200,000 - 4,200,000 KRW / semestr",
+            tuition: "4,103,000 - 5,468,000 KRW / semestr",
             language: "TOPIK 3+ yoki IELTS 5.5+",
             visaStatus: "Yengillashtirilgan (1%)",
-            description: "Seul markazida joylashgan zamonaviy universitet. Dizayn, K-Beauty, IT va Biznes fakultetlari xalqaro talabalar orasida ommabop.",
-            majors: ["Beauty & Fashion Design", "IT Convergence", "Global Business", "Smart Management"]
+            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$16,000 USD",
+            description: "Seul markazida joylashgan zamonaviy universitet. Dizayn, K-Beauty, IT va Biznes fakultetlari xalqaro talabalar orasida ommabop. 1% yengillashtirilgan viza rejimiga ega.",
+            englishTrackMajors: ["Global K-Business"],
+            koreanTrackMajors: [
+                "Korean Language & Culture Education",
+                "Global K-Business",
+                "Time-based Media & Entertainment",
+                "Fashion Beauty Creation",
+                "SW Convergence",
+                "Global Venture Entrepreneurship",
+                "Literature & Cultural Contents",
+                "Applied Artificial Intelligence",
+                "Convergence Security",
+                "Smart Mobility"
+            ],
+            scholarships: [
+                { cert: "TOPIK 6", percent: "100% kontrakt" },
+                { cert: "TOPIK 5", percent: "80% kontrakt" },
+                { cert: "TOPIK 4 / IELTS 8.0", percent: "50% / 80% kontrakt" },
+                { cert: "TOPIK 3 / IELTS 7.0", percent: "30% / 50% kontrakt" },
+                { cert: "TOPIK 2 / IELTS 5.5", percent: "20% / 30% kontrakt" }
+            ],
+            otherGrantsNote: "Birinchi semestr uchun: Korean Track yo'nalishlariga TOPIK darajaga qarab 20% dan 100% gacha grant beriladi. English Track (IELTS/TOEFL) bo'yicha 30% dan 80% gacha grant mavjud. Hansung tili kursini bitirganlar uchun qo'shimcha 20%-30% grant qo'shilishi mumkin. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi."
         },
         {
             name: "Hanyang University",
@@ -4828,11 +4868,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v23')) {
-        localStorage.setItem('custom_universities_v23', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v25')) {
+        localStorage.setItem('custom_universities_v25', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v23'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v25'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -4927,7 +4967,16 @@
         }).join('');
 
         if (loadMoreBtn) {
-            loadMoreBtn.style.display = visibleItems.length < filtered.length ? 'inline-flex' : 'none';
+            const remaining = filtered.length - visibleItems.length;
+            if (remaining > 0) {
+                loadMoreBtn.style.display = 'inline-flex';
+                const span = loadMoreBtn.querySelector('span');
+                if (span) {
+                    span.textContent = `Yana ko'rsatish (${remaining} ta)`;
+                }
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
         }
     }
 
