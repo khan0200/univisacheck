@@ -4369,10 +4369,12 @@
             name: "Hanyang University",
             koreanName: "한양대학교",
             location: "SEOUL",
-            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            address: "📍 222 Wangsimni-ro, Seongdong-gu, Seoul, South Korea",
+            img: "https://uploaded.kcampus.kr/52208281643_5b9a113e9c_o_91ef216f25.jpg",
             qsRank: "TOP 200",
             founded: "1939",
             programs: "180+",
+            appFee: "142,000 KRW",
             badge1: "1% Akkreditatsiya",
             badge2: "TOP 200 World",
             badge1Class: "badge-gold",
@@ -4380,10 +4382,32 @@
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
             tuition: "4,200,000 - 5,600,000 KRW / semestr",
-            language: "TOPIK 4+ yoki IELTS 6.0+",
+            language: "TOPIK 4+ | IELTS 6.0+ | TOEFL 80+",
             visaStatus: "Yengillashtirilgan (1%)",
-            description: "Koreyaning 'Muhandislik poytaxti' deb tan olingan TOP universitet. Samsung va Hyundai kompaniyalari bilan hamkorlik qiladi.",
-            majors: ["Computer Science & Engineering", "Mechanical Engineering", "Business School", "Data Science"]
+            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$16,000 USD",
+            description: "Koreyaning 'Muhandislik poytaxti' deb tan olingan TOP universitet. Samsung va Hyundai kompaniyalari bilan hamkorlik qiladi. 1% yengillashtirilgan viza rejimiga ega.",
+            englishTrackMajors: [
+                "Data Science",
+                "Business Administration (Global Management)",
+                "International Studies",
+                "Global Content Convergence"
+            ],
+            koreanTrackMajors: [
+                "Computer Science & Engineering",
+                "Mechanical Engineering",
+                "Business School",
+                "Data Science"
+            ],
+            scholarships: [
+                { cert: "HISP 100%", percent: "100% kontrakt (Freshman 8 semestr)" },
+                { cert: "HISP 70%", percent: "70% kontrakt (Freshman 8 semestr)" },
+                { cert: "HISP 50%", percent: "50% kontrakt (Freshman 8 semestr)" },
+                { cert: "IELTS 6.5 / TOEFL 90", percent: "30% kontrakt (1-semestr)" },
+                { cert: "TOPIK 6 / TOPIK IBT 6", percent: "100% kontrakt (1-semestr)" },
+                { cert: "TOPIK 5 / TOPIK IBT 5", percent: "50% kontrakt (1-semestr)" }
+            ],
+            otherGrantsNote: "HISP (Hanyang International Scholarship Program) stipendiyasi hujjatlar topshirish jarayonida tanlab olinadi va o'qish davomida minimal 2.5 GPA saqlangan taqdirda 8 semestrgacha 50%, 70% yoki 100% kontraktni qoplaydi. Ingliz tili (IELTS 6.5+) yoki TOPIK darajasi uchun birinchi semestrga alohida 30% dan 100% gacha grantlar beriladi. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi."
         },
         {
             name: "Hoseo University",
@@ -4868,11 +4892,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v25')) {
-        localStorage.setItem('custom_universities_v25', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v26')) {
+        localStorage.setItem('custom_universities_v26', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v25'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v26'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
