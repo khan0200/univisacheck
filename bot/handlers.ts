@@ -252,7 +252,10 @@ export async function handleCallbackQuery(ctx: Context) {
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
     
-    await ctx.answerCallbackQuery().catch(() => {}); // Answer immediately to remove loading spinner
+    // Do NOT answer immediately for refresh buttons so we can show a nice pop-up toast later!
+    if (!callbackData.startsWith('refresh:') && !callbackData.startsWith('mrefresh:')) {
+        await ctx.answerCallbackQuery().catch(() => {}); // Answer immediately to remove loading spinner
+    }
     
     const lang = await getLang(telegramId);
 
@@ -293,6 +296,7 @@ export async function handleCallbackQuery(ctx: Context) {
         await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
         
         if (!res.success) {
+            await ctx.answerCallbackQuery().catch(() => {});
             await ctx.reply(t('refresh_error', lang, { error: res.error || '' }));
             return;
         }
@@ -316,11 +320,15 @@ export async function handleCallbackQuery(ctx: Context) {
             await ctx.reply(cardText, { reply_markup: inlineKeyboard });
             
             if (!res.changed) {
-                const noChangeMsg = await ctx.reply(t('no_change', lang, { name: res.student.fullName.toUpperCase() }));
-                setTimeout(() => {
-                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
-                }, 5000);
+                await ctx.answerCallbackQuery({
+                    text: t('no_change', lang, { name: res.student.fullName.toUpperCase() }),
+                    show_alert: false
+                }).catch(() => {});
+            } else {
+                await ctx.answerCallbackQuery().catch(() => {});
             }
+        } else {
+            await ctx.answerCallbackQuery().catch(() => {});
         }
         return;
     }
@@ -582,6 +590,7 @@ export async function handleCallbackQuery(ctx: Context) {
             });
             
             if (res.rows.length === 0) {
+                await ctx.answerCallbackQuery().catch(() => {});
                 await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
                 await ctx.reply(t('passport_not_found', lang));
                 return;
@@ -598,6 +607,7 @@ export async function handleCallbackQuery(ctx: Context) {
             await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
             
             if (!checkRes.found || (checkRes.latestStatus || '').toUpperCase() === 'UNKNOWN') {
+                await ctx.answerCallbackQuery().catch(() => {});
                 await ctx.reply(t('no_result', lang), {
                     reply_markup: await getMenuKeyboard(telegramId)
                 });
@@ -648,12 +658,15 @@ export async function handleCallbackQuery(ctx: Context) {
             });
 
             if (!changed) {
-                const noChangeMsg = await ctx.reply(t('no_change', lang, { name: fullName.toUpperCase() }));
-                setTimeout(() => {
-                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
-                }, 5000);
+                await ctx.answerCallbackQuery({
+                    text: t('no_change', lang, { name: fullName.toUpperCase() }),
+                    show_alert: false
+                }).catch(() => {});
+            } else {
+                await ctx.answerCallbackQuery().catch(() => {});
             }
         } catch (err: any) {
+            await ctx.answerCallbackQuery().catch(() => {});
             await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
             await ctx.reply(t('check_error', lang, { error: err.message }));
         }
