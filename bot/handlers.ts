@@ -317,8 +317,9 @@ export async function handleCallbackQuery(ctx: Context) {
             
             if (!res.changed) {
                 const noChangeMsg = await ctx.reply(t('no_change', lang, { name: res.student.fullName.toUpperCase() }));
-                await new Promise(resolve => setTimeout(resolve, 5000));
-                await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
+                setTimeout(() => {
+                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
+                }, 5000);
             }
         }
         return;
@@ -648,8 +649,9 @@ export async function handleCallbackQuery(ctx: Context) {
 
             if (!changed) {
                 const noChangeMsg = await ctx.reply(t('no_change', lang, { name: fullName.toUpperCase() }));
-                await new Promise(resolve => setTimeout(resolve, 5000));
-                await ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
+                setTimeout(() => {
+                    ctx.api.deleteMessage(ctx.chat!.id, noChangeMsg.message_id).catch(() => {});
+                }, 5000);
             }
         } catch (err: any) {
             await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {});
