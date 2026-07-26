@@ -783,9 +783,10 @@ function renderTable() {
                 ) : ''}
             </td>
             <td class="td-actions">
-                <div class="d-flex justify-content-end gap-1">
-                    <button class="btn btn-sm btn-primary action-btn px-2.5 py-1 fw-bold" data-action="refresh" data-id="${student.passport}" title="Check" style="font-size:0.75rem;">
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-primary action-btn btn-check-visa" data-action="refresh" data-id="${student.passport}" title="Check">
                         <span class="btn-text">CHECK</span>
+                        <span class="btn-spinner d-none"></span>
                     </button>
                     <button class="btn btn-sm btn-icon btn-ghost-secondary action-btn" data-action="edit" data-id="${student.passport}" title="Edit">
                         <i class="bi bi-pencil"></i>
@@ -1192,19 +1193,21 @@ async function handleAction(action, passport, btnElement) {
         const btn = btnElement || document.querySelector(`button[data-action="refresh"][data-id="${passport}"]`);
         if (!btn) return;
 
-        const textSpan = btn.querySelector('.btn-text') || btn;
-        const originalText = textSpan.textContent;
+        const textSpan = btn.querySelector('.btn-text');
+        const spinnerSpan = btn.querySelector('.btn-spinner');
 
-        // Add loading state
+        // Show spinner, hide text — button stays same width
         btn.disabled = true;
-        textSpan.textContent = 'Checking...';
+        if (textSpan) textSpan.classList.add('d-none');
+        if (spinnerSpan) spinnerSpan.classList.remove('d-none');
 
         try {
             await checkVisaStatus(student);
         } catch (error) {
             debug('Error checking visa status:', error);
         } finally {
-            textSpan.textContent = originalText;
+            if (textSpan) textSpan.classList.remove('d-none');
+            if (spinnerSpan) spinnerSpan.classList.add('d-none');
             btn.disabled = false;
         }
     } else if (action === 'download-pdf') {
