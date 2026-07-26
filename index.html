@@ -1899,9 +1899,22 @@
         /* ─── TOP CARDS SEARCH BAR ───────────────────────────────────────── */
         .top-cards-search-wrap {
             margin-top: 20px;
-            margin-bottom: 20px;
-            max-width: 540px;
+            margin-bottom: 24px;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        @media (min-width: 992px) {
+            .top-cards-search-wrap {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+            }
+            .top-cards-search-box {
+                max-width: 440px;
+            }
         }
         .top-cards-search-box {
             position: relative;
@@ -1955,6 +1968,58 @@
         .top-cards-clear-btn:hover {
             background: rgba(0, 0, 0, 0.12);
             color: var(--dark-navy);
+        }
+
+        /* ─── SEARCHBAR FILTER DROPDOWN ──────────────────────────── */
+        .top-cards-dropdown-wrap {
+            position: relative;
+            width: 100%;
+        }
+        @media (min-width: 992px) {
+            .top-cards-dropdown-wrap {
+                width: 220px;
+                flex-shrink: 0;
+            }
+        }
+        .top-cards-select {
+            width: 100%;
+            height: 46px;
+            padding: 0 40px 0 16px;
+            background: #ffffff;
+            border: 1.5px solid rgba(0, 0, 128, 0.18);
+            border-radius: 12px;
+            color: var(--navy-blue);
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 3px 12px rgba(0, 0, 128, 0.04);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: all 0.2s var(--ease);
+        }
+        .top-cards-select:focus,
+        .top-cards-select:hover {
+            border-color: var(--navy-blue);
+            box-shadow: 0 0 0 3.5px rgba(0, 0, 128, 0.12), 0 4px 16px rgba(0, 0, 128, 0.06);
+        }
+        .top-cards-select option {
+            font-weight: 500;
+            color: #1e293b;
+            padding: 10px;
+        }
+        .top-cards-select-arrow {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            stroke: var(--navy-blue);
+            pointer-events: none;
+            transition: transform 0.2s ease;
         }
         .top-cards-no-results {
             grid-column: 1 / -1;
@@ -2976,7 +3041,7 @@
         <div class="section-eyebrow">Universitetlar ro'yxati</div>
         <h2 class="section-h2"><span class="text-dark-blue">Janubiy </span><em>Koreya universitetlari</em></h2>
 
-        <!-- TOP CARDS SEARCH BAR -->
+        <!-- TOP CARDS SEARCH BAR & FILTERS -->
         <div class="top-cards-search-wrap">
             <div class="top-cards-search-box">
                 <svg class="top-cards-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2985,6 +3050,18 @@
                 </svg>
                 <input type="text" id="topCardsSearchInput" placeholder="Nufuzli universitetlarni qidirish (Yonsei, Korea, SNU, Ajou...)" oninput="filterTopUniCards(this.value)" autocomplete="off">
                 <button type="button" id="topCardsSearchClear" class="top-cards-clear-btn" onclick="clearTopCardsSearch()" style="display:none;" aria-label="Qidiruvni tozalash">✕</button>
+            </div>
+            <div class="top-cards-dropdown-wrap">
+                <select id="topCardsCategorySelect" class="top-cards-select" onchange="setTopCardsFilter(this.value)">
+                    <option value="all">Barcha universitetlar</option>
+                    <option value="evisa">Magister E-Viza</option>
+                    <option value="1percent">1% Universitetlar</option>
+                    <option value="standard">Standart tekshiruv</option>
+                    <option value="college">Kollejlar</option>
+                </select>
+                <svg class="top-cards-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
             </div>
         </div>
 
@@ -4061,7 +4138,7 @@
             language: "TOPIK 3+ yoki IELTS 5.5+",
             visaStatus: "Magistr E-Viza",
             visaDetails: "Magistr E-Viza tartibi amal qiladi. Elchixonaga ota-ona daromadi va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
-            kdb1DayAfterAdmission: "$18,000 USD",
+            kdb1DayAfterAdmission: "$13,000 USD",
             description: "Anyang Universiteti 1948-yilda tashkil topgan nufuzli xususiy universitetdir. Seul aglomeratsiyasining Anyang shahrida joylashgan bo'lib, global biznes, raqamli kontentlar va muhandislik sohalarida yuqori sifatli ta'lim beradi.",
             englishTrackMajors: ["Business Administration"],
             koreanTrackMajors: ["K-Contents and Business"],
@@ -4366,6 +4443,58 @@
             otherGrantsNote: "Birinchi semestr uchun: Korean Track yo'nalishlariga TOPIK darajaga qarab 20% dan 100% gacha grant beriladi. English Track (IELTS/TOEFL) bo'yicha 30% dan 80% gacha grant mavjud. Hansung tili kursini bitirganlar uchun qo'shimcha 20%-30% grant qo'shilishi mumkin. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi."
         },
         {
+            name: "Hoseo University",
+            koreanName: "호서대학교",
+            location: "ASAN / DANGJIN",
+            address: "📍 20 Hoseo-ro 79beon-gil, Baebang-eup, Asan-si, Chungcheongnam-do, South Korea",
+            img: "https://forkast.news/wp-content/uploads/2022/02/hoseo.png",
+            qsRank: "Akkreditatsiyalangan Uni",
+            founded: "1978",
+            programs: "90+",
+            appFee: "60,000 KRW",
+            badge1: "Venture Leader",
+            badge2: "Private University",
+            badge1Class: "badge-blue",
+            brandColor: "#003b73",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "3,693,000 - 4,688,000 KRW (1-semestr) / 3,543,000 - 4,538,000 KRW (keyingi semestrlar)",
+            language: "TOPIK 3+ (Arts: TOPIK 2+) | IELTS 5.5+ (TOEFL 71+)",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Akkreditatsiyadan o'tgan universitet standarti bo'yicha viza rasmiylashtiriladi. Elchixonaga 31 kunlik KDB bank ko'chirmasi va ota-ona daromad manbalari ma'lumotnomasi taqdim etiladi.",
+            kdb1DayAfterAdmission: "13,000,000 KRW (~$10,000 USD / 13,000 USD KDB Bank)",
+            description: "Hoseo University — Venchur biznesi, IT, Sun'iy intellekt hamda Xalqaro ta'lim bo'yicha Koreyadagi yetakchi xususiy universitet (1978-yil). Asan va Dangjin shaharlarida zamonaviy kampuslarga ega. Xalqaro talabalar uchun ingliz va koreys tillarida keng ko'lamli bakalavr va grant dasturlarini taklif etadi.",
+            englishTrackMajors: [
+                "International Studies Track (English Track)"
+            ],
+            koreanTrackMajors: [
+                "International Business Administration Track",
+                "Global Silvercare Track",
+                "Global Business Track",
+                "Humanities and Social Sciences",
+                "Digital Technology Management",
+                "Engineering & Computer Science",
+                "Airline Services",
+                "Arts and Sports (TOPIK 2+ accepted)"
+            ],
+            scholarships: [
+                { cert: "TOPIK 3 / IELTS 5.5", percent: "40% grant" },
+                { cert: "TOPIK 4 / IELTS 6.5", percent: "50% grant" },
+                { cert: "TOPIK 5 / IELTS 7.5", percent: "60% grant" },
+                { cert: "TOPIK 6 / IELTS 8.5+", percent: "100% grant (To'liq grant)" }
+            ],
+            otherGrantsNote: "Ingliz tili yo'nalishi bo'yicha grantlar ham IELTS/TOEFL ballarini TOPIK darajasiga o'girish jadvali bo'yicha beriladi (IELTS 5.5 = 40%, IELTS 6.5 = 50%, IELTS 7.5 = 60%, IELTS 8.5 = 100%). Hoseo tili markazida 1 semestr o'qiganlarga +10%, 2 semestr o'qiganlarga +20% qo'shimcha grant taqdim etiladi.",
+            majors: [
+                "International Studies (English Track)",
+                "International Business Administration",
+                "Global Silvercare",
+                "Global Business",
+                "Digital Technology Management",
+                "Engineering",
+                "Airline Services"
+            ]
+        },
+        {
             name: "Hanyang University",
             koreanName: "한양대학교",
             location: "SEOUL",
@@ -4410,84 +4539,150 @@
             otherGrantsNote: "HISP (Hanyang International Scholarship Program) stipendiyasi hujjatlar topshirish jarayonida tanlab olinadi va o'qish davomida minimal 2.5 GPA saqlangan taqdirda 8 semestrgacha 50%, 70% yoki 100% kontraktni qoplaydi. Ingliz tili (IELTS 6.5+) yoki TOPIK darajasi uchun birinchi semestrga alohida 30% dan 100% gacha grantlar beriladi. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi."
         },
         {
-            name: "Hoseo University",
-            koreanName: "호서대학교",
-            location: "ASAN",
-            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
-            qsRank: "Licensed Uni",
-            founded: "1978",
-            programs: "90+",
-            badge1: "Venture Leader",
-            badge2: "Private University",
-            badge1Class: "badge-blue",
-            brandColor: "#003b73",
-            statusTag: "📜 Akkreditatsiyaga ega",
-            is1Percent: false,
-            tuition: "2,900,000 - 3,900,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
-            visaStatus: "Standart Tekshiruv",
-            description: "Venchur biznesi va innovatsiyalar bo'yicha ixtisoslashgan universitet. Talabalar startaplarini qo'llab-quvvatlaydi.",
-            majors: ["Venture Business", "Game Engineering", "Automotive Design", "Biotechnology"]
-        },
-        {
             name: "Inha Technical College",
             koreanName: "인하공업전문대학",
             location: "INCHEON",
-            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
-            qsRank: "1% Kollej",
+            address: "📍 100 Inha-ro, Michuhol-gu, Incheon, South Korea",
+            img: "https://uploaded.kcampus.kr/20230214_78453092_7cf78637e5.jpg",
+            qsRank: "1% Lik Kollej",
             founded: "1958",
             programs: "40+",
+            appFee: "100,000 KRW",
             badge1: "1% Lik Kollej",
-            badge2: "Technical College",
+            badge2: "Root Industry Partner",
             badge1Class: "badge-green",
             brandColor: "#003366",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
-            tuition: "2,500,000 - 3,200,000 KRW / semestr",
-            language: "TOPIK 2+ yoki IELTS 5.0+",
+            tuition: "3,868,000 KRW (1-semestr) / 3,600,000 KRW (keyingi semestrlar)",
+            language: "TOPIK 3+ (Root Industry: TOPIK 2+)",
             visaStatus: "Yengillashtirilgan (1%)",
-            description: "Aviatsiya va amaliy texnik ta'lim bo'yicha Koreyadagi eng mashhur kollej. Korean Air bilan yaqin aloqada.",
-            majors: ["Aviation Cabin Service", "Aircraft Maintenance", "Mechatronics", "Computer Information"]
+            visaDetails: "1% yengillashtirilgan viza tartibi (1% Kollej). Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI. Arizachi yoki ota-onasi hisobida kamida 20,000,000 KRW (~$15,000–$16,000 USD) bank balans sertifikati yetarli.",
+            kdb1DayAfterAdmission: "20,000,000 KRW (~$15,000–$16,000 USD)",
+            description: "Inha Technical College — Janubiy Koreyaning Incheon shahrida joylashgan 1% akkreditatsiyalangan yetakchi kollej (1958-yil). Poydevor sanoati (Root Industry) bo'yicha davlat loyihasi ishtirokchisi bo'lib, Kemasozlik va Dengiz Muhandisligi yo'nalishida TOPIK 2 bilan qabul qiladi hamda bitiruvchilarga E-7 vizasi va yetakchi kompaniyalarda (HD Hyundai, Samsung Heavy Industries) ish bilan ta'minlash dasturini taklif etadi.",
+            englishTrackMajors: [],
+            koreanTrackMajors: [
+                "Marketing (TOPIK 3+)",
+                "Automotive Engineering (TOPIK 3+)",
+                "Computer Science (TOPIK 3+)",
+                "Electrical Engineering (TOPIK 3+)",
+                "Electronic Engineering (TOPIK 3+)",
+                "Mechanical Engineering (TOPIK 3+)",
+                "Tourism Management (TOPIK 3+)",
+                "Naval Architecture & Marine Engineering (Root Industry Department - TOPIK 2+ qabul qilinadi)"
+            ],
+            scholarships: [
+                { cert: "TOPIK 4+", percent: "40% (1-semestr)" },
+                { cert: "TOPIK 3", percent: "30% (1-semestr)" },
+                { cert: "TOPIK 2 / past", percent: "Berilmaydi (0%)" },
+                { cert: "Root Industry (Naval Arch.)", percent: "30% (Barcha semestrlar)" }
+            ],
+            otherGrantsNote: "Root Industry Training Department (Naval Architecture & Marine Engineering - 2 yillik): Barcha semestrlar uchun 30% kontrakt chegirmasi beriladi. O'qishni bitirib skill verification'dan o'tgan talabalarga E-7 vizasi hamda HD Hyundai Heavy Industries, Samsung Heavy Industries va boshqa hamkor kompaniyalarda ish bilan ta'minlash yordami ko'rsatiladi.",
+            majors: [
+                "Marketing",
+                "Automotive Engineering",
+                "Computer Science",
+                "Electrical Engineering",
+                "Electronic Engineering",
+                "Mechanical Engineering",
+                "Tourism Management",
+                "Naval Architecture & Marine Engineering"
+            ]
         },
         {
             name: "Inha University",
             koreanName: "인하대학교",
             location: "INCHEON",
-            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
-            qsRank: "TOP 700",
+            address: "📍 100 Inha-ro, Michuhol-gu, Incheon, South Korea",
+            img: "https://inha.uz/wp-content/uploads/2021/01/jeong-seock-library-1024x678.jpg",
+            qsRank: "TOP 600",
             founded: "1954",
             programs: "130+",
+            appFee: "105,000 KRW",
             badge1: "1% Akkreditatsiya",
-            badge2: "Private University",
+            badge2: "TOP 600 World",
             badge1Class: "badge-gold",
             brandColor: "#003865",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
-            tuition: "3,400,000 - 4,600,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
+            tuition: "$2,500 – $3,000 (~3,400,000 - 4,600,000 KRW) / semestr",
+            language: "TOPIK 3+ | IELTS 6.0+",
             visaStatus: "Yengillashtirilgan (1%)",
-            description: "Incheon shahrida joylashgan nufuzli universitet. Muhandislik, Logistika va IT sohalarida xalqaro e'tirofga ega.",
-            majors: ["Logistics & Supply Chain", "Global Business", "Computer Engineering", "Aerospace Engineering"]
+            visaDetails: "1% yengillashtirilgan viza tartibi (1% Universitet). Elchixonaga ota-ona daromad manbai va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI. Darslar haftasiga 4 kun o'tkaziladi. Qabuldan so'ng $16,000 USD (KDB bank) balans ko'chirmasi taqdim etiladi.",
+            kdb1DayAfterAdmission: "$16,000 USD (KDB Bank)",
+            description: "Inha University — Janubiy Koreyaning Incheon shahrida joylashgan dunyoning TOP 600 reytingidagi yetakchi 1% akkreditatsiyalangan universitet (1954-yil). Darslar haftasiga 4 kun o'tkaziladi. Muhandislik, Xalqaro Biznes va Tabiiy fanlar bo'yicha kuchli. Ota-ona daromad manbai va 1-oylik bank ko'chirmasi talab etilmaydi.",
+            englishTrackMajors: [
+                "GLOBAL BUSINESS",
+                "Integrated System Engineering"
+            ],
+            koreanTrackMajors: [
+                "Korean Language and Literature",
+                "GLOBAL BUSINESS",
+                "Integrated System Engineering",
+                "Economics"
+            ],
+            scholarships: [
+                { cert: "IELTS 6.5 / TOPIK 3", percent: "50% grant (1-semestr)" },
+                { cert: "IELTS 7.0–7.5 / TOPIK 4", percent: "50%–70% grant (1-yilgacha)" },
+                { cert: "IELTS 8.0+ / TOPIK 5+", percent: "100% grant (2–4 yilgacha)" }
+            ],
+            otherGrantsNote: "Inha University stipendiyalari: IELTS 6.5 yoki TOPIK 3 darajasiga 1-semestr uchun 50% kontrakt chegirmasi beriladi. IELTS 7.0-7.5 / TOPIK 4 bo'lganlarga 1 yilgacha, IELTS 8.0+ / TOPIK 5+ egalariga esa 2 yildan 4 yilgacha to'liq grantlar taqdim etiladi. 1% yengillashtirilgan viza rejimi bo'lganligi sababli ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi talab qilinmaydi.",
+            majors: [
+                "GLOBAL BUSINESS",
+                "Integrated System Engineering",
+                "Korean Language and Literature",
+                "Economics"
+            ]
         },
         {
             name: "Jeonbuk National University",
             koreanName: "전북대학교",
             location: "JEONJU",
-            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            address: "📍 567 Baekje-daero, Deokjin-gu, Jeonju-si, Jeollabuk-do, South Korea",
+            img: "https://uploaded.kcampus.kr/20230215_72172286_c109cd0cca.jpg",
             qsRank: "TOP 700",
             founded: "1947",
             programs: "160+",
+            appFee: "80,000 KRW",
             badge1: "Top National",
             badge2: "National University",
-            badge1Class: "badge-blue",
+            badge1Class: "badge-green",
             brandColor: "#002b49",
-            statusTag: "📜 Akkreditatsiyaga ega",
+            statusTag: "📜 Akkreditatsiyaga ega (Milliy Universitet)",
             is1Percent: false,
-            tuition: "2,000,000 - 3,100,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
+            tuition: "2,016,000 – 2,779,000 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5+",
             visaStatus: "Standart Tekshiruv",
-            description: "Jeonju shahrida joylashgan yetakchi davlat universiteti. Keng kampus va yuqori stipendiya dasturlariga ega.",
-            majors: ["Agricultural Life Science", "Smart Grid Engineering", "International Trade", "Korean Literature"]
+            visaDetails: "Standart viza tekshiruvi tartibidagi Janubiy Koreya Davlat Milliy Universiteti. Kontrakt narxlari hamda yashash xarajatlari juda hamyonbop.",
+            description: "Jeonbuk National University — Janubiy Koreyaning Jeonju shahrida joylashgan yetakchi milliy davlat universiteti (1947-yil). Arzon kontrakt narxlari (2.0M - 2.7M KRW), keng kampus va saxiy 2026 Fall grant dasturlariga ega.",
+            englishTrackMajors: [
+                "International Studies (International Studies Major)",
+                "International Engineering and Science (Engineering Science Majors)"
+            ],
+            koreanTrackMajors: [
+                "Engineering Division 1 & 2",
+                "Commerce Division",
+                "Social Science Division",
+                "Agriculture and Life Science Division",
+                "Human Ecology Division",
+                "Natural Sciences Division 1 & 2",
+                "Environmental & Bioresource Sciences Division"
+            ],
+            scholarships: [
+                { cert: "TOPIK 6 / IELTS 8.0+", percent: "100% to'liq grant (Tuition I & II 100%)" },
+                { cert: "TOPIK 5 / IELTS 7.5", percent: "50% grant (Tuition II 50%)" },
+                { cert: "Boshqa rasmiy til sertifikati", percent: "Tuition I 100% grant (by budget)" }
+            ],
+            otherGrantsNote: "Jeonbuk National University 2026 Fall birinchi semestr stipendiyalari: TOPIK 6 yoki IELTS 8.0 va undan yuqori natijaga ega talabalarga 100% to'liq grant (Tuition I va II) taqdim etiladi. TOPIK 5 yoki IELTS 7.5 egalariga Tuition II ning 50% gacha granti beriladi.",
+            majors: [
+                "International Studies",
+                "International Engineering and Science",
+                "Engineering Division",
+                "Commerce Division",
+                "Social Science Division",
+                "Agriculture & Life Science",
+                "Natural Sciences Division"
+            ]
         },
         {
             name: "Joongbu University",
@@ -4892,11 +5087,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v27')) {
-        localStorage.setItem('custom_universities_v27', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v37')) {
+        localStorage.setItem('custom_universities_v37', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v27'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v37'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -4907,6 +5102,34 @@
     }
 
     let topUnisVisibleCount = getStepSize();
+    let currentTopCardsFilter = 'all';
+
+    function setTopCardsFilter(filterType) {
+        currentTopCardsFilter = filterType;
+        const select = document.getElementById('topCardsCategorySelect');
+        if (select && select.value !== filterType) {
+            select.value = filterType;
+        }
+        topUnisVisibleCount = getStepSize();
+        renderTopUniCards();
+    }
+
+    function filterTopUniCards(val) {
+        const clearBtn = document.getElementById('topCardsSearchClear');
+        if (clearBtn) {
+            clearBtn.style.display = val && val.trim().length > 0 ? 'inline-flex' : 'none';
+        }
+        topUnisVisibleCount = getStepSize();
+        renderTopUniCards();
+    }
+
+    function clearTopCardsSearch() {
+        const input = document.getElementById('topCardsSearchInput');
+        if (input) {
+            input.value = '';
+            filterTopUniCards('');
+        }
+    }
 
     function renderTopUniCards() {
         const grid = document.getElementById('topUnisGrid');
@@ -4921,12 +5144,50 @@
 
         // Filter cards
         const filtered = sorted.filter(uni => {
-            if (!query) return true;
-            return uni.name.toLowerCase().includes(query) ||
-                   uni.koreanName.toLowerCase().includes(query) ||
-                   uni.location.toLowerCase().includes(query) ||
-                   uni.badge1.toLowerCase().includes(query) ||
-                   uni.badge2.toLowerCase().includes(query);
+            const matchesQuery = !query || 
+                uni.name.toLowerCase().includes(query) ||
+                uni.koreanName.toLowerCase().includes(query) ||
+                uni.location.toLowerCase().includes(query) ||
+                (uni.badge1 && uni.badge1.toLowerCase().includes(query)) ||
+                (uni.badge2 && uni.badge2.toLowerCase().includes(query)) ||
+                (uni.description && uni.description.toLowerCase().includes(query));
+
+            if (!matchesQuery) return false;
+
+            if (currentTopCardsFilter === 'all') return true;
+
+            const isEVisa = uni.visaStatus === 'Magistr E-Viza' || 
+                            uni.name === 'Anyang University' || 
+                            (uni.visaStatus && uni.visaStatus.toLowerCase().includes('e-viza')) ||
+                            (uni.visaDetails && uni.visaDetails.toLowerCase().includes('e-viza')) ||
+                            (uni.badge1 && uni.badge1.toLowerCase().includes('e-viza'));
+
+            if (currentTopCardsFilter === 'evisa') {
+                return isEVisa;
+            }
+
+            if (currentTopCardsFilter === '1percent') {
+                return uni.is1Percent === true;
+            }
+
+            if (currentTopCardsFilter === 'standard') {
+                return !uni.is1Percent && !isEVisa;
+            }
+
+            if (currentTopCardsFilter === 'college') {
+                const nameLower = uni.name.toLowerCase();
+                const typeLower = (uni.type || '').toLowerCase();
+                const badge2Lower = (uni.badge2 || '').toLowerCase();
+                const badge1Lower = (uni.badge1 || '').toLowerCase();
+                const qsLower = (uni.qsRank || '').toLowerCase();
+                return nameLower.includes('college') || 
+                       typeLower.includes('kollej') || 
+                       badge2Lower.includes('college') || 
+                       badge1Lower.includes('kollej') ||
+                       qsLower.includes('kollej');
+            }
+
+            return true;
         });
 
         if (filtered.length === 0) {
@@ -5092,6 +5353,29 @@
                     <p><strong>Korean Track:</strong> TOPIK 3+</p>
                     <p><strong>English Track:</strong> IELTS 5.5+</p>
                 `;
+            } else if (details.name === 'Hoseo University') {
+                html = `
+                    <p><strong>Korean Track (Standard):</strong> TOPIK 3+ | Sejong 3A+ | KIIP 3+ (61+) | Hoseo TOPIK 3+ | Hoseo Language 3B+</p>
+                    <p><strong>Korean Track (Arts/Sports):</strong> TOPIK 2+ | Hoseo TOPIK 2+</p>
+                    <p><strong>English Track:</strong> IELTS 5.5+ | TOEFL iBT 71+ | CEFR B2 | TEPS 600+</p>
+                `;
+            } else if (details.name === 'Inha University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK Level 3+</p>
+                    <p><strong>English Track:</strong> IELTS 6.0+</p>
+                    <p><strong>Darslar grafigi:</strong> Haftasiga 4 kunlik darslar (4 days a week lessons)</p>
+                `;
+            } else if (details.name === 'Jeonbuk National University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK Level 3+</p>
+                    <p><strong>English Track:</strong> IELTS 5.5+ | TOEFL iBT 71+ | CEFR B2</p>
+                `;
+            } else if (details.name === 'Inha Technical College') {
+                html = `
+                    <p><strong>Korean Track (Standard):</strong> TOPIK Level 3+</p>
+                    <p><strong>Root Industry Track (Naval Arch.):</strong> TOPIK Level 2 accepted</p>
+                    <p><strong>Alternative Options:</strong> Sejong Institute Intermediate 1+, KIIP 3+ (or 61+ score), or Inha Tech test</p>
+                `;
             } else {
                 const parts = (details.language || "TOPIK 3+ | IELTS 5.5+").split('|');
                 const korPart = parts.find(p => p.toLowerCase().includes('topik')) || 'TOPIK 3+';
@@ -5109,7 +5393,7 @@
         if (bankReqsEl) {
             const isEVisa = details.visaStatus === 'Magistr E-Viza' || details.name === 'Anyang University';
             
-            const kdbVal = details.kdb1DayAfterAdmission || (details.is1Percent ? '$16,000 USD' : '$18,000 USD');
+            const kdbVal = details.kdb1DayAfterAdmission || (details.is1Percent ? '$16,000 USD' : '$13,000 USD');
             const isKdbNotReq = kdbVal.toLowerCase().includes('emas') || kdbVal.toLowerCase().includes('etilmaydi');
             const kdb1DayClass = isKdbNotReq ? 'check-no' : 'check-yes';
 
@@ -5132,17 +5416,25 @@
             const engTrack = details.englishTrackMajors || ["Business Administration", "International Business", "IT Business"];
             const korTrack = details.koreanTrackMajors || ["Business Administration", "International Business", "English Language and Literature"];
 
+            const engTrackList = (engTrack && engTrack.length > 0)
+                ? engTrack.map(m => `<li>${m}</li>`).join('')
+                : `<li>Mavjud emas (Faqat Koreys tili va Root Industry yo'nalishlari)</li>`;
+
+            const korTrackList = (korTrack && korTrack.length > 0)
+                ? korTrack.map(m => `<li>${m}</li>`).join('')
+                : `<li>Koreys tili yo'nalishlari</li>`;
+
             tracksContainer.innerHTML = `
                 <div class="track-block">
                     <div class="track-title english-track">🌐 ENGLISH TRACK:</div>
                     <ul class="track-list">
-                        ${engTrack.map(m => `<li>${m}</li>`).join('')}
+                        ${engTrackList}
                     </ul>
                 </div>
                 <div class="track-block">
-                    <div class="track-title korean-track">🈴 KOREAN TRACK:</div>
+                    <div class="track-title korean-track">🈴 KOREAN TRACK & ROOT INDUSTRY:</div>
                     <ul class="track-list">
-                        ${korTrack.map(m => `<li>${m}</li>`).join('')}
+                        ${korTrackList}
                     </ul>
                 </div>
             `;
