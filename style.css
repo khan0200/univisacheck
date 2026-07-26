@@ -1125,15 +1125,24 @@ body {
     gap: 8px !important;
   }
 
-  .td-actions .btn-icon {
+  .td-actions .action-btn {
     width: 100%;
     height: 48px;
-    font-size: 18px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.15s ease;
+  }
+
+  .td-actions .btn-check-visa {
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .td-actions .btn-icon {
+    font-size: 18px;
     background: var(--bg-color);
     border: 1px solid var(--divider);
   }
