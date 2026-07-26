@@ -575,9 +575,17 @@ body {
 }
 
 /* Desktop table cell styles */
-.td-name {
+.td-name,
+.th-name {
   width: 34%;
   padding-left: 12px !important;
+}
+
+.custom-table[data-tab="pending"] .td-name,
+.custom-table[data-tab="pending"] .th-name,
+.custom-table.tab-pending .td-name,
+.custom-table.tab-pending .th-name {
+  width: 24%;
 }
 
 .td-name .student-name {
@@ -813,6 +821,14 @@ body {
 .custom-table:not(.show-pdf-column) .th-pdf,
 .custom-table:not(.show-pdf-column) .td-pdf {
   display: none;
+}
+
+/* Hide Applied column on Pending tab */
+.custom-table.tab-pending .th-applied,
+.custom-table.tab-pending .td-applied,
+.custom-table[data-tab="pending"] .th-applied,
+.custom-table[data-tab="pending"] .td-applied {
+  display: none !important;
 }
 
 /* PDF Download Button */
@@ -1926,7 +1942,7 @@ body.cabinet-body::before {
   opacity: 0.85;
 }
 
-body.cabinet-body > * {
+body.cabinet-body > *:not(.modal):not(.modal-backdrop):not(.toast):not(.toast-container):not(.tooltip):not(.popover) {
   position: relative;
   z-index: 1;
 }
@@ -1948,5 +1964,22 @@ body.cabinet-body[data-theme="dark"]::before {
   background-size: 36px 36px;
   background-position: 18px 18px;
   opacity: 0.9;
+}
+
+/* Perfect Modal Vertical Centering */
+.modal {
+  padding-left: 0 !important;
+}
+
+.modal-dialog-centered {
+  display: flex !important;
+  align-items: center !important;
+  min-height: calc(100vh - 2rem) !important;
+  margin: 1rem auto !important;
+}
+
+.modal-content {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 

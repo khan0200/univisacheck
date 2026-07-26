@@ -784,8 +784,8 @@ function renderTable() {
             </td>
             <td class="td-actions">
                 <div class="d-flex justify-content-end gap-1">
-                    <button class="btn btn-sm btn-icon btn-ghost-primary action-btn" data-action="refresh" data-id="${student.passport}" title="Refresh">
-                        <i class="bi bi-arrow-clockwise"></i>
+                    <button class="btn btn-sm btn-primary action-btn px-2.5 py-1 fw-bold" data-action="refresh" data-id="${student.passport}" title="Check" style="font-size:0.75rem;">
+                        <span class="btn-text">CHECK</span>
                     </button>
                     <button class="btn btn-sm btn-icon btn-ghost-secondary action-btn" data-action="edit" data-id="${student.passport}" title="Edit">
                         <i class="bi bi-pencil"></i>
@@ -828,6 +828,8 @@ function updateSelectColumnVisibility(filteredStudents = []) {
         return status.includes('approved') || status.includes('visa used');
     });
     table.classList.toggle('show-pdf-column', currentFilter === 'approved' || hasApproved);
+    table.setAttribute('data-tab', currentFilter || 'pending');
+    table.classList.toggle('tab-pending', currentFilter === 'pending');
 }
 
 function getCopyFieldHtml(displayHtml, copyValue, title, extraClass = '') {
@@ -1159,6 +1161,7 @@ async function handleAction(action, passport, btnElement) {
         }
 
 
+        window.scrollTo({ top: 0, behavior: 'instant' });
         bootstrapModal.show();
     } else if (action === 'details') {
         document.getElementById('detailsName').textContent = student.fullName;
@@ -1189,25 +1192,19 @@ async function handleAction(action, passport, btnElement) {
         const btn = btnElement || document.querySelector(`button[data-action="refresh"][data-id="${passport}"]`);
         if (!btn) return;
 
-        const icon = btn.querySelector('i');
+        const textSpan = btn.querySelector('.btn-text') || btn;
+        const originalText = textSpan.textContent;
 
-        // Add loading state - make sure icon exists and add animation
+        // Add loading state
         btn.disabled = true;
-        if (icon) {
-            icon.classList.add('spin-animation');
-            // Force reflow to ensure animation starts
-            void icon.offsetWidth;
-        }
+        textSpan.textContent = 'Checking...';
 
         try {
             await checkVisaStatus(student);
         } catch (error) {
             debug('Error checking visa status:', error);
         } finally {
-            // Remove loading state
-            if (icon) {
-                icon.classList.remove('spin-animation');
-            }
+            textSpan.textContent = originalText;
             btn.disabled = false;
         }
     } else if (action === 'download-pdf') {
@@ -1287,8 +1284,8 @@ async function handleBatchCheck() {
     const textSpan = button.querySelector('.btn-text');
     
     // Save original layout
-    const originalText = textSpan ? textSpan.textContent : 'Check';
-    const originalIconClasses = icon ? icon.className : 'bi bi-arrow-clockwise';
+    const originalText = textSpan ? textSpan.textContent : 'CHECK';
+    const originalIconClasses = icon ? icon.className : 'bi bi-check-circle-fill';
 
     button.disabled = true;
     
