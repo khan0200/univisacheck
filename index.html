@@ -4905,23 +4905,49 @@
         },
         {
             name: "Korea Aerospace University",
-            koreanName: "한국항공대학교",
-            location: "GOYANG",
-            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
-            qsRank: "1% Akkreditatsiya",
+            koreanName: "한국항공대학교 (KAU)",
+            location: "GOYANG (SEOUL METRO)",
+            address: "📍 76 Hanggongdaehak-ro, Deogyang-gu, Goyang-si, Gyeonggi-do 10540, Republic of Korea",
+            img: "https://static.wixstatic.com/media/f7a03e_3b495f30b989408ea0dd0e3d9ffc20d9~mv2.jpg/v1/fill/w_640,h_344,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/f7a03e_3b495f30b989408ea0dd0e3d9ffc20d9~mv2.jpg",
+            qsRank: "1% Akkreditatsiya (#1 Aviation)",
             founded: "1952",
             programs: "50+",
+            appFee: "90,000 KRW",
             badge1: "1% Akkreditatsiya",
-            badge2: "Aviation Leader",
-            badge1Class: "badge-green",
+            badge2: "Aviation & Space Leader",
+            badge1Class: "badge-gold",
             brandColor: "#0b2545",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
-            tuition: "3,500,000 - 4,700,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
+            tuition: "3,923,000 - 5,032,000 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
             visaStatus: "Yengillashtirilgan (1%)",
-            description: "Janubiy Koreyadagi yagona aviatsiya va kosmonavtika bo'yicha ixtisoslashgan 1% akkreditatsiyali universitet.",
-            majors: ["Flight Operation", "Avionics Engineering", "Air Logistics", "Software"]
+            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$16,000 USD (KRW 20,000,000)",
+            description: "1952-yilda tashkil etilgan Koreyadagi yagona aviatsiya, parvoz boshqaruvi va kosmonavtika sohalariga ixtisoslashgan 1% akkreditatsiyalangan milliy yetakchi universitet (Seul yaqinidagi Goyang shahrida joylashgan). School of Global Aviation Studies orqali to'liq ingliz va koreys tili yo'nalishlarida ta'lim hamda IELTS 7.0+ va TOPIK 6 uchun 70%-100% grantlar ajratiladi.",
+            englishTrackMajors: [
+                "Air Transportation and Logistics Major (School of Global Aviation Studies)",
+                "Aviation Management Major (School of Global Aviation Studies)",
+                "Service Management Major (School of Global Aviation Studies)"
+            ],
+            koreanTrackMajors: [
+                "College of Aviation & Management (Aviation Management, Business Administration - TOPIK 3+)",
+                "College of Engineering (Astronautics, Aeronautics, Mechanical, Aviation Maintenance, Semiconductor - TOPIK 3+)",
+                "College of AI Convergence (AI, Computer Science, Electronics & Avionics, AI-ICT - TOPIK 3+)",
+                "Department of Smart Drone Engineering & Autonomous Vehicle Engineering (TOPIK 3+)",
+                "Department of Aeronautical Science and Flight Operation (Parvoz va Aviatsiya Boshqaruvi - TOPIK 3+ & 1st Class Aviation Medical Cert)"
+            ],
+            scholarships: [
+                { cert: "IELTS 7.0+ / TOEFL 96+ (English Track)", percent: "100% To'liq grant" },
+                { cert: "IELTS 6.5+ / TOEFL 90+ (English Track)", percent: "50% chegirma" },
+                { cert: "IELTS 6.0+ / TOEFL 81+ (English Track)", percent: "20% chegirma" },
+                { cert: "TOPIK 6 (Korean Track)", percent: "70% chegirma" },
+                { cert: "TOPIK 5 (Korean Track)", percent: "50% chegirma" },
+                { cert: "TOPIK 4 (Korean Track)", percent: "30% chegirma" },
+                { cert: "TOPIK 3 (Korean Track)", percent: "20% chegirma" }
+            ],
+            otherGrantsNote: "Application Fee: 90,000 KRW. Bank ko'chirmasi talabi 20,000,000 KRW. KAU Til Markazi (2.6 mln KRW / 6 oy) talabalariga 80%+ davomat bilan 600,000 KRW grant qaytariladi. Yotoqxona semestriga 860,000 KRW.",
+            majors: ["Flight Operation", "Air Transportation & Logistics", "Aviation Management", "Smart Drone Engineering", "Computer Science & AI", "Avionics Engineering"]
         },
         {
             name: "Korea University",
@@ -5206,11 +5232,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v49')) {
-        localStorage.setItem('custom_universities_v49', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v50')) {
+        localStorage.setItem('custom_universities_v50', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v49'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v50'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -5488,6 +5514,13 @@
                     <p><strong>Application Fee (Arizalarni ko'rib chiqish yig'imi):</strong> 150,000 KRW (General) / 180,000 KRW (Art & Design)</p>
                     <p><strong>Korean Track (General):</strong> TOPIK Level 3+ | Konkuk Test Level 3+ | Konkuk Language Inst. Level 3+ | Sejong 3B+</p>
                     <p><strong>English Track (International Commerce & Computer Software):</strong> IELTS 5.5+ | TOEFL iBT 71+ | CEFR B2 | NEW TEPS 327+</p>
+                `;
+            } else if (details.name === 'Korea Aerospace University') {
+                html = `
+                    <p><strong>Application Fee (Arizalarni ko'rib chiqish yig'imi):</strong> 90,000 KRW</p>
+                    <p><strong>Korean Track (General):</strong> TOPIK Level 3+ (yoki TOPIK iBT 3+)</p>
+                    <p><strong>English Track (Global Aviation Studies):</strong> IELTS 5.5+ | TOEFL iBT 71+</p>
+                    <p><strong>Flight Operation Special Requirement:</strong> 1st Class Aviation Medical Examination (White Card) talab etiladi</p>
                 `;
             } else if (details.name === 'KAIST') {
                 html = `
