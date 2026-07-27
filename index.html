@@ -4972,18 +4972,16 @@
             kdb1DayAfterAdmission: "$16,000 USD (KRW 20,000,000)",
             description: "1905-yilda tashkil etilgan Koreyadagi elita SKY uchligining eng yetakchi va shonli xususiy universiteti (Seul Anam kampusi). Biznes, Xalqaro munosabatlar, Huquq, Tibbiyot, IT va Muhandislik sohalarida dunyoning TOP 100 taligida turadi. International Undergraduate Admission I va II dasturlari orqali 100% full va 50% grant imkoniyatlarini taqdim etadi.",
             englishTrackMajors: [
-                "College of International Studies — International Studies Major (English Track★) [Proof of English Proficiency Mandatory]",
-                "Global Open Major (College of International Studies) — Admission II (Year 1: General Education & Korean; Years 2-4: Major assigned in Humanities, Social Sciences, Natural Sciences, Art & Design, or Engineering based on IELTS 7.0+ / TOEFL iBT 100+ or TOPIK 5+)"
+                "International Studies",
+                "Global Open Major"
             ],
             koreanTrackMajors: [
-                "🌟 University College — 【EXCLUSIVELY FOR INT'L STUDENTS】 1-yr Intensive Korean & Incubating → Choice of 46 departments",
-                "🌟 Department of Global Entertainment (Media & Communication) — 【EXCLUSIVELY FOR INT'L STUDENTS】",
-                "Business & Economics: Business Administration, Economics, Political Science & Int'l Relations",
-                "IT & Computer Science: Computer Science & Engineering, Artificial Intelligence, Data Science",
-                "Biotechnology: Life Sciences & Biotechnology",
-                "Humanities & Media: Media & Communication, Korean Language & Literature",
-                "Engineering: Mechanical Engineering, Electrical Engineering, Chemical & Biological Engineering",
-                "Art & Design: Art & Design (Portfolio required)"
+                "University College (1-yr Int'l Program)",
+                "Business Administration",
+                "Economics",
+                "Computer Science & Engineering",
+                "Media & Communication",
+                "Life Sciences & Biotechnology"
             ],
             scholarships: [
                 { cert: "Anam Global Scholarship (Top-ranked student in each track)", percent: "100% Full Tuition (8 semesters)", renewal: "Min 12 credits & GPA 3.5+" },
@@ -5020,22 +5018,18 @@
             kdb1DayAfterAdmission: "$16,000 USD (KRW 20,000,000)",
             description: "1949-yilda tashkil etilgan Seul va Suwon/Yongin (Global) kampuslariga ega Koreyaning nufuzli 1% akkreditatsiyalangan universiteti (QS World #331, QS Asia #39, THE World #252). Gotiya me'morchiligidagi afsonaviy kampusi, Mehmonxona & Turizm, Xalqaro munosabatlar, Biznes, Tibbiyot, IT va Art & Design bo'yicha dunyoda tan olingan. Bir nechta to'liq (100%) va 50% qiymatdagi xalqaro grantlarni taqdim etadi.",
             englishTrackMajors: [
-                "Seoul Campus: Department of Business Administration [English Track] (TOEFL iBT 80+ / IELTS 6.0+)",
-                "Seoul Campus: Department of Global Hospitality & Tourism Management [English Track] (TOEFL iBT 80+ / IELTS 6.0+)",
-                "Global Campus: Department of International Studies [English Track] (College of International Studies)",
-                "Global Campus: Department of Asian Studies [English Track] (College of International Studies)"
+                "Business Administration",
+                "Global Hospitality & Tourism Management",
+                "International Studies",
+                "Asian Studies"
             ],
             koreanTrackMajors: [
-                "🌟 Department of Global Eminence (Seoul Campus - Freshmen) — 【EXCLUSIVELY FOR INT'L STUDENTS】 100% int'l courses in 1st yr → Free major choice in 2nd yr (TOPIK 4+)",
-                "🌟 Global Business Major (Seoul Campus - Transfer) — 【EXCLUSIVELY FOR INT'L STUDENTS】",
-                "🌟 Department of Korean: Korean Language & Korean Contents Studies (Global Campus) — 【EXCLUSIVELY FOR INT'L STUDENTS】",
-                "🌟 School of Liberal Studies (Global Campus) — Open major program (Free choice of Global Campus majors in 2nd yr)",
-                "Business & Management: Business Administration, Accounting",
-                "Hospitality & Tourism: Hospitality Management, Culinary Arts & Food Design Management",
-                "Humanities & Social Sciences: Media & Communication, International Business & Trade, Economics, Korean Lang & Lit",
-                "Engineering & IT: Computer Engineering, Artificial Intelligence, Electronic Engineering, Software Convergence",
-                "Art & Music: Visual Design, Postmodern Music, Theater & Film",
-                "Physical Education: Taekwondo, Sports Medicine"
+                "Department of Global Eminence (1st yr Int'l Program)",
+                "Business Administration",
+                "Hospitality Management",
+                "Media & Communication",
+                "Computer Engineering & AI",
+                "Postmodern Music"
             ],
             scholarships: [
                 { cert: "Admission Scholarship A (Highest score in each college)", percent: "100% Full Tuition (1st semester)", renewal: "Score 90+ in admission evaluation" },
@@ -5296,11 +5290,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v55')) {
-        localStorage.setItem('custom_universities_v55', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v56')) {
+        localStorage.setItem('custom_universities_v56', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v55'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v56'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
