@@ -4656,17 +4656,14 @@
             visaDetails: "Standart viza tekshiruvi tartibidagi Janubiy Koreya Davlat Milliy Universiteti. Kontrakt narxlari hamda yashash xarajatlari juda hamyonbop.",
             description: "Jeonbuk National University — Janubiy Koreyaning Jeonju shahrida joylashgan yetakchi milliy davlat universiteti (1947-yil). Arzon kontrakt narxlari (2.0M - 2.7M KRW), keng kampus va saxiy 2026 Fall grant dasturlariga ega.",
             englishTrackMajors: [
-                "International Studies (International Studies Major)",
-                "International Engineering and Science (Engineering Science Majors)"
+                "International Studies",
+                "International Engineering & Science"
             ],
             koreanTrackMajors: [
-                "Engineering Division 1 & 2",
-                "Commerce Division",
-                "Social Science Division",
-                "Agriculture and Life Science Division",
-                "Human Ecology Division",
-                "Natural Sciences Division 1 & 2",
-                "Environmental & Bioresource Sciences Division"
+                "Business Administration",
+                "Computer Science & Engineering",
+                "Social Sciences",
+                "Agricultural & Life Sciences"
             ],
             scholarships: [
                 { cert: "TOPIK 6 / IELTS 8.0+", percent: "100% to'liq grant (Tuition I & II 100%)" },
@@ -4707,15 +4704,16 @@
             kdb1DayAfterAdmission: "$13,000 USD",
             description: "Joongbu Universiteti 1983-yilda tashkil etilgan bo'lib, Seul yaqinidagi Goyang hamda Chungcheong kampuslarida bakalavriat ta'limi taklif etiladi. 2026-yil IEAQ 1% akkreditatsiyalangan nufuzli oliygoh.",
             englishTrackMajors: [
-                "Global Health Administration (글로벌보건행정학전공)",
-                "International Trade (국제통상학전공)",
-                "Hotel & Tourism Management (호텔관광경영학전공)",
-                "Entertainment (엔터테인먼트학전공)"
+                "Global Health Administration",
+                "International Trade",
+                "Hotel & Tourism Management",
+                "Entertainment"
             ],
             koreanTrackMajors: [
-                "Barcha bakalavriat yo'nalishlari (TOPIK 3+ yoki JB-TOPIK 3+)",
-                "San'at va Sport yo'nalishlari (TOPIK 2+ yoki JB-TOPIK 2+)",
-                "Business, Engineering, Nursing, Physical Therapy, Game Software, AI, Animation, Special Education"
+                "Business Administration",
+                "Game Software & AI",
+                "Hotel & Tourism Management",
+                "Nursing & Physical Therapy"
             ],
             scholarships: [
                 { cert: "Tavsiyanoma (Recommendation)", percent: "10%" },
@@ -5290,11 +5288,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v56')) {
-        localStorage.setItem('custom_universities_v56', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v57')) {
+        localStorage.setItem('custom_universities_v57', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v56'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v57'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
