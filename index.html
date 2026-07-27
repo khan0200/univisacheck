@@ -4976,18 +4976,14 @@
                 "Global Open Major (College of International Studies) — Admission II (Year 1: General Education & Korean; Years 2-4: Major assigned in Humanities, Social Sciences, Natural Sciences, Art & Design, or Engineering based on IELTS 7.0+ / TOEFL iBT 100+ or TOPIK 5+)"
             ],
             koreanTrackMajors: [
-                "🌟 University College (Humanities/Science) — 【EXCLUSIVELY FOR INT'L STUDENTS】 1-year Intensive Korean & Incubating Program, then free choice of major among 46 departments",
-                "🌟 Department of Global Entertainment (College of Media & Communication) — 【EXCLUSIVELY FOR INT'L STUDENTS】",
-                "Korea University Business School: Business Administration",
-                "College of Liberal Arts: Korean Lang & Lit, Philosophy, Korean History, History, Sociology, Sinographic Literatures, English Lang & Lit, German, French, Chinese, Russian, Japanese, Spanish, Linguistics",
-                "College of Life Sciences & Biotechnology: Life Sciences, Biotechnology, Food Bioscience & Tech, Environmental Science & Ecological Eng, Food & Resource Economics",
-                "College of Political Science & Economics: Political Science & Int'l Relations, Economics, Statistics, Public Administration",
-                "College of Science & Informatics: Mathematics, Physics, Chemistry, Earth & Environmental Science, Computer Science & Eng, Data Science, Artificial Intelligence",
-                "College of Engineering: Chemical & Biological Eng, Materials Science, Civil Environmental & Architectural Eng, Architecture (5 yrs), Mechanical Eng, Industrial Management, Electrical Eng, Integrative Energy Eng",
-                "College of Education: Education, Korean Lang Ed, English Ed, Geography Ed, History Ed, Home Economics Ed, Math Ed, Physical Ed",
-                "School of Art & Design: Art & Design (Portfolio & Verification Statement required)",
-                "College of Health Science: Biomedical Eng, Biosystems & Biomedical Science, Health Environmental Science, Health Policy & Management",
-                "School of Interdisciplinary Studies & Psychology: Open Major Program, Smart Security, Psychology"
+                "🌟 University College — 【EXCLUSIVELY FOR INT'L STUDENTS】 1-yr Intensive Korean & Incubating → Choice of 46 departments",
+                "🌟 Department of Global Entertainment (Media & Communication) — 【EXCLUSIVELY FOR INT'L STUDENTS】",
+                "Business & Economics: Business Administration, Economics, Political Science & Int'l Relations",
+                "IT & Computer Science: Computer Science & Engineering, Artificial Intelligence, Data Science",
+                "Biotechnology: Life Sciences & Biotechnology",
+                "Humanities & Media: Media & Communication, Korean Language & Literature",
+                "Engineering: Mechanical Engineering, Electrical Engineering, Chemical & Biological Engineering",
+                "Art & Design: Art & Design (Portfolio required)"
             ],
             scholarships: [
                 { cert: "Anam Global Scholarship (Top-ranked student in each track)", percent: "100% Full Tuition (8 semesters)", renewal: "Min 12 credits & GPA 3.5+" },
@@ -5030,17 +5026,16 @@
                 "Global Campus: Department of Asian Studies [English Track] (College of International Studies)"
             ],
             koreanTrackMajors: [
-                "🌟 Department of Global Eminence (Seoul Campus - Freshmen) — 【EXCLUSIVELY FOR INT'L STUDENTS】 100% international student courses in 1st year; free choice of any Seoul Campus major in 2nd year if TOPIK 4+",
-                "🌟 Global Business Major (Seoul Campus - Transfer) — 【EXCLUSIVELY FOR INT'L STUDENTS】 Open for transfer application regardless of TOPIK level",
+                "🌟 Department of Global Eminence (Seoul Campus - Freshmen) — 【EXCLUSIVELY FOR INT'L STUDENTS】 100% int'l courses in 1st yr → Free major choice in 2nd yr (TOPIK 4+)",
+                "🌟 Global Business Major (Seoul Campus - Transfer) — 【EXCLUSIVELY FOR INT'L STUDENTS】",
                 "🌟 Department of Korean: Korean Language & Korean Contents Studies (Global Campus) — 【EXCLUSIVELY FOR INT'L STUDENTS】",
-                "🌟 School of Liberal Studies (Global Campus) — Open major program for int'l students (Free choice of Global Campus majors in 2nd year)",
-                "College of Humanities & Social Sciences: Korean Lang & Lit, History, Philosophy, English, Interpretation & Translation, Political Science, Public Admin, Sociology, Economics, Int'l Business & Trade, Media",
-                "College of Management: Business Administration, Accounting",
-                "College of Hotel & Tourism Management: Hospitality Management, Culinary Arts & Food Design Management, Tourism Science, Culture & Entertainment",
-                "College of Science & Life Sciences: Mathematics, Physics, Chemistry, Biology, Geography, Future Info Display, Genetics & Biotech, Food Science, Smart-Farm",
-                "College of Engineering & IT: Mechanical Eng, AI Robotics, Aerospace Mobility, Industrial Eng, Nuclear Eng, Chemical Eng, Advanced Materials, Civil Eng, Architectural Eng, Electronic Eng, Biomedical Eng, Computer Eng, Software Convergence, AI",
-                "College of Art, Design & Music: Industrial Design, Visual Design, Landscape Architecture, Textile & Clothing, Digital Contents, Ceramics, Postmodern Music, Theater & Film",
-                "College of Physical Education: Physical Education, Sports Medicine, Golf Industry, Taekwondo, Coaching"
+                "🌟 School of Liberal Studies (Global Campus) — Open major program (Free choice of Global Campus majors in 2nd yr)",
+                "Business & Management: Business Administration, Accounting",
+                "Hospitality & Tourism: Hospitality Management, Culinary Arts & Food Design Management",
+                "Humanities & Social Sciences: Media & Communication, International Business & Trade, Economics, Korean Lang & Lit",
+                "Engineering & IT: Computer Engineering, Artificial Intelligence, Electronic Engineering, Software Convergence",
+                "Art & Music: Visual Design, Postmodern Music, Theater & Film",
+                "Physical Education: Taekwondo, Sports Medicine"
             ],
             scholarships: [
                 { cert: "Admission Scholarship A (Highest score in each college)", percent: "100% Full Tuition (1st semester)", renewal: "Score 90+ in admission evaluation" },
@@ -5301,11 +5296,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v54')) {
-        localStorage.setItem('custom_universities_v54', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v55')) {
+        localStorage.setItem('custom_universities_v55', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v54'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v55'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
