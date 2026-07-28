@@ -44,10 +44,10 @@
             --sp-xs: 8px;
             --sp-sm: 16px;
             --sp-md: 24px;
-            --sp-lg: 40px;
+            --sp-lg: 32px;
             --sp-xl: 48px;
             --sp-2xl:64px;
-            --max-w: 1280px;
+            --max-w: 1440px;
             --nav-h: 64px;
         }
 
@@ -1372,14 +1372,14 @@
         }
         .top-unis-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
             padding: 16px 4px 32px; /* bottom padding for shadow & hover */
             align-items: start;
         }
         .top-uni-card {
             min-width: 0;
-            max-width: 320px;
+            max-width: none;
             width: 100%;
             background: #ffffff;
             border-radius: 16px;
@@ -5881,11 +5881,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v93')) {
-        localStorage.setItem('custom_universities_v93', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v94')) {
+        localStorage.setItem('custom_universities_v94', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v93'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v94'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
