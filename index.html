@@ -4186,8 +4186,8 @@
                 "International Business (English Track)"
             ],
             koreanTrackMajors: [
-                "Global Hospitality Management (English Track - Haftada 1 kun)",
-                "International Business (English Track)"
+                "Global Hospitality Management (Korean Track - Haftada 1 kun)",
+                "International Business (Korean Track)"
             ],
             scholarships: [
                 { cert: "Standard International Master Discount (Global Hospitality)", percent: "25% Tuition Waiver" }
@@ -5263,8 +5263,8 @@
                 "International Business (English Track)"
             ],
             koreanTrackMajors: [
-                "Global Hospitality Management (English Track - Haftada 1 kun)",
-                "International Business (English Track)"
+                "Global Hospitality Management (Korean Track - Haftada 1 kun)",
+                "International Business (Korean Track)"
             ],
             scholarships: [
                 { cert: "Standard International Master Discount (Global Hospitality)", percent: "25% Tuition Waiver" }
@@ -5455,11 +5455,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v72')) {
-        localStorage.setItem('custom_universities_v72', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v73')) {
+        localStorage.setItem('custom_universities_v73', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v72'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v73'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
