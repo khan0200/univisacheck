@@ -6124,39 +6124,45 @@
             koreanName: "서울과학기술대학교 (SeoulTech)",
             location: "SEOUL",
             address: "📍 232 Gongneung-ro, Nowon-gu, Seoul 01811, South Korea",
-            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH7-ADK5qXf1x-C4-lHmt7eCafyIO_cNjrkv0U05WhjDJFv2SfUcGr0qKh&s=10",
             qsRank: "TOP 800 World (#1 National Tech)",
             founded: "1910",
             programs: "120+",
-            appFee: "100,000 KRW",
+            appFee: "120,000 KRW",
             badge1: "Licensed Uni",
             badge2: "National Tech Uni",
             badge1Class: "badge-blue",
             brandColor: "#003b6e",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,300,000 - 2,800,000 KRW / semestr",
-            language: "TOPIK 3+ | IELTS 6.0+",
+            tuition: "2,599,230 - 3,288,410 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
-            description: "Seulda joylashgan Koreyadagi yirik va nufuzli Milliy Texnologiyalar Universiteti (SeoulTech). Yuqori texnologiyalar, Muhandislik, IT va Dizayn sohalarida TOP reytingda turadi.",
+            description: "Seulda joylashgan Koreyaning yirik va nufuzli Milliy Texnologiyalar Universiteti (SeoulTech). Muhandislik, IT, Dizayn va Biznes sohalarida dunyoning TOP reytinglarida turadi va 1-semestr uchun munosib grantlarni taklif etadi.",
             englishTrackMajors: [
-                "MSDE (Manufacturing Systems & Design)",
-                "ITM (IT Management)"
+                "MSDE (Manufacturing Systems & Design Engineering)",
+                "Business Administration (IMS program - International Management Studies)",
+                "Global IT Convergence"
             ],
             koreanTrackMajors: [
-                "Computer Science & Engineering",
+                "Computer Science and Engineering",
                 "Mechanical Engineering",
-                "Business Administration",
-                "Industrial Design"
+                "Automotive Engineering",
+                "Industrial Design Program",
+                "Visual Communication Design Program"
             ],
             scholarships: [
-                { cert: "TOPIK 6 / IELTS 7.5", percent: "100%" },
-                { cert: "TOPIK 4 / IELTS 6.5", percent: "50%" }
+                { cert: "TOPIK 6 / IELTS 7.0+ (Level A Assessment)", percent: "100% grant + Bepul yotoqxona" },
+                { cert: "TOPIK 6 / IELTS 7.0+ (Level B Assessment)", percent: "100% To'liq grant" },
+                { cert: "TOPIK 5 / IELTS 6.5+ (Level A Assessment)", percent: "100% To'liq grant" },
+                { cert: "TOPIK 5 / IELTS 6.5+ (Level B Assessment)", percent: "70% chegirma" },
+                { cert: "TOPIK 4 / IELTS 6.0+ (Level A Assessment)", percent: "70% chegirma" },
+                { cert: "TOPIK 4 / IELTS 6.0+ (Level B Assessment)", percent: "50% chegirma" }
             ],
-            otherGrantsNote: "Arzon davlat kontrakt narxi hamda ingliz va koreys yo'nalishlarida saxiy akademik stipendiyalar beriladi.",
-            majors: ["Computer Science & Engineering", "MSDE (English)", "Mechanical Engineering", "Industrial Design"]
+            otherGrantsNote: "Application Fee: Single - 120,000 KRW | Dual - 170,000 KRW. 2-semestrdan boshlab GPA ballariga ko'ra (3.5 GPA dan yuqori) 30% dan 100% gacha akademik stipendiyalar beriladi.",
+            majors: ["MSDE (English)", "Computer Science", "Business Administration", "Industrial Design"]
         },
 {
             name: "Dong-Eui Institute of Technology",
@@ -6373,11 +6379,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v132')) {
-        localStorage.setItem('custom_universities_v132', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v133')) {
+        localStorage.setItem('custom_universities_v133', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v132'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v133'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
