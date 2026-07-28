@@ -6041,39 +6041,51 @@
             koreanName: "대구대학교",
             location: "GYEONGSAN (DAEGU AREA)",
             address: "📍 201 Daegudae-ro, Jillyang-eup, Gyeongsan-si, Gyeongsangbuk-do, South Korea",
-            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            img: "https://i.namu.wiki/i/7yMQDXP9LZpeupaiJK3JCOdjcMdyVz9pHGYMwlBcAUgPf1--v6JeQzb3IpPDkH46T5R1o1ugvjk1s8CcziDpMA.webp",
             qsRank: "Akkreditatsiyaga ega",
             founded: "1956",
             programs: "100+",
-            appFee: "70,000 KRW",
+            appFee: "100,000 KRW",
             badge1: "Licensed Uni",
             badge2: "Private University",
             badge1Class: "badge-blue",
             brandColor: "#004080",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,800,000 - 3,900,000 KRW / semestr",
-            language: "TOPIK 3+ | IELTS 5.5+",
+            tuition: "3,772,000 - 5,502,000 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 51+",
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Daegu aglomeratsiyasida joylashgan yirik va mashhur universitet. Reabilitatsiya fanlari, K-Beauty, Biznes va IT sohalarida hamyonbop ta'lim beradi.",
+            description: "Daegu aglomeratsiyasida joylashgan yirik va mashhur universitet. Reabilitatsiya fanlari (Rehabilitation Sciences), K-Beauty, Biznes va IT sohalarida hamyonbop va nufuzli ta'lim beradi.",
             englishTrackMajors: [
-                "Global Business",
-                "International Studies"
+                "Global Business (English Track)",
+                "Media Studies (English Track)",
+                "Agri-Industry (English Track)",
+                "AI Computer Engineering (English Track)",
+                "Electronic and Electrical ICT Engineering (English Track)",
+                "Design and Arts (English Track)"
             ],
             koreanTrackMajors: [
                 "Business Administration",
-                "Rehabilitation Science",
-                "Computer Engineering",
+                "Rehabilitation Sciences (Speech-Language Pathology, operation treatment, etc.)",
+                "Computer Software Engineering",
                 "K-Beauty Design"
             ],
             scholarships: [
-                { cert: "TOPIK 4 / IELTS 6.5", percent: "50%" },
-                { cert: "TOPIK 3 / IELTS 5.5", percent: "30%" }
+                { cert: "TOPIK Level 6 (Freshman)", percent: "100% grant (Birinchi 8 semestr)" },
+                { cert: "TOPIK Level 5 (Freshman)", percent: "100% grant (Birinchi 4 semestr)" },
+                { cert: "TOPIK Level 4 (Freshman)", percent: "100% grant (Birinchi 2 semestr)" },
+                { cert: "TOPIK Level 3 (Freshman)", percent: "100% grant (1-semestr)" },
+                { cert: "TOPIK Level 2 (Arts/PE track only)", percent: "100% grant (1-semestr)" },
+                { cert: "Daegu Language Center (Level 3-6)", percent: "50% grant (1-semestr)" },
+                { cert: "DU-TOPIK Passers", percent: "40% grant (1-semestr)" },
+                { cert: "IELTS 7.5 / TOEFL 100+ (English Track)", percent: "100% grant (1-semestr)" },
+                { cert: "IELTS 7.0 / TOEFL 91+ (English Track)", percent: "70% grant (1-semestr)" },
+                { cert: "IELTS 5.5 / TOEFL 51+ (English Track)", percent: "50% grant (1-semestr)" }
             ],
-            otherGrantsNote: "Semestr kontrakt to'lovlari hamyonbop bo'lib, a'lochi talabalarga saxiy stipendiyalar taqdim etiladi.",
-            majors: ["Business Administration", "Rehabilitation Science", "Computer Engineering", "K-Beauty Design"]
+            otherGrantsNote: "Application Fee: 100,000 KRW. 2-semestrdan boshlab GPA ballariga ko'ra (3.0 GPA dan yuqori) 50% dan 100% gacha akademik stipendiyalar beriladi.",
+            majors: ["Business Administration", "Rehabilitation Sciences", "Computer Engineering", "K-Beauty Design"]
         },
 {
             name: "Pukyong National University",
@@ -6379,11 +6391,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v133')) {
-        localStorage.setItem('custom_universities_v133', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v134')) {
+        localStorage.setItem('custom_universities_v134', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v133'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v134'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
