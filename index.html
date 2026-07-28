@@ -6080,39 +6080,44 @@
             koreanName: "부경대학교 (PKNU)",
             location: "BUSAN",
             address: "📍 45 Yongso-ro, Nam-gu, Busan 48513, South Korea",
-            img: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
-            qsRank: "1% Akkreditatsiya (Milliy Davlat)",
+            img: "https://www.nord.no/sites/default/files/styles/half_desktop_width/public/2025-05/Pukyong%20j.jpg?itok=TV2JwlBg",
+            qsRank: "Akkreditatsiyaga ega (Milliy Davlat)",
             founded: "1924",
             programs: "130+",
-            appFee: "60,000 KRW",
+            appFee: "Waived (0 KRW)",
             badge1: "Licensed Uni",
             badge2: "National University",
             badge1Class: "badge-blue",
             brandColor: "#002d62",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "1,700,000 - 2,400,000 KRW / semestr",
-            language: "TOPIK 3+ | IELTS 5.5+",
+            tuition: "1,703,000 - 2,241,500 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 69+",
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Busan shahrida joylashgan Koreyaning eng nufuzli va arzon Milliy Davlat Universitetlaridan biri. Ummonografiya, Dengiz Muhandisligi, IT va Biznes fakultetlari mashhur.",
+            description: "Busan shahrida joylashgan Koreyaning eng birinchi birlashgan Milliy Davlat Universiteti (PKNU). 1-kurs talabalari Division of Global & Interdisciplinary Studies yo'nalishida tahsil olib, 2-kursdan asosiy mutaxassislikka o'tadilar.",
             englishTrackMajors: [
-                "International Studies",
-                "Global Business"
+                "Division of Global & Interdisciplinary Studies (1-kurs umumiy)",
+                "↳ Computer Science & Artificial Intelligence (2-kursdan faqat English track)",
+                "↳ Tourism and Hospitality Management (2-kursdan faqat English track)"
             ],
             koreanTrackMajors: [
-                "Oceanography & Marine Engineering",
-                "Computer Science",
-                "Business Administration",
-                "Environmental Engineering"
+                "Division of Global & Interdisciplinary Studies (1-kurs umumiy)",
+                "↳ Istalgan koreys tili treki mutaxassisligi (2-kursdan barcha yo'nalishlar)"
             ],
             scholarships: [
-                { cert: "TOPIK 5+ / IELTS 7.0+", percent: "100%" },
-                { cert: "TOPIK 4 / IELTS 6.0", percent: "50%" }
+                { cert: "TOPIK Level 5 / 6 (Korean Track)", percent: "100% birinchi semestr" },
+                { cert: "TOPIK Level 4 (Korean Track)", percent: "40% birinchi semestr" },
+                { cert: "IELTS 8.0 / TOEFL 111 (English Track)", percent: "100% birinchi semestr" },
+                { cert: "IELTS 7.5 / TOEFL 102 (English Track)", percent: "80% birinchi semestr" },
+                { cert: "IELTS 7.0 / TOEFL 93 (English Track)", percent: "40% birinchi semestr" },
+                { cert: "IELTS 6.5 / TOEFL 84 (English Track)", percent: "20% birinchi semestr" },
+                { cert: "PKNU Language Center (TOPIK 4)", percent: "80% birinchi semestr" },
+                { cert: "PKNU Language Center (TOPIK 3)", percent: "40% birinchi semestr" }
             ],
-            otherGrantsNote: "Milliy davlat universiteti bo'lgani sababli kontrakt narxlari juda hamyonbop (~1.7M KRW).",
-            majors: ["Oceanography", "Computer Science", "Business Administration", "Marine Engineering"]
+            otherGrantsNote: "Application Fee: Waived (Bepul). 1-kursni Division of Global & Interdisciplinary Studies (KR/ENG) yo'nalishida o'qib, 2-semestrda (2-kursdan) yo'nalish o'zgartiriladi. English track talabalari faqat Computer Science & AI yoki Tourism & Hospitality yo'nalishlariga o'ta oladilar.",
+            majors: ["Computer Science & AI", "Tourism & Hospitality Management", "Global Business"]
         },
 {
             name: "SeoulTech",
@@ -6368,11 +6373,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v131')) {
-        localStorage.setItem('custom_universities_v131', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v132')) {
+        localStorage.setItem('custom_universities_v132', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v131'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v132'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
