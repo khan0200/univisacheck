@@ -4389,7 +4389,7 @@
             location: "SEOUL",
             address: "📍 (02844) 2, Bomun-ro 34da-gil, Seongbuk-gu, Seoul, Republic of Korea",
             img: "https://image.free-apply.com/gallery/l/uni/gallery/lg/1041000210/0247a23bf81c6a1c1f0f689ce820e3f6feb46383.jpg?s=640",
-            qsRank: "TOP 500 Asia (1% IEQAS)",
+            qsRank: "QS #1201-1400 / Asia #322",
             founded: "1936-yil",
             tuition: "3,833,000 - 5,893,000 KRW / semestr",
             appFee: "150,000 KRW (General) / 170,000 KRW (Arts/Music/PE)",
@@ -5723,7 +5723,7 @@
             location: "SEOUL",
             address: "📍 (02844) 2, Bomun-ro 34da-gil, Seongbuk-gu, Seoul, Republic of Korea",
             img: "https://image.free-apply.com/gallery/l/uni/gallery/lg/1041000210/0247a23bf81c6a1c1f0f689ce820e3f6feb46383.jpg?s=640",
-            qsRank: "TOP 500 Asia (1% IEQAS)",
+            qsRank: "QS #1201-1400 / Asia #322",
             founded: "1936",
             programs: "85+",
             badge1: "1% Akkreditatsiya",
@@ -5881,11 +5881,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v92')) {
-        localStorage.setItem('custom_universities_v92', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v93')) {
+        localStorage.setItem('custom_universities_v93', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v92'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v93'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
