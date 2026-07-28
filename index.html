@@ -5905,11 +5905,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v117')) {
-        localStorage.setItem('custom_universities_v117', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v118')) {
+        localStorage.setItem('custom_universities_v118', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v117'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v118'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -5957,39 +5957,8 @@
         const noResultsMsg = document.getElementById('topCardsNoResults');
         const query = (document.getElementById('topCardsSearchInput')?.value || '').trim().toLowerCase();
 
-        // Helper to determine rank score (lower score = higher rank)
-        function getUniRankScore(uni) {
-            // 1. Try parsing a numeric world rank directly from the card's displayed qsRank first
-            const qs = uni.qsRank || '';
-            const isDomestic = qs.toLowerCase().includes('korea') || qs.toLowerCase().includes('aviation');
-            if (!isDomestic) {
-                const hashMatch = qs.match(/QS\s*(?:Rank:)?\s*#?(\d+)/i) || qs.match(/#(\d+)/);
-                if (hashMatch) return parseInt(hashMatch[1], 10);
-                const topMatch = qs.match(/(?:TOP|THE)\s*#?(\d+)/i);
-                if (topMatch) return parseInt(topMatch[1], 10);
-            }
-
-            // 2. Fall back to the WORLD_RANKINGS lookup
-            const nameKey = uni.name.toUpperCase().trim();
-            const rankingStr = WORLD_RANKINGS[nameKey];
-            if (rankingStr) {
-                const num = parseInt(rankingStr.replace(/[^0-9]/g, ''), 10);
-                if (!isNaN(num)) return num;
-            }
-
-            // 3. Otherwise, treat as unranked (sort at the bottom)
-            return 99999;
-        }
-
-        // Sort by ranking (highest rank first), sub-sort alphabetically
-        const sorted = [...TOP_UNIS_DATA].sort((a, b) => {
-            const rankA = getUniRankScore(a);
-            const rankB = getUniRankScore(b);
-            if (rankA !== rankB) {
-                return rankA - rankB;
-            }
-            return a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
-        });
+        // Preserve the exact sequence defined in TOP_UNIS_DATA
+        const sorted = [...TOP_UNIS_DATA];
 
         // Filter cards
         const filtered = sorted.filter(uni => {
