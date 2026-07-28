@@ -2463,8 +2463,8 @@
             align-items: center;
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 14px 20px;
+            border-radius: 10px;
+            padding: 10px 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.01);
             transition: all 0.2s ease;
         }
@@ -2473,16 +2473,16 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
         }
         .grant-cert {
-            font-size: 13px;
+            font-size: 11.5px;
             font-weight: 600;
             color: #475569;
             margin-bottom: 0;
             text-transform: none;
             letter-spacing: normal;
-            line-height: 1.4;
+            line-height: 1.3;
         }
         .grant-percent {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 700;
             color: #2563eb;
             letter-spacing: -0.3px;
@@ -4327,12 +4327,12 @@
                 { cert: "TOPIK 5 / KLEC Level 5", percent: "50%" },
                 { cert: "TOPIK 4 / KLEC Level 4", percent: "25%" },
                 { cert: "Sogang KLEC Level 3+ completed", percent: "25%" },
-                { cert: "Sogang Excellence I (Top 1%)", percent: "100% (8 Semesters)" },
-                { cert: "Sogang Excellence II (Top 3%)", percent: "100% (2 Semesters)" },
-                { cert: "Sogang Excellence III (Top 5%)", percent: "100% (1st Sem)" },
-                { cert: "Admission Scholarship I (Top 10%)", percent: "50%" },
-                { cert: "Admission Scholarship II (Top 25%)", percent: "25%" },
-                { cert: "Admission Scholarship III (Top 50%)", percent: "10%" }
+                { cert: "Excellence I (Top 1%)", percent: "100% (8 Sem)" },
+                { cert: "Excellence II (Top 3%)", percent: "100% (2 Sem)" },
+                { cert: "Excellence III (Top 5%)", percent: "100% (1st Sem)" },
+                { cert: "Admission I (Top 10%)", percent: "50%" },
+                { cert: "Admission II (Top 25%)", percent: "25%" },
+                { cert: "Admission III (Top 50%)", percent: "10%" }
             ],
             otherGrantsNote: "Sogang KLEC (Koreys tili kursi) darajalarini tamomlagan yoki IELTS 7.0+, TOPIK 4+ ga ega bo'lgan talabalarga birinchi semestrda 25% dan 100% gacha til grantlari taqdim etiladi. Shuningdek, kirish natijalari reytingi asosida 10% dan 100% gacha Akademik grantlar ajratiladi.",
             majors: ["Business Administration", "Economics", "Korean Language & Literature"]
@@ -5515,12 +5515,12 @@
                 { cert: "TOPIK 5 / KLEC Level 5", percent: "50%" },
                 { cert: "TOPIK 4 / KLEC Level 4", percent: "25%" },
                 { cert: "Sogang KLEC Level 3+ completed", percent: "25%" },
-                { cert: "Sogang Excellence I (Top 1%)", percent: "100% (8 Semesters)" },
-                { cert: "Sogang Excellence II (Top 3%)", percent: "100% (2 Semesters)" },
-                { cert: "Sogang Excellence III (Top 5%)", percent: "100% (1st Sem)" },
-                { cert: "Admission Scholarship I (Top 10%)", percent: "50%" },
-                { cert: "Admission Scholarship II (Top 25%)", percent: "25%" },
-                { cert: "Admission Scholarship III (Top 50%)", percent: "10%" }
+                { cert: "Excellence I (Top 1%)", percent: "100% (8 Sem)" },
+                { cert: "Excellence II (Top 3%)", percent: "100% (2 Sem)" },
+                { cert: "Excellence III (Top 5%)", percent: "100% (1st Sem)" },
+                { cert: "Admission I (Top 10%)", percent: "50%" },
+                { cert: "Admission II (Top 25%)", percent: "25%" },
+                { cert: "Admission III (Top 50%)", percent: "10%" }
             ],
             otherGrantsNote: "Sogang KLEC (Koreys tili kursi) darajalarini tamomlagan yoki IELTS 7.0+, TOPIK 4+ ga ega bo'lgan talabalarga birinchi semestrda 25% dan 100% gacha til grantlari taqdim etiladi. Shuningdek, kirish natijalari reytingi asosida 10% dan 100% gacha Akademik grantlar ajratiladi.",
             majors: ["Business Administration", "Economics", "Korean Language & Literature"]
@@ -5707,11 +5707,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v88')) {
-        localStorage.setItem('custom_universities_v88', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v89')) {
+        localStorage.setItem('custom_universities_v89', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v88'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v89'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
