@@ -4075,10 +4075,10 @@
             appFee: "70,000 KRW",
             language: "TOPIK 3+ / IELTS 6.0+ (TOEFL iBT 80+ / TEPS 269+)",
             type: "Davlat Universiteti",
-            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
-            is1Percent: true,
-            visaStatus: "Yengillashtirilgan (1%)",
-            visaDetails: "1% yengillashtirilgan viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            statusTag: "📜 Akkreditatsiyaga ega (Milliy)",
+            is1Percent: false,
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish talab etiladi.",
             kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
             description: "Seoul National University (SNU) — Janubiy Koreyaning #1 raqamli eng nufuzli milliy universiteti. SKY akademiyasining eng birinchi vakili bo'lib, xalqaro miqyosda juda yuqori obro'ga ega. Biznes, Iqtisodiyot, Kompyuter muhandisligi yo'nalishlarida yetakchi.",
             englishTrackMajors: [
@@ -5528,18 +5528,18 @@
             qsRank: "#41 (TOP 50)",
             founded: "1946",
             programs: "150+",
-            badge1: "1% Akkreditatsiya",
+            badge1: "National University",
             badge2: "SKY National Uni",
-            badge1Class: "badge-gold",
+            badge1Class: "badge-blue",
             brandColor: "#0f3b82",
-            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
-            is1Percent: true,
+            statusTag: "📜 Akkreditatsiyaga ega (Milliy)",
+            is1Percent: false,
             tuition: "2,442,000 - 5,038,000 KRW / semestr",
             appFee: "70,000 KRW",
             language: "TOPIK 3+ yoki IELTS 6.0+",
-            visaStatus: "Yengillashtirilgan (1%)",
+            visaStatus: "Standart Tekshiruv",
             kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
-            description: "Seoul National University (SNU) — Janubiy Koreyaning #1 raqamli eng nufuzli milliy universiteti. SKY akademiyasining eng birinchi vakili bo'lib, xalqaro miqyosda juda yuqori obro'ga ega.",
+            description: "Seoul National University (SNU) — Janubiy Koreyaning #1 raqamli eng nufuzli milliy universiteti. SKY akademiyasining eng birinchi vakili bo'lib, xalqaro miqyosda yuqori obro'ga ega.",
             englishTrackMajors: [
                 "Business Administration (English Track)"
             ],
@@ -5701,11 +5701,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v86')) {
-        localStorage.setItem('custom_universities_v86', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v87')) {
+        localStorage.setItem('custom_universities_v87', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v86'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v87'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
