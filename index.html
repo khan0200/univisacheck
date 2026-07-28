@@ -4179,6 +4179,7 @@
             is1Percent: true,
             visaStatus: "Magistr E-Viza",
             visaDetails: "Magistratura E-Visa imkoniyati amal qiladi. Haftada 1 kunlik darslar (English Track). Elchixonaga ota-ona daromad manbai va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
             description: "Namseoul University (Magistratura) — Cheonan shahrida joylashgan. Haftada 1 kunlik darslar grafigi va English Track dasturi. Global Hospitality and Management yo'nalishi bo'yicha IELTS 5.5+ yoki TOPIK 3 natijasi bilan ariza topshirish va 25% kontrakt chegirmasiga ega bo'lish imkoniyati mavjud. Arizalar qabuli: 17-iyun – 6-iyul.",
             englishTrackMajors: [
                 "Global Hospitality Management (English Track - Haftada 1 kun)",
@@ -5261,6 +5262,7 @@
             language: "IELTS 5.5+ yoki TOPIK 3+",
             visaStatus: "Magistr E-Viza",
             visaDetails: "Magistratura E-Visa imkoniyati amal qiladi. Haftada 1 kunlik darslar (English Track). Elchixonaga ota-ona daromad manbai va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+            kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
             description: "Cheonan shahrida joylashgan Magistratura E-Visa dasturi. Global Hospitality and Management (Haftada 1 kun dars, English Track). IELTS 5.5+ yoki TOPIK 3 bilan 25% semestr chegirmasi (2,437,500 KRW). Arizalar qabuli: 17-iyun – 6-iyul.",
             englishTrackMajors: [
                 "Global Hospitality Management (English Track - Haftada 1 kun)",
@@ -5465,11 +5467,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v68')) {
-        localStorage.setItem('custom_universities_v68', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v69')) {
+        localStorage.setItem('custom_universities_v69', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v68'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v69'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
