@@ -4180,7 +4180,7 @@
             visaStatus: "Magistr E-Viza",
             visaDetails: "Magistratura E-Visa imkoniyati amal qiladi. Haftada 1 kunlik darslar (English Track). Elchixonaga ota-ona daromad manbai va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Namseoul University (Magistratura) — Cheonan shahrida joylashgan. Haftada 1 kunlik darslar grafigi va English Track dasturi. Global Hospitality and Management yo'nalishi bo'yicha IELTS 5.5+ yoki TOPIK 3 natijasi bilan ariza topshirish va 25% kontrakt chegirmasiga ega bo'lish imkoniyati mavjud. Arizalar qabuli: 17-iyun – 6-iyul.",
+            description: "Namseoul University (Magistratura) — Cheonan shahrida joylashgan. Haftada 1 kunlik darslar grafigi va English Track dasturi. Global Hospitality and Management yo'nalishi bo'yicha IELTS 5.5+ yoki TOPIK 3 natijasi bilan ariza topshirish va 25% kontrakt chegirmasiga ega bo'lish imkoniyati mavjud.",
             englishTrackMajors: [
                 "Global Hospitality Management (English Track - Haftada 1 kun)",
                 "International Business (English Track)"
@@ -4189,7 +4189,7 @@
             scholarships: [
                 { cert: "Standard International Master Discount (Global Hospitality)", percent: "25% Tuition Waiver" }
             ],
-            otherGrantsNote: "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi. Arizalar qabul muddati: 17-iyun – 6-iyul.",
+            otherGrantsNote: "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi.",
             majors: ["Global Hospitality Management", "International Business"]
         }
     };
@@ -5254,7 +5254,7 @@
             visaStatus: "Magistr E-Viza",
             visaDetails: "Magistratura E-Visa imkoniyati amal qiladi. Haftada 1 kunlik darslar (English Track). Elchixonaga ota-ona daromad manbai va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Cheonan shahrida joylashgan Magistratura E-Visa dasturi. Global Hospitality and Management (Haftada 1 kun dars, English Track). IELTS 5.5+ yoki TOPIK 3 bilan 25% semestr chegirmasi (2,437,500 KRW). Arizalar qabuli: 17-iyun – 6-iyul.",
+            description: "Cheonan shahrida joylashgan Magistratura E-Visa dasturi. Global Hospitality and Management (Haftada 1 kun dars, English Track). IELTS 5.5+ yoki TOPIK 3 bilan 25% semestr chegirmasi (2,437,500 KRW).",
             englishTrackMajors: [
                 "Global Hospitality Management (English Track - Haftada 1 kun)",
                 "International Business (English Track)"
@@ -5263,7 +5263,7 @@
             scholarships: [
                 { cert: "Standard International Master Discount (Global Hospitality)", percent: "25% Tuition Waiver" }
             ],
-            otherGrantsNote: "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi. Arizalar qabul muddati: 17-iyun – 6-iyul.",
+            otherGrantsNote: "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi.",
             majors: ["Global Hospitality Management", "International Business"]
         },
         {
@@ -5449,11 +5449,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v70')) {
-        localStorage.setItem('custom_universities_v70', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v71')) {
+        localStorage.setItem('custom_universities_v71', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v70'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v71'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -5779,7 +5779,6 @@
                     <p><strong>Darslar grafigi:</strong> Haftada 1 kunlik darslar (1 day a week lessons)</p>
                     <p><strong>English Track (Global Hospitality & Management):</strong> IELTS 5.5+ (yoki TOEFL iBT 59+ / CEFR B2)</p>
                     <p><strong>Korean Track:</strong> TOPIK Level 3+</p>
-                    <p><strong>Arizalar qabul muddati:</strong> 17-iyun – 6-iyul</p>
                     <p><strong>Tuition & Scholarship:</strong> Original 3,250,000 KRW → 2,437,500 KRW / semestr (25% Grant bilan)</p>
                 `;
             } else if (details.name === 'Hoseo University') {
