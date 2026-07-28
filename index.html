@@ -2442,44 +2442,52 @@
         /* ─── GRANTS GRID ─── */
         .grants-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 10px;
-            margin-bottom: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
         }
         .grant-group-header {
             font-size: 11px;
             font-weight: 700;
             color: #475569;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             letter-spacing: 0.5px;
             border-bottom: 1.5px solid #f1f5f9;
-            padding-bottom: 4px;
+            padding-bottom: 6px;
             text-transform: uppercase;
         }
         .grant-card {
             display: flex;
-            flex-direction: column;
-            background: #f8fafc;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px 12px;
-            justify-content: center;
+            border-radius: 12px;
+            padding: 14px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            transition: all 0.2s ease;
+        }
+        .grant-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
         }
         .grant-cert {
-            font-size: 11px;
-            font-weight: 500;
-            color: #64748b;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            line-height: 1.2;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0;
+            text-transform: none;
+            letter-spacing: normal;
+            line-height: 1.4;
         }
         .grant-percent {
             font-size: 15px;
             font-weight: 700;
-            color: #1d4ed8;
+            color: #2563eb;
             letter-spacing: -0.3px;
             line-height: 1.2;
+            white-space: nowrap;
         }
         .grants-other-box {
             background: #f8fafc;
@@ -5693,11 +5701,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v85')) {
-        localStorage.setItem('custom_universities_v85', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v86')) {
+        localStorage.setItem('custom_universities_v86', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v85'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v86'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6170,7 +6178,7 @@
                 const ieltsCardsHtml = ieltsGrants.map(g => `
                     <div class="grant-card">
                         <span class="grant-cert">${g.cert}</span>
-                        <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
+                        <span class="grant-percent">${g.percent}</span>
                     </div>
                 `).join('');
                 
@@ -6185,7 +6193,7 @@
                 const topikCardsHtml = topikGrants.map(g => `
                     <div class="grant-card">
                         <span class="grant-cert">${g.cert}</span>
-                        <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
+                        <span class="grant-percent">${g.percent}</span>
                     </div>
                 `).join('');
 
@@ -6200,7 +6208,7 @@
                 const otherCardsHtml = otherGrants.map(g => `
                     <div class="grant-card">
                         <span class="grant-cert">${g.cert}</span>
-                        <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
+                        <span class="grant-percent">${g.percent}</span>
                     </div>
                 `).join('');
 
