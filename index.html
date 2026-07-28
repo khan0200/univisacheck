@@ -6057,20 +6057,19 @@
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Daegu aglomeratsiyasida joylashgan yirik va mashhur universitet. Reabilitatsiya fanlari (Rehabilitation Sciences), K-Beauty, Biznes va IT sohalarida hamyonbop va nufuzli ta'lim beradi.",
+            description: "Daegu shahrida joylashgan xususiy universitet. Xalqaro talabalar faqat Oliy Xalqaro Tadqiqotlar Kolleji (College of International Studies) yo'nalishlariga qabul qilinadi.",
             englishTrackMajors: [
-                "Global Business (English Track)",
-                "Media Studies (English Track)",
-                "Agri-Industry (English Track)",
-                "AI Computer Engineering (English Track)",
-                "Electronic and Electrical ICT Engineering (English Track)",
-                "Design and Arts (English Track)"
+                "Global Business (Division of Global Service)",
+                "Media Studies (Division of Global Service)",
+                "Agri-Industry (Division of Global Service)",
+                "AI Computer Engineering (Division of Global Service)",
+                "Electronic and Electrical ICT Engineering (Division of Global Service)",
+                "Design and Arts (Division of Global Service)"
             ],
             koreanTrackMajors: [
-                "Business Administration",
-                "Rehabilitation Sciences (Speech-Language Pathology, operation treatment, etc.)",
-                "Computer Software Engineering",
-                "K-Beauty Design"
+                "Korean Education (Division of Global Korean Studies)",
+                "Korean Language Interpretation and Translation (Division of Global Korean Studies)",
+                "Division of Global Liberal Studies (Yo'nalishsiz kirish - 2 semestrdan so'ng mutaxassislik tanlanadi)"
             ],
             scholarships: [
                 { cert: "TOPIK Level 6 (Freshman)", percent: "100% grant (Birinchi 8 semestr)" },
@@ -6084,8 +6083,8 @@
                 { cert: "IELTS 7.0 / TOEFL 91+ (English Track)", percent: "70% grant (1-semestr)" },
                 { cert: "IELTS 5.5 / TOEFL 51+ (English Track)", percent: "50% grant (1-semestr)" }
             ],
-            otherGrantsNote: "Application Fee: 100,000 KRW. 2-semestrdan boshlab GPA ballariga ko'ra (3.0 GPA dan yuqori) 50% dan 100% gacha akademik stipendiyalar beriladi.",
-            majors: ["Business Administration", "Rehabilitation Sciences", "Computer Engineering", "K-Beauty Design"]
+            otherGrantsNote: "Application Fee: 100,000 KRW. Ko'rsatilgan yo'nalishlardan boshqa mutaxassisliklar xalqaro talabalarni qabul qilmaydi. English Track darslari to'liq ingliz tilida olib boriladi.",
+            majors: ["Global Business", "Media Studies", "Korean Education", "AI Computer Engineering", "Design and Arts"]
         },
 {
             name: "Pukyong National University",
@@ -6391,11 +6390,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v134')) {
-        localStorage.setItem('custom_universities_v134', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v135')) {
+        localStorage.setItem('custom_universities_v135', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v134'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v135'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
