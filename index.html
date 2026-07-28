@@ -5514,7 +5514,7 @@
             koreanName: "동의대학교",
             location: "BUSAN",
             address: "📍 176 Eomgwang-ro, Busanjin-gu, Busan 47340, South Korea",
-            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKcH2DZcpwdQhl8V5spT3rkWhRxuKjqjruBwAuxMBV7Q&s=10",
             qsRank: "Akkreditatsiyaga ega",
             founded: "1977",
             programs: "110+",
@@ -5526,26 +5526,27 @@
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
             tuition: "2,800,000 - 3,700,000 KRW / semestr",
-            language: "TOPIK 3+ | IELTS 5.5+",
+            language: "TOPIK 3+ | IELTS 6.0+",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Busan shahrida joylashgan nufuzli xususiy universitet. Kompyuter Dasturlash, O'yinlar Muhandisligi, Mehmonxona va Biznes fakultetlari bilan tanilgan.",
+            description: "Busan shahrida joylashgan nufuzli xususiy universitet. Kompyuter Dasturlash, Biznes hamda Mehmonxona boshqaruvi yo'nalishlarida ingliz va koreys tili dasturlarini taklif etadi. Bakalavr bosqichida darslar haftasiga 4 kun tashkil etiladi.",
             englishTrackMajors: [
-                "Global Business"
+                "Business Administration (English Track)",
+                "Computer Engineering (English Track)",
+                "Hospitality and Tourism (English Track)"
             ],
             koreanTrackMajors: [
-                "Business Administration",
-                "Gaming & Software",
-                "Hotel & Tourism Management",
-                "Mechanical Engineering"
+                "Business Administration (Korean Track)",
+                "Computer Engineering (Korean Track)",
+                "Hospitality and Tourism (Korean Track)"
             ],
             scholarships: [
-                { cert: "TOPIK 4", percent: "50%" },
-                { cert: "TOPIK 3", percent: "30%" }
+                { cert: "TOPIK 4 / IELTS 6.5", percent: "100% grant (To'liq)" },
+                { cert: "TOPIK 3 / IELTS 6.0", percent: "50% grant (Yarim)" }
             ],
-            otherGrantsNote: "Busandagi qulay joylashuv va xalqaro talabalar uchun yengillashtirilgan o'quv dasturlari.",
-            majors: ["Business Administration", "Gaming & Software", "Hotel & Tourism", "Mechanical Engineering"]
+            otherGrantsNote: "Application Fee: 60,000 KRW. Bakalavr darslari haftada 4 kun tashkil etiladi. Kurslar faqat ushbu uchta yo'nalish doirasida grantlar bilan ta'minlanadi.",
+            majors: ["Business Administration", "Computer Engineering", "Hospitality and Tourism"]
         },
 {
             name: "Dong-A University",
@@ -6390,11 +6391,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v138')) {
-        localStorage.setItem('custom_universities_v138', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v139')) {
+        localStorage.setItem('custom_universities_v139', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v138'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v139'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
