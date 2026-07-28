@@ -5532,14 +5532,14 @@
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
             description: "Busan shahrida joylashgan nufuzli xususiy universitet. Kompyuter Dasturlash, Biznes hamda Mehmonxona boshqaruvi yo'nalishlarida ingliz va koreys tili dasturlarini taklif etadi. Bakalavr bosqichida darslar haftasiga 4 kun tashkil etiladi.",
             englishTrackMajors: [
-                "Business Administration (English Track)",
-                "Computer Engineering (English Track)",
-                "Hospitality and Tourism (English Track)"
+                "Business Administration",
+                "Computer Engineering",
+                "Hospitality and Tourism"
             ],
             koreanTrackMajors: [
-                "Business Administration (Korean Track)",
-                "Computer Engineering (Korean Track)",
-                "Hospitality and Tourism (Korean Track)"
+                "Business Administration",
+                "Computer Engineering",
+                "Hospitality and Tourism"
             ],
             scholarships: [
                 { cert: "TOPIK 4 / IELTS 6.5", percent: "100% grant (To'liq)" },
@@ -6174,7 +6174,7 @@
                 { cert: "TOPIK 4 / IELTS 6.0+ (Level B Assessment)", percent: "50% chegirma" }
             ],
             otherGrantsNote: "Application Fee: Single - 120,000 KRW | Dual - 170,000 KRW. 2-semestrdan boshlab GPA ballariga ko'ra (3.5 GPA dan yuqori) 30% dan 100% gacha akademik stipendiyalar beriladi.",
-            majors: ["MSDE (English)", "Computer Science", "Business Administration", "Industrial Design"]
+            majors: ["MSDE", "Computer Science", "Business Administration", "Industrial Design"]
         },
 {
             name: "Dong-Eui Institute of Technology",
@@ -6391,11 +6391,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v139')) {
-        localStorage.setItem('custom_universities_v139', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v141')) {
+        localStorage.setItem('custom_universities_v141', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v139'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v141'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
