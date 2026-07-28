@@ -4183,23 +4183,14 @@
             description: "Namseoul University (Magistratura) — Cheonan shahrida joylashgan. Haftada 1 kunlik darslar grafigi va English Track dasturi. Global Hospitality and Management yo'nalishi bo'yicha IELTS 5.5+ yoki TOPIK 3 natijasi bilan ariza topshirish va 25% kontrakt chegirmasiga ega bo'lish imkoniyati mavjud. Arizalar qabuli: 17-iyun – 6-iyul.",
             englishTrackMajors: [
                 "Global Hospitality Management (English Track - Haftada 1 kun)",
-                "International Business (English Track)",
-                "International Education (English Track)",
-                "Global Techno-Entrepreneurship (English Track)",
-                "Global Addiction Rehabilitation Counseling (English Track)",
-                "Global Physiotherapy (English Track)",
-                "Rehabilitation Exercise (English Track)"
+                "International Business (English Track)"
             ],
-            koreanTrackMajors: [
-                "Global Addiction Rehabilitation Counseling (Korean Track)",
-                "Global Physiotherapy (Korean Track)",
-                "Rehabilitation Exercise (Korean Track)"
-            ],
+            koreanTrackMajors: [],
             scholarships: [
                 { cert: "Standard International Master Discount (Global Hospitality)", percent: "25% Tuition Waiver" }
             ],
             otherGrantsNote: "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi. Arizalar qabul muddati: 17-iyun – 6-iyul.",
-            majors: ["Global Hospitality Management", "International Business", "Global Techno-Entrepreneurship", "Global Physiotherapy"]
+            majors: ["Global Hospitality Management", "International Business"]
         }
     };
 
@@ -5266,23 +5257,14 @@
             description: "Cheonan shahrida joylashgan Magistratura E-Visa dasturi. Global Hospitality and Management (Haftada 1 kun dars, English Track). IELTS 5.5+ yoki TOPIK 3 bilan 25% semestr chegirmasi (2,437,500 KRW). Arizalar qabuli: 17-iyun – 6-iyul.",
             englishTrackMajors: [
                 "Global Hospitality Management (English Track - Haftada 1 kun)",
-                "International Business (English Track)",
-                "International Education (English Track)",
-                "Global Techno-Entrepreneurship (English Track)",
-                "Global Addiction Rehabilitation Counseling (English Track)",
-                "Global Physiotherapy (English Track)",
-                "Rehabilitation Exercise (English Track)"
+                "International Business (English Track)"
             ],
-            koreanTrackMajors: [
-                "Global Addiction Rehabilitation Counseling (Korean Track)",
-                "Global Physiotherapy (Korean Track)",
-                "Rehabilitation Exercise (Korean Track)"
-            ],
+            koreanTrackMajors: [],
             scholarships: [
                 { cert: "Standard International Master Discount (Global Hospitality)", percent: "25% Tuition Waiver" }
             ],
             otherGrantsNote: "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi. Arizalar qabul muddati: 17-iyun – 6-iyul.",
-            majors: ["Global Hospitality Management", "International Business", "Global Techno-Entrepreneurship", "Global Physiotherapy"]
+            majors: ["Global Hospitality Management", "International Business"]
         },
         {
             name: "Sejong University",
@@ -5467,11 +5449,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v69')) {
-        localStorage.setItem('custom_universities_v69', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v70')) {
+        localStorage.setItem('custom_universities_v70', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v69'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v70'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
