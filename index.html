@@ -5033,39 +5033,44 @@
             koreanName: "가천대학교",
             location: "SEONGNAM & INCHEON",
             address: "📍 1342 Seongnam-daero, Sujeong-gu, Seongnam-si, Gyeonggi-do, South Korea",
-            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            img: "https://uploaded.kcampus.kr/2_d9bf8cef74.jpg",
             qsRank: "TOP 600",
             founded: "1939",
             programs: "120+",
-            appFee: "120,000 KRW",
+            appFee: "150,000 KRW",
             badge1: "Licensed Uni",
             badge2: "Medical & Engineering",
             badge1Class: "badge-blue",
             brandColor: "#003b70",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "3,900,000 - 5,200,000 KRW / semestr",
-            language: "TOPIK 3+ | IELTS 5.5+",
+            tuition: "4,373,800 - 5,939,800 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 59+",
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
-            description: "Seul aglomeratsiyasining Seongnam va Incheon shaharlarida joylashgan 1% akkreditatsiyali nufuzli universitet. Tibbiyot, AI, Biotexnologiya va Biznes yo'nalishlarida kuchli ta'lim beradi.",
+            description: "Gachon Universiteti Seul aglomeratsiyasining Seongnam va Incheon shaharlarida joylashgan nufuzli TOP 600 universitetdir. Business Administration hamda Computer Engineering yo'nalishlarida ingliz va koreys tili dasturlarini taklif etadi.",
             englishTrackMajors: [
-                "Global Business",
-                "Software Engineering"
+                "Business Administration (English track - Faqat 1-kurslar)",
+                "Computer Engineering (English track - Faqat 1-kurslar)"
             ],
             koreanTrackMajors: [
-                "Business Administration",
-                "Computer Engineering & AI",
-                "Biomedical Engineering",
-                "Media & Communication"
+                "Business Administration (Korean track)",
+                "Computer Engineering (Korean track)"
             ],
             scholarships: [
-                { cert: "TOPIK 5+ / IELTS 7.0+", percent: "50% - 100%" },
-                { cert: "TOPIK 3 / IELTS 5.5", percent: "30%" }
+                { cert: "TOPIK Level 6 (Korean Track)", percent: "90% chegirma" },
+                { cert: "TOPIK Level 5 (Korean Track)", percent: "80% chegirma" },
+                { cert: "TOPIK Level 4 (Korean Track)", percent: "60% chegirma" },
+                { cert: "TOPIK Level 3 (Korean Track)", percent: "40% chegirma" },
+                { cert: "Boshlang'ich (Without TOPIK)", percent: "30% chegirma" },
+                { cert: "IELTS 8.0 / TOEFL 112 (English Track)", percent: "70% chegirma" },
+                { cert: "IELTS 6.5 / TOEFL 86 (English Track)", percent: "40% chegirma" },
+                { cert: "IELTS 5.5 / TOEFL 59 (English Track)", percent: "30% chegirma" },
+                { cert: "Partner Institution / Gachon Language Center", percent: "+10% qo'shimcha chegirma" }
             ],
-            otherGrantsNote: "1-semestr uchun til sertifikatiga qarab 30% dan 100% gacha grant beriladi.",
-            majors: ["Global Business", "Computer Engineering & AI", "Biomedical Engineering", "Media & Communication"]
+            otherGrantsNote: "Application Fee: 150,000 KRW. English Track faqat 1-kursga kiruvchi talabalar (freshmen) uchun mo'ljallangan. Gachon koreys tili markazi bitiruvchilariga yoki hamkor tashkilotlarga qo'shimcha +10% grant beriladi.",
+            majors: ["Business Administration", "Computer Engineering"]
         },
 {
             name: "Jeonbuk National University",
@@ -6363,11 +6368,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v130')) {
-        localStorage.setItem('custom_universities_v130', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v131')) {
+        localStorage.setItem('custom_universities_v131', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v130'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v131'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
