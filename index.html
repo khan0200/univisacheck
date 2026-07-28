@@ -3633,10 +3633,59 @@
         "INCHEON NATIONAL UNIVERSITY": "TOP 1000"
     };
 
-    function formatUniCell(name, num) {
+        function getCardRankBadge(name) {
         if (!name) return '';
         const key = name.toUpperCase().trim();
-        const rank = WORLD_RANKINGS[key];
+        const searchKey = name.split('(')[0].toUpperCase().trim();
+        
+        let match = (typeof TOP_UNIS_DATA !== 'undefined' ? TOP_UNIS_DATA : []).find(u => {
+            const uKey = u.name.toUpperCase().trim();
+            const uShortKey = u.name.split('(')[0].toUpperCase().trim();
+            return uKey === key || uShortKey === searchKey || uKey.includes(searchKey) || searchKey.includes(uKey);
+        });
+
+        if (!match && typeof TOP_UNI_DETAILS !== 'undefined') {
+            match = TOP_UNI_DETAILS[key];
+        }
+
+        if (match && match.qsRank) {
+            let r = match.qsRank.trim();
+            const topMatch = r.match(/TOP\s*\d+/i) || r.match(/THE\s*\d+[-–]\d+/i) || r.match(/#\d+/);
+            if (topMatch) return topMatch[0].toUpperCase();
+            if (r.includes("Akkreditatsiyaga ega") || r.includes("Licensed") || r.includes("Status")) return "";
+            return r;
+        }
+
+        return WORLD_RANKINGS[key] || '';
+    }
+
+    function getUniTableSortScore(nameItem) {
+        if (!nameItem) return 99999;
+        const rawName = typeof nameItem === 'string' ? nameItem : nameItem.name;
+        const key = rawName.toUpperCase().trim();
+        const searchKey = rawName.split('(')[0].toUpperCase().trim();
+
+        if (typeof TOP_UNIS_DATA !== 'undefined') {
+            const idx = TOP_UNIS_DATA.findIndex(u => {
+                const uKey = u.name.toUpperCase().trim();
+                const uShortKey = u.name.split('(')[0].toUpperCase().trim();
+                return uKey === key || uShortKey === searchKey || uKey.includes(searchKey) || searchKey.includes(uKey);
+            });
+            if (idx !== -1) return idx;
+        }
+
+        const rStr = WORLD_RANKINGS[key];
+        if (rStr) {
+            const num = parseInt(rStr.replace(/[^0-9]/g, ''), 10);
+            if (!isNaN(num)) return 1000 + num;
+        }
+
+        return 90000;
+    }
+
+    function formatUniCell(name, num) {
+        if (!name) return '';
+        const rank = getCardRankBadge(name);
         const badgeHtml = rank ? `<span class="rank-badge">${rank}</span>` : '';
         return `
             <div class="uni-cell-container" title="${name}">
@@ -3652,8 +3701,11 @@
     function render3ColTable(items, startNum = 1) {
         if (!items || items.length === 0) return '';
         
-        // Sort A to Z
+        // Sort by University Card Ranking Order
         const sorted = [...items].sort((a, b) => {
+            const scoreA = getUniTableSortScore(a);
+            const scoreB = getUniTableSortScore(b);
+            if (scoreA !== scoreB) return scoreA - scoreB;
             const nameA = typeof a === 'string' ? a : a.name;
             const nameB = typeof b === 'string' ? b : b.name;
             return nameA.localeCompare(nameB, 'en', { sensitivity: 'base' });
