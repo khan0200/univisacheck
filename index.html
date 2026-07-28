@@ -5635,11 +5635,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v83')) {
-        localStorage.setItem('custom_universities_v83', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v84')) {
+        localStorage.setItem('custom_universities_v84', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v83'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v84'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6102,50 +6102,56 @@
 
             let grantsHtml = '';
             if (ieltsGrants.length > 0) {
+                const ieltsCardsHtml = ieltsGrants.map(g => `
+                    <div class="grant-card">
+                        <span class="grant-cert">${g.cert}</span>
+                        <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
+                    </div>
+                `).join('');
+                
                 grantsHtml += `
                     <div class="grant-group-header">🇬🇧 IELTS / ENGLISH SCHOLARSHIPS:</div>
                     <div class="grants-grid" style="margin-bottom: 20px;">
-                        \${ieltsGrants.map(g => `
-                            <div class="grant-card">
-                                <span class="grant-cert">\${g.cert}</span>
-                                <span class="grant-percent" style="color: \${brandColor};">\${g.percent}</span>
-                            </div>
-                        `).join('')}
+                        ${ieltsCardsHtml}
                     </div>
                 `;
             }
             if (topikGrants.length > 0) {
+                const topikCardsHtml = topikGrants.map(g => `
+                    <div class="grant-card">
+                        <span class="grant-cert">${g.cert}</span>
+                        <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
+                    </div>
+                `).join('');
+
                 grantsHtml += `
                     <div class="grant-group-header" style="margin-top: 15px;">🇰🇷 TOPIK / KOREAN SCHOLARSHIPS:</div>
                     <div class="grants-grid" style="margin-bottom: 20px;">
-                        \${topikGrants.map(g => `
-                            <div class="grant-card">
-                                <span class="grant-cert">\${g.cert}</span>
-                                <span class="grant-percent" style="color: \${brandColor};">\${g.percent}</span>
-                            </div>
-                        `).join('')}
+                        ${topikCardsHtml}
                     </div>
                 `;
             }
             if (otherGrants.length > 0) {
+                const otherCardsHtml = otherGrants.map(g => `
+                    <div class="grant-card">
+                        <span class="grant-cert">${g.cert}</span>
+                        <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
+                    </div>
+                `).join('');
+
                 grantsHtml += `
                     <div class="grant-group-header" style="margin-top: 15px;">🎓 OTHER SCHOLARSHIPS:</div>
                     <div class="grants-grid" style="margin-bottom: 20px;">
-                        \${otherGrants.map(g => `
-                            <div class="grant-card">
-                                <span class="grant-cert">\${g.cert}</span>
-                                <span class="grant-percent" style="color: \${brandColor};">\${g.percent}</span>
-                            </div>
-                        `).join('')}
+                        ${otherCardsHtml}
                     </div>
                 `;
             }
 
             grantsContainer.innerHTML = `
-                \${grantsHtml}
+                ${grantsHtml}
                 <div class="grants-other-box">
                     <h5>Boshqa imtiyozlar:</h5>
-                    <p>\${details.otherGrantsNote || "Til sertifikati yuqori talabalar 4 Yilgacha grant yutib olishi mumkin"}</p>
+                    <p>${details.otherGrantsNote || "Til sertifikati yuqori talabalar 4 Yilgacha grant yutib olishi mumkin"}</p>
                 </div>
             `;
         }
