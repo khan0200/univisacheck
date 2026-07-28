@@ -5327,25 +5327,29 @@
                 { cert: "Standard International Master Discount (Global Hospitality)", percent: "25% Tuition Waiver" }
             ],
             otherGrantsNote: "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi.",
-            majors: ["Global Hospitality Management", "International Business"]        ,
-        "SEJONG UNIVERSITY": {
+            majors: ["Global Hospitality Management", "International Business"]
+        },
+        {
             name: "Sejong University",
             koreanName: "세종대학교",
             location: "SEOUL",
             address: "📍 209 Neungdong-ro, Gwangjin-gu, Seoul 05006, Republic of Korea",
             img: "https://en.sejong.ac.kr/_res/sejong/eng/img/231010_%EC%84%B8%EC%A2%85%EB%8C%80%20%EC%A0%84%EA%B2%BD_.jpg",
-            qsRank: "TOP 400 (QS World)",
-            founded: "1940-yil",
-            tuition: "4,669,000 - 6,392,000 KRW (~$3,500 - $4,800) / semestr",
-            appFee: "150,000 KRW",
-            language: "TOPIK 3+ / IELTS 5.5+ (TOEFL iBT 71+ / New TEPS 327+)",
-            type: "Xususiy Universitet",
+            qsRank: "TOP 400",
+            founded: "1940",
+            programs: "110+",
+            badge1: "1% Akkreditatsiya",
+            badge2: "TOP 400 World",
+            badge1Class: "badge-gold",
+            brandColor: "#800000",
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
+            tuition: "4,669,000 - 6,392,000 KRW / semestr",
+            appFee: "150,000 KRW",
+            language: "TOPIK 3+ yoki IELTS 5.5+",
             visaStatus: "Yengillashtirilgan (1%)",
-            visaDetails: "1% yengillashtirilgan viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
-            kdb1DayAfterAdmission: ",000 USD (20,000,000 KRW)",
-            description: "Sejong University — Seul markazida joylashgan va dunyo universitetlari reytingida TOP 400 o'rinda turuvchi nufuzli 1% akkreditatsiyalangan universitet. Ayniqsa Mehmonxona va Turizm boshqaruvi (Osiyoda TOP 1), Kompyuter Muhandisligi, Sun'iy Intelekt va Media/Animation yo'nalishlarida dunyo miqyosida juda yuqori o'ringa ega.",
+            kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
+            description: "Seul markazida joylashgan va dunyo universitetlari reytingida TOP 400 o'rinda turuvchi nufuzli 1% akkreditatsiyalangan universitet. Mehmonxona & Turizm, IT va Media yo'nalishlarida mashhur.",
             englishTrackMajors: [
                 "Division of Global Leadership (International Affairs)",
                 "Department of Public Administration (English Track)",
@@ -5384,27 +5388,6 @@
             ],
             otherGrantsNote: "Ingliz va Koreys tillaridagi yo'nalishlarga kiruvchi talabalar uchun til sertifikati darajasiga qarab 1-semestrda 30% dan 100% gacha grantlar taqdim etiladi. 2-semestrdan boshlab GPA natijalariga ko'ra 20% dan 50% gacha stipendiyalar ajratiladi.",
             majors: ["Hospitality & Tourism Management", "Computer Science and Engineering", "Business Administration", "Comics & Animation Technology", "Fashion Design", "Media & Communication"]
-        }
-        },
-        {
-            name: "Sejong University",
-            koreanName: "세종대학교",
-            location: "SEOUL",
-            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
-            qsRank: "TOP 400",
-            founded: "1940",
-            programs: "110+",
-            badge1: "1% Akkreditatsiya",
-            badge2: "TOP 400 World",
-            badge1Class: "badge-gold",
-            brandColor: "#800000",
-            statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
-            is1Percent: true,
-            tuition: "3,600,000 - 4,700,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
-            visaStatus: "Yengillashtirilgan (1%)",
-            description: "Seul markazida joylashgan mashhur universitet. Mehmonxona va Turizm boshqaruvi hamda Kompyuter Muhandisligi Osiyoda TOP o'rinlarda.",
-            majors: ["Hospitality & Tourism", "Computer Science", "Animation & Anime", "Business"]
         },
         {
             name: "Sogang University",
@@ -5569,11 +5552,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v74')) {
-        localStorage.setItem('custom_universities_v74', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v80')) {
+        localStorage.setItem('custom_universities_v80', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v74'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v80'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
