@@ -2446,6 +2446,16 @@
             gap: 10px;
             margin-bottom: 14px;
         }
+        .grant-group-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            border-bottom: 1.5px solid #f1f5f9;
+            padding-bottom: 4px;
+            text-transform: uppercase;
+        }
         .grant-card {
             display: flex;
             flex-direction: column;
@@ -5625,11 +5635,11 @@
     ];
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v82')) {
-        localStorage.setItem('custom_universities_v82', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v83')) {
+        localStorage.setItem('custom_universities_v83', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v82'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v83'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6075,18 +6085,67 @@
                 { cert: "TOPIK 6", percent: "100%" }
             ];
 
+            const ieltsGrants = [];
+            const topikGrants = [];
+            const otherGrants = [];
+
+            grantsList.forEach(g => {
+                const certUpper = g.cert.toUpperCase();
+                if (certUpper.includes("IELTS") || certUpper.includes("TOEFL") || certUpper.includes("TEPS") || certUpper.includes("ENGLISH TRACK")) {
+                    ieltsGrants.push(g);
+                } else if (certUpper.includes("TOPIK") || certUpper.includes("KLEC") || certUpper.includes("KOREAN TRACK")) {
+                    topikGrants.push(g);
+                } else {
+                    otherGrants.push(g);
+                }
+            });
+
+            let grantsHtml = '';
+            if (ieltsGrants.length > 0) {
+                grantsHtml += `
+                    <div class="grant-group-header">🇬🇧 IELTS / ENGLISH SCHOLARSHIPS:</div>
+                    <div class="grants-grid" style="margin-bottom: 20px;">
+                        \${ieltsGrants.map(g => `
+                            <div class="grant-card">
+                                <span class="grant-cert">\${g.cert}</span>
+                                <span class="grant-percent" style="color: \${brandColor};">\${g.percent}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            if (topikGrants.length > 0) {
+                grantsHtml += `
+                    <div class="grant-group-header" style="margin-top: 15px;">🇰🇷 TOPIK / KOREAN SCHOLARSHIPS:</div>
+                    <div class="grants-grid" style="margin-bottom: 20px;">
+                        \${topikGrants.map(g => `
+                            <div class="grant-card">
+                                <span class="grant-cert">\${g.cert}</span>
+                                <span class="grant-percent" style="color: \${brandColor};">\${g.percent}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            if (otherGrants.length > 0) {
+                grantsHtml += `
+                    <div class="grant-group-header" style="margin-top: 15px;">🎓 OTHER SCHOLARSHIPS:</div>
+                    <div class="grants-grid" style="margin-bottom: 20px;">
+                        \${otherGrants.map(g => `
+                            <div class="grant-card">
+                                <span class="grant-cert">\${g.cert}</span>
+                                <span class="grant-percent" style="color: \${brandColor};">\${g.percent}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
             grantsContainer.innerHTML = `
-                <div class="grants-grid">
-                    ${grantsList.map(g => `
-                        <div class="grant-card">
-                            <span class="grant-cert">${g.cert}</span>
-                            <span class="grant-percent" style="color: ${brandColor};">${g.percent}</span>
-                        </div>
-                    `).join('')}
-                </div>
+                \${grantsHtml}
                 <div class="grants-other-box">
                     <h5>Boshqa imtiyozlar:</h5>
-                    <p>${details.otherGrantsNote || "Til sertifikati yuqori talabalar 4 Yilgacha grant yutib olishi mumkin"}</p>
+                    <p>\${details.otherGrantsNote || "Til sertifikati yuqori talabalar 4 Yilgacha grant yutib olishi mumkin"}</p>
                 </div>
             `;
         }
