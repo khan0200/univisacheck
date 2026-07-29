@@ -6967,18 +6967,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v660') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v670') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v660')) {
-        localStorage.setItem('custom_universities_v660', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v670')) {
+        localStorage.setItem('custom_universities_v670', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v660'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v670'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7035,7 +7035,6 @@
             "AJOU UNIVERSITY",
             "CHUNG-ANG UNIVERSITY",
             "EWHA WOMANS UNIVERSITY",
-            "KYUNGPOOK NATIONAL UNIVERSITY",
             "INHA UNIVERSITY",
             "KONKUK UNIVERSITY",
             "CHUNGNAM NATIONAL UNIVERSITY",
@@ -7051,6 +7050,7 @@
         ];
 
         const onlyBachelorList = [
+            "KYUNGPOOK NATIONAL UNIVERSITY",
             "SEOUL NATIONAL UNIVERSITY",
             "KAIST",
             "YONSEI UNIVERSITY",
@@ -7092,7 +7092,6 @@
         const magistrList = [
             "SEJONG UNIVERSITY",
             "KYUNG HEE UNIVERSITY",
-            "KYUNGPOOK NATIONAL UNIVERSITY",
             "BUSAN UNIVERSITY OF FOREIGN STUDIES"
         ];
 
@@ -7428,7 +7427,6 @@
                 "AJOU UNIVERSITY",
                 "CHUNG-ANG UNIVERSITY",
                 "EWHA WOMANS UNIVERSITY",
-                "KYUNGPOOK NATIONAL UNIVERSITY",
                 "INHA UNIVERSITY",
                 "KONKUK UNIVERSITY",
                 "CHUNGNAM NATIONAL UNIVERSITY",
@@ -7444,6 +7442,7 @@
             ];
 
             const onlyBachelorList = [
+                "KYUNGPOOK NATIONAL UNIVERSITY",
                 "SEOUL NATIONAL UNIVERSITY",
                 "KAIST",
                 "YONSEI UNIVERSITY",
@@ -7485,7 +7484,6 @@
             const magistrList = [
                 "SEJONG UNIVERSITY",
                 "KYUNG HEE UNIVERSITY",
-                "KYUNGPOOK NATIONAL UNIVERSITY",
                 "BUSAN UNIVERSITY OF FOREIGN STUDIES"
             ];
 
