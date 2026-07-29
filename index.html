@@ -3588,56 +3588,77 @@
     }
 
     const WORLD_RANKINGS = {
-        "SEOUL NATIONAL UNIVERSITY": "TOP 50",
-        "KAIST (KOREA ADVANCED INSTITUTE OF SCIENCE AND TECHNOLOGY)": "TOP 100",
-        "KAIST": "TOP 100",
-        "YONSEI UNIVERSITY": "TOP 100",
-        "KOREA UNIVERSITY": "TOP 100",
-        "POHANG UNIVERSITY OF SCIENCE AND TECHNOLOGY (POSTECH)": "TOP 100",
-        "POSTECH": "TOP 100",
-        "SUNGKYUNKWAN UNIVERSITY (SKKU)": "TOP 150",
-        "SKKU": "TOP 150",
-        "HANYANG UNIVERSITY": "TOP 200",
-        "HANYANG UNIVERSITY(ERICA CAMPUS)": "TOP 200",
-        "ULSAN NATIONAL INSTITUTE OF SCIENCE AND TECHNOLOGY (UNIST)": "TOP 200",
-        "UNIST": "TOP 200",
-        "GIST(GWANGJU INSTITUTE OF SCIENCE AND TECHNOLOGY)": "TOP 300",
-        "GIST": "TOP 300",
-        "KYUNG HEE UNIVERSITY": "TOP 350",
-        "SEJONG UNIVERSITY": "TOP 400",
-        "CHUNG-ANG UNIVERSITY": "TOP 500",
-        "EWHA WOMANS UNIVERSITY": "TOP 500",
-        "KYUNGPOOK NATIONAL UNIVERSITY": "TOP 500",
-        "PUSAN NATIONAL UNIVERSITY": "TOP 500",
-        "SOGANG UNIVERSITY": "TOP 500",
-        "AJOU UNIVERSITY": "TOP 700",
-        "INHA UNIVERSITY": "TOP 700",
-        "CHONNAM NATIONAL UNIVERSITY": "TOP 700",
-        "JEONBUK NATIONAL UNIVERSITY": "TOP 700",
-        "HANKUK UNIVERSITY OF FOREIGN STUDIES": "TOP 800",
-        "KONKUK UNIVERSITY": "TOP 800",
-        "KONKUK UNIVERSITY GLOCAL CAMPUS": "TOP 800",
-        "GYEONGSANG NATIONAL UNIVERSITY": "TOP 800",
-        "THE CATHOLIC UNIVERSITY OF KOREA": "TOP 800",
-        "UNIVERSITY OF SEOUL": "TOP 850",
-        "CHUNGNAM NATIONAL UNIVERSITY(CNU)": "TOP 850",
-        "YEUNGNAM UNIVERSITY": "TOP 850",
-        "KOOKMIN UNIVERSITY": "TOP 950",
-        "DANKOOK UNIVERSITY": "TOP 950",
-        "CHUNGBUK NATIONAL UNIVERSITY": "TOP 950",
-        "HALLYM UNIVERSITY": "TOP 1000",
-        "KWANGWOON UNIVERSITY": "TOP 1000",
-        "SEOUL NATIONAL UNIVERSITY OF SCIENCE AND TECHNOLOGY": "TOP 1200",
-        "UNIVERSITY OF ULSAN": "TOP 1000",
-        "SOONGSIL UNIVERSITY": "TOP 1000",
-        "INCHEON NATIONAL UNIVERSITY": "TOP 1000"
+        "SEOUL NATIONAL UNIVERSITY": "QS #31",
+        "KAIST (KOREA ADVANCED INSTITUTE OF SCIENCE AND TECHNOLOGY)": "QS #53",
+        "KAIST": "QS #53",
+        "YONSEI UNIVERSITY": "QS #56",
+        "KOREA UNIVERSITY": "QS #67",
+        "POHANG UNIVERSITY OF SCIENCE AND TECHNOLOGY (POSTECH)": "QS #98",
+        "POSTECH": "QS #98",
+        "SUNGKYUNKWAN UNIVERSITY (SKKU)": "QS #102",
+        "SUNGKYUNKWAN UNIVERSITY": "QS #102",
+        "SKKU": "QS #102",
+        "HANYANG UNIVERSITY": "QS #162",
+        "HANYANG UNIVERSITY(ERICA CAMPUS)": "QS #162",
+        "ULSAN NATIONAL INSTITUTE OF SCIENCE AND TECHNOLOGY (UNIST)": "QS #280",
+        "UNIST": "QS #280",
+        "GIST(GWANGJU INSTITUTE OF SCIENCE AND TECHNOLOGY)": "QS #359",
+        "GIST": "QS #359",
+        "KYUNG HEE UNIVERSITY": "QS #328",
+        "SEJONG UNIVERSITY": "QS #396",
+        "DONGGUK UNIVERSITY(SEOUL)": "QS #498",
+        "DONGGUK UNIVERSITY": "QS #498",
+        "SOGANG UNIVERSITY": "QS #507",
+        "KONKUK UNIVERSITY": "QS #501-510",
+        "KONKUK UNIVERSITY GLOCAL CAMPUS": "QS #501-510",
+        "PUSAN NATIONAL UNIVERSITY": "QS #501-510",
+        "EWHA WOMANS UNIVERSITY": "QS #511",
+        "KYUNGPOOK NATIONAL UNIVERSITY": "QS #516",
+        "AJOU UNIVERSITY": "QS #631-640",
+        "INHA UNIVERSITY": "QS #651-660",
+        "CHONNAM NATIONAL UNIVERSITY": "QS #721-730",
+        "JEONBUK NATIONAL UNIVERSITY": "QS #721-730",
+        "CHUNGNAM NATIONAL UNIVERSITY(CNU)": "QS #751-760",
+        "CHUNGNAM NATIONAL UNIVERSITY": "QS #751-760",
+        "UNIVERSITY OF SEOUL": "QS #751-760",
+        "YEUNGNAM UNIVERSITY": "QS #801-850",
+        "KOOKMIN UNIVERSITY": "QS #851-900",
+        "HANKUK UNIVERSITY OF FOREIGN STUDIES": "QS #1001-1200",
+        "DANKOOK UNIVERSITY": "QS #1001-1200",
+        "CHUNGBUK NATIONAL UNIVERSITY": "QS #1001-1200",
+        "HALLYM UNIVERSITY": "QS #1001-1200",
+        "HONGIK UNIVERSITY": "QS #1001-1200",
+        "SOOKMYUNG WOMEN'S UNIVERSITY": "QS #1001-1200",
+        "SOOKMYUNG WOMEN`S UNIVERSITY": "QS #1001-1200",
+        "SUNGSHIN WOMEN'S UNIVERSITY": "QS #1001-1200",
+        "SUNGSHIN WOMEN`S UNIVERSITY": "QS #1001-1200",
+        "JEJU NATIONAL UNIVERSITY": "QS #1201-1400",
+        "KOREA AEROSPACE UNIVERSITY": "Aero #1",
+        "KEIMYUNG UNIVERSITY": "1% Akkred.",
+        "BUSAN UNIVERSITY OF FOREIGN STUDIES": "1% Akkred.",
+        "KYUNGSUNG UNIVERSITY": "1% Akkred.",
+        "HANSUNG UNIVERSITY": "1% Akkred.",
+        "JOONGBU UNIVERSITY": "1% Akkred."
     };
 
-        function getCardRankBadge(name) {
+    function getCardRankBadge(name) {
         if (!name) return '';
         const key = name.toUpperCase().trim();
         const searchKey = name.split('(')[0].toUpperCase().trim();
-        
+
+        // 1. Check global clean rankings map first to enforce consistency
+        if (WORLD_RANKINGS[key]) {
+            return WORLD_RANKINGS[key];
+        }
+
+        // 2. Check key partial matches in WORLD_RANKINGS
+        for (const rKey in WORLD_RANKINGS) {
+            if (rKey.includes(searchKey) || searchKey.includes(rKey)) {
+                return WORLD_RANKINGS[rKey];
+            }
+        }
+
+        // 3. Fallback to university dataset properties if not in map
         let match = (typeof TOP_UNIS_DATA !== 'undefined' ? TOP_UNIS_DATA : []).find(u => {
             const uKey = u.name.toUpperCase().trim();
             const uShortKey = u.name.split('(')[0].toUpperCase().trim();
@@ -3656,7 +3677,7 @@
             return r;
         }
 
-        return WORLD_RANKINGS[key] || '';
+        return '';
     }
 
     function getUniTableSortScore(nameItem) {
@@ -6256,46 +6277,40 @@
             koreanName: "동의과학대학교 (DIT)",
             location: "BUSAN",
             address: "📍 54 Yangji-ro, Busanjin-gu, Busan, South Korea",
-            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
-            qsRank: "Kollej (Root Industry)",
+            img: "https://image.free-apply.com/gallery/l/uni/gallery/lg/1041000067/fe26d69e7a1bcecd329f0c8dcb9def27eda9e53e.jpg?s=640",
+            qsRank: "Kollej (E-7-M / Regional Viza)",
             founded: "1972",
             programs: "45+",
             appFee: "50,000 KRW",
             badge1: "Licensed Uni",
-            badge2: "Root Industry Partner",
+            badge2: "Regional Visa Partner",
             badge1Class: "badge-blue",
             brandColor: "#0f2e5a",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
             tuition: "2,600,000 - 3,300,000 KRW / semestr",
-            language: "TOPIK 2+ (Root Industry) | TOPIK 3+",
-            visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+            language: "TOPIK 3",
+            visaStatus: "Regional Viza",
+            visaDetails: "Regional viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbalari ma'lumotnomasi va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Busan shahrida joylashgan yetakchi 1% akkreditatsiyalangan texnik kollej. Poydevor sanoati (Root Industry) loyihasi doirasida TOPIK 2 bilan qabul qiladi va E-7 vizasiga yo'llanma beradi.",
-            englishTrackMajors: [
-                
-            ],
+            description: "Busan shahrida joylashgan texnik kollej. Regional viza doirasida ota-ona daromad manbai va 1-oylik KDB bank ko'chirmasi talab etilmaydi. Mexanika muhandisligi (Mechanical Engineering - E-7-M) yo'nalishiga qabul qiladi.",
+            englishTrackMajors: [],
             koreanTrackMajors: [
-                "Naval Architecture & Marine (Root Industry - TOPIK 2+)",
-                "Automotive Maintenance",
-                "K-Beauty Arts",
-                "Hotel Culinary"
+                "Mechanical Engineering (E-7-M)"
             ],
             scholarships: [
-                { cert: "Root Industry Track", percent: "30% (Barcha semestrlar)" },
                 { cert: "TOPIK 3+", percent: "30% - 40%" }
             ],
-            otherGrantsNote: "Root Industry (Kemasozlik va Dengiz Muhandisligi) talabalariga har semestr 30% chegirma va E-7 viza qo'llab-quvvatlovi beriladi.",
-            majors: ["Naval Architecture & Marine", "Automotive Maintenance", "K-Beauty Arts", "Hotel Culinary"]
+            otherGrantsNote: "Mechanical Engineering (E-7-M) yo'nalishi talabalariga viza va stipendiya qo'llab-quvvatlovi taqdim etiladi.",
+            majors: ["Mechanical Engineering (E-7-M)"]
         },
 {
             name: "Tongwon University",
             koreanName: "동원대학교",
             location: "GWANGJU (GYEONGGI-DO)",
             address: "📍 26 Gwangju-daero, Chowol-eup, Gwangju-si, Gyeonggi-do, South Korea",
-            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
-            qsRank: "Licensed College",
+            img: "https://www.studenteduvisa.com//media/image/1729070900.jpg",
+            qsRank: "Kollej (Global Faculty)",
             founded: "1993",
             programs: "40+",
             appFee: "50,000 KRW",
@@ -6305,34 +6320,33 @@
             brandColor: "#003b73",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,700,000 - 3,400,000 KRW / semestr",
-            language: "TOPIK 2+ / TOPIK 3+",
+            tuition: "2,000,000 KRW (1-semestr) | 2,300,000 KRW (2-semestr)",
+            language: "TOPIK 2",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
-            kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Seul yaqinidagi Gyeonggi-do Gwangju shahrida joylashgan zamonaviy kollej. AI Software, K-Beauty, Oshpazlik hamda Avtomobil muhandisligi bo'yicha amaliy ta'lim beradi.",
-            englishTrackMajors: [
-                
-            ],
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $16,000 USD miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$16,000 USD (1 oylik KDB)",
+            description: "Gyeonggi-do, Gwangju shahrida (Seulga yaqin) joylashgan kollej. Transport orqali qatnashish qulay, yashash xarajatlari arzon. Hujjatlar elchixona orqali topshiriladi. Qabul muddati: 30-iyun.",
+            englishTrackMajors: [],
             koreanTrackMajors: [
-                "AI Software",
-                "K-Beauty & Cosmetology",
-                "Hotel Culinary & Baking",
-                "Automotive Technology"
+                "Welding",
+                "Electronic",
+                "IT",
+                "Korean Culture",
+                "Beauty"
             ],
             scholarships: [
-                { cert: "TOPIK 3+", percent: "30% - 50%" }
+                { cert: "Dormitory", percent: "6 oy BEPUL" }
             ],
-            otherGrantsNote: "Seul metrosi yaqinida joylashgani va amaliy amaliyot dasturlari bilan mashhur.",
-            majors: ["AI Software", "K-Beauty & Cosmetology", "Hotel Culinary", "Automotive Technology"]
+            otherGrantsNote: "1-semestr: 2,000,000 KRW (~$1,350) + 6 oy BEPUL yotoqxona. 2-semestr: 2,300,000 KRW (~$1,550). Jami 1 yillik o'qish: ~4,300,000 KRW (~$2,900).",
+            majors: ["Welding", "Electronic", "IT", "Korean Culture", "Beauty"]
         },
 {
-            name: "Kunjang University College",
+            name: "Kunjang University",
             koreanName: "군장대학교",
             location: "GUNSAN (JEOLLABUK-DO)",
             address: "📍 608 Kunjang-daero, Seongsan-myeon, Gunsan-si, Jeollabuk-do, South Korea",
-            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
-            qsRank: "Root Industry College",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVeXbDXSnOe0tHcBXtT4vjWsyurEDxh5gsjKhsOhzoP_osGDI9CngmBWA&s=10",
+            qsRank: "Kollej (Regional Hudud)",
             founded: "1994",
             programs: "35+",
             appFee: "50,000 KRW",
@@ -6342,34 +6356,36 @@
             brandColor: "#002b49",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,500,000 - 3,200,000 KRW / semestr",
-            language: "TOPIK 2+ (Root Industry) | TOPIK 3+",
+            tuition: "2,950,000 KRW / yil (1 yillik kontrakt)",
+            language: "TOPIK 2",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
-            kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Gunsan shahrida joylashgan amaliy kasb-hunar kolleji. Poydevor sanoati (Root Industry) loyihalari orqali xalqaro talabalarga kemasozlik va avtomobilsozlikda E-7 vizasi imkoniyatlarini taklif qiladi.",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$13,000 USD (1 oylik KDB)",
+            description: "Kunsan shahrida joylashgan amaliy va texnik kollej. Arzon yashash xarajatlari hamda kasbga yo'naltirilgan Shipbuilding va Special Welding kabi yo'nalishlar taklif etiladi. Qabul vaqti: 30-iyungacha.",
             englishTrackMajors: [
                 
             ],
             koreanTrackMajors: [
-                "Shipbuilding & Marine (Root Industry - TOPIK 2+)",
-                "Smart Automotive",
-                "Hotel & Culinary Arts",
-                "Aviation Maintenance"
+                "Social Welfare",
+                "Shipbuilding",
+                "Special Welding",
+                "New Materials Engineering"
             ],
-            scholarships: [
-                { cert: "Root Industry Track", percent: "30% (Barcha semestrlar)" },
-                { cert: "TOPIK 3+", percent: "30%" }
-            ],
-            otherGrantsNote: "Sanoat korxonalari bilan hamkorlikda bitiruvchilarga E-7 vizasi rasmiylashtirishda ko'mak beradi.",
-            majors: ["Shipbuilding & Marine", "Smart Automotive", "Hotel & Culinary Arts", "Aviation Maintenance"]
+            scholarships: [],
+            otherGrantsNote: "1 yillik umumiy kontrakt to'lovi: 2,950,000 KRW (~$1,994). O'qish xarajatlari hamyonbop va katta sanoat hududlariga yaqin.",
+            majors: [
+                "Social Welfare",
+                "Shipbuilding",
+                "Special Welding",
+                "New Materials Engineering"
+            ]
         },
 {
             name: "Dongwon Institute of Science and Technology",
             koreanName: "동원과학기술대학교 (DIST)",
             location: "YANGSAN (BUSAN METRO)",
             address: "📍 321 Myeonggok-ro, Yangsan-si, Gyeongsangnam-do, South Korea",
-            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            img: "https://tuvanduhocmap.com/wp-content/uploads/2019/05/Mot-trong-nhung-toa-nha-chinh-truong-cao-dang-Dongwon.jpg",
             qsRank: "Aviation & Tech College",
             founded: "1990",
             programs: "40+",
@@ -6380,34 +6396,40 @@
             brandColor: "#003b70",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,500,000 - 3,200,000 KRW / semestr",
-            language: "TOPIK 2+ / TOPIK 3+",
+            tuition: "$1,800 (yotoqxonasi bilan)",
+            language: "TOPIK 2+ (Root) | TOPIK 3+ | IELTS 5.5",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va 1 oylik KDB bank ko'chirmasi ($13,000 USD / 16,000,000 KRW) topshirish talab etiladi.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Busan aglomeratsiyasida joylashgan yetakchi kasb-hunar va texnika kolleji. Aviatsiya Texnik Xizmati (Aviation Maintenance), K-Beauty va Mexanika yo'nalishlarida kuchli amaliy bazaga ega.",
+            description: "Yangsan shahrida (Busan metrosi yaqinida) joylashgan amaliy kollej. Marine Power Machinery (Root Industry), Aircraft Maintenance va K-Beauty bo'yicha kuchli dasturlarga ega. Kontrakt to'lovi yotoqxonasi bilan birga juda hamyonbop.",
             englishTrackMajors: [
-                
+                "Refrigeration & Air Conditioning Equipment",
+                "Aircraft Maintenance"
             ],
             koreanTrackMajors: [
-                "Aviation Maintenance",
-                "K-Beauty & Cosmetology",
-                "Smart Mechanical Engineering",
-                "Hotel & Tourism"
+                "Marine Power Machinery Engineering (Root Industry - TOPIK 2+)",
+                "Hair Design",
+                "Hotel & Restaurant Cooking",
+                "Health & Welfare"
             ],
-            scholarships: [
-                { cert: "TOPIK 3+", percent: "30% - 40%" }
-            ],
-            otherGrantsNote: "Aviatsiya xizmati va avtomobil muhandisligi bo'yicha maxsus sertifikatlash va amaliyot dasturlari beriladi.",
-            majors: ["Aviation Maintenance", "K-Beauty & Cosmetology", "Smart Mechanical Engineering", "Hotel & Tourism"]
+            scholarships: [],
+            otherGrantsNote: "Kontrakt to'lovi: $1,800 (yotoqxonasi bilan birga). Boshqa imtiyozlar mavjud emas.",
+            majors: [
+                "Refrigeration & Air Conditioning Equipment",
+                "Aircraft Maintenance",
+                "Marine Power Machinery Engineering",
+                "Hair Design",
+                "Hotel & Restaurant Cooking",
+                "Health & Welfare"
+            ]
         },
 {
             name: "Seoyeong University",
             koreanName: "서영대학교 (Paju & Gwangju Campus)",
             location: "PAJU & GWANGJU CAMPUS",
             address: "📍 Paju Campus: 1 Seoyeong-ro, Paju-si, Gyeonggi-do / Gwangju Campus: 1 Seo-ro, Buk-gu, Gwangju",
-            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
-            qsRank: "Licensed College",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtltCQVFHZaFBKUrFbEfDQiv8CMxCDCFLRpg_ZOfVUySv1ktVO6WnMoEg&s=10",
+            qsRank: "Kollej (Ikki Kampusli)",
             founded: "1978",
             programs: "45+",
             appFee: "50,000 KRW",
@@ -6417,26 +6439,305 @@
             brandColor: "#002147",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,600,000 - 3,300,000 KRW / semestr",
-            language: "TOPIK 2+ / TOPIK 3+",
+            tuition: "1,600,000 KRW / semestr (O'rtacha)",
+            language: "TOPIK 2+ | IELTS 5.5",
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Paju (Seul yaqinida) va Gwangju shahrida ikkita kampusga ega bo'lgan amaliy kollej. K-Beauty, Avtomobil, Oshpazlik hamda Dasturlash bo'yicha qulay ta'lim muhitini yaratadi.",
+            description: "Seoyeong University — Paju (Seul yaqinida) va Gwangju shahrida ikkita kampusga ega bo'lgan amaliy kollej. Koreys tili va ingliz tili yo'nalishlarida, shuningdek avtomobilsozlik va go'zallik sohasida ta'lim beradi.",
             englishTrackMajors: [
-                
+                "Applied Korean (Gwangju Campus)",
+                "Korean Language (Paju Campus)",
+                "Future Automotive (Paju Campus)"
             ],
             koreanTrackMajors: [
-                "K-Beauty Arts",
-                "Automotive & Mechanical",
-                "Culinary & Hotel Management",
-                "Computer Software"
+                "Applied Korean (Gwangju Campus)",
+                "AI Future Automotive (Gwangju Campus)",
+                "Beauty / Cosmetology (Gwangju Campus)",
+                "Industrial Engineering (Gwangju Campus)",
+                "Silver Welfare (Gwangju Campus)",
+                "Korean Language (Paju Campus)",
+                "Future Automotive (Paju Campus)",
+                "Beauty Arts (Paju Campus)"
             ],
             scholarships: [
-                { cert: "TOPIK 3+", percent: "30% - 40%" }
+                { cert: "1-semestr (Korean Track)", percent: "50% chegirma" },
+                { cert: "Yotoqxona (Dormitory)", percent: "700,000 KRW (6 oy)" }
             ],
-            otherGrantsNote: "Paju va Gwangju kampuslarida xalqaro talabalar uchun hamyonbop yotoqxona va stipendiyalar beriladi.",
-            majors: ["K-Beauty Arts", "Automotive & Mechanical", "Culinary & Hotel", "Computer Software"]
+            otherGrantsNote: "Birinchi semestrda barcha talabalarga kontrakt to'lovi uchun 50% chegirma beriladi. O'rtacha kontrakt to'lovi semestriga 1,600,000 KRW. Yotoqxona to'lovi 6 oy uchun 700,000 KRW.",
+            majors: [
+                "Applied Korean (Gwangju)",
+                "AI Future Automotive (Gwangju)",
+                "Beauty (Gwangju)",
+                "Industrial Engineering (Gwangju)",
+                "Silver Welfare (Gwangju)",
+                "Korean Language (Paju)",
+                "Future Automotive (Paju)",
+                "Beauty Arts (Paju)"
+            ]
+        },
+        {
+            name: "Far East University",
+            koreanName: "극동대학교 (FEU)",
+            location: "SEOUL OUTSKIRTS (EUMSEONG)",
+            address: "📍 76-32 Daehak-gil, Gamgok-myeon, Eumseong-gun, Chungcheongbuk-do, South Korea",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Aviation & Health Leader",
+            founded: "1998",
+            programs: "50+",
+            appFee: "50,000 KRW",
+            badge1: "Licensed Uni",
+            badge2: "Seoul Outskirts (~70 km)",
+            badge1Class: "badge-blue",
+            brandColor: "#1d3557",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "3,807,000 KRW / semestr (Asl kontrakt)",
+            language: "TOPIK 3 va IELTS 6+",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$13,000 USD (1 oylik KDB)",
+            description: "Seoul yaqinida (~70 km) joylashgan universitet. Transport orqali qatnashish qulay, yashash xarajatlari arzonroq. Aviatsiya, K-Beauty va Sog'liqni saqlash sohalarida kuchli ixtisoslashgan. Qabul vaqti: 30-iyul.",
+            englishTrackMajors: [
+                "Aviation Service Management",
+                "Medical & Health"
+            ],
+            koreanTrackMajors: [
+                "Social Welfare",
+                "Medical & Health",
+                "Beauty Cosmetics",
+                "Aviation Service Management",
+                "Flight Operation"
+            ],
+            scholarships: [
+                { cert: "TOPIK 3 & IELTS 6+", percent: "30% chegirma (2,664,000 KRW)" }
+            ],
+            otherGrantsNote: "Asl kontrakt: 3,807,000 KRW. 30% grant bilan regular yo'nalishlar: 2,664,000 KRW (~$1,960 USD). Aviation yo'nalishlari: ~$2,245 USD. Qabul vaqti: 30-iyul.",
+            majors: [
+                "Social Welfare",
+                "Medical & Health",
+                "Beauty Cosmetics",
+                "Aviation Service Management",
+                "Flight Operation"
+            ]
+        },
+        {
+            name: "Youngsan University",
+            koreanName: "영산대학교 (YSU)",
+            location: "BUSAN (HAEUNDAE)",
+            address: "📍 142 Bansong-ro, Haeundae-gu, Busan, South Korea",
+            img: "https://images.unsplash.com/photo-1562774053-4ab90860b27e?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Hotel & Business Leader",
+            founded: "1973",
+            programs: "45+",
+            appFee: "572,000 KRW (Admission Fee)",
+            badge1: "Licensed Uni",
+            badge2: "No Parent Income Req",
+            badge1Class: "badge-blue",
+            brandColor: "#0b3c5d",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "3,120,000 KRW / semestr (Asl kontrakt)",
+            language: "IELTS 5.5 | TOPIK 4+",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tekshiruvi. Ota-ona yillik daromad manbai ma'lumotnomasi TALAB QILINMAYDI. Elchixonaga 1 oylik KDB bank ko'chirmasi ($16,000 USD / 20,000,000 KRW) topshiriladi.",
+            kdb1DayAfterAdmission: "$16,000 USD (1 oylik KDB)",
+            description: "Busan shahrida (Koreyaning 2-chi yirik shahri) joylashgan universitet. Turizm, xizmat ko'rsatish va ish topish imkoniyatlari yaxshi rivojlangan. Kirish uchun intervyudan o'tish talab etiladi. Qabul muddati: 7-iyulgacha.",
+            englishTrackMajors: [
+                "K-Business",
+                "Hotel, Food & Tourism"
+            ],
+            koreanTrackMajors: [
+                "K-Business",
+                "Hotel, Food & Tourism"
+            ],
+            scholarships: [
+                { cert: "IELTS 5.5", percent: "30% grant (Tuition: 2,184,000 KRW)" },
+                { cert: "IELTS 6.0+", percent: "50% grant (Tuition: 1,560,000 KRW)" }
+            ],
+            otherGrantsNote: "Admission Fee: 572,000 KRW. IELTS sertifikati darajasiga qarab 30% yoki 50% grant beriladi. Ota-ona yillik daromad manbai talab etilmaydi. Qabul muddati: 7-iyulgacha.",
+            majors: [
+                "K-Business",
+                "Hotel, Food & Tourism"
+            ]
+        },
+        {
+            name: "Calvin University",
+            koreanName: "칼빈대학교",
+            location: "YONGIN (SEOUL YAQINIDA)",
+            address: "📍 184 Galmachi-ro, Giheung-gu, Yongin-si, Gyeonggi-do, South Korea",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Flexible Study Leader",
+            founded: "1954",
+            programs: "20+",
+            appFee: "50,000 KRW",
+            badge1: "Licensed Uni",
+            badge2: "Yongin Campus",
+            badge1Class: "badge-blue",
+            brandColor: "#581b1b",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "1,800,000 KRW / semestr",
+            language: "TOPIK 3+ | IELTS 5.5",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $16,000 USD (20,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$16,000 USD (1 oylik KDB)",
+            description: "Seoul yaqinidagi Yongin shahrida joylashgan universitet. Haftada faqat 2 kunlik moslashuvchan o'qish tizimi (1 kun offline, 1 kun online) mavjud bo'lib, talabalarga ishlash va amaliyot uchun ajoyib sharoit yaratadi.",
+            englishTrackMajors: [
+                "Global Culture Management Business"
+            ],
+            koreanTrackMajors: [
+                "Global Culture Management Business"
+            ],
+            scholarships: [],
+            otherGrantsNote: "Kontrakt to'lovi semestriga 1,800,000 KRW (taxminan $1,220 USD). Haftasiga 2 kunlik o'qish grafigi mavjud.",
+            majors: [
+                "Global Culture Management Business"
+            ]
+        },
+        {
+            name: "Kyungin Women's University",
+            koreanName: "경인여자대학교",
+            location: "SEOUL METRO (INCHEON)",
+            address: "📍 101 Gyeyangsan-ro, Gyeyang-gu, Incheon, South Korea",
+            img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Women's College Leader",
+            founded: "1992",
+            programs: "30+",
+            appFee: "50,000 KRW",
+            badge1: "Licensed Uni",
+            badge2: "Women's Education",
+            badge1Class: "badge-blue",
+            brandColor: "#c2185b",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "800,000 KRW / semestr",
+            language: "TOPIK 2",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$13,000 USD (1 oylik KDB)",
+            description: "Seoul metro tizimiga ulangan Incheon shahrida joylashgan yirik xotin-qizlar kolleji. Zamonaviy ta'lim va amaliyot dasturlari, ayollar uchun juda qulay va qo'llab-quvvatlovchi muhitga ega. Qabul vaqti: 22-iyungacha.",
+            englishTrackMajors: [],
+            koreanTrackMajors: [
+                "Hotel & Tourism Management",
+                "IT / Software",
+                "Fashion Design"
+            ],
+            scholarships: [],
+            otherGrantsNote: "Kontrakt to'lovi: 800,000 KRW (~$550 USD). TOPIK 2 talab qilinadi. Qabul vaqti: 22-iyungacha.",
+            majors: [
+                "Hotel & Tourism",
+                "IT",
+                "Fashion Design"
+            ]
+        },
+        {
+            name: "Sahmyook University",
+            koreanName: "삼육대학교",
+            location: "SEOUL",
+            address: "📍 815 Hwarang-ro, Nowon-gu, Seoul, South Korea",
+            img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Seoul Health Care Leader",
+            founded: "1906",
+            programs: "50+",
+            appFee: "100,000 KRW",
+            badge1: "Licensed Uni",
+            badge2: "Seoul Health Campus",
+            badge1Class: "badge-blue",
+            brandColor: "#1d5c3f",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "5,900,000 KRW / semestr (Asl kontrakt)",
+            language: "TOPIK 3 | IELTS 5.5",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $20,000 USD miqdoridagi 1 oylik bank ko'chirmasi (istalgan bankdan) topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$20,000 USD (Istalgan bank, 1 oylik)",
+            description: "Seoul shahrida joylashgan nufuzli xususiy universitet. English Track orqali Health Care yo'nalishida o'qish imkoniyati va 50% lik kafolatlangan stipendiya taklif etadi. Qabul muddati: 30-iyungacha.",
+            englishTrackMajors: [
+                "Health Care"
+            ],
+            koreanTrackMajors: [
+                "Health Care"
+            ],
+            scholarships: [
+                { cert: "English / TOPIK 3", percent: "50% chegirma (2,950,000 KRW)" }
+            ],
+            otherGrantsNote: "Admission fee: 835,000 KRW. Umumiy birinchi semestr to'lovi: 3,785,000 KRW (~$2,520). 1 oylik 20,000$ bank hisob varag'i talab etiladi (istalgan bankdan).",
+            majors: [
+                "Health Care"
+            ]
+        },
+        {
+            name: "Chosun College of Science & Technology",
+            koreanName: "조선이공대학교",
+            location: "GWANGJU",
+            address: "📍 309 Pilmun-daero, Dong-gu, Gwangju, South Korea",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Vocational Excellence",
+            founded: "1963",
+            programs: "25+",
+            appFee: "50,000 KRW",
+            badge1: "Licensed Uni",
+            badge2: "Gwangju Tech College",
+            badge1Class: "badge-blue",
+            brandColor: "#002855",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "3,030,000 KRW / semestr (Asl kontrakt)",
+            language: "TOPIK 2",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$13,000 USD (1 oylik KDB)",
+            description: "Gwangju shahrida joylashgan zamonaviy texnik kollej. Kichik sinflar, individual yondashuv va xalqaro talabalar uchun kuchli qo'llab-quvvatlash tizimi. Qabul muddati: 1-iyulgacha.",
+            englishTrackMajors: [],
+            koreanTrackMajors: [
+                "Global Mechanical Convergence"
+            ],
+            scholarships: [
+                { cert: "TOPIK 2", percent: "1,000,000 KRW chegirma (2,030,000 KRW)" }
+            ],
+            otherGrantsNote: "TOPIK 2 sertifikati bo'lgan talabalar uchun kontrakt to'lovi 2,030,000 KRW. Ota-ona yillik daromadi va $13,000 USD 1 oylik KDB bank ko'chirmasi talab qilinadi.",
+            majors: [
+                "Global Mechanical Convergence"
+            ]
+        },
+        {
+            name: "Induk University",
+            koreanName: "인덕대학교",
+            location: "SEOUL",
+            address: "📍 12 Choansan-ro, Nowon-gu, Seoul, South Korea",
+            img: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=800&q=80",
+            qsRank: "Design & Tech Leader",
+            founded: "1972",
+            programs: "35+",
+            appFee: "50,000 KRW",
+            badge1: "Licensed Uni",
+            badge2: "Seoul Campus",
+            badge1Class: "badge-blue",
+            brandColor: "#004b87",
+            statusTag: "📜 Akkreditatsiyaga ega",
+            is1Percent: false,
+            tuition: "2,800,000 - 3,500,000 KRW / semestr",
+            language: "TOPIK 3+",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $16,000 USD (20,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+            kdb1DayAfterAdmission: "$16,000 USD (1 oylik KDB)",
+            description: "Seoul shahrida joylashgan yirik amaliy va san'at kolleji. Visual Design, AI Software va Broadcasting sohalarida kuchli amaliy va ishga joylashish imkoniyatlarini taklif qiladi.",
+            englishTrackMajors: [],
+            koreanTrackMajors: [
+                "AI Software",
+                "Visual Communication Design",
+                "Broadcasting & Entertainment"
+            ],
+            scholarships: [
+                { cert: "TOPIK 3+", percent: "30% - 50% chegirma" }
+            ],
+            otherGrantsNote: "Birinchi semestrda TOPIK darajaga ko'ra 30% dan 50% gacha grantlar beriladi. Keyingi semestrlarda GPA ballari va TOPIKga qarab stipendiyalar uzaytiriladi.",
+            majors: [
+                "AI Software",
+                "Visual Design",
+                "Broadcasting & Entertainment"
+            ]
         },
 {
             name: "Seojeong University",
@@ -6454,35 +6755,59 @@
             brandColor: "#003b73",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,600,000 - 3,300,000 KRW / semestr",
-            language: "TOPIK 2+ / TOPIK 3+",
+            tuition: "2,300,000 KRW / semestr (Chegirmadan keyin)",
+            language: "TOPIK 2+ / TOPIK 3+ | IELTS 5.5",
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
-            description: "Seul yaqinidagi Yangju shahrida joylashgan xalqaro talabalar uchun eng ommabop amaliy kollejlardan biri. Avtomobil texnologiyalari, K-Beauty, Oshpazlik va Qariyalar parvarishi bo'yicha yuqori ishga joylashish ko'rsatkichiga ega.",
+            description: "Seul yaqinidagi Yangju shahrida joylashgan amaliy kollej. Birinchi semestrda barcha talabalarga avtomatik grant berilib, to'lanadigan sof kontrakt to'lovi 2,300,000 KRW etib belgilangan. Til sertifikatlariga qo'shimcha bir martalik chegirmalar beriladi.",
             englishTrackMajors: [
-                
+                "Hotel & Tourism Department",
+                "Business Administration",
+                "Smart Mobility",
+                "Global AI Computer Engineering"
             ],
             koreanTrackMajors: [
-                "Global Automotive Technology",
-                "Hotel Culinary & Baking",
-                "K-Beauty & Cosmetology",
-                "Emergency Medical & Care"
+                "Industrial Engineering (TOPIK 2)",
+                "Automotive Engineering (TOPIK 3)",
+                "Beauty Arts (TOPIK 3)",
+                "Hotel Culinary Arts (TOPIK 3)",
+                "Global Care Welfare (TOPIK 2)"
             ],
             scholarships: [
-                { cert: "TOPIK 3+", percent: "30% - 50%" }
+                { cert: "Barcha yo'nalishlar (1-semestr)", percent: "Sof to'lov: 2,300,000 KRW" },
+                { cert: "TOPIK 2 / IELTS 5.5", percent: "+800,000 KRW chegirma" },
+                { cert: "TOPIK 3 - 4", percent: "+1,300,000 KRW chegirma" },
+                { cert: "TOPIK 5 - 6", percent: "+1,800,000 KRW chegirma" }
             ],
-            otherGrantsNote: "Seulga yaqin joylashuv va xalqaro talabalar uchun moslashtirilgan moslashuv va amaliyot dasturlari.",
-            majors: ["Global Automotive", "Hotel Culinary & Baking", "K-Beauty & Cosmetology", "Emergency Medical Care"]
+            otherGrantsNote: "Yotoqxona (semestriga): 2 kishilik - 1,300,000 KRW, 3 kishilik - 1,200,000 KRW, 4 kishilik - 1,100,000 KRW. D4 til kursi - 2,000,000 KRW (6 oylik). Qabul muddati: 30-iyungacha.",
+            majors: [
+                "Hotel & Tourism Department",
+                "Business Administration",
+                "Industrial Engineering",
+                "Automotive Engineering",
+                "Beauty Arts",
+                "Hotel Culinary Arts",
+                "Global AI Computer Engineering"
+            ]
         }
     ];
 
+    // Clean up old custom_universities keys from localStorage to prevent cache issues
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v240') {
+            localStorage.removeItem(key);
+            i--; // Adjust index because length decreased
+        }
+    }
+
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v143')) {
-        localStorage.setItem('custom_universities_v143', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v240')) {
+        localStorage.setItem('custom_universities_v240', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v143'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v240'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6602,9 +6927,9 @@
             const accBadgeClass = uni.is1Percent ? 'badge-gold' : 'badge-blue';
 
             // Clean up prefix and choose ranking label dynamically
-            const origRank = (uni.qsRank || '').toLowerCase();
+            const origRank = (getCardRankBadge(uni.name) || uni.qsRank || '').toLowerCase();
             let rankLabel = 'QS Rank';
-            let displayRankVal = uni.qsRank || '';
+            let displayRankVal = getCardRankBadge(uni.name) || uni.qsRank || '';
 
             if (displayRankVal.toLowerCase().startsWith('qs rank:')) {
                 displayRankVal = displayRankVal.substring(8).trim();
@@ -6618,7 +6943,7 @@
                 rankLabel = 'QS Rank';
             } else if (origRank.includes('top') && !origRank.includes('national') && !origRank.includes('korea') && !origRank.includes('aviation')) {
                 rankLabel = 'World Rank';
-            } else if (origRank.includes('akkreditatsiya') || origRank.includes('status') || origRank.includes('ega') || origRank.includes('kollej') || origRank.includes('national') || origRank.includes('korea') || origRank.includes('aviation')) {
+            } else if (origRank.includes('akkreditatsiya') || origRank.includes('status') || origRank.includes('ega') || origRank.includes('kollej') || origRank.includes('national') || origRank.includes('korea') || origRank.includes('aviation') || origRank.includes('akkred')) {
                 rankLabel = 'Status';
             } else {
                 rankLabel = 'Status';
@@ -6719,7 +7044,7 @@
         document.getElementById('uniModalKorean').textContent = details.koreanName || '';
         document.getElementById('uniModalImg').src = details.img;
         document.getElementById('uniModalLocText').textContent = details.location || 'KOREA';
-        document.getElementById('uniModalQs').textContent = details.qsRank || 'Akkreditatsiyalangan';
+        document.getElementById('uniModalQs').textContent = getCardRankBadge(details.name) || details.qsRank || 'Akkreditatsiyalangan';
         document.getElementById('uniModalFounded').textContent = details.founded || 'Koreya';
         document.getElementById('uniModalTuition').textContent = details.tuition || '$3,000 - $4,500 / semestr';
         
@@ -6898,6 +7223,61 @@
                     <p><strong>Root Industry Track (Naval Arch.):</strong> TOPIK 2 accepted</p>
                     <p><strong>Alternative Options:</strong> Sejong Institute Intermediate 1+, KIIP 3+ (or 61+ score), or Inha Tech test</p>
                 `;
+            } else if (details.name === 'Dong-Eui Institute of Technology') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 3</p>
+                    <p><strong>English Track:</strong> Mavjud emas</p>
+                `;
+            } else if (details.name === 'Tongwon University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 2</p>
+                    <p><strong>English Track:</strong> Mavjud emas</p>
+                `;
+            } else if (details.name === 'Dongwon Institute of Science and Technology') {
+                html = `
+                    <p><strong>Korean Track (General):</strong> TOPIK 3+</p>
+                    <p><strong>Root Industry Track (Marine Power):</strong> TOPIK 2+</p>
+                    <p><strong>English Track (Air Cond / Aircraft):</strong> IELTS 5.5+ | TOEFL iBT 71+</p>
+                `;
+            } else if (details.name === 'Youngsan University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 4+</p>
+                    <p><strong>English Track:</strong> IELTS 5.5+</p>
+                `;
+            } else if (details.name === 'Sahmyook University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 3+</p>
+                    <p><strong>English Track (Health Care):</strong> English certificate / IELTS 5.5+</p>
+                `;
+            } else if (details.name === 'Chosun College of Science & Technology') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 2+</p>
+                    <p><strong>English Track:</strong> Mavjud emas</p>
+                `;
+            } else if (details.name === 'Induk University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 3+</p>
+                    <p><strong>English Track:</strong> Mavjud emas</p>
+                `;
+            } else if (details.name === 'Calvin University') {
+                html = `
+                    <p><strong>Korean Track (Global Culture Business):</strong> TOPIK 3+ or equivalent</p>
+                    <p><strong>Study System:</strong> 2 days a week (1 day offline, 1 day online)</p>
+                `;
+            } else if (details.name === 'Kyungin Women\'s University') {
+                html = `
+                    <p><strong>Korean Track:</strong> TOPIK 2+</p>
+                    <p><strong>English Track:</strong> Mavjud emas</p>
+                `;
+            } else if (details.name === 'Seojeong University') {
+                html = `
+                    <p><strong>English Track (Hotel & Tourism, Business Admin, Smart Mobility, AI Computer):</strong> IELTS 5.5+ or equivalent</p>
+                    <p><strong>Korean Track (Industrial Engineering / Global Care Welfare):</strong> TOPIK 2+</p>
+                    <p><strong>Korean Track (Automotive Engineering / Beauty Arts / Culinary):</strong> TOPIK 3+</p>
+                    <p><strong>1-semestr Kontrakt (Avtomatik Grant bilan):</strong> Sof to'lov 2,300,000 KRW</p>
+                    <p><strong>Qo'shimcha Til Grantlari (1-semestr):</strong> TOPIK 2/IELTS 5.5: -800k KRW | TOPIK 3-4: -1.3M KRW | TOPIK 5-6: -1.8M KRW</p>
+                    <p><strong>Yotoqxona (Semestr):</strong> 2 kishilik - 1,300,000 KRW | 3 kishilik - 1,200,000 KRW | 4 kishilik - 1,100,000 KRW</p>
+                `;
             } else if (details.name === 'University of Seoul') {
                 html = `
                     <p><strong>Korean Track (Freshman):</strong> TOPIK 3+ yoki UOS KLCP Level 3+</p>
@@ -6930,7 +7310,11 @@
         // Render Visa & Bank Requirements Checklist dynamically
         const bankReqsEl = document.getElementById('uniModalBankReqs');
         if (bankReqsEl) {
-            const isEVisa = details.visaStatus === 'Magistr E-Viza' || details.name === 'Anyang University';
+            const isEVisa = details.visaStatus === 'Magistr E-Viza' || 
+                            details.name === 'Anyang University' || 
+                            details.visaStatus === 'Regional Viza' || 
+                            details.visaStatus === 'Regional viza' ||
+                            (details.visaStatus && details.visaStatus.toLowerCase().includes('regional'));
             
             const kdbVal = details.kdb1DayAfterAdmission || (details.is1Percent ? '$16,000 USD' : '$13,000 USD');
             const isKdbNotReq = kdbVal.toLowerCase().includes('emas') || kdbVal.toLowerCase().includes('etilmaydi');
@@ -7001,7 +7385,7 @@
                 const certUpper = g.cert.toUpperCase();
                 if (certUpper.includes("IELTS") || certUpper.includes("TOEFL") || certUpper.includes("TEPS") || certUpper.includes("ENGLISH TRACK")) {
                     ieltsGrants.push(g);
-                } else if (certUpper.includes("TOPIK") || certUpper.includes("KLEC") || certUpper.includes("KOREAN TRACK")) {
+                } else if (certUpper.includes("TOPIK") || certUpper.includes("KLEC") || certUpper.includes("KOREAN TRACK") || certUpper.includes("KOREAN")) {
                     topikGrants.push(g);
                 } else {
                     otherGrants.push(g);
