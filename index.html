@@ -6819,25 +6819,25 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v270') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v280') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v270')) {
-        localStorage.setItem('custom_universities_v270', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v280')) {
+        localStorage.setItem('custom_universities_v280', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v270'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v280'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
     }
 
     function getStepSize() {
-        return window.innerWidth <= 768 ? 4 : 10;
+        return 9999;
     }
 
     let topUnisVisibleCount = getStepSize();
