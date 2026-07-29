@@ -6767,7 +6767,7 @@
             koreanName: "서정대학교 (Yangju)",
             location: "YANGJU (SEOUL METRO)",
             address: "📍 27 Hwabong-ro, Eunhyeon-myeon, Yangju-si, Gyeonggi-do, South Korea",
-            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGwgwMwoolleyHSCKVGDBi-bmDIvc8fHnhzxo-pqQ_R8SKk4OEAWaeJEib&s=10",
             qsRank: "Global Vocational Leader",
             founded: "2002",
             programs: "50+",
@@ -6819,18 +6819,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v280') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v290') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v280')) {
-        localStorage.setItem('custom_universities_v280', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v290')) {
+        localStorage.setItem('custom_universities_v290', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v280'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v290'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
