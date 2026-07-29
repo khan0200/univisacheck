@@ -5171,7 +5171,7 @@
             kdb1DayAfterAdmission: "$16,000 USD (KDB Bank)",
             description: "Inha University — Janubiy Koreyaning Incheon shahrida joylashgan dunyoning TOP 600 reytingidagi yetakchi 1% akkreditatsiyalangan universitet (1954-yil). Darslar haftasiga 4 kun o'tkaziladi. Muhandislik, Xalqaro Biznes va Tabiiy fanlar bo'yicha kuchli. Ota-ona daromad manbai va 1-oylik bank ko'chirmasi talab etilmaydi.",
             englishTrackMajors: [
-                "GLOBAL BUSINESS",
+                "International Trade and Business",
                 "Integrated System Engineering"
             ],
             koreanTrackMajors: [
@@ -5187,10 +5187,11 @@
             ],
             otherGrantsNote: "Inha University stipendiyalari: IELTS 6.5 yoki TOPIK 3 darajasiga 1-semestr uchun 50-100% kontrakt chegirmasi beriladi. IELTS 7.0-7.5 / TOPIK 4 bo'lganlarga 1 yilgacha, IELTS 8.0+ / TOPIK 5+ egalariga esa 2 yildan 4 yilgacha to'liq grantlar taqdim etiladi. 1% yengillashtirilgan viza rejimi bo'lganligi sababli ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi talab qilinmaydi.",
             majors: [
-                "GLOBAL BUSINESS",
+                "International Trade and Business",
                 "Integrated System Engineering",
                 "Korean Language and Literature",
-                "Economics"
+                "Economics",
+                "GLOBAL BUSINESS"
             ]
         },
 {
@@ -6956,18 +6957,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v630') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v640') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v630')) {
-        localStorage.setItem('custom_universities_v630', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v640')) {
+        localStorage.setItem('custom_universities_v640', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v630'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v640'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
