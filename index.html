@@ -5667,15 +5667,10 @@
             description: "1952-yilda tashkil etilgan Koreyadagi yagona aviatsiya, parvoz boshqaruvi va kosmonavtika sohalariga ixtisoslashgan 1% akkreditatsiyalangan milliy yetakchi universitet (Seul yaqinidagi Goyang shahrida joylashgan). School of Global Aviation Studies orqali to'liq ingliz va koreys tili yo'nalishlarida ta'lim hamda IELTS 7.0+ va TOPIK 6 uchun 70%-100% grantlar ajratiladi.",
             englishTrackMajors: [
                 "Air Transportation and Logistics Major (School of Global Aviation Studies)",
-                "Aviation Management Major (School of Global Aviation Studies)",
-                "Service Management Major (School of Global Aviation Studies)"
+                "Aviation Management Major (School of Global Aviation Studies)"
             ],
             koreanTrackMajors: [
-                "College of Aviation & Management (Aviation Management, Business Administration - TOPIK 3+)",
-                "College of Engineering (Astronautics, Aeronautics, Mechanical, Aviation Maintenance, Semiconductor - TOPIK 3+)",
-                "College of AI Convergence (AI, Computer Science, Electronics & Avionics, AI-ICT - TOPIK 3+)",
-                "Department of Smart Drone Engineering & Autonomous Vehicle Engineering (TOPIK 3+)",
-                "Department of Aeronautical Science and Flight Operation (Parvoz va Aviatsiya Boshqaruvi - TOPIK 3+ & 1st Class Aviation Medical Cert)"
+                "Service Management Major (School of Global Aviation Studies)"
             ],
             scholarships: [
                 { cert: "IELTS 7.0+ / TOEFL 96+", percent: "100% To'liq grant" },
@@ -5687,7 +5682,7 @@
                 { cert: "TOPIK 3", percent: "20% chegirma" }
             ],
             otherGrantsNote: "Application Fee: 90,000 KRW. Bank ko'chirmasi talabi 20,000,000 KRW. KAU Til Markazi (2.6 mln KRW / 6 oy) talabalariga 80%+ davomat bilan 600,000 KRW grant qaytariladi. Yotoqxona semestriga 860,000 KRW.",
-            majors: ["Flight Operation", "Air Transportation & Logistics", "Aviation Management", "Smart Drone Engineering", "Computer Science & AI", "Avionics Engineering"]
+            majors: ["Air Transportation and Logistics Major", "Aviation Management Major", "Service Management Major"]
         },
 {
             name: "Keimyung University",
@@ -6968,18 +6963,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v680') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v690') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v680')) {
-        localStorage.setItem('custom_universities_v680', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v690')) {
+        localStorage.setItem('custom_universities_v690', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v680'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v690'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
