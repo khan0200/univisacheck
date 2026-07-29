@@ -3152,7 +3152,7 @@
             <div class="top-cards-dropdown-wrap">
                 <select id="topCardsCategorySelect" class="top-cards-select" onchange="setTopCardsFilter(this.value)">
                     <option value="all">Barcha universitetlar</option>
-                    <option value="evisa">Magister E-Viza</option>
+                    <option value="evisa">Magistr E-Viza</option>
                     <option value="1percent">1% Universitetlar</option>
                     <option value="standard">Standart tekshiruv</option>
                     <option value="college">Kollejlar</option>
@@ -6901,18 +6901,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v430') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v440') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v430')) {
-        localStorage.setItem('custom_universities_v430', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v440')) {
+        localStorage.setItem('custom_universities_v440', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v430'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v440'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7076,7 +7076,8 @@
                             (uni.badge1 && uni.badge1.toLowerCase().includes('e-viza'));
 
             if (currentTopCardsFilter === 'evisa') {
-                return isEVisa;
+                const cleanName = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
+                return isEVisa || magistrEVizaList.some(target => target.replace(/['`’]/g, '') === cleanName || cleanName.includes(target));
             }
 
             if (currentTopCardsFilter === '1percent') {
