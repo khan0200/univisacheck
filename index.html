@@ -1523,6 +1523,32 @@
             background: #e0e7ff;
             border-color: #c7d2fe;
         }
+        .card-special-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+        .card-special-badge {
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .badge-blue-pill {
+            color: #1e40af;
+            background: #dbeafe;
+            border: 1px solid #bfdbfe;
+        }
+        .badge-gold-pill {
+            color: #854d0e;
+            background: #fef9c3;
+            border: 1px solid #fef08a;
+        }
         .top-uni-action {
             margin-top: auto;
             padding-top: 16px;
@@ -6821,18 +6847,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v320') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v330') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v320')) {
-        localStorage.setItem('custom_universities_v320', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v330')) {
+        localStorage.setItem('custom_universities_v330', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v320'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v330'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6974,6 +7000,41 @@
                 rankLabel = 'Status';
             }
 
+            const targetSpecialBadgesList = [
+                "SUNGKYUNKWAN UNIVERSITY (SKKU)",
+                "KOREA UNIVERSITY",
+                "HANYANG UNIVERSITY",
+                "KYUNG HEE UNIVERSITY",
+                "SEJONG UNIVERSITY",
+                "AJOU UNIVERSITY",
+                "CHUNG-ANG UNIVERSITY",
+                "EWHA WOMANS UNIVERSITY",
+                "KYUNGPOOK NATIONAL UNIVERSITY",
+                "INHA UNIVERSITY",
+                "KONKUK UNIVERSITY",
+                "CHUNGNAM NATIONAL UNIVERSITY",
+                "UNIVERSITY OF SEOUL",
+                "KEIMYUNG UNIVERSITY",
+                "KOREA AEROSPACE UNIVERSITY",
+                "BUSAN UNIVERSITY OF FOREIGN STUDIES",
+                "KYUNGSUNG UNIVERSITY",
+                "SUNGSHIN WOMEN`S UNIVERSITY",
+                "SUNGSHIN WOMEN'S UNIVERSITY",
+                "HANSUNG UNIVERSITY",
+                "JOONGBU UNIVERSITY"
+            ];
+            const cleanNameForBadges = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
+            const hasSpecialBadges = targetSpecialBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+            let specialBadgesHtml = '';
+            if (hasSpecialBadges) {
+                specialBadgesHtml = `
+                <div class="card-special-badges">
+                    <span class="card-special-badge badge-blue-pill">BACHELOR</span>
+                    <span class="card-special-badge badge-gold-pill">1% TOP</span>
+                </div>
+                `;
+            }
+
             return `
             <div class="top-uni-card" data-name="${uni.name}">
                 <div class="top-uni-img-wrap">
@@ -7006,6 +7067,8 @@
                              </span>
                          </div>
                      </div>
+
+                     ${specialBadgesHtml}
 
                     <div class="top-uni-action">
                         <a href="javascript:void(0)" onclick="openUniModal('${uni.name.replace(/'/g, "\\'")}')" class="top-uni-link" style="color: ${uni.brandColor};">Batafsil ma'lumot &rarr;</a>
