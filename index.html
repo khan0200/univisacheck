@@ -5216,11 +5216,11 @@
             badge1Class: "badge-green",
             brandColor: "#002b49",
             statusTag: "📜 Akkreditatsiyaga ega (Milliy Universitet)",
-            is1Percent: false,
+            is1Percent: true,
             tuition: "2,016,000 – 2,779,000 KRW / semestr",
             language: "TOPIK 3+ | IELTS 5.5+",
-            visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+            visaStatus: "Yengillashtirilgan (1%)",
+            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
             description: "Jeonbuk National University — Janubiy Koreyaning Jeonju shahrida joylashgan yetakchi milliy davlat universiteti (1947-yil). Arzon kontrakt narxlari (2.0M - 2.7M KRW), keng kampus va saxiy 2026 Fall grant dasturlariga ega.",
             englishTrackMajors: [
                 "International Studies",
@@ -6902,18 +6902,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v560') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v570') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v560')) {
-        localStorage.setItem('custom_universities_v560', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v570')) {
+        localStorage.setItem('custom_universities_v570', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v560'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v570'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
