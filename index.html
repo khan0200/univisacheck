@@ -4190,7 +4190,7 @@
             name: "Korea University",
             koreanName: "고려대학교",
             location: "SEOUL",
-            img: "https://images.unsplash.com/photo-1607237138185-eedd996e5b09?auto=format&fit=crop&w=800&q=80",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqkufvOYzOsu5BtSgoe22YU5TUQeG6Pzh-_pfAuufbmjMS7iSKRRr_V9Wc&s=10",
             qsRank: "#74 (TOP 100)",
             founded: "1905-yil",
             tuition: "$3,800 - $5,200 / semestr",
@@ -4775,7 +4775,7 @@
             koreanName: "고려대학교 (Korea University)",
             location: "SEOUL (ANAM CAMPUS)",
             address: "📍 Korea University, International Education Team, #301 Dongwon Global Leadership Hall, 145 Anam-ro, Seongbuk-gu, Seoul 02841, Korea",
-            img: "https://images.unsplash.com/photo-1607237138185-eedd996e5b09?auto=format&fit=crop&w=800&q=80",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqkufvOYzOsu5BtSgoe22YU5TUQeG6Pzh-_pfAuufbmjMS7iSKRRr_V9Wc&s=10",
             qsRank: "TOP 100 (#67 QS 2025)",
             founded: "1905",
             programs: "130+",
@@ -6902,18 +6902,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v540') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v550') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v540')) {
-        localStorage.setItem('custom_universities_v540', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v550')) {
+        localStorage.setItem('custom_universities_v550', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v540'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v550'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
