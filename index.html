@@ -1558,15 +1558,14 @@
             .huj-header-right { display: none; }
         }
 
-        /* 4 category cards */
+        /* 2 category cards */
         .huj-cat-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
             margin-bottom: 32px;
         }
-        @media (max-width: 900px) { .huj-cat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .huj-cat-grid { grid-template-columns: 1fr; gap: 10px; } }
+        @media (max-width: 580px) { .huj-cat-grid { grid-template-columns: 1fr; gap: 10px; } }
 
         .huj-cat-card {
             background: #ffffff;
@@ -3512,33 +3511,6 @@
                 <div class="huj-cat-label">Elchixonada D2–D4<br>vizasi uchun kerakli hujjatlar</div>
                 <div class="huj-cat-desc">D2 va D4 talaba vizasi uchun elchixonaga taqdim etiladigan hujjatlar ro'yxati va talablar.</div>
                 <div class="huj-cat-arrow green">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
-            </a>
-
-            <a href="#docTabPercent1" class="huj-cat-card" onclick="event.preventDefault(); switchDocTab('percent1'); document.getElementById('docTabPercent1').scrollIntoView({behavior:'smooth', block:'start'})" role="listitem" id="hujCat1pct">
-                <div class="huj-cat-icon purple" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
-                        <circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/>
-                        <path d="m5 19 14-14"/>
-                    </svg>
-                </div>
-                <div class="huj-cat-label">1% lik uchun</div>
-                <div class="huj-cat-desc">1% lik (top universitetlar) dasturlari uchun qo'shimcha talab qilinadigan hujjatlar.</div>
-                <div class="huj-cat-arrow purple">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
-            </a>
-
-            <a href="#docTabStandard" class="huj-cat-card" onclick="event.preventDefault(); switchDocTab('standard'); document.getElementById('docTabStandard').scrollIntoView({behavior:'smooth', block:'start'})" role="listitem" id="hujCatUmumiy">
-                <div class="huj-cat-icon amber" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                    </svg>
-                </div>
-                <div class="huj-cat-label">Umumiy</div>
-                <div class="huj-cat-desc">Barcha holatlar uchun umumiy hujjatlar va foydali ma'lumotlar.</div>
-                <div class="huj-cat-arrow amber">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
             </a>
