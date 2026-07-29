@@ -1492,14 +1492,16 @@
         /* ─── HUJJATLAR SECTION HEADER ────────────────────────── */
         .huj-header {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1fr 260px;
             align-items: center;
-            gap: 32px;
+            gap: 40px;
             margin-bottom: 40px;
+            overflow: hidden;
         }
         .huj-header-left {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
         .huj-header-icon-wrap {
             width: 52px;
@@ -1510,6 +1512,7 @@
             place-items: center;
             color: #000080;
             margin-bottom: 16px;
+            flex-shrink: 0;
         }
         .huj-header-title {
             font-family: var(--font-header);
@@ -1527,16 +1530,31 @@
             max-width: 480px;
             font-weight: 400;
         }
-        .huj-header-img {
-            width: 220px;
-            height: auto;
-            object-fit: contain;
-            opacity: 0.92;
+        .huj-header-right {
+            width: 260px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+        .huj-header-img {
+            width: 100%;
+            height: 100%;
+            max-width: 260px;
+            max-height: 220px;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+        }
+        @media (max-width: 900px) {
+            .huj-header { grid-template-columns: 1fr 200px; gap: 24px; }
+            .huj-header-right { width: 200px; height: 170px; }
         }
         @media (max-width: 768px) {
             .huj-header { grid-template-columns: 1fr; }
-            .huj-header-img { display: none; }
+            .huj-header-right { display: none; }
         }
 
         /* 4 category cards */
@@ -3383,7 +3401,9 @@
                 <h2 class="huj-header-title">Hujjatlar ro'yxati</h2>
                 <p class="huj-header-sub">Viza va universitetga topshirish uchun zarur bo'lgan barcha hujjatlar bilan tanishing. Har bir hujjat haqida batafsil ma'lumot oling.</p>
             </div>
-            <img src="docs.png" alt="Hujjatlar" class="huj-header-img" loading="lazy">
+            <div class="huj-header-right" aria-hidden="true">
+                <img src="docs.png" alt="Hujjatlar" class="huj-header-img" loading="lazy">
+            </div>
         </div>
 
         <!-- ── 4 Category cards ── -->
