@@ -1554,6 +1554,11 @@
             background: #0d9488;
             border: 1px solid #0d9488;
         }
+        .badge-purple-pill {
+            color: #ffffff;
+            background: #7c3aed;
+            border: 1px solid #7c3aed;
+        }
         .top-uni-action {
             margin-top: auto;
             padding-top: 16px;
@@ -6852,18 +6857,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v350') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v360') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v350')) {
-        localStorage.setItem('custom_universities_v350', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v360')) {
+        localStorage.setItem('custom_universities_v360', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v350'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v360'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7054,9 +7059,24 @@
                 "FAR EAST UNIVERSITY"
             ];
 
+            const onlyCollegeList = [
+                "SEOJEONG UNIVERSITY",
+                "INDUK UNIVERSITY",
+                "CHOSUN COLLEGE OF SCIENCE & TECHNOLOGY",
+                "CHOSUN COLLEGE OF SCIENCE AND TECHNOLOGY",
+                "KYUNGIN WOMEN'S UNIVERSITY",
+                "KYUNGIN WOMENS UNIVERSITY",
+                "SEOYEONG UNIVERSITY",
+                "KUNJANG UNIVERSITY",
+                "DONG-EUI INSTITUTE OF TECHNOLOGY",
+                "TONGWON UNIVERSITY",
+                "INHA TECHNICAL COLLEGE"
+            ];
+
             const cleanNameForBadges = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
             const hasBoth = bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
             const hasOnlyBachelor = onlyBachelorList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+            const hasOnlyCollege = onlyCollegeList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
 
             let specialBadgesHtml = '';
             if (hasBoth) {
@@ -7078,6 +7098,21 @@
                     specialBadgesHtml = `
                     <div class="card-special-badges">
                         <span class="card-special-badge badge-blue-pill">BACHELOR</span>
+                    </div>
+                    `;
+                }
+            } else if (hasOnlyCollege) {
+                if (cleanNameForBadges === 'INHA TECHNICAL COLLEGE') {
+                    specialBadgesHtml = `
+                    <div class="card-special-badges">
+                        <span class="card-special-badge badge-purple-pill">COLLEGE</span>
+                        <span class="card-special-badge badge-gold-pill">1% TOP</span>
+                    </div>
+                    `;
+                } else {
+                    specialBadgesHtml = `
+                    <div class="card-special-badges">
+                        <span class="card-special-badge badge-purple-pill">COLLEGE</span>
                     </div>
                     `;
                 }
