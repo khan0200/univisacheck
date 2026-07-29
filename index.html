@@ -1549,6 +1549,11 @@
             background: #d97706;
             border: 1px solid #d97706;
         }
+        .badge-teal-pill {
+            color: #ffffff;
+            background: #0d9488;
+            border: 1px solid #0d9488;
+        }
         .top-uni-action {
             margin-top: auto;
             padding-top: 16px;
@@ -6847,18 +6852,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v340') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v350') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v340')) {
-        localStorage.setItem('custom_universities_v340', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v350')) {
+        localStorage.setItem('custom_universities_v350', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v340'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v350'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7000,7 +7005,7 @@
                 rankLabel = 'Status';
             }
 
-            const targetSpecialBadgesList = [
+            const bothBadgesList = [
                 "SUNGKYUNKWAN UNIVERSITY (SKKU)",
                 "KOREA UNIVERSITY",
                 "HANYANG UNIVERSITY",
@@ -7023,16 +7028,59 @@
                 "HANSUNG UNIVERSITY",
                 "JOONGBU UNIVERSITY"
             ];
+
+            const onlyBachelorList = [
+                "SEOUL NATIONAL UNIVERSITY",
+                "KAIST",
+                "YONSEI UNIVERSITY",
+                "GACHON UNIVERSITY",
+                "JEONBUK NATIONAL UNIVERSITY",
+                "CHUNGBUK NATIONAL UNIVERSITY",
+                "CHONNAM NATIONAL UNIVERSITY",
+                "SOGANG UNIVERSITY",
+                "KANGWON NATIONAL UNIVERSITY",
+                "HALLYM UNIVERSITY",
+                "WOOSUNG SOLBRIDGE UNIVERSITY",
+                "HOSEO UNIVERSITY",
+                "DONG-A UNIVERSITY",
+                "DONG-EUI UNIVERSITY",
+                "ANYANG UNIVERSITY",
+                "DAEGU UNIVERSITY",
+                "PUKYONG NATIONAL UNIVERSITY",
+                "SEOULTECH",
+                "CALVIN UNIVERSITY",
+                "YOUNGSAN UNIVERSITY",
+                "SAHMYOOK UNIVERSITY",
+                "FAR EAST UNIVERSITY"
+            ];
+
             const cleanNameForBadges = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
-            const hasSpecialBadges = targetSpecialBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+            const hasBoth = bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+            const hasOnlyBachelor = onlyBachelorList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+
             let specialBadgesHtml = '';
-            if (hasSpecialBadges) {
+            if (hasBoth) {
                 specialBadgesHtml = `
                 <div class="card-special-badges">
                     <span class="card-special-badge badge-blue-pill">BACHELOR</span>
                     <span class="card-special-badge badge-gold-pill">1% TOP</span>
                 </div>
                 `;
+            } else if (hasOnlyBachelor) {
+                if (cleanNameForBadges === 'HALLYM UNIVERSITY') {
+                    specialBadgesHtml = `
+                    <div class="card-special-badges">
+                        <span class="card-special-badge badge-blue-pill">BACHELOR</span>
+                        <span class="card-special-badge badge-teal-pill">REGIONAL</span>
+                    </div>
+                    `;
+                } else {
+                    specialBadgesHtml = `
+                    <div class="card-special-badges">
+                        <span class="card-special-badge badge-blue-pill">BACHELOR</span>
+                    </div>
+                    `;
+                }
             }
 
             return `
