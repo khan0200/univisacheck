@@ -6901,18 +6901,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v440') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v450') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v440')) {
-        localStorage.setItem('custom_universities_v440', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v450')) {
+        localStorage.setItem('custom_universities_v450', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v440'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v450'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7077,6 +7077,7 @@
 
             if (currentTopCardsFilter === 'evisa') {
                 const cleanName = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
+                if (cleanName === 'HANYANG UNIVERSITY') return false;
                 return isEVisa || magistrEVizaList.some(target => target.replace(/['`’]/g, '') === cleanName || cleanName.includes(target));
             }
 
