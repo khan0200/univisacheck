@@ -4965,8 +4965,17 @@
     }
 
     function downloadDocPDF() {
-        var activeTabBtn = document.querySelector('.doc-tab-btn.active');
-        var is1Percent = !activeTabBtn || activeTabBtn.dataset.docTab === 'percent1';
+        var embassyModal = document.getElementById('embassyDocsModal');
+        var is1Percent = true;
+
+        if (embassyModal && embassyModal.classList.contains('active')) {
+            var activeModalTabBtn = document.getElementById('embTabBtn1Percent');
+            is1Percent = activeModalTabBtn && activeModalTabBtn.classList.contains('active');
+        } else {
+            var activeTabBtn = document.querySelector('.doc-tab-btn.active');
+            is1Percent = !activeTabBtn || activeTabBtn.dataset.docTab === 'percent1';
+        }
+
         var titleText = is1Percent
             ? 'Koreya Vizasi (D-2/D-4) - 1% Universitetlar Hujjatlari'
             : 'Koreya Vizasi (D-2/D-4) - Standart Hujjatlar';
