@@ -3125,6 +3125,9 @@
                     <option value="1percent">1% Universitetlar</option>
                     <option value="standard">Standart tekshiruv</option>
                     <option value="college">Kollejlar</option>
+                    <option value="bachelor">Bachelor</option>
+                    <option value="magistr">Magistr</option>
+                    <option value="langcourse">Language Course</option>
                 </select>
                 <svg class="top-cards-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -6867,18 +6870,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v370') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v380') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v370')) {
-        localStorage.setItem('custom_universities_v370', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v380')) {
+        localStorage.setItem('custom_universities_v380', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v370'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v380'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6925,6 +6928,93 @@
         const loadMoreBtn = document.getElementById('topUnisLoadMoreBtn');
         const noResultsMsg = document.getElementById('topCardsNoResults');
         const query = (document.getElementById('topCardsSearchInput')?.value || '').trim().toLowerCase();
+
+        const bothBadgesList = [
+            "SUNGKYUNKWAN UNIVERSITY (SKKU)",
+            "KOREA UNIVERSITY",
+            "HANYANG UNIVERSITY",
+            "KYUNG HEE UNIVERSITY",
+            "SEJONG UNIVERSITY",
+            "AJOU UNIVERSITY",
+            "CHUNG-ANG UNIVERSITY",
+            "EWHA WOMANS UNIVERSITY",
+            "KYUNGPOOK NATIONAL UNIVERSITY",
+            "INHA UNIVERSITY",
+            "KONKUK UNIVERSITY",
+            "CHUNGNAM NATIONAL UNIVERSITY",
+            "UNIVERSITY OF SEOUL",
+            "KEIMYUNG UNIVERSITY",
+            "KOREA AEROSPACE UNIVERSITY",
+            "BUSAN UNIVERSITY OF FOREIGN STUDIES",
+            "KYUNGSUNG UNIVERSITY",
+            "SUNGSHIN WOMEN`S UNIVERSITY",
+            "SUNGSHIN WOMEN'S UNIVERSITY",
+            "HANSUNG UNIVERSITY",
+            "JOONGBU UNIVERSITY"
+        ];
+
+        const onlyBachelorList = [
+            "SEOUL NATIONAL UNIVERSITY",
+            "KAIST",
+            "YONSEI UNIVERSITY",
+            "GACHON UNIVERSITY",
+            "JEONBUK NATIONAL UNIVERSITY",
+            "CHUNGBUK NATIONAL UNIVERSITY",
+            "CHONNAM NATIONAL UNIVERSITY",
+            "SOGANG UNIVERSITY",
+            "KANGWON NATIONAL UNIVERSITY",
+            "HALLYM UNIVERSITY",
+            "WOOSUNG SOLBRIDGE UNIVERSITY",
+            "HOSEO UNIVERSITY",
+            "DONG-A UNIVERSITY",
+            "DONG-EUI UNIVERSITY",
+            "ANYANG UNIVERSITY",
+            "DAEGU UNIVERSITY",
+            "PUKYONG NATIONAL UNIVERSITY",
+            "SEOULTECH",
+            "CALVIN UNIVERSITY",
+            "YOUNGSAN UNIVERSITY",
+            "SAHMYOOK UNIVERSITY",
+            "FAR EAST UNIVERSITY"
+        ];
+
+        const onlyCollegeList = [
+            "SEOJEONG UNIVERSITY",
+            "INDUK UNIVERSITY",
+            "CHOSUN COLLEGE OF SCIENCE & TECHNOLOGY",
+            "CHOSUN COLLEGE OF SCIENCE AND TECHNOLOGY",
+            "KYUNGIN WOMEN'S UNIVERSITY",
+            "KYUNGIN WOMENS UNIVERSITY",
+            "SEOYEONG UNIVERSITY",
+            "KUNJANG UNIVERSITY",
+            "DONG-EUI INSTITUTE OF TECHNOLOGY",
+            "TONGWON UNIVERSITY",
+            "INHA TECHNICAL COLLEGE"
+        ];
+
+        const magistrList = [
+            "CHUNGBUK NATIONAL UNIVERSITY",
+            "ANYANG UNIVERSITY",
+            "SEJONG UNIVERSITY",
+            "SEJONG",
+            "KYUNG HEE UNIVERSITY",
+            "KYUNGHEE",
+            "NAMSEOUL UNIVERSITY",
+            "KYUNGPOOK NATIONAL UNIVERSITY",
+            "KANGWON NATIONAL UNIVERSITY",
+            "BUSAN UNIVERSITY OF FOREIGN STUDIES",
+            "DONG-EUI UNIVERSITY",
+            "DONG-A UNIVERSITY",
+            "JOONGBU UNIVERSITY"
+        ];
+
+        const languageCourseList = [
+            "HOSEO UNIVERSITY",
+            "GACHON UNIVERSITY",
+            "GACHON",
+            "KYUNG HEE UNIVERSITY",
+            "KYUNGHEE"
+        ];
 
         // Preserve the exact sequence defined in TOP_UNIS_DATA
         const sorted = [...TOP_UNIS_DATA];
@@ -6974,6 +7064,22 @@
                        qsLower.includes('kollej');
             }
 
+            if (currentTopCardsFilter === 'bachelor') {
+                const cleanName = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
+                return bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanName) ||
+                       onlyBachelorList.some(target => target.replace(/['`’]/g, '') === cleanName);
+            }
+
+            if (currentTopCardsFilter === 'magistr') {
+                const cleanName = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
+                return magistrList.some(target => target.replace(/['`’]/g, '') === cleanName || cleanName.includes(target));
+            }
+
+            if (currentTopCardsFilter === 'langcourse') {
+                const cleanName = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
+                return languageCourseList.some(target => target.replace(/['`’]/g, '') === cleanName || cleanName.includes(target));
+            }
+
             return true;
         });
 
@@ -7019,93 +7125,6 @@
             } else {
                 rankLabel = 'Status';
             }
-
-            const bothBadgesList = [
-                "SUNGKYUNKWAN UNIVERSITY (SKKU)",
-                "KOREA UNIVERSITY",
-                "HANYANG UNIVERSITY",
-                "KYUNG HEE UNIVERSITY",
-                "SEJONG UNIVERSITY",
-                "AJOU UNIVERSITY",
-                "CHUNG-ANG UNIVERSITY",
-                "EWHA WOMANS UNIVERSITY",
-                "KYUNGPOOK NATIONAL UNIVERSITY",
-                "INHA UNIVERSITY",
-                "KONKUK UNIVERSITY",
-                "CHUNGNAM NATIONAL UNIVERSITY",
-                "UNIVERSITY OF SEOUL",
-                "KEIMYUNG UNIVERSITY",
-                "KOREA AEROSPACE UNIVERSITY",
-                "BUSAN UNIVERSITY OF FOREIGN STUDIES",
-                "KYUNGSUNG UNIVERSITY",
-                "SUNGSHIN WOMEN`S UNIVERSITY",
-                "SUNGSHIN WOMEN'S UNIVERSITY",
-                "HANSUNG UNIVERSITY",
-                "JOONGBU UNIVERSITY"
-            ];
-
-            const onlyBachelorList = [
-                "SEOUL NATIONAL UNIVERSITY",
-                "KAIST",
-                "YONSEI UNIVERSITY",
-                "GACHON UNIVERSITY",
-                "JEONBUK NATIONAL UNIVERSITY",
-                "CHUNGBUK NATIONAL UNIVERSITY",
-                "CHONNAM NATIONAL UNIVERSITY",
-                "SOGANG UNIVERSITY",
-                "KANGWON NATIONAL UNIVERSITY",
-                "HALLYM UNIVERSITY",
-                "WOOSUNG SOLBRIDGE UNIVERSITY",
-                "HOSEO UNIVERSITY",
-                "DONG-A UNIVERSITY",
-                "DONG-EUI UNIVERSITY",
-                "ANYANG UNIVERSITY",
-                "DAEGU UNIVERSITY",
-                "PUKYONG NATIONAL UNIVERSITY",
-                "SEOULTECH",
-                "CALVIN UNIVERSITY",
-                "YOUNGSAN UNIVERSITY",
-                "SAHMYOOK UNIVERSITY",
-                "FAR EAST UNIVERSITY"
-            ];
-
-            const onlyCollegeList = [
-                "SEOJEONG UNIVERSITY",
-                "INDUK UNIVERSITY",
-                "CHOSUN COLLEGE OF SCIENCE & TECHNOLOGY",
-                "CHOSUN COLLEGE OF SCIENCE AND TECHNOLOGY",
-                "KYUNGIN WOMEN'S UNIVERSITY",
-                "KYUNGIN WOMENS UNIVERSITY",
-                "SEOYEONG UNIVERSITY",
-                "KUNJANG UNIVERSITY",
-                "DONG-EUI INSTITUTE OF TECHNOLOGY",
-                "TONGWON UNIVERSITY",
-                "INHA TECHNICAL COLLEGE"
-            ];
-
-            const magistrList = [
-                "CHUNGBUK NATIONAL UNIVERSITY",
-                "ANYANG UNIVERSITY",
-                "SEJONG UNIVERSITY",
-                "SEJONG",
-                "KYUNG HEE UNIVERSITY",
-                "KYUNGHEE",
-                "NAMSEOUL UNIVERSITY",
-                "KYUNGPOOK NATIONAL UNIVERSITY",
-                "KANGWON NATIONAL UNIVERSITY",
-                "BUSAN UNIVERSITY OF FOREIGN STUDIES",
-                "DONG-EUI UNIVERSITY",
-                "DONG-A UNIVERSITY",
-                "JOONGBU UNIVERSITY"
-            ];
-
-            const languageCourseList = [
-                "HOSEO UNIVERSITY",
-                "GACHON UNIVERSITY",
-                "GACHON",
-                "KYUNG HEE UNIVERSITY",
-                "KYUNGHEE"
-            ];
 
             const cleanNameForBadges = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
 
