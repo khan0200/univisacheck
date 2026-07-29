@@ -6100,19 +6100,11 @@
             kdb1DayAfterAdmission: "$16,000 USD",
             description: "Seul markazida joylashgan zamonaviy universitet. Dizayn, K-Beauty, IT va Biznes fakultetlari xalqaro talabalar orasida ommabop. 1% yengillashtirilgan viza rejimiga ega.",
             englishTrackMajors: [
-                "Global K-Business"
+                "Global Asset Management"
             ],
             koreanTrackMajors: [
                 "Korean Language & Culture Education",
-                "Global K-Business",
-                "Time-based Media & Entertainment",
-                "Fashion Beauty Creation",
-                "SW Convergence",
-                "Global Venture Entrepreneurship",
-                "Literature & Cultural Contents",
-                "Applied Artificial Intelligence",
-                "Convergence Security",
-                "Smart Mobility"
+                "Global K-Business"
             ],
             scholarships: [
                 { cert: "TOPIK 6", percent: "100% kontrakt" },
@@ -6121,7 +6113,8 @@
                 { cert: "TOPIK 3 / IELTS 7.0", percent: "30% / 50% kontrakt" },
                 { cert: "TOPIK 2 / IELTS 5.5", percent: "20% / 30% kontrakt" }
             ],
-            otherGrantsNote: "Birinchi semestr uchun: Korean Track yo'nalishlariga TOPIK darajaga qarab 20% dan 100% gacha grant beriladi. English Track (IELTS/TOEFL) bo'yicha 30% dan 80% gacha grant mavjud. Hansung tili kursini bitirganlar uchun qo'shimcha 20%-30% grant qo'shilishi mumkin. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi."
+            otherGrantsNote: "Birinchi semestr uchun: Korean Track yo'nalishlariga TOPIK darajaga qarab 20% dan 100% gacha grant beriladi. English Track (IELTS/TOEFL) bo'yicha 30% dan 80% gacha grant mavjud. Hansung tili kursini bitirganlar uchun qo'shimcha 20%-30% grant qo'shilishi mumkin. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi.",
+            majors: ["Global Asset Management", "Korean Language & Culture Education", "Global K-Business"]
         },
 {
             name: "Namseoul University",
@@ -6943,18 +6936,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v700') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v710') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v700')) {
-        localStorage.setItem('custom_universities_v700', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v710')) {
+        localStorage.setItem('custom_universities_v710', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v700'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v710'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
