@@ -5175,30 +5175,24 @@
             tuition: "4,373,800 - 5,939,800 KRW / semestr",
             language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 59+",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+            visaDetails: "BAKALAVR UCHUN Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
-            description: "Gachon Universiteti Seul aglomeratsiyasining Seongnam va Incheon shaharlarida joylashgan nufuzli TOP 600 universitetdir. Business Administration hamda Computer Engineering yo'nalishlarida ingliz va koreys tili dasturlarini taklif etadi.",
+            description: "Gachon Gyeonggi viloyati Seongnam shahrida joylashgan nufuzli universitet bo'lib, Seul metrosiga bevosita ulangan. Tibbiyot va muhandislik sohalarida yetakchi o'rinda turadi.",
             englishTrackMajors: [
-                "Business Administration",
-                "Computer Engineering"
+                "Business Administration"
             ],
             koreanTrackMajors: [
                 "Business Administration",
-                "Computer Engineering"
+                "Computer Engineering",
+                "Korean Language and Literature"
             ],
             scholarships: [
-                { cert: "TOPIK 6", percent: "90% chegirma" },
-                { cert: "TOPIK 5", percent: "80% chegirma" },
-                { cert: "TOPIK 4", percent: "60% chegirma" },
-                { cert: "TOPIK 3", percent: "40% chegirma" },
-                { cert: "Boshlang'ich (Without TOPIK)", percent: "30% chegirma" },
-                { cert: "IELTS 8.0 / TOEFL 112", percent: "70% chegirma" },
-                { cert: "IELTS 6.5 / TOEFL 86", percent: "40% chegirma" },
-                { cert: "IELTS 5.5 / TOEFL 59", percent: "30% chegirma" },
-                { cert: "Partner Institution / Gachon Language Center", percent: "+10% qo'shimcha chegirma" }
+                { cert: "TOPIK 3 (Korean Track)", percent: "50%" },
+                { cert: "TOPIK 4+ (Korean Track)", percent: "100%" },
+                { cert: "IELTS / English (For Magistr E-Viza)", percent: "50% ONLY" }
             ],
-            otherGrantsNote: "Application Fee: 150,000 KRW. English Track faqat 1-kursga kiruvchi talabalar (freshmen) uchun mo'ljallangan. Gachon koreys tili markazi bitiruvchilariga yoki hamkor tashkilotlarga qo'shimcha +10% grant beriladi.",
-            majors: ["Business Administration", "Computer Engineering"]
+            otherGrantsNote: "Application Fee: 150,000 KRW. Magistr bosqichi uchun ingliz tili sertifikatiga (IELTS) faqat 50% lik grant taqdim etiladi. Koreys tili yo'nalishida esa TOPIK 3 darajasi bilan 50% va TOPIK 4 yoki undan yuqori daraja uchun 100% lik to'liq grantlar mavjud.",
+            majors: ["Business Administration", "Computer Engineering", "Korean Language and Literature"]
         },
 {
             name: "Jeonbuk National University",
@@ -6901,18 +6895,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v490') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v500') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v490')) {
-        localStorage.setItem('custom_universities_v490', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v500')) {
+        localStorage.setItem('custom_universities_v500', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v490'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v500'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
