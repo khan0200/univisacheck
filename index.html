@@ -5144,10 +5144,11 @@
             statusTag: "🥇 1% Akkreditatsiyadan o'tgan",
             is1Percent: true,
             tuition: "2,200,000 - 3,300,000 KRW / semestr",
-            language: "TOPIK 3+ yoki IELTS 5.5+",
+            language: "TOPIK 3+ | Mavjud emas",
             visaStatus: "Yengillashtirilgan (1%)",
             visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
             description: "Daegu shahrida joylashgan eng yirik milliy universitet. Elektronika va IT muhandisligi bo'yicha kuchli IT bazaga ega.",
+            englishTrackMajors: [],
             scholarships: [
                 { cert: "TOPIK 3", percent: "30% chegirma" },
                 { cert: "TOPIK 4", percent: "50% chegirma" },
@@ -6966,18 +6967,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v650') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v660') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v650')) {
-        localStorage.setItem('custom_universities_v650', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v660')) {
+        localStorage.setItem('custom_universities_v660', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v650'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v660'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
