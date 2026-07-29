@@ -6870,18 +6870,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v380') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v390') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v380')) {
-        localStorage.setItem('custom_universities_v380', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v390')) {
+        localStorage.setItem('custom_universities_v390', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v380'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v390'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6989,7 +6989,9 @@
             "KUNJANG UNIVERSITY",
             "DONG-EUI INSTITUTE OF TECHNOLOGY",
             "TONGWON UNIVERSITY",
-            "INHA TECHNICAL COLLEGE"
+            "INHA TECHNICAL COLLEGE",
+            "DONGWON INSTITUTE OF SCIENCE & TECHNOLOGY",
+            "DONGWON INSTITUTE OF SCIENCE AND TECHNOLOGY"
         ];
 
         const magistrList = [
@@ -7005,7 +7007,10 @@
             "BUSAN UNIVERSITY OF FOREIGN STUDIES",
             "DONG-EUI UNIVERSITY",
             "DONG-A UNIVERSITY",
-            "JOONGBU UNIVERSITY"
+            "JOONGBU UNIVERSITY",
+            "GACHON UNIVERSITY",
+            "JEONBUK NATIONAL UNIVERSITY",
+            "HANSUNG UNIVERSITY"
         ];
 
         const languageCourseList = [
@@ -7013,7 +7018,8 @@
             "GACHON UNIVERSITY",
             "GACHON",
             "KYUNG HEE UNIVERSITY",
-            "KYUNGHEE"
+            "KYUNGHEE",
+            "JOONGBU UNIVERSITY"
         ];
 
         // Preserve the exact sequence defined in TOP_UNIS_DATA
@@ -7151,8 +7157,8 @@
                 badgesToRender.push('<span class="card-special-badge badge-gold-pill">1% TOP</span>');
             }
 
-            // 3. Check Regional (Hallym)
-            if (cleanNameForBadges === 'HALLYM UNIVERSITY') {
+            // 3. Check Regional (Hallym, Dong-Eui Institute of Technology)
+            if (cleanNameForBadges === 'HALLYM UNIVERSITY' || cleanNameForBadges === 'DONG-EUI INSTITUTE OF TECHNOLOGY') {
                 badgesToRender.push('<span class="card-special-badge badge-teal-pill">REGIONAL</span>');
             }
 
