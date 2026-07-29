@@ -5179,9 +5179,17 @@
             kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
             description: "Gachon Gyeonggi viloyati Seongnam shahrida joylashgan nufuzli universitet bo'lib, Seul metrosiga bevosita ulangan. Tibbiyot va muhandislik sohalarida yetakchi o'rinda turadi.",
             englishTrackMajors: [
-                "Business Administration"
+                "Business Administration",
+                "Computer Engineering"
             ],
             koreanTrackMajors: [
+                "Business Administration",
+                "Computer Engineering"
+            ],
+            englishTrackMasters: [
+                "Business Administration"
+            ],
+            koreanTrackMasters: [
                 "Business Administration",
                 "Computer Engineering",
                 "Korean Language and Literature"
@@ -6895,18 +6903,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v500') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v510') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v500')) {
-        localStorage.setItem('custom_universities_v500', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v510')) {
+        localStorage.setItem('custom_universities_v510', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v500'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v510'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7768,7 +7776,8 @@
                 ? korTrack.map(m => `<li>${m}</li>`).join('')
                 : `<li>Koreys tili yo'nalishlari</li>`;
 
-            tracksContainer.innerHTML = `
+            let html = `
+                <div style="font-weight: 800; font-size: 14px; margin-bottom: 12px; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">🎓 BAKALAVR (BACHELOR DEGREE):</div>
                 <div class="track-block">
                     <div class="track-title english-track">🌐 ENGLISH TRACK:</div>
                     <ul class="track-list">
@@ -7782,6 +7791,36 @@
                     </ul>
                 </div>
             `;
+
+            const engMasters = details.englishTrackMasters;
+            const korMasters = details.koreanTrackMasters;
+            if ((engMasters && engMasters.length > 0) || (korMasters && korMasters.length > 0)) {
+                const engMastersList = (engMasters && engMasters.length > 0)
+                    ? engMasters.map(m => `<li>${m}</li>`).join('')
+                    : `<li>Mavjud emas</li>`;
+
+                const korMastersList = (korMasters && korMasters.length > 0)
+                    ? korMasters.map(m => `<li>${m}</li>`).join('')
+                    : `<li>Mavjud emas</li>`;
+
+                html += `
+                    <div style="font-weight: 800; font-size: 14px; margin-top: 24px; margin-bottom: 12px; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">🎓 MAGISTRATURA (MASTER DEGREE):</div>
+                    <div class="track-block">
+                        <div class="track-title english-track">🌐 ENGLISH TRACK:</div>
+                        <ul class="track-list">
+                            ${engMastersList}
+                        </ul>
+                    </div>
+                    <div class="track-block">
+                        <div class="track-title korean-track">🈴 KOREAN TRACK:</div>
+                        <ul class="track-list">
+                            ${korMastersList}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            tracksContainer.innerHTML = html;
         }
 
         // Render Grants in Tab 3 (IMTIYOZLAR)
