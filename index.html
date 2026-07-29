@@ -4190,7 +4190,7 @@
             name: "Korea University",
             koreanName: "고려대학교",
             location: "SEOUL",
-            img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+            img: "https://images.unsplash.com/photo-1607237138185-eedd996e5b09?auto=format&fit=crop&w=800&q=80",
             qsRank: "#74 (TOP 100)",
             founded: "1905-yil",
             tuition: "$3,800 - $5,200 / semestr",
@@ -4775,7 +4775,7 @@
             koreanName: "고려대학교 (Korea University)",
             location: "SEOUL (ANAM CAMPUS)",
             address: "📍 Korea University, International Education Team, #301 Dongwon Global Leadership Hall, 145 Anam-ro, Seongbuk-gu, Seoul 02841, Korea",
-            img: "https://www.timeshighereducation.com/cms-academic/sites/default/files/2024-11/3.JPG",
+            img: "https://images.unsplash.com/photo-1607237138185-eedd996e5b09?auto=format&fit=crop&w=800&q=80",
             qsRank: "TOP 100 (#67 QS 2025)",
             founded: "1905",
             programs: "130+",
@@ -4793,8 +4793,7 @@
             kdb1DayAfterAdmission: "$16,000 USD (KRW 20,000,000)",
             description: "1905-yilda tashkil etilgan Koreyadagi elita SKY uchligining eng yetakchi va shonli xususiy universiteti (Seul Anam kampusi). Biznes, Xalqaro munosabatlar, Huquq, Tibbiyot, IT va Muhandislik sohalarida dunyoning TOP 100 taligida turadi. International Undergraduate Admission I va II dasturlari orqali 100% full va 50% grant imkoniyatlarini taqdim etadi.",
             englishTrackMajors: [
-                "International Studies",
-                "Global Open Major"
+                "International Studies"
             ],
             koreanTrackMajors: [
                 "University College",
@@ -4805,13 +4804,13 @@
                 "Life Sciences & Biotechnology"
             ],
             scholarships: [
-                { cert: "Anam Global (Top in Track)", percent: "100% (8 Sem)" },
-                { cert: "KU STEM (Top STEM students)", percent: "100% (4 Sem)" },
-                { cert: "Global Leader A (Top Evaluated)", percent: "100% (4 Sem)" },
-                { cert: "Global Leader B (Upper Evaluated)", percent: "50% (4 Sem)" },
-                { cert: "KU Global Friends (Developing)", percent: "100% (4 Sem)" },
-                { cert: "Bright Future (Gov scholars)", percent: "1,000,000 KRW/sem" },
-                { cert: "Challenge C (KU Language)", percent: "300k - 500k KRW" }
+                { cert: "Anam Global (Top-ranked in track)", percent: "Full tuition fee (8 semesters)" },
+                { cert: "KU STEM (Top-tier in STEM)", percent: "Full tuition fee (4 semesters)" },
+                { cert: "Global Leader A (Highest admission results)", percent: "Full tuition fee (4 semesters)" },
+                { cert: "Global Leader B (Upper-ranking admission results)", percent: "50% of tuition fee (4 semesters)" },
+                { cert: "KU Global Friends (Developing countries)", percent: "Full tuition fee (4 semesters)" },
+                { cert: "Bright Future (B) (Selected by national gov)", percent: "KRW 1,000,000 per semester (8 semesters)" },
+                { cert: "Challenge (C) (KU Language Center Level 5/6)", percent: "Level 6: KRW 500,000 / Level 5: KRW 300,000" }
             ],
             otherGrantsNote: "Application Fee: Humanities/Science — 150,000 KRW | Art & Design — 200,000 KRW. Alohida ariza talab etilmaydi (barcha grantlar qabul baholashi asosida avtomatik ajratiladi). Viza uchun bank balans ko'chirmasi: KRW 20,000,000+ ($16,000 USD). KU Online Korean Level Test to'lovi: 100,000 KRW.",
             majors: ["Business Administration", "International Studies", "Computer Science & Engineering", "Economics", "Artificial Intelligence", "Media & Communication", "Biotechnology", "Art & Design"]
@@ -6903,18 +6902,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v520') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v530') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v520')) {
-        localStorage.setItem('custom_universities_v520', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v530')) {
+        localStorage.setItem('custom_universities_v530', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v520'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v530'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
