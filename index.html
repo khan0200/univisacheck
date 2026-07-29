@@ -2300,6 +2300,36 @@
             background: #eff6ff;
             border-color: #bfdbfe;
         }
+        .uni-modal-tag.badge-blue-pill {
+            color: #ffffff;
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+        .uni-modal-tag.badge-gold-pill {
+            color: #ffffff;
+            background: #d97706;
+            border-color: #d97706;
+        }
+        .uni-modal-tag.badge-teal-pill {
+            color: #ffffff;
+            background: #0d9488;
+            border-color: #0d9488;
+        }
+        .uni-modal-tag.badge-purple-pill {
+            color: #ffffff;
+            background: #7c3aed;
+            border-color: #7c3aed;
+        }
+        .uni-modal-tag.badge-slate-pill {
+            color: #ffffff;
+            background: #334155;
+            border-color: #334155;
+        }
+        .uni-modal-tag.badge-emerald-pill {
+            color: #ffffff;
+            background: #059669;
+            border-color: #059669;
+        }
         .uni-modal-title {
             font-size: 20px;
             font-weight: 800;
@@ -6871,18 +6901,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v400') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v410') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v400')) {
-        localStorage.setItem('custom_universities_v400', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v410')) {
+        localStorage.setItem('custom_universities_v410', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v400'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v410'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7315,9 +7345,144 @@
             const visaStatusLabel = details.visaStatus || (details.is1Percent ? 'Yengillashtirilgan (1%)' : 'Standart Tekshiruv');
             const visaBadgeClass = details.is1Percent ? 'badge-gold' : 'badge-blue';
 
+            const bothBadgesList = [
+                "SUNGKYUNKWAN UNIVERSITY (SKKU)",
+                "KOREA UNIVERSITY",
+                "HANYANG UNIVERSITY",
+                "KYUNG HEE UNIVERSITY",
+                "SEJONG UNIVERSITY",
+                "AJOU UNIVERSITY",
+                "CHUNG-ANG UNIVERSITY",
+                "EWHA WOMANS UNIVERSITY",
+                "KYUNGPOOK NATIONAL UNIVERSITY",
+                "INHA UNIVERSITY",
+                "KONKUK UNIVERSITY",
+                "CHUNGNAM NATIONAL UNIVERSITY",
+                "UNIVERSITY OF SEOUL",
+                "KEIMYUNG UNIVERSITY",
+                "KOREA AEROSPACE UNIVERSITY",
+                "BUSAN UNIVERSITY OF FOREIGN STUDIES",
+                "KYUNGSUNG UNIVERSITY",
+                "SUNGSHIN WOMEN`S UNIVERSITY",
+                "SUNGSHIN WOMEN'S UNIVERSITY",
+                "HANSUNG UNIVERSITY",
+                "JOONGBU UNIVERSITY"
+            ];
+
+            const onlyBachelorList = [
+                "SEOUL NATIONAL UNIVERSITY",
+                "KAIST",
+                "YONSEI UNIVERSITY",
+                "GACHON UNIVERSITY",
+                "JEONBUK NATIONAL UNIVERSITY",
+                "CHUNGBUK NATIONAL UNIVERSITY",
+                "CHONNAM NATIONAL UNIVERSITY",
+                "SOGANG UNIVERSITY",
+                "KANGWON NATIONAL UNIVERSITY",
+                "HALLYM UNIVERSITY",
+                "WOOSUNG SOLBRIDGE UNIVERSITY",
+                "HOSEO UNIVERSITY",
+                "DONG-A UNIVERSITY",
+                "DONG-EUI UNIVERSITY",
+                "ANYANG UNIVERSITY",
+                "DAEGU UNIVERSITY",
+                "PUKYONG NATIONAL UNIVERSITY",
+                "SEOULTECH",
+                "CALVIN UNIVERSITY",
+                "YOUNGSAN UNIVERSITY",
+                "SAHMYOOK UNIVERSITY",
+                "FAR EAST UNIVERSITY"
+            ];
+
+            const onlyCollegeList = [
+                "SEOJEONG UNIVERSITY",
+                "INDUK UNIVERSITY",
+                "CHOSUN COLLEGE OF SCIENCE & TECHNOLOGY",
+                "CHOSUN COLLEGE OF SCIENCE AND TECHNOLOGY",
+                "KYUNGIN WOMEN'S UNIVERSITY",
+                "KYUNGIN WOMENS UNIVERSITY",
+                "SEOYEONG UNIVERSITY",
+                "KUNJANG UNIVERSITY",
+                "DONG-EUI INSTITUTE OF TECHNOLOGY",
+                "TONGWON UNIVERSITY",
+                "INHA TECHNICAL COLLEGE",
+                "DONGWON INSTITUTE OF SCIENCE & TECHNOLOGY",
+                "DONGWON INSTITUTE OF SCIENCE AND TECHNOLOGY"
+            ];
+
+            const magistrList = [
+                "CHUNGBUK NATIONAL UNIVERSITY",
+                "ANYANG UNIVERSITY",
+                "SEJONG UNIVERSITY",
+                "SEJONG",
+                "KYUNG HEE UNIVERSITY",
+                "KYUNGHEE",
+                "NAMSEOUL UNIVERSITY",
+                "KYUNGPOOK NATIONAL UNIVERSITY",
+                "KANGWON NATIONAL UNIVERSITY",
+                "BUSAN UNIVERSITY OF FOREIGN STUDIES",
+                "DONG-EUI UNIVERSITY",
+                "DONG-A UNIVERSITY",
+                "JOONGBU UNIVERSITY",
+                "GACHON UNIVERSITY",
+                "JEONBUK NATIONAL UNIVERSITY",
+                "HANSUNG UNIVERSITY"
+            ];
+
+            const languageCourseList = [
+                "HOSEO UNIVERSITY",
+                "GACHON UNIVERSITY",
+                "GACHON",
+                "KYUNG HEE UNIVERSITY",
+                "KYUNGHEE",
+                "JOONGBU UNIVERSITY"
+            ];
+
+            const cleanNameForBadges = details.name.toUpperCase().trim().replace(/['`’]/g, '');
+
+            let specialBadgesHtml = '';
+
+            // 1. Check Bachelor / College
+            const hasBachelor = bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges) ||
+                                onlyBachelorList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+            
+            const hasCollege = onlyCollegeList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+
+            if (hasBachelor) {
+                specialBadgesHtml += '<span class="uni-modal-tag badge-blue-pill">BACHELOR</span>';
+            }
+            if (hasCollege) {
+                specialBadgesHtml += '<span class="uni-modal-tag badge-purple-pill">COLLEGE</span>';
+            }
+
+            // 2. Check 1% TOP
+            const has1Percent = bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges) ||
+                                (cleanNameForBadges === 'INHA TECHNICAL COLLEGE');
+            if (has1Percent) {
+                specialBadgesHtml += '<span class="uni-modal-tag badge-gold-pill">1% TOP</span>';
+            }
+
+            // 3. Check Regional (Hallym, Dong-Eui Institute of Technology)
+            if (cleanNameForBadges === 'HALLYM UNIVERSITY' || cleanNameForBadges === 'DONG-EUI INSTITUTE OF TECHNOLOGY') {
+                specialBadgesHtml += '<span class="uni-modal-tag badge-teal-pill">REGIONAL</span>';
+            }
+
+            // 4. Check Magistr
+            const hasMagistr = magistrList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            if (hasMagistr) {
+                specialBadgesHtml += '<span class="uni-modal-tag badge-slate-pill">MAGISTR</span>';
+            }
+
+            // 5. Check Language Course
+            const hasLangCourse = languageCourseList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            if (hasLangCourse) {
+                specialBadgesHtml += '<span class="uni-modal-tag badge-emerald-pill">LANGUAGE COURSE</span>';
+            }
+
             tagsContainer.innerHTML = `
                 <span class="uni-modal-tag ${visaBadgeClass}">${visaStatusLabel}</span>
                 <span class="uni-modal-tag ${typeBadgeClass}">${typeLabel}</span>
+                ${specialBadgesHtml}
             `;
         }
 
