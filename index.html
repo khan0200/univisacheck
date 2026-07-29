@@ -5419,7 +5419,8 @@
                 "Global Software Convergence"
             ],
             scholarships: [
-                { cert: "IELTS 5.5+", percent: "40%" },
+                { cert: "IELTS 5.5+", percent: "30%" },
+                { cert: "IELTS 7.0+", percent: "70%" },
                 { cert: "TOPIK 3", percent: "40%" },
                 { cert: "TOPIK 4+", percent: "60%" }
             ],
@@ -6967,18 +6968,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v670') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v680') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v670')) {
-        localStorage.setItem('custom_universities_v670', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v680')) {
+        localStorage.setItem('custom_universities_v680', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v670'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v680'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
