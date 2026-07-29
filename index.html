@@ -6903,18 +6903,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v510') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v520') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v510')) {
-        localStorage.setItem('custom_universities_v510', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v520')) {
+        localStorage.setItem('custom_universities_v520', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v510'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v520'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7776,8 +7776,12 @@
                 ? korTrack.map(m => `<li>${m}</li>`).join('')
                 : `<li>Koreys tili yo'nalishlari</li>`;
 
-            let html = `
-                <div style="font-weight: 800; font-size: 14px; margin-bottom: 12px; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">🎓 BAKALAVR (BACHELOR DEGREE):</div>
+            let html = '';
+            if (details.name === 'Gachon University') {
+                html += `<div style="font-weight: 800; font-size: 14px; margin-bottom: 12px; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">🎓 BAKALAVR (BACHELOR DEGREE):</div>`;
+            }
+
+            html += `
                 <div class="track-block">
                     <div class="track-title english-track">🌐 ENGLISH TRACK:</div>
                     <ul class="track-list">
@@ -7794,7 +7798,7 @@
 
             const engMasters = details.englishTrackMasters;
             const korMasters = details.koreanTrackMasters;
-            if ((engMasters && engMasters.length > 0) || (korMasters && korMasters.length > 0)) {
+            if (details.name === 'Gachon University' && ((engMasters && engMasters.length > 0) || (korMasters && korMasters.length > 0))) {
                 const engMastersList = (engMasters && engMasters.length > 0)
                     ? engMasters.map(m => `<li>${m}</li>`).join('')
                     : `<li>Mavjud emas</li>`;
