@@ -5132,6 +5132,7 @@
             name: "Kyungpook National University",
             koreanName: "경북대학교",
             location: "DAEGU",
+            address: "📍 80 Daehak-ro, Buk-gu, Daegu, South Korea",
             img: "https://www.timeshighereducation.com/cms-academic/sites/default/files/migrated_institution_images/5_gold-profile_gallery1200x675.jpg",
             qsRank: "TOP 500",
             founded: "1946",
@@ -5145,7 +5146,15 @@
             tuition: "2,200,000 - 3,300,000 KRW / semestr",
             language: "TOPIK 3+ yoki IELTS 5.5+",
             visaStatus: "Yengillashtirilgan (1%)",
+            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
             description: "Daegu shahrida joylashgan eng yirik milliy universitet. Elektronika va IT muhandisligi bo'yicha kuchli IT bazaga ega.",
+            scholarships: [
+                { cert: "TOPIK 3", percent: "30% chegirma" },
+                { cert: "TOPIK 4", percent: "50% chegirma" },
+                { cert: "TOPIK 5", percent: "70% chegirma" },
+                { cert: "TOPIK 6", percent: "100% chegirma" }
+            ],
+            otherGrantsNote: "Kyungpook National University stipendiyalari: TOPIK darajasiga qarab 30% dan 100% gacha chegirmalar beriladi. Ingliz tili (IELTS/TOEFL) uchun stipendiyalar taqdim etilmaydi.",
             majors: ["Electronics Engineering", "Computer Science", "Business Administration", "Economics"]
         },
 {
@@ -6957,18 +6966,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v640') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v650') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v640')) {
-        localStorage.setItem('custom_universities_v640', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v650')) {
+        localStorage.setItem('custom_universities_v650', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v640'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v650'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
