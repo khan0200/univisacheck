@@ -6901,18 +6901,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v410') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v420') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v410')) {
-        localStorage.setItem('custom_universities_v410', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v420')) {
+        localStorage.setItem('custom_universities_v420', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v410'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v420'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7029,9 +7029,7 @@
             "CHUNGBUK NATIONAL UNIVERSITY",
             "ANYANG UNIVERSITY",
             "SEJONG UNIVERSITY",
-            "SEJONG",
             "KYUNG HEE UNIVERSITY",
-            "KYUNGHEE",
             "NAMSEOUL UNIVERSITY",
             "KYUNGPOOK NATIONAL UNIVERSITY",
             "KANGWON NATIONAL UNIVERSITY",
@@ -7047,9 +7045,7 @@
         const languageCourseList = [
             "HOSEO UNIVERSITY",
             "GACHON UNIVERSITY",
-            "GACHON",
             "KYUNG HEE UNIVERSITY",
-            "KYUNGHEE",
             "JOONGBU UNIVERSITY"
         ];
 
@@ -7194,13 +7190,13 @@
             }
 
             // 4. Check Magistr
-            const hasMagistr = magistrList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            const hasMagistr = magistrList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
             if (hasMagistr) {
                 badgesToRender.push('<span class="card-special-badge badge-slate-pill">MAGISTR</span>');
             }
 
             // 5. Check Language Course
-            const hasLangCourse = languageCourseList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            const hasLangCourse = languageCourseList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
             if (hasLangCourse) {
                 badgesToRender.push('<span class="card-special-badge badge-emerald-pill">LANGUAGE COURSE</span>');
             }
@@ -7414,9 +7410,7 @@
                 "CHUNGBUK NATIONAL UNIVERSITY",
                 "ANYANG UNIVERSITY",
                 "SEJONG UNIVERSITY",
-                "SEJONG",
                 "KYUNG HEE UNIVERSITY",
-                "KYUNGHEE",
                 "NAMSEOUL UNIVERSITY",
                 "KYUNGPOOK NATIONAL UNIVERSITY",
                 "KANGWON NATIONAL UNIVERSITY",
@@ -7432,9 +7426,7 @@
             const languageCourseList = [
                 "HOSEO UNIVERSITY",
                 "GACHON UNIVERSITY",
-                "GACHON",
                 "KYUNG HEE UNIVERSITY",
-                "KYUNGHEE",
                 "JOONGBU UNIVERSITY"
             ];
 
@@ -7468,13 +7460,13 @@
             }
 
             // 4. Check Magistr
-            const hasMagistr = magistrList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            const hasMagistr = magistrList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
             if (hasMagistr) {
                 specialBadgesHtml += '<span class="uni-modal-tag badge-slate-pill">MAGISTR</span>';
             }
 
             // 5. Check Language Course
-            const hasLangCourse = languageCourseList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            const hasLangCourse = languageCourseList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
             if (hasLangCourse) {
                 specialBadgesHtml += '<span class="uni-modal-tag badge-emerald-pill">LANGUAGE COURSE</span>';
             }
