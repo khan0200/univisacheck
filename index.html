@@ -6733,34 +6733,35 @@
             img: "https://vkec.edu.vn/wp-content/uploads/2025/08/induk-8.jpg",
             qsRank: "Design & Tech Leader",
             founded: "1972",
-            programs: "35+",
+            programs: "2-year program",
             appFee: "50,000 KRW",
             badge1: "Licensed Uni",
-            badge2: "Seoul Campus",
+            badge2: "2 Yillik Dastur",
             badge1Class: "badge-blue",
             brandColor: "#004b87",
             statusTag: "📜 Akkreditatsiyaga ega",
             is1Percent: false,
-            tuition: "2,800,000 - 3,500,000 KRW / semestr",
-            language: "TOPIK 3+",
+            tuition: "1-semestr: 1,935,600 KRW | 2-semestr: 2,160,900 KRW (Asl kontrakt: 3,226,000 KRW)",
+            language: "TOPIK 2 yoki English cert",
             visaStatus: "Standart Tekshiruv",
             visaDetails: "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $16,000 USD (20,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
             kdb1DayAfterAdmission: "$16,000 USD (1 oylik KDB)",
-            description: "Seoul shahrida joylashgan yirik amaliy va san'at kolleji. Visual Design, AI Software va Broadcasting sohalarida kuchli amaliy va ishga joylashish imkoniyatlarini taklif qiladi.",
-            englishTrackMajors: [],
+            description: "Seoul shahrida joylashgan universitet. 2 yillik dastur bo'lgani uchun talabalar uchun ajoyib imkoniyatdir. TOPIK 2 yoki English sertifikati (IELTS va boshqalar) talab etiladi.",
+            englishTrackMajors: [
+                "Korean Tourism Service Department",
+                "Global Business Department"
+            ],
             koreanTrackMajors: [
-                "AI Software",
-                "Visual Communication Design",
-                "Broadcasting & Entertainment"
+                "Korean Tourism Service Department",
+                "Global Business Department"
             ],
             scholarships: [
-                { cert: "TOPIK 3+", percent: "30% - 50% chegirma" }
+                { cert: "TOPIK 2 / English", percent: "40% chegirma (1-semestr: 1,935,600 KRW)" }
             ],
-            otherGrantsNote: "Birinchi semestrda TOPIK darajaga ko'ra 30% dan 50% gacha grantlar beriladi. Keyingi semestrlarda GPA ballari va TOPIKga qarab stipendiyalar uzaytiriladi.",
+            otherGrantsNote: "TOPIK 2 yoki English certificate bo'lsa, 40% chegirma beriladi. Birinchi semestr to'lovi: 1,935,600 KRW. Ikkinchi semestr to'lovi: 2,160,900 KRW.",
             majors: [
-                "AI Software",
-                "Visual Design",
-                "Broadcasting & Entertainment"
+                "Korean Tourism Service Department",
+                "Global Business Department"
             ]
         },
 {
@@ -6820,18 +6821,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v310') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v320') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v310')) {
-        localStorage.setItem('custom_universities_v310', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v320')) {
+        localStorage.setItem('custom_universities_v320', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v310'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v320'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7281,8 +7282,11 @@
                 `;
             } else if (details.name === 'Induk University') {
                 html = `
-                    <p><strong>Korean Track:</strong> TOPIK 3+</p>
-                    <p><strong>English Track:</strong> Mavjud emas</p>
+                    <p><strong>Korean/English Track:</strong> TOPIK 2+ yoki English certificate</p>
+                    <p><strong>Dastur turi:</strong> 2 yillik dastur (Seoul)</p>
+                    <p><strong>Asl kontrakt:</strong> 3,226,000 KRW</p>
+                    <p><strong>1-semestr (40% chegirma bilan):</strong> 1,935,600 KRW (≈ $1,310)</p>
+                    <p><strong>2-semestr:</strong> 2,160,900 KRW (≈ $1,570)</p>
                 `;
             } else if (details.name === 'Calvin University') {
                 html = `
