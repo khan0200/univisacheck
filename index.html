@@ -5513,7 +5513,7 @@
             tuition: "1,797,000 - 2,539,000 KRW / semestr",
             language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Universitet 1% lik emas (Standart Akkreditatsiyalangan Davlat Milliy Universiteti). Elchixona viza bosqichida 1-Oylik KDB bank ko'chirmasi ($13,000 USD / KRW 16,000,000) hamda Ota-ona daromad manbai ma'lumotnomasi TALAB ETILADI.",
+            visaDetails: "Universitet 1% lik emas BAKALAVR UCHUN (Standart Akkreditatsiyalangan Davlat Milliy Universiteti). Elchixona viza bosqichida 1-Oylik KDB bank ko'chirmasi ($13,000 USD / KRW 16,000,000) hamda Ota-ona daromad manbai ma'lumotnomasi TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (KRW 16,000,000)",
             description: "1947-yilda tashkil etilgan yirik Davlat Milliy Universiteti (KNU). Chuncheon (Seuldan 1 soat) va Samcheok kampuslarida 110 dan ortiq yo'nalishlar, arzon kontrakt (1.79 mln KRW dan) va TOPIK 5+ bilan 100% grant taklif etadi.",
             englishTrackMajors: [
@@ -5684,7 +5684,7 @@
             tuition: "2,800,000 - 3,700,000 KRW / semestr",
             language: "TOPIK 3+ | IELTS 6.0+",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+            visaDetails: "BAKALAVR UCHUN Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD (16,000,000 KRW)",
             description: "Busan shahrida joylashgan nufuzli xususiy universitet. Kompyuter Dasturlash, Biznes hamda Mehmonxona boshqaruvi yo'nalishlarida ingliz va koreys tili dasturlarini taklif etadi. Bakalavr bosqichida darslar haftasiga 4 kun tashkil etiladi.",
             englishTrackMajors: [
@@ -5723,7 +5723,7 @@
             tuition: "3,857,000 - 4,450,600 KRW / semestr",
             language: "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+ | New TEPS 327+",
             visaStatus: "Standart Tekshiruv",
-            visaDetails: "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+            visaDetails: "BAKALAVR UCHUN Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
             kdb1DayAfterAdmission: "$13,000 USD",
             description: "Dong-A Universiteti Busanning eng nufuzli xususiy universitetlaridan biridir. Bumin, Seunghak va Gudeok shaharchalarida joylashgan bo'lib, biznes, muhandislik va tibbiyot yo'nalishlarida kuchli ta'lim beradi.",
             englishTrackMajors: [
@@ -6901,18 +6901,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v450') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v490') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v450')) {
-        localStorage.setItem('custom_universities_v450', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v490')) {
+        localStorage.setItem('custom_universities_v490', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v450'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v490'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -6989,8 +6989,6 @@
             "KAIST",
             "YONSEI UNIVERSITY",
             "GACHON UNIVERSITY",
-            "JEONBUK NATIONAL UNIVERSITY",
-            "CHUNGBUK NATIONAL UNIVERSITY",
             "CHONNAM NATIONAL UNIVERSITY",
             "SOGANG UNIVERSITY",
             "KANGWON NATIONAL UNIVERSITY",
@@ -7385,8 +7383,6 @@
                 "KAIST",
                 "YONSEI UNIVERSITY",
                 "GACHON UNIVERSITY",
-                "JEONBUK NATIONAL UNIVERSITY",
-                "CHUNGBUK NATIONAL UNIVERSITY",
                 "CHONNAM NATIONAL UNIVERSITY",
                 "SOGANG UNIVERSITY",
                 "KANGWON NATIONAL UNIVERSITY",
@@ -7832,12 +7828,28 @@
                     </div>
                 `).join('');
                 
+                const groupHeaderLabel = (details.name === 'Dong-A University' || details.name === 'Dong-Eui University')
+                    ? "🇬🇧 FOR BACHELORS IELTS / ENGLISH SCHOLARSHIPS:" 
+                    : "🇬🇧 IELTS / ENGLISH SCHOLARSHIPS:";
+
                 grantsHtml += `
-                    <div class="grant-group-header">🇬🇧 IELTS / ENGLISH SCHOLARSHIPS:</div>
+                    <div class="grant-group-header">${groupHeaderLabel}</div>
                     <div class="grants-grid" style="margin-bottom: 20px;">
                         ${ieltsCardsHtml}
                     </div>
                 `;
+
+                if (details.name === 'Dong-A University' || details.name === 'Dong-Eui University') {
+                    grantsHtml += `
+                        <div class="grant-group-header" style="margin-top: 15px;">🇬🇧 FOR TOPIK AND IELTS / ENGLISH SCHOLARSHIPS:</div>
+                        <div class="grants-grid" style="margin-bottom: 20px;">
+                            <div class="grant-card">
+                                <span class="grant-cert">Magistr uchun / For Magistr (TOPIK & IELTS)</span>
+                                <span class="grant-percent">UPTO 50%</span>
+                            </div>
+                        </div>
+                    `;
+                }
             }
             if (topikGrants.length > 0) {
                 const topikCardsHtml = topikGrants.map(g => `
