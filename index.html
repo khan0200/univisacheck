@@ -5971,31 +5971,11 @@
             kdb1DayAfterAdmission: "$16,000 USD (20,000,000 KRW)",
             description: "Sungshin Women's University (SMU) — 1936-yilda tashkil etilgan Seul markasidagi mashhur va nufuzli ayollar universiteti. K-Beauty, Dizayn, San'at va Xalqaro tadqiqotlar bo'yicha eng ilg'or xususiy oliy ta'lim muassasalaridan biri.",
             englishTrackMajors: [
-                "Global Korean Studies",
+                "Global Korean Studies(K-Culture and Entertainment Track)",
                 "Beauty and Fashion Design"
             ],
             koreanTrackMajors: [
-                "Global Korean Studies",
-                "Korean Language & Literature",
-                "English Language & Literature",
-                "German Language, Literature and Culture",
-                "French Language, Literature and Culture",
-                "Japanese Language, Literature and Culture",
-                "Chinese Language, Literature and Culture",
-                "Acting for Visual Media (Ekran san",
-                "Contemporary Music (Zamonaviy musiqa)",
-                "Dance Art (Raqs san",
-                "Media Communication (OAV va Kommunikatsiya)",
-                "School of Business Administration (Biznes Boshqaruvi)",
-                "School of Law (Huquq fakulteti)",
-                "School of AI Convergence (AI va Smart tizimlar)",
-                "Computer Engineering (Kompyuter muhandisligi)",
-                "Convergence Security Engineering (Kiberxavfsizlik muhandisligi)",
-                "Nursing Science (Hamshiralik ishi)",
-                "Fashion Industry (Moda industriyasi)",
-                "Beauty Industry (Go",
-                "Design (Dizayn - Grafika, Sanoat, Interyer)",
-                "Vocal Music (Vokal)"
+                "Global Korean Studies(Korean Education Track)"
             ],
             scholarships: [
                 { cert: "IELTS 5.5+ / TOEFL 71+", percent: "100%" },
@@ -6008,7 +5988,7 @@
                 { cert: "Completed Level 3+ language program", percent: "20%" }
             ],
             otherGrantsNote: "Faqat xotin-qizlar topshira oladi. Bitiruv talabi: TOPIK 5+ olish shart.",
-            majors: ["Beauty Industry", "Global Business", "Computer Engineering", "Design"]
+            majors: ["Global Korean Studies", "Beauty and Fashion Design"]
         },
 {
             name: "Anyang University",
@@ -6963,18 +6943,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v690') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v700') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v690')) {
-        localStorage.setItem('custom_universities_v690', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v700')) {
+        localStorage.setItem('custom_universities_v700', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v690'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v700'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
