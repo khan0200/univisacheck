@@ -6589,7 +6589,7 @@
             koreanName: "칼빈대학교",
             location: "YONGIN (SEOUL YAQINIDA)",
             address: "📍 184 Galmachi-ro, Giheung-gu, Yongin-si, Gyeonggi-do, South Korea",
-            img: "https://upload.wikimedia.org/wikipedia/commons/e/e5/%EC%B9%BC%EB%B9%88_%EB%8C%80%ED%95%99%EA%B5%90%28Calvin_University%29.jpg",
+            img: "https://i.ytimg.com/vi/CmZbCsJe6Kk/maxresdefault.jpg",
             qsRank: "Flexible Study Leader",
             founded: "1954",
             programs: "20+",
@@ -6623,7 +6623,7 @@
             koreanName: "경인여자대학교",
             location: "SEOUL METRO (INCHEON)",
             address: "📍 101 Gyeyangsan-ro, Gyeyang-gu, Incheon, South Korea",
-            img: "https://upload.wikimedia.org/wikipedia/commons/2/29/%EA%B2%BD%EC%9D%B8%EC%97%AC%EB%8C%80_%EC%A0%84%EA%B2%BD.JPG",
+            img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC2fj4px-K_gQFzAP-FaAaFcw41S226bQwnfw60nv-7lnudt9q2z5xy4c&s=10",
             qsRank: "Women's College Leader",
             founded: "1992",
             programs: "30+",
@@ -6659,7 +6659,7 @@
             koreanName: "삼육대학교",
             location: "SEOUL",
             address: "📍 815 Hwarang-ro, Nowon-gu, Seoul, South Korea",
-            img: "https://upload.wikimedia.org/wikipedia/commons/4/4c/%27100th_Anniversary_Memorial_Hall%27_of_Sahmyook_University.jpg",
+            img: "https://www.syu.ac.kr/eng/wp-content/uploads/sites/81/2023/02/img_undergraduate.png",
             qsRank: "Seoul Health Care Leader",
             founded: "1906",
             programs: "50+",
@@ -6695,7 +6695,7 @@
             koreanName: "조선이공대학교",
             location: "GWANGJU",
             address: "📍 309 Pilmun-daero, Dong-gu, Gwangju, South Korea",
-            img: "https://upload.wikimedia.org/wikipedia/commons/1/1d/Chosun_College_of_Science_%26_Technology_Main_Building.jpg",
+            img: "https://image.free-apply.com/gallery/l/uni/gallery/lg/1041000098/e08b69f18297f92a1b197ff16121f5faae0dd988.jpg?s=640",
             qsRank: "Vocational Excellence",
             founded: "1963",
             programs: "25+",
@@ -6729,7 +6729,7 @@
             koreanName: "인덕대학교",
             location: "SEOUL",
             address: "📍 12 Choansan-ro, Nowon-gu, Seoul, South Korea",
-            img: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Induk_university.jpg",
+            img: "https://vkec.edu.vn/wp-content/uploads/2025/08/induk-8.jpg",
             qsRank: "Design & Tech Leader",
             founded: "1972",
             programs: "35+",
@@ -6819,18 +6819,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v300') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v310') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v300')) {
-        localStorage.setItem('custom_universities_v300', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v310')) {
+        localStorage.setItem('custom_universities_v310', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v300'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v310'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
