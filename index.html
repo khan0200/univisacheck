@@ -1559,6 +1559,16 @@
             background: #7c3aed;
             border: 1px solid #7c3aed;
         }
+        .badge-slate-pill {
+            color: #ffffff;
+            background: #334155;
+            border: 1px solid #334155;
+        }
+        .badge-emerald-pill {
+            color: #ffffff;
+            background: #059669;
+            border: 1px solid #059669;
+        }
         .top-uni-action {
             margin-top: auto;
             padding-top: 16px;
@@ -6857,18 +6867,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v360') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v370') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v360')) {
-        localStorage.setItem('custom_universities_v360', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v370')) {
+        localStorage.setItem('custom_universities_v370', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v360'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v370'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7073,49 +7083,79 @@
                 "INHA TECHNICAL COLLEGE"
             ];
 
+            const magistrList = [
+                "CHUNGBUK NATIONAL UNIVERSITY",
+                "ANYANG UNIVERSITY",
+                "SEJONG UNIVERSITY",
+                "SEJONG",
+                "KYUNG HEE UNIVERSITY",
+                "KYUNGHEE",
+                "NAMSEOUL UNIVERSITY",
+                "KYUNGPOOK NATIONAL UNIVERSITY",
+                "KANGWON NATIONAL UNIVERSITY",
+                "BUSAN UNIVERSITY OF FOREIGN STUDIES",
+                "DONG-EUI UNIVERSITY",
+                "DONG-A UNIVERSITY",
+                "JOONGBU UNIVERSITY"
+            ];
+
+            const languageCourseList = [
+                "HOSEO UNIVERSITY",
+                "GACHON UNIVERSITY",
+                "GACHON",
+                "KYUNG HEE UNIVERSITY",
+                "KYUNGHEE"
+            ];
+
             const cleanNameForBadges = uni.name.toUpperCase().trim().replace(/['`’]/g, '');
-            const hasBoth = bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
-            const hasOnlyBachelor = onlyBachelorList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
-            const hasOnlyCollege = onlyCollegeList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+
+            // Build array of badges to show
+            let badgesToRender = [];
+
+            // 1. Check Bachelor / College
+            const hasBachelor = bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges) ||
+                                onlyBachelorList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+            
+            const hasCollege = onlyCollegeList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges);
+
+            if (hasBachelor) {
+                badgesToRender.push('<span class="card-special-badge badge-blue-pill">BACHELOR</span>');
+            }
+            if (hasCollege) {
+                badgesToRender.push('<span class="card-special-badge badge-purple-pill">COLLEGE</span>');
+            }
+
+            // 2. Check 1% TOP
+            const has1Percent = bothBadgesList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges) ||
+                                (cleanNameForBadges === 'INHA TECHNICAL COLLEGE');
+            if (has1Percent) {
+                badgesToRender.push('<span class="card-special-badge badge-gold-pill">1% TOP</span>');
+            }
+
+            // 3. Check Regional (Hallym)
+            if (cleanNameForBadges === 'HALLYM UNIVERSITY') {
+                badgesToRender.push('<span class="card-special-badge badge-teal-pill">REGIONAL</span>');
+            }
+
+            // 4. Check Magistr
+            const hasMagistr = magistrList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            if (hasMagistr) {
+                badgesToRender.push('<span class="card-special-badge badge-slate-pill">MAGISTR</span>');
+            }
+
+            // 5. Check Language Course
+            const hasLangCourse = languageCourseList.some(target => target.replace(/['`’]/g, '') === cleanNameForBadges || cleanNameForBadges.includes(target));
+            if (hasLangCourse) {
+                badgesToRender.push('<span class="card-special-badge badge-emerald-pill">LANGUAGE COURSE</span>');
+            }
 
             let specialBadgesHtml = '';
-            if (hasBoth) {
+            if (badgesToRender.length > 0) {
                 specialBadgesHtml = `
                 <div class="card-special-badges">
-                    <span class="card-special-badge badge-blue-pill">BACHELOR</span>
-                    <span class="card-special-badge badge-gold-pill">1% TOP</span>
+                    ${badgesToRender.join('')}
                 </div>
                 `;
-            } else if (hasOnlyBachelor) {
-                if (cleanNameForBadges === 'HALLYM UNIVERSITY') {
-                    specialBadgesHtml = `
-                    <div class="card-special-badges">
-                        <span class="card-special-badge badge-blue-pill">BACHELOR</span>
-                        <span class="card-special-badge badge-teal-pill">REGIONAL</span>
-                    </div>
-                    `;
-                } else {
-                    specialBadgesHtml = `
-                    <div class="card-special-badges">
-                        <span class="card-special-badge badge-blue-pill">BACHELOR</span>
-                    </div>
-                    `;
-                }
-            } else if (hasOnlyCollege) {
-                if (cleanNameForBadges === 'INHA TECHNICAL COLLEGE') {
-                    specialBadgesHtml = `
-                    <div class="card-special-badges">
-                        <span class="card-special-badge badge-purple-pill">COLLEGE</span>
-                        <span class="card-special-badge badge-gold-pill">1% TOP</span>
-                    </div>
-                    `;
-                } else {
-                    specialBadgesHtml = `
-                    <div class="card-special-badges">
-                        <span class="card-special-badge badge-purple-pill">COLLEGE</span>
-                    </div>
-                    `;
-                }
             }
 
             return `
