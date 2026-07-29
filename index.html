@@ -5198,6 +5198,22 @@
                 { cert: "TOPIK 4+ (Korean Track)", percent: "100%" },
                 { cert: "IELTS / English (For Magistr E-Viza)", percent: "50% ONLY" }
             ],
+            bachelorScholarships: [
+                { cert: "TOPIK 6", percent: "90% chegirma" },
+                { cert: "TOPIK 5", percent: "80% chegirma" },
+                { cert: "TOPIK 4", percent: "60% chegirma" },
+                { cert: "TOPIK 3", percent: "40% chegirma" },
+                { cert: "Boshlang'ich (Without TOPIK)", percent: "30% chegirma" },
+                { cert: "IELTS 8.0 / TOEFL 112", percent: "70% chegirma" },
+                { cert: "IELTS 6.5 / TOEFL 86", percent: "40% chegirma" },
+                { cert: "IELTS 5.5 / TOEFL 59", percent: "30% chegirma" },
+                { cert: "Partner Institution / Gachon Language Center", percent: "+10% qo'shimcha" }
+            ],
+            masterScholarships: [
+                { cert: "IELTS / English (For Magistr E-Viza)", percent: "50% ONLY" },
+                { cert: "TOPIK 3 (Korean Track)", percent: "50%" },
+                { cert: "TOPIK 4+ (Korean Track)", percent: "100%" }
+            ],
             otherGrantsNote: "Application Fee: 150,000 KRW. Magistr bosqichi uchun ingliz tili sertifikatiga (IELTS) faqat 50% lik grant taqdim etiladi. Koreys tili yo'nalishida esa TOPIK 3 darajasi bilan 50% va TOPIK 4 yoki undan yuqori daraja uchun 100% lik to'liq grantlar mavjud.",
             majors: ["Business Administration", "Computer Engineering", "Korean Language and Literature"]
         },
@@ -6902,18 +6918,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v570') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v580') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v570')) {
-        localStorage.setItem('custom_universities_v570', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v580')) {
+        localStorage.setItem('custom_universities_v580', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v570'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v580'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7828,93 +7844,149 @@
         // Render Grants in Tab 3 (IMTIYOZLAR)
         const grantsContainer = document.getElementById('uniModalGrantsContainer');
         if (grantsContainer) {
-            const grantsList = details.scholarships || [
-                { cert: "IELTS 5.5", percent: "30%" },
-                { cert: "IELTS 6.5", percent: "50%" },
-                { cert: "IELTS 7.0", percent: "70%" },
-                { cert: "IELTS 8.0", percent: "100%" },
-                { cert: "TOPIK 3", percent: "30%" },
-                { cert: "TOPIK 4", percent: "50%" },
-                { cert: "TOPIK 5", percent: "70%" },
-                { cert: "TOPIK 6", percent: "100%" }
-            ];
-
-            const ieltsGrants = [];
-            const topikGrants = [];
-            const otherGrants = [];
-
-            grantsList.forEach(g => {
-                const certUpper = g.cert.toUpperCase();
-                if (certUpper.includes("IELTS") || certUpper.includes("TOEFL") || certUpper.includes("TEPS") || certUpper.includes("ENGLISH TRACK")) {
-                    ieltsGrants.push(g);
-                } else if (certUpper.includes("TOPIK") || certUpper.includes("KLEC") || certUpper.includes("KOREAN TRACK") || certUpper.includes("KOREAN")) {
-                    topikGrants.push(g);
-                } else {
-                    otherGrants.push(g);
-                }
-            });
-
             let grantsHtml = '';
-            if (ieltsGrants.length > 0) {
-                const ieltsCardsHtml = ieltsGrants.map(g => `
-                    <div class="grant-card">
-                        <span class="grant-cert">${g.cert}</span>
-                        <span class="grant-percent">${g.percent}</span>
-                    </div>
-                `).join('');
-                
-                const groupHeaderLabel = (details.name === 'Dong-A University' || details.name === 'Dong-Eui University')
-                    ? "🇬🇧 FOR BACHELORS IELTS / ENGLISH SCHOLARSHIPS:" 
-                    : "🇬🇧 IELTS / ENGLISH SCHOLARSHIPS:";
+
+            if (details.name === 'Gachon University') {
+                const bachList = details.bachelorScholarships || [];
+                const mastList = details.masterScholarships || [];
+
+                const renderGrantsHelper = (list) => {
+                    const ielts = list.filter(g => {
+                        const cu = g.cert.toUpperCase();
+                        return cu.includes("IELTS") || cu.includes("TOEFL") || cu.includes("ENGLISH");
+                    });
+                    const topik = list.filter(g => {
+                        const cu = g.cert.toUpperCase();
+                        return cu.includes("TOPIK") || cu.includes("KOREAN");
+                    });
+                    const other = list.filter(g => {
+                        const cu = g.cert.toUpperCase();
+                        return !cu.includes("IELTS") && !cu.includes("TOEFL") && !cu.includes("ENGLISH") && !cu.includes("TOPIK") && !cu.includes("KOREAN");
+                    });
+
+                    let out = '';
+                    if (ielts.length > 0) {
+                        out += `
+                            <div class="grant-group-header">🇬🇧 IELTS / ENGLISH SCHOLARSHIPS:</div>
+                            <div class="grants-grid" style="margin-bottom: 15px;">
+                                ${ielts.map(g => `<div class="grant-card"><span class="grant-cert">${g.cert}</span><span class="grant-percent">${g.percent}</span></div>`).join('')}
+                            </div>
+                        `;
+                    }
+                    if (topik.length > 0) {
+                        out += `
+                            <div class="grant-group-header">🇰🇷 TOPIK / KOREAN SCHOLARSHIPS:</div>
+                            <div class="grants-grid" style="margin-bottom: 15px;">
+                                ${topik.map(g => `<div class="grant-card"><span class="grant-cert">${g.cert}</span><span class="grant-percent">${g.percent}</span></div>`).join('')}
+                            </div>
+                        `;
+                    }
+                    if (other.length > 0) {
+                        out += `
+                            <div class="grant-group-header">🎓 OTHER SCHOLARSHIPS:</div>
+                            <div class="grants-grid" style="margin-bottom: 15px;">
+                                ${other.map(g => `<div class="grant-card"><span class="grant-cert">${g.cert}</span><span class="grant-percent">${g.percent}</span></div>`).join('')}
+                            </div>
+                        `;
+                    }
+                    return out;
+                };
 
                 grantsHtml += `
-                    <div class="grant-group-header">${groupHeaderLabel}</div>
-                    <div class="grants-grid" style="margin-bottom: 20px;">
-                        ${ieltsCardsHtml}
-                    </div>
+                    <div style="font-weight: 800; font-size: 14px; margin-bottom: 12px; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">🎓 BAKALAVR (BACHELOR DEGREE):</div>
+                    ${renderGrantsHelper(bachList)}
+                    
+                    <div style="font-weight: 800; font-size: 14px; margin-top: 25px; margin-bottom: 12px; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">🎓 MAGISTRATURA (MASTER DEGREE):</div>
+                    ${renderGrantsHelper(mastList)}
                 `;
+            } else {
+                const grantsList = details.scholarships || [
+                    { cert: "IELTS 5.5", percent: "30%" },
+                    { cert: "IELTS 6.5", percent: "50%" },
+                    { cert: "IELTS 7.0", percent: "70%" },
+                    { cert: "IELTS 8.0", percent: "100%" },
+                    { cert: "TOPIK 3", percent: "30%" },
+                    { cert: "TOPIK 4", percent: "50%" },
+                    { cert: "TOPIK 5", percent: "70%" },
+                    { cert: "TOPIK 6", percent: "100%" }
+                ];
 
-                if (details.name === 'Dong-A University' || details.name === 'Dong-Eui University') {
+                const ieltsGrants = [];
+                const topikGrants = [];
+                const otherGrants = [];
+
+                grantsList.forEach(g => {
+                    const certUpper = g.cert.toUpperCase();
+                    if (certUpper.includes("IELTS") || certUpper.includes("TOEFL") || certUpper.includes("TEPS") || certUpper.includes("ENGLISH TRACK")) {
+                        ieltsGrants.push(g);
+                    } else if (certUpper.includes("TOPIK") || certUpper.includes("KLEC") || certUpper.includes("KOREAN TRACK") || certUpper.includes("KOREAN")) {
+                        topikGrants.push(g);
+                    } else {
+                        otherGrants.push(g);
+                    }
+                });
+
+                if (ieltsGrants.length > 0) {
+                    const ieltsCardsHtml = ieltsGrants.map(g => `
+                        <div class="grant-card">
+                            <span class="grant-cert">${g.cert}</span>
+                            <span class="grant-percent">${g.percent}</span>
+                        </div>
+                    `).join('');
+                    
+                    const groupHeaderLabel = (details.name === 'Dong-A University' || details.name === 'Dong-Eui University')
+                        ? "🇬🇧 FOR BACHELORS IELTS / ENGLISH SCHOLARSHIPS:" 
+                        : "🇬🇧 IELTS / ENGLISH SCHOLARSHIPS:";
+
                     grantsHtml += `
-                        <div class="grant-group-header" style="margin-top: 15px;">🇬🇧 FOR TOPIK AND IELTS / ENGLISH SCHOLARSHIPS:</div>
+                        <div class="grant-group-header">${groupHeaderLabel}</div>
                         <div class="grants-grid" style="margin-bottom: 20px;">
-                            <div class="grant-card">
-                                <span class="grant-cert">Magistr uchun / For Magistr (TOPIK & IELTS)</span>
-                                <span class="grant-percent">UPTO 50%</span>
+                            ${ieltsCardsHtml}
+                        </div>
+                    `;
+
+                    if (details.name === 'Dong-A University' || details.name === 'Dong-Eui University') {
+                        grantsHtml += `
+                            <div class="grant-group-header" style="margin-top: 15px;">🇬🇧 FOR TOPIK AND IELTS / ENGLISH SCHOLARSHIPS:</div>
+                            <div class="grants-grid" style="margin-bottom: 20px;">
+                                <div class="grant-card">
+                                    <span class="grant-cert">Magistr uchun / For Magistr (TOPIK & IELTS)</span>
+                                    <span class="grant-percent">UPTO 50%</span>
+                                </div>
                             </div>
+                        `;
+                    }
+                }
+                if (topikGrants.length > 0) {
+                    const topikCardsHtml = topikGrants.map(g => `
+                        <div class="grant-card">
+                            <span class="grant-cert">${g.cert}</span>
+                            <span class="grant-percent">${g.percent}</span>
+                        </div>
+                    `).join('');
+
+                    grantsHtml += `
+                        <div class="grant-group-header" style="margin-top: 15px;">🇰🇷 TOPIK / KOREAN SCHOLARSHIPS:</div>
+                        <div class="grants-grid" style="margin-bottom: 20px;">
+                            ${topikCardsHtml}
                         </div>
                     `;
                 }
-            }
-            if (topikGrants.length > 0) {
-                const topikCardsHtml = topikGrants.map(g => `
-                    <div class="grant-card">
-                        <span class="grant-cert">${g.cert}</span>
-                        <span class="grant-percent">${g.percent}</span>
-                    </div>
-                `).join('');
+                if (otherGrants.length > 0) {
+                    const otherCardsHtml = otherGrants.map(g => `
+                        <div class="grant-card">
+                            <span class="grant-cert">${g.cert}</span>
+                            <span class="grant-percent">${g.percent}</span>
+                        </div>
+                    `).join('');
 
-                grantsHtml += `
-                    <div class="grant-group-header" style="margin-top: 15px;">🇰🇷 TOPIK / KOREAN SCHOLARSHIPS:</div>
-                    <div class="grants-grid" style="margin-bottom: 20px;">
-                        ${topikCardsHtml}
-                    </div>
-                `;
-            }
-            if (otherGrants.length > 0) {
-                const otherCardsHtml = otherGrants.map(g => `
-                    <div class="grant-card">
-                        <span class="grant-cert">${g.cert}</span>
-                        <span class="grant-percent">${g.percent}</span>
-                    </div>
-                `).join('');
-
-                grantsHtml += `
-                    <div class="grant-group-header" style="margin-top: 15px;">🎓 OTHER SCHOLARSHIPS:</div>
-                    <div class="grants-grid" style="margin-bottom: 20px;">
-                        ${otherCardsHtml}
-                    </div>
-                `;
+                    grantsHtml += `
+                        <div class="grant-group-header" style="margin-top: 15px;">🎓 OTHER SCHOLARSHIPS:</div>
+                        <div class="grants-grid" style="margin-bottom: 20px;">
+                            ${otherCardsHtml}
+                        </div>
+                    `;
+                }
             }
 
             grantsContainer.innerHTML = `
