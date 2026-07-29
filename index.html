@@ -1525,6 +1525,7 @@
         }
         .card-special-badges {
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
             margin-top: 12px;
             margin-bottom: 12px;
@@ -6870,18 +6871,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v390') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v400') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v390')) {
-        localStorage.setItem('custom_universities_v390', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v400')) {
+        localStorage.setItem('custom_universities_v400', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v390'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v400'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
