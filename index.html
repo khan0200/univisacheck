@@ -3361,7 +3361,7 @@
         <!-- 3. Tabs Navigation -->
         <div class="uni-modal-nav-tabs">
             <button type="button" class="uni-modal-tab-btn active" onclick="switchUniModalTab('info')">Ma'lumot</button>
-            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('majors')">Mutaxassisliklar</button>
+            <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('majors')">Yo'nalishlar</button>
             <button type="button" class="uni-modal-tab-btn" onclick="switchUniModalTab('grants')">Imtiyozlar</button>
         </div>
 
@@ -3413,7 +3413,7 @@
                 </div>
             </div>
 
-            <!-- TAB 2: MUTAXASSISLIKLAR -->
+            <!-- TAB 2: YO'NALISHLAR -->
             <div id="uniModalTabMajors" class="uni-modal-tab-pane">
                 <div id="uniModalTracksContainer">
                     <!-- Populated dynamically -->
@@ -6902,18 +6902,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v550') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v560') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v550')) {
-        localStorage.setItem('custom_universities_v550', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v560')) {
+        localStorage.setItem('custom_universities_v560', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v550'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v560'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7760,7 +7760,7 @@
             `;
         }
 
-        // Render Tracks in Tab 2 (MUTAXASSISLIKLAR)
+        // Render Tracks in Tab 2 (YO'NALISHLAR)
         const tracksContainer = document.getElementById('uniModalTracksContainer');
         if (tracksContainer) {
             const engTrack = details.englishTrackMajors || ["Business Administration", "International Business", "IT Business"];
