@@ -2397,6 +2397,84 @@
             border-top: 1px solid var(--border);
         }
 
+        /* ─── INTERACTIVE ADMISSION CHECKLIST ────────────────────────────── */
+        .adm-chk-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            background: #ffffff;
+            user-select: none;
+        }
+        .adm-chk-item:hover {
+            background: rgba(0, 0, 128, 0.02);
+            border-color: rgba(0, 0, 128, 0.12);
+            transform: translateY(-1px);
+        }
+        .adm-chk-input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0; width: 0;
+        }
+        .adm-chk-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 2px;
+            transition: all 0.2s ease;
+            background: #ffffff;
+        }
+        .adm-chk-input:checked ~ .adm-chk-box {
+            background: #000080;
+            border-color: #000080;
+        }
+        .adm-chk-box::after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg);
+        }
+        .adm-chk-input:checked ~ .adm-chk-box::after {
+            display: block;
+        }
+        .adm-chk-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .adm-chk-content strong {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            transition: all 0.2s ease;
+        }
+        .adm-chk-input:checked ~ .adm-chk-content strong {
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+        .adm-chk-content span {
+            font-size: 12.5px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+
         /* ─── TOP CARDS SEARCH BAR ───────────────────────────────────────── */
         .top-cards-search-wrap {
             margin-top: 20px;
@@ -3410,7 +3488,7 @@
         <!-- ── 4 Category cards ── -->
         <div class="huj-cat-grid" role="list" aria-label="Hujjat turlari">
 
-            <a href="#docCatUni" class="huj-cat-card" onclick="event.preventDefault(); document.getElementById('docCatUni').scrollIntoView({behavior:'smooth', block:'start'})" role="listitem" id="hujCatUni">
+            <a href="#docCatUni" class="huj-cat-card" onclick="event.preventDefault(); openAdmissionDocsModal()" role="listitem" id="hujCatUni">
                 <div class="huj-cat-icon blue" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
                         <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M16 10v11M12 10v11"/>
@@ -3980,6 +4058,135 @@
         <div class="footer-copy">© 2026 · Barcha huquqlar himoyalangan</div>
     </div>
 </footer>
+
+<!-- ─── UNIVERSITY ADMISSION DOCUMENTS CHECKLIST MODAL ──────────────── -->
+<div id="admissionDocsModal" class="uni-modal-overlay" onclick="handleAdmissionDocsModalClick(event)">
+    <div class="uni-modal-card" role="dialog" aria-modal="true" aria-labelledby="admissionDocsModalTitle" style="max-width: 580px;">
+        <!-- Close Button -->
+        <button type="button" class="uni-modal-close" onclick="closeAdmissionDocsModal()" aria-label="Yopish">✕</button>
+
+        <div class="uni-modal-body" style="padding: 28px 24px;">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+                <div style="width: 48px; height: 48px; background: rgba(0, 0, 128, 0.07); border-radius: 12px; display: grid; place-items: center; color: #000080; flex-shrink: 0;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                        <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M16 10v11M12 10v11"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="admissionDocsModalTitle" style="font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 3px; font-family: var(--font-header);">Universitetga topshirish hujjatlari</h3>
+                    <p style="font-size: 12.5px; color: #64748b; font-weight: 400; line-height: 1.4;">Hujjat topshirish va qabul qilinish uchun zarur bo'lgan asosiy hujjatlar ro'yxati.</p>
+                </div>
+            </div>
+
+            <!-- Interactive Checklist -->
+            <div class="admission-checklist-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                <!-- 1 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Talaba pasporti – ID</strong>
+                        <span>Yashil pasport yoki ID karta nusxasi.</span>
+                    </div>
+                </label>
+                <!-- 2 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Xorijiy pasport (Zagran)</strong>
+                        <span>Amalda bo'lgan xalqaro pasport nusxasi.</span>
+                    </div>
+                </label>
+                <!-- 3 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Ota-onaning pasporti</strong>
+                        <span>Har ikki ota-ona pasport nusxalari.</span>
+                    </div>
+                </label>
+                <!-- 4 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Nikoh guvohnomasi</strong>
+                        <span>Tarjima qilingan va tasdiqlangan nikoh guvohnomasi.</span>
+                    </div>
+                </label>
+                <!-- 5 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Til sertifikati</strong>
+                        <span>IELTS, TOPIK yoki SKA sertifikati nusxasi.</span>
+                    </div>
+                </label>
+                <!-- 6 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Tug'ilganlik guvohnomasi</strong>
+                        <span>Tarjima qilingan va tasdiqlangan guvohnoma.</span>
+                    </div>
+                </label>
+                <!-- 7 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Fotosurat (3.5×4.5)</strong>
+                        <span>Oq fondagi 1 ta elektron va 8 ta chop etilgan fotosurat.</span>
+                    </div>
+                </label>
+                <!-- 8 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>Diplom / Attestat</strong>
+                        <span>Apostil yoki konsullik tasdig'iga ega o'quv hujjati.</span>
+                    </div>
+                </label>
+                <!-- 9 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>3 yillik baho ma'lumotnomasi</strong>
+                        <span>Ba'zi universitetlar tomonidan so'raladigan baholar jadvali.</span>
+                    </div>
+                </label>
+                <!-- 10 -->
+                <label class="adm-chk-item">
+                    <input type="checkbox" class="adm-chk-input">
+                    <span class="adm-chk-box"></span>
+                    <div class="adm-chk-content">
+                        <strong>GPA SCALING ma'lumotnomasi</strong>
+                        <span>Tegishli muassasa tomonidan berilgan baholash tizimi izohi.</span>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Action buttons inside modal -->
+            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
+                <button type="button" class="btn-ghost" onclick="closeAdmissionDocsModal()" style="min-height: 42px; padding: 0 16px; font-size: 13.5px; font-weight: 700;">Yopish</button>
+                <button type="button" class="btn-primary" onclick="downloadAdmissionChecklistPDF()" style="min-height: 42px; padding: 0 18px; font-size: 13.5px; font-weight: 700; gap: 6px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    PDF Checklist yuklab olish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ─── UNIVERSITY DETAILS MODAL ────────────────────────────────────── -->
 <div id="uniDetailsModal" class="uni-modal-overlay" onclick="handleModalOverlayClick(event)">
@@ -8620,8 +8827,155 @@
         }
     }
 
+    /* ─── ADMISSION DOCUMENTS CHECKLIST MODAL JS ────────────────────── */
+    function openAdmissionDocsModal() {
+        const modal = document.getElementById('admissionDocsModal');
+        if (modal) {
+            // Reset all checklist checkboxes on open
+            const inputs = modal.querySelectorAll('.adm-chk-input');
+            inputs.forEach(i => i.checked = false);
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeAdmissionDocsModal() {
+        const modal = document.getElementById('admissionDocsModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function handleAdmissionDocsModalClick(e) {
+        if (e.target.classList.contains('uni-modal-overlay')) {
+            closeAdmissionDocsModal();
+        }
+    }
+
+    function downloadAdmissionChecklistPDF() {
+        const titleText = 'Koreya Universitetlariga Qabul Hujjatlari Checklist';
+        const docs = [
+            ['Talaba pasporti – ID', 'Yashil pasport yoki ID karta nusxasi.'],
+            ['Xorijiy pasport (Zagran)', 'Amalda bo\'lgan xalqaro pasport nusxasi.'],
+            ['Ota-onaning pasporti', 'Har ikki ota-ona pasportining skaneri.'],
+            ['Nikoh guvohnomasi', 'Tarjima qilingan va tasdiqlangan nikoh guvohnomasi.'],
+            ['Til sertifikati', 'IELTS, TOPIK yoki SKA sertifikati nusxasi.'],
+            ['Tug\'ilganlik guvohnomasi', 'Tarjima qilingan va tasdiqlangan guvohnoma.'],
+            ['Fotosurat (3.5×4.5)', 'Oq fondagi 1 ta elektron va 8 ta chop etilgan fotosurat.'],
+            ['Diplom / Attestat', 'Apostil yoki konsullik tasdig\'iga ega o\'quv hujjati.'],
+            ['3 yillik baho ma\'lumotnomasi', 'Ba\'zi universitetlar tomonidan so\'raladigan baholar jadvali.'],
+            ['GPA SCALING ma\'lumotnomasi', 'Tegishli muassasa tomonidan berilgan baholash tizimi izohi.']
+        ];
+
+        const pw = window.open('', '_blank');
+        if (!pw) { alert('Pop-up bloklangan. Ruxsat bering va qayta bosing.'); return; }
+
+        const d = pw.document;
+        d.open();
+        d.write('<!DOCTYPE html>');
+        d.close();
+
+        const head = d.head || d.createElement('head');
+        if (!d.head) d.documentElement.insertBefore(head, d.body);
+
+        const meta = d.createElement('meta');
+        meta.setAttribute('charset', 'UTF-8');
+        head.appendChild(meta);
+
+        const titleEl = d.createElement('title');
+        titleEl.textContent = titleText;
+        head.appendChild(titleEl);
+
+        const style = d.createElement('style');
+        style.textContent = 'body{font-family:Arial,sans-serif;padding:36px 60px;max-width:1000px;margin:0 auto;color:#0f172a;line-height:1.5;box-sizing:border-box}' +
+            '.hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e2e8f0;padding-bottom:14px;margin-bottom:22px}' +
+            '.logo{font-size:24px;font-weight:900;color:#000080;letter-spacing:-0.03em}.sub{font-size:13px;color:#64748b;margin-top:4px}' +
+            'h2{font-size:14px;margin:22px 0 10px;color:#1e293b;text-transform:uppercase;letter-spacing:.5px;border-left:4px solid #000080;padding-left:10px}' +
+            'table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12.5px}' +
+            'th{background:#f8fafc;color:#334155;font-weight:700;text-align:left;padding:10px 14px;border:1px solid #cbd5e1}' +
+            'td{padding:9px 12px;border:1px solid #cbd5e1;vertical-align:top}' +
+            '.ftr{margin-top:28px;border-top:1px solid #e2e8f0;padding-top:12px;font-size:11px;color:#94a3b8;text-align:center}' +
+            '@media print{.no-print{display:none !important}body{padding:20px 36px !important;max-width:100% !important}}tr{page-break-inside:avoid}';
+        head.appendChild(style);
+
+        const body = d.body || d.createElement('body');
+        if (!d.body) d.documentElement.appendChild(body);
+
+        function el(tag, attrs, text) {
+            const e = d.createElement(tag);
+            if (attrs) Object.keys(attrs).forEach(k => { e.setAttribute(k, attrs[k]); });
+            if (text !== undefined) e.textContent = text;
+            return e;
+        }
+
+        const actionNav = el('div', {class:'no-print', style:'margin-bottom:20px;padding:12px 18px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.04)'});
+        const navText = el('span', {style:'font-size:13.5px;font-weight:600;color:#1e293b'}, 'Hujjatlar ro\'yxati tayyor. Chop etish yoki PDF formatida saqlash uchun tugmani bosing:');
+        const printBtn = el('button', {style:'padding:10px 22px;background:#000080;color:#ffffff;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,128,0.3);display:inline-flex;align-items:center;gap:8px'}, '🖨️ Chop etish / PDF saqlash');
+        printBtn.onclick = function() { pw.print(); };
+        actionNav.appendChild(navText);
+        actionNav.appendChild(printBtn);
+        body.appendChild(actionNav);
+
+        // Header info
+        const hdr = el('div', {class:'hdr'});
+        const logo = el('div', {class:'logo'}, 'SalomKorea');
+        const sub = el('div', {class:'sub'}, 'Universitet Hujjat topshirish Checklist');
+        logo.appendChild(sub);
+        hdr.appendChild(logo);
+        body.appendChild(hdr);
+
+        // Heading
+        const h2 = el('h2');
+        h2.textContent = 'KERAKLI HUJJATLAR (' + docs.length + ' ta)';
+        body.appendChild(h2);
+
+        // Table
+        const tbl = el('table');
+        const thead = el('thead');
+        const hr = el('tr');
+        ['Belgi','No','Hujjat Nomi','Izoh va Talablar'].forEach((txt, i) => {
+            const th = el('th', i===0?{style:'width:36px;text-align:center'}:i===1?{style:'width:32px;text-align:center'}:i===2?{style:'width:38%'}:{});
+            th.textContent = txt;
+            hr.appendChild(th);
+        });
+        thead.appendChild(hr);
+        tbl.appendChild(thead);
+
+        const tbody = el('tbody');
+        docs.forEach((doc, idx) => {
+            const tr = el('tr');
+            const tdCheck = el('td', {style:'text-align:center;font-size:16px;'});
+            tdCheck.textContent = '□';
+            const tdNum = el('td', {style:'text-align:center;font-weight:bold;color:#475569'});
+            tdNum.textContent = idx + 1;
+            const tdName = el('td', {style:'font-weight:bold;color:#1e293b'});
+            tdName.textContent = doc[0];
+            const tdDesc = el('td', {style:'color:#334155'});
+            tdDesc.textContent = doc[1];
+            tr.appendChild(tdCheck);
+            tr.appendChild(tdNum);
+            tr.appendChild(tdName);
+            tr.appendChild(tdDesc);
+            tbody.appendChild(tr);
+        });
+        tbl.appendChild(tbody);
+        body.appendChild(tbl);
+
+        const ftr = el('div', {class:'ftr'}, '© 2026 SalomKorea · Ma\'lumot platformasi');
+        body.appendChild(ftr);
+
+        setTimeout(() => {
+            pw.focus();
+        }, 300);
+    }
+
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeUniModal();
+        if (e.key === 'Escape') {
+            closeUniModal();
+            closeAdmissionDocsModal();
+        }
     });
 
     // ── Top University Cards Search Bar Filter ────────────────────────
