@@ -1558,82 +1558,145 @@
             .huj-header-right { display: none; }
         }
 
-        /* 2 category cards */
+        /* 2 category cards grid layout */
         .huj-cat-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 24px;
             margin-bottom: 32px;
         }
-        @media (max-width: 580px) { .huj-cat-grid { grid-template-columns: 1fr; gap: 10px; } }
+        @media (max-width: 992px) {
+            .huj-cat-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
 
         .huj-cat-card {
             background: #ffffff;
-            border: 1px solid rgba(0,0,0,0.07);
-            border-radius: var(--radius-xl);
-            padding: 24px 20px 20px;
+            border: 1px solid rgba(0, 0, 80, 0.08);
+            border-radius: 20px;
+            padding: 32px 28px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 0;
+            gap: 20px;
+            align-items: flex-start;
             text-decoration: none;
             color: var(--text);
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.06);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 4, 53, 0.04);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .huj-cat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            transition: all 0.3s ease;
+        }
+        .huj-cat-card.blue-card::before { background: #2563eb; }
+        .huj-cat-card.green-card::before { background: #16a34a; }
+
         .huj-cat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 20px 48px rgba(0,0,0,0.08);
-            border-color: rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 35px rgba(0, 4, 53, 0.08);
+            border-color: rgba(0, 0, 80, 0.15);
         }
+
         .huj-cat-icon {
             width: 56px;
             height: 56px;
-            border-radius: 16px;
+            border-radius: 14px;
             display: grid;
             place-items: center;
-            margin-bottom: 18px;
-            font-size: 0;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
         }
         .huj-cat-icon svg { display: block; }
-        .huj-cat-icon.blue  { background: rgba(59,130,246,0.12); color: #2563eb; }
-        .huj-cat-icon.green { background: rgba(34,197,94,0.12);  color: #16a34a; }
-        .huj-cat-icon.purple{ background: rgba(139,92,246,0.12); color: #7c3aed; }
-        .huj-cat-icon.amber { background: rgba(245,158,11,0.12); color: #d97706; }
-        .huj-cat-label {
+        .huj-cat-icon.blue  { background: rgba(59,130,246,0.1); color: #2563eb; }
+        .huj-cat-icon.green { background: rgba(34,197,94,0.1);  color: #16a34a; }
+        
+        .huj-cat-card:hover .huj-cat-icon {
+            transform: scale(1.06);
+        }
+
+        .huj-cat-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .huj-cat-badge {
             font-size: 11px;
             font-weight: 800;
-            letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: #0f172a;
-            line-height: 1.4;
+            letter-spacing: 0.08em;
+            padding: 4px 10px;
+            border-radius: 100px;
             margin-bottom: 12px;
+            display: inline-block;
         }
+        .huj-cat-badge.blue { background: rgba(59,130,246,0.08); color: #2563eb; }
+        .huj-cat-badge.green { background: rgba(34,197,94,0.08); color: #16a34a; }
+
+        .huj-cat-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+            line-height: 1.35;
+            font-family: var(--font-header);
+        }
+
         .huj-cat-desc {
             font-size: 13px;
             color: #64748b;
             line-height: 1.6;
+            margin: 0 0 16px 0;
             font-weight: 400;
-            margin-bottom: 20px;
-            flex: 1;
         }
-        .huj-cat-arrow {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            transition: transform 0.2s ease;
+
+        .huj-cat-bullets {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .huj-cat-bullet-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        .huj-cat-bullet-item svg {
             flex-shrink: 0;
         }
-        .huj-cat-arrow svg { width: 16px; height: 16px; }
-        .huj-cat-arrow.blue   { background: rgba(59,130,246,0.10);  color: #2563eb; }
-        .huj-cat-arrow.green  { background: rgba(34,197,94,0.10);   color: #16a34a; }
-        .huj-cat-arrow.purple { background: rgba(139,92,246,0.10);  color: #7c3aed; }
-        .huj-cat-arrow.amber  { background: rgba(245,158,11,0.10);  color: #d97706; }
-        .huj-cat-card:hover .huj-cat-arrow { transform: translateX(3px); }
+
+        .huj-cat-btn-label {
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: gap 0.25s ease;
+        }
+        .huj-cat-card.blue-card .huj-cat-btn-label { color: #2563eb; }
+        .huj-cat-card.green-card .huj-cat-btn-label { color: #16a34a; }
+        
+        .huj-cat-card:hover .huj-cat-btn-label {
+            gap: 10px;
+        }
 
         /* Eslatma note */
         .huj-eslatma {
@@ -3484,23 +3547,51 @@
             </div>
         </div>
 
-        <!-- ── 4 Category cards ── -->
+        <!-- ── Category cards ── -->
         <div class="huj-cat-grid" role="list" aria-label="Hujjat turlari">
 
-            <a href="#docCatUni" class="huj-cat-card" onclick="event.preventDefault(); openAdmissionDocsModal()" role="listitem" id="hujCatUni">
+            <!-- Card 1 -->
+            <a href="#docCatUni" class="huj-cat-card blue-card" onclick="event.preventDefault(); openAdmissionDocsModal()" role="listitem" id="hujCatUni">
                 <div class="huj-cat-icon blue" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
                         <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M16 10v11M12 10v11"/>
                     </svg>
                 </div>
-                <div class="huj-cat-label">Universitetga topshirishda<br>kerak bo'ladigan hujjatlar</div>
-                <div class="huj-cat-desc">Universitetlarga ariza topshirishda talab qilinadigan barcha hujjatlar ro'yxati va izohlar.</div>
-                <div class="huj-cat-arrow blue">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <div class="huj-cat-content">
+                    <span class="huj-cat-badge blue">Universitet</span>
+                    <h3 class="huj-cat-title">Universitetga topshirishda kerak bo'ladigan hujjatlar</h3>
+                    <p class="huj-cat-desc">Universitetlarga ariza topshirishda talab qilinadigan barcha hujjatlar ro'yxati va izohlar.</p>
+                    
+                    <ul class="huj-cat-bullets">
+                        <li class="huj-cat-bullet-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            10 ta majburiy hujjat
+                        </li>
+                        <li class="huj-cat-bullet-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Notarial tarjima va Apostil talablari
+                        </li>
+                        <li class="huj-cat-bullet-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            PDF Checklist formatida yuklab olish
+                        </li>
+                    </ul>
+                    
+                    <div class="huj-cat-btn-label">
+                        Ro'yxatni ko'rish
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                 </div>
             </a>
 
-            <a href="#docCatViza" class="huj-cat-card" onclick="event.preventDefault(); openEmbassyDocsModal()" role="listitem" id="hujCatViza">
+            <!-- Card 2 -->
+            <a href="#docCatViza" class="huj-cat-card green-card" onclick="event.preventDefault(); openEmbassyDocsModal()" role="listitem" id="hujCatViza">
                 <div class="huj-cat-icon green" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
                         <rect x="3" y="4" width="18" height="16" rx="2"/>
@@ -3508,10 +3599,36 @@
                         <path d="M3 9h18"/>
                     </svg>
                 </div>
-                <div class="huj-cat-label">Elchixonada D2–D4<br>vizasi uchun kerakli hujjatlar</div>
-                <div class="huj-cat-desc">D2 va D4 talaba vizasi uchun elchixonaga taqdim etiladigan hujjatlar ro'yxati va talablar.</div>
-                <div class="huj-cat-arrow green">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <div class="huj-cat-content">
+                    <span class="huj-cat-badge green">Elchixona</span>
+                    <h3 class="huj-cat-title">Elchixonada D2–D4 vizasi uchun kerakli hujjatlar</h3>
+                    <p class="huj-cat-desc">D2 va D4 talaba vizasi uchun elchixonaga taqdim etiladigan hujjatlar ro'yxati va talablar.</p>
+                    
+                    <ul class="huj-cat-bullets">
+                        <li class="huj-cat-bullet-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            1% va Standart universitetlar uchun farqlar
+                        </li>
+                        <li class="huj-cat-bullet-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Ota-ona daromadi va homiylik ma'lumotlari
+                        </li>
+                        <li class="huj-cat-bullet-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Chop etish va PDF Checklist
+                        </li>
+                    </ul>
+                    
+                    <div class="huj-cat-btn-label">
+                        Ro'yxatni ko'rish
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                 </div>
             </a>
 
