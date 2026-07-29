@@ -4078,98 +4078,69 @@
                 </div>
             </div>
 
-            <!-- Interactive Checklist -->
-            <div class="admission-checklist-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
-                <!-- 1 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Talaba pasporti – ID</strong>
-                        <span>Yashil pasport yoki ID karta nusxasi.</span>
-                    </div>
-                </label>
-                <!-- 2 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Xorijiy pasport (Zagran)</strong>
-                        <span>Amalda bo'lgan xalqaro pasport nusxasi.</span>
-                    </div>
-                </label>
-                <!-- 3 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Ota-onaning pasporti</strong>
-                        <span>Har ikki ota-ona pasport nusxalari.</span>
-                    </div>
-                </label>
-                <!-- 4 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Nikoh guvohnomasi</strong>
-                        <span>Tarjima qilingan va tasdiqlangan nikoh guvohnomasi.</span>
-                    </div>
-                </label>
-                <!-- 5 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Til sertifikati</strong>
-                        <span>IELTS, TOPIK yoki SKA sertifikati nusxasi.</span>
-                    </div>
-                </label>
-                <!-- 6 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Tug'ilganlik guvohnomasi</strong>
-                        <span>Tarjima qilingan va tasdiqlangan guvohnoma.</span>
-                    </div>
-                </label>
-                <!-- 7 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Fotosurat (3.5×4.5)</strong>
-                        <span>Oq fondagi 1 ta elektron va 8 ta chop etilgan fotosurat.</span>
-                    </div>
-                </label>
-                <!-- 8 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>Diplom / Attestat</strong>
-                        <span>Apostil yoki konsullik tasdig'iga ega o'quv hujjati.</span>
-                    </div>
-                </label>
-                <!-- 9 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>3 yillik baho ma'lumotnomasi</strong>
-                        <span>Ba'zi universitetlar tomonidan so'raladigan baholar jadvali.</span>
-                    </div>
-                </label>
-                <!-- 10 -->
-                <label class="adm-chk-item">
-                    <input type="checkbox" class="adm-chk-input">
-                    <span class="adm-chk-box"></span>
-                    <div class="adm-chk-content">
-                        <strong>GPA SCALING ma'lumotnomasi</strong>
-                        <span>Tegishli muassasa tomonidan berilgan baholash tizimi izohi.</span>
-                    </div>
-                </label>
+            <!-- Interactive Checklist Table -->
+            <div class="adm-table-container" style="overflow-x: auto; margin-bottom: 24px; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: var(--radius-lg); background: #ffffff;">
+                <table class="adm-modal-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;">
+                    <thead>
+                        <tr style="border-bottom: 1.5px solid rgba(0,0,0,0.08); background: #f8fafc;">
+                            <th style="padding: 12px 14px; font-weight: 700; color: #475569; width: 60px; text-align: center;">T/r</th>
+                            <th style="padding: 12px 14px; font-weight: 700; color: #475569;">Hujjat nomi</th>
+                            <th style="padding: 12px 14px; font-weight: 700; color: #475569; width: 150px;">Izoh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">1</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Talaba pasporti – ID</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">2</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Xorijiy pasport (Zagran)</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">3</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Ota-onaning pasporti</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">4</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Nikoh guvohnomasi</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">5</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Til sertifikati</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">6</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Tug'ilganlik guvohnomasi</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">7</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Fotosurat (3.5×4.5)</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">8</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Diplom / Attestat</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">9</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">3 yillik baho ma'lumotnomasi</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px 14px; text-align: center; color: #64748b; font-weight: 600;">10</td>
+                            <td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">GPA SCALING ma'lumotnomasi</td>
+                            <td style="padding: 12px 14px;"></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Action buttons inside modal -->
@@ -8831,10 +8802,6 @@
     function openAdmissionDocsModal() {
         const modal = document.getElementById('admissionDocsModal');
         if (modal) {
-            // Reset all checklist checkboxes on open
-            const inputs = modal.querySelectorAll('.adm-chk-input');
-            inputs.forEach(i => i.checked = false);
-
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
