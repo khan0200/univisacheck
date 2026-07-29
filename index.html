@@ -1540,14 +1540,14 @@
             align-items: center;
         }
         .badge-blue-pill {
-            color: #1e40af;
-            background: #dbeafe;
-            border: 1px solid #bfdbfe;
+            color: #ffffff;
+            background: #1e40af;
+            border: 1px solid #1e40af;
         }
         .badge-gold-pill {
-            color: #854d0e;
-            background: #fef9c3;
-            border: 1px solid #fef08a;
+            color: #ffffff;
+            background: #d97706;
+            border: 1px solid #d97706;
         }
         .top-uni-action {
             margin-top: auto;
@@ -6847,18 +6847,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v330') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v340') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v330')) {
-        localStorage.setItem('custom_universities_v330', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v340')) {
+        localStorage.setItem('custom_universities_v340', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v330'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v340'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
