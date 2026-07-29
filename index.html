@@ -5232,11 +5232,11 @@
             badge1Class: "badge-green",
             brandColor: "#002b49",
             statusTag: "📜 Akkreditatsiyaga ega (Milliy Universitet)",
-            is1Percent: true,
+            is1Percent: false,
             tuition: "2,016,000 – 2,779,000 KRW / semestr",
             language: "TOPIK 3+ | IELTS 5.5+",
-            visaStatus: "Yengillashtirilgan (1%)",
-            visaDetails: "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
+            visaStatus: "Standart Tekshiruv",
+            visaDetails: "Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
             description: "Jeonbuk National University — Janubiy Koreyaning Jeonju shahrida joylashgan yetakchi milliy davlat universiteti (1947-yil). Arzon kontrakt narxlari (2.0M - 2.7M KRW), keng kampus va saxiy 2026 Fall grant dasturlariga ega.",
             englishTrackMajors: [
                 "International Studies",
@@ -6918,18 +6918,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v580') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v590') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v580')) {
-        localStorage.setItem('custom_universities_v580', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v590')) {
+        localStorage.setItem('custom_universities_v590', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v580'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v590'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -7763,11 +7763,11 @@
             const isKdbNotReq = kdbVal.toLowerCase().includes('emas') || kdbVal.toLowerCase().includes('etilmaydi');
             const kdb1DayClass = isKdbNotReq ? 'check-no' : 'check-yes';
 
-            const parentIncomeStatus = (details.is1Percent || isEVisa) ? 'Talab etilmaydi' : 'Talab etiladi';
-            const parentIncomeClass = (details.is1Percent || isEVisa) ? 'check-no' : 'check-yes';
+            const parentIncomeStatus = (details.is1Percent || isEVisa || details.name === 'Jeonbuk National University') ? 'Talab etilmaydi' : 'Talab etiladi';
+            const parentIncomeClass = (details.is1Percent || isEVisa || details.name === 'Jeonbuk National University') ? 'check-no' : 'check-yes';
             
-            const kdb31DayStatus = (details.is1Percent || isEVisa) ? 'Talab etilmaydi' : 'Talab etiladi';
-            const kdb31DayClass = (details.is1Percent || isEVisa) ? 'check-no' : 'check-yes';
+            const kdb31DayStatus = (details.is1Percent || isEVisa || details.name === 'Jeonbuk National University') ? 'Talab etilmaydi' : 'Talab etiladi';
+            const kdb31DayClass = (details.is1Percent || isEVisa || details.name === 'Jeonbuk National University') ? 'check-no' : 'check-yes';
 
             bankReqsEl.innerHTML = `
                 <div class="checklist-item ${parentIncomeClass}"><span>Ota-ona daromad manbai ma'lumotnomasi</span><strong>${parentIncomeStatus}</strong></div>
