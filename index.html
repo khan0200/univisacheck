@@ -2539,61 +2539,109 @@
 
 
         /* ─── TOP CARDS SEARCH BAR ───────────────────────────────────────── */
-        .top-cards-search-wrap {
-            margin-top: 20px;
-            margin-bottom: 24px;
-            width: 100%;
+        /* ─── UNIVERSITETLAR SECTION HEADER ──────────────────────────── */
+        .uni-section-header {
+            margin-bottom: 28px;
+            text-align: left;
+        }
+        .uni-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #2563eb;
+            background: rgba(59,130,246,0.08);
+            padding: 5px 12px;
+            border-radius: 100px;
+            margin-bottom: 12px;
+        }
+        .uni-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin: 0 0 10px 0;
+            line-height: 1.25;
+            font-family: var(--font-header);
+        }
+        .uni-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin: 0;
+            max-width: 720px;
+            font-weight: 400;
+        }
+
+        /* ─── UNIFIED SEARCH & FILTER CARD ───────────────────────────── */
+        .uni-search-filter-card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 80, 0.06);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 4, 53, 0.03);
+            margin-bottom: 32px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 20px;
         }
-        @media (min-width: 992px) {
-            .top-cards-search-wrap {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                gap: 16px;
-            }
-            .top-cards-search-box {
-                max-width: 440px;
+        
+        .uni-search-inputs-row {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .uni-search-inputs-row {
+                flex-direction: column;
+                gap: 12px;
             }
         }
+        
         .top-cards-search-box {
+            flex: 1;
             position: relative;
             display: flex;
             align-items: center;
-            width: 100%;
         }
         .top-cards-search-box input {
             width: 100%;
-            height: 46px;
-            padding: 0 40px 0 42px;
-            background: #ffffff;
-            border: 1.5px solid rgba(0, 0, 128, 0.18);
-            border-radius: 12px;
-            color: var(--text);
+            height: 48px;
+            padding: 0 40px 0 44px;
+            background: #f8fafc;
+            border: 1px solid rgba(0, 0, 80, 0.08);
+            border-radius: 14px;
+            color: #0f172a;
             font-family: var(--font);
             font-size: 14px;
             font-weight: 500;
             outline: none;
-            box-shadow: 0 3px 12px rgba(0, 0, 128, 0.04);
-            transition: all 0.2s var(--ease);
+            transition: all 0.3s ease;
         }
         .top-cards-search-box input:focus {
-            border-color: var(--navy-blue);
-            box-shadow: 0 0 0 3.5px rgba(0, 0, 128, 0.12), 0 4px 16px rgba(0, 0, 128, 0.06);
+            background: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), 0 4px 20px rgba(0, 0, 0, 0.04);
         }
         .top-cards-search-icon {
             position: absolute;
-            left: 14px;
+            left: 16px;
             width: 18px;
             height: 18px;
-            stroke: var(--navy-blue);
+            stroke: #64748b;
             pointer-events: none;
+            transition: stroke 0.3s ease;
+        }
+        .top-cards-search-box input:focus ~ .top-cards-search-icon {
+            stroke: #2563eb;
         }
         .top-cards-clear-btn {
             position: absolute;
-            right: 12px;
+            right: 14px;
             background: rgba(0, 0, 0, 0.06);
             border: none;
             border-radius: 50%;
@@ -2609,43 +2657,41 @@
         }
         .top-cards-clear-btn:hover {
             background: rgba(0, 0, 0, 0.12);
-            color: var(--dark-navy);
         }
-
-        /* ─── SEARCHBAR FILTER DROPDOWN ──────────────────────────── */
+        
         .top-cards-dropdown-wrap {
             position: relative;
-            width: 100%;
+            width: 240px;
+            flex-shrink: 0;
         }
-        @media (min-width: 992px) {
+        @media (max-width: 768px) {
             .top-cards-dropdown-wrap {
-                width: 220px;
-                flex-shrink: 0;
+                width: 100%;
             }
         }
         .top-cards-select {
             width: 100%;
-            height: 46px;
+            height: 48px;
             padding: 0 40px 0 16px;
-            background: #ffffff;
-            border: 1.5px solid rgba(0, 0, 128, 0.18);
-            border-radius: 12px;
-            color: var(--navy-blue);
+            background: #f8fafc;
+            border: 1px solid rgba(0, 0, 80, 0.08);
+            border-radius: 14px;
+            color: #0f172a;
             font-family: var(--font);
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             outline: none;
             cursor: pointer;
-            box-shadow: 0 3px 12px rgba(0, 0, 128, 0.04);
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            transition: all 0.2s var(--ease);
+            transition: all 0.3s ease;
         }
         .top-cards-select:focus,
         .top-cards-select:hover {
-            border-color: var(--navy-blue);
-            box-shadow: 0 0 0 3.5px rgba(0, 0, 128, 0.12), 0 4px 16px rgba(0, 0, 128, 0.06);
+            background: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
         }
         .top-cards-select option {
             font-weight: 500;
@@ -2654,14 +2700,44 @@
         }
         .top-cards-select-arrow {
             position: absolute;
-            right: 14px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
             width: 16px;
             height: 16px;
-            stroke: var(--navy-blue);
+            stroke: #64748b;
             pointer-events: none;
-            transition: transform 0.2s ease;
+        }
+
+        .uni-filter-pills-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-top: 1px solid rgba(0, 0, 80, 0.04);
+            padding-top: 16px;
+        }
+        .uni-filter-pill {
+            background: #f1f5f9;
+            border: 1px solid transparent;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+        }
+        .uni-filter-pill:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: translateY(-1px);
+        }
+        .uni-filter-pill.active {
+            background: #000080;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 128, 0.15);
         }
         .top-cards-no-results {
             grid-column: 1 / -1;
@@ -3656,33 +3732,52 @@
 <!-- ─── UNIVERSITETLAR ───────────────────────────────────────────────── -->
 <div id="universitetlar">
     <div class="section-wrap">
-        <div class="section-eyebrow">Universitetlar ro'yxati</div>
-        <h2 class="section-h2"><span class="text-dark-blue">Janubiy </span><em>Koreya universitetlari</em></h2>
+        <div class="uni-section-header">
+            <span class="uni-eyebrow">🎓 Universitetlar katalogi</span>
+            <h2 class="uni-title">Janubiy Koreya universitetlari</h2>
+            <p class="uni-subtitle">Koreyadagi eng nufuzli universitetlar ro'yxati, kontrakt narxlari, viza talablari va taqdim etiladigan stipendiyalar haqidagi ma'lumotlar.</p>
+        </div>
 
-        <!-- TOP CARDS SEARCH BAR & FILTERS -->
-        <div class="top-cards-search-wrap">
-            <div class="top-cards-search-box">
-                <svg class="top-cards-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" id="topCardsSearchInput" placeholder="Nufuzli universitetlarni qidirish (Yonsei, Korea, SNU, Ajou...)" oninput="filterTopUniCards(this.value)" autocomplete="off">
-                <button type="button" id="topCardsSearchClear" class="top-cards-clear-btn" onclick="clearTopCardsSearch()" style="display:none;" aria-label="Qidiruvni tozalash">✕</button>
+        <!-- Unified Search & Filters Card -->
+        <div class="uni-search-filter-card">
+            <!-- Top search inputs -->
+            <div class="uni-search-inputs-row">
+                <div class="top-cards-search-box">
+                    <svg class="top-cards-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="topCardsSearchInput" placeholder="Universitet nomini kiriting (Yonsei, Korea, SNU, Ajou...)" oninput="filterTopUniCards(this.value)" autocomplete="off">
+                    <button type="button" id="topCardsSearchClear" class="top-cards-clear-btn" onclick="clearTopCardsSearch()" style="display:none;" aria-label="Qidiruvni tozalash">✕</button>
+                </div>
+                
+                <div class="top-cards-dropdown-wrap">
+                    <select id="topCardsCategorySelect" class="top-cards-select" onchange="setTopCardsFilter(this.value)">
+                        <option value="all">Barchasi</option>
+                        <option value="1percent">1% Universitetlar</option>
+                        <option value="evisa">Magistr E-Viza</option>
+                        <option value="standard">Standart tekshiruv</option>
+                        <option value="college">Kollejlar</option>
+                        <option value="bachelor">Bakalavr (Bachelor)</option>
+                        <option value="magistr">Magistratura (Master)</option>
+                        <option value="langcourse">Til kursi (Language)</option>
+                    </select>
+                    <svg class="top-cards-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
             </div>
-            <div class="top-cards-dropdown-wrap">
-                <select id="topCardsCategorySelect" class="top-cards-select" onchange="setTopCardsFilter(this.value)">
-                    <option value="all">Barcha universitetlar</option>
-                    <option value="evisa">Magistr E-Viza</option>
-                    <option value="1percent">1% Universitetlar</option>
-                    <option value="standard">Standart tekshiruv</option>
-                    <option value="college">Kollejlar</option>
-                    <option value="bachelor">Bachelor</option>
-                    <option value="magistr">Magistr</option>
-                    <option value="langcourse">Language Course</option>
-                </select>
-                <svg class="top-cards-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
+            
+            <!-- Horizontal visual pills -->
+            <div class="uni-filter-pills-row">
+                <button type="button" class="uni-filter-pill active" data-filter="all" onclick="setTopCardsFilter('all')">⚡️ Barchasi</button>
+                <button type="button" class="uni-filter-pill" data-filter="1percent" onclick="setTopCardsFilter('1percent')">🥇 1% Universitetlar</button>
+                <button type="button" class="uni-filter-pill" data-filter="evisa" onclick="setTopCardsFilter('evisa')">💼 Magistr E-Viza</button>
+                <button type="button" class="uni-filter-pill" data-filter="standard" onclick="setTopCardsFilter('standard')">📄 Standart</button>
+                <button type="button" class="uni-filter-pill" data-filter="college" onclick="setTopCardsFilter('college')">🏛️ Kollejlar</button>
+                <button type="button" class="uni-filter-pill" data-filter="bachelor" onclick="setTopCardsFilter('bachelor')">🎓 Bakalavr</button>
+                <button type="button" class="uni-filter-pill" data-filter="magistr" onclick="setTopCardsFilter('magistr')">📚 Magistr</button>
+                <button type="button" class="uni-filter-pill" data-filter="langcourse" onclick="setTopCardsFilter('langcourse')">🗣️ Til kursi</button>
             </div>
         </div>
 
@@ -7599,6 +7694,16 @@
         if (select && select.value !== filterType) {
             select.value = filterType;
         }
+        
+        // Update active class on visual pills
+        document.querySelectorAll('.uni-filter-pill').forEach(btn => {
+            if (btn.dataset.filter === filterType) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
         topUnisVisibleCount = getStepSize();
         renderTopUniCards();
     }
