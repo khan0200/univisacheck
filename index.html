@@ -1486,12 +1486,174 @@
             font-size: 12px;
             font-weight: 800;
             color: var(--red);
-            box-shadow: 0 2px 6px rgba(0, 0, 128, 0.15);
-        }
         .sorov-step-text h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
         .sorov-step-text p { font-size: 13px; color: var(--text-2); line-height: 1.5; }
 
-        .sorov-cta { text-align: center; position: relative; z-index: 1; }
+        /* ─── HUJJATLAR SECTION HEADER ────────────────────────── */
+        .huj-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+        .huj-header-left {
+            display: flex;
+            flex-direction: column;
+        }
+        .huj-header-icon-wrap {
+            width: 52px;
+            height: 52px;
+            background: rgba(0,0,128,0.07);
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            color: #000080;
+            margin-bottom: 16px;
+        }
+        .huj-header-title {
+            font-family: var(--font-header);
+            font-size: clamp(26px, 3vw, 36px);
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 12px;
+        }
+        .huj-header-sub {
+            font-size: 15px;
+            color: #64748b;
+            line-height: 1.65;
+            max-width: 480px;
+            font-weight: 400;
+        }
+        .huj-header-img {
+            width: 220px;
+            height: auto;
+            object-fit: contain;
+            opacity: 0.92;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .huj-header { grid-template-columns: 1fr; }
+            .huj-header-img { display: none; }
+        }
+
+        /* 4 category cards */
+        .huj-cat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 900px) { .huj-cat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .huj-cat-grid { grid-template-columns: 1fr; gap: 10px; } }
+
+        .huj-cat-card {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.07);
+            border-radius: var(--radius-xl);
+            padding: 24px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0;
+            text-decoration: none;
+            color: var(--text);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.06);
+        }
+        .huj-cat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 20px 48px rgba(0,0,0,0.08);
+            border-color: rgba(0,0,0,0.1);
+        }
+        .huj-cat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 18px;
+            font-size: 0;
+        }
+        .huj-cat-icon svg { display: block; }
+        .huj-cat-icon.blue  { background: rgba(59,130,246,0.12); color: #2563eb; }
+        .huj-cat-icon.green { background: rgba(34,197,94,0.12);  color: #16a34a; }
+        .huj-cat-icon.purple{ background: rgba(139,92,246,0.12); color: #7c3aed; }
+        .huj-cat-icon.amber { background: rgba(245,158,11,0.12); color: #d97706; }
+        .huj-cat-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #0f172a;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        .huj-cat-desc {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+            font-weight: 400;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+        .huj-cat-arrow {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .huj-cat-arrow svg { width: 16px; height: 16px; }
+        .huj-cat-arrow.blue   { background: rgba(59,130,246,0.10);  color: #2563eb; }
+        .huj-cat-arrow.green  { background: rgba(34,197,94,0.10);   color: #16a34a; }
+        .huj-cat-arrow.purple { background: rgba(139,92,246,0.10);  color: #7c3aed; }
+        .huj-cat-arrow.amber  { background: rgba(245,158,11,0.10);  color: #d97706; }
+        .huj-cat-card:hover .huj-cat-arrow { transform: translateX(3px); }
+
+        /* Eslatma note */
+        .huj-eslatma {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.07);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .huj-eslatma-icon {
+            width: 34px;
+            height: 34px;
+            background: rgba(0,0,128,0.07);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #000080;
+            flex-shrink: 0;
+        }
+        .huj-eslatma-icon svg { display: block; }
+        .huj-eslatma-text .huj-eslatma-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .huj-eslatma-text .huj-eslatma-body {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        /* ─── KERAKLI HUJJATLAR SECTION ───────────────────────────── */
         .sorov-cta-icon {
             width: 60px; height: 60px;
             background: #ffffff !important;
@@ -3209,9 +3371,99 @@
 <!-- ─── HUJJATLAR ────────────────────────────────────────────────────── -->
 <div id="hujjatlar">
     <div class="section-wrap">
-        <div class="section-eyebrow">Hujjatlar ro'yxati</div>
 
-        <!-- ─── UNIVERSITETGA TOPSHIRISH UCHUN KERAKLI HUJJATLAR ─── -->
+        <!-- ── Section header ── -->
+        <div class="huj-header">
+            <div class="huj-header-left">
+                <div class="huj-header-icon-wrap" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <h2 class="huj-header-title">Hujjatlar ro'yxati</h2>
+                <p class="huj-header-sub">Viza va universitetga topshirish uchun zarur bo'lgan barcha hujjatlar bilan tanishing. Har bir hujjat haqida batafsil ma'lumot oling.</p>
+            </div>
+            <img src="docs.png" alt="Hujjatlar" class="huj-header-img" loading="lazy">
+        </div>
+
+        <!-- ── 4 Category cards ── -->
+        <div class="huj-cat-grid" role="list" aria-label="Hujjat turlari">
+
+            <a href="#docCatUni" class="huj-cat-card" onclick="event.preventDefault(); document.getElementById('docCatUni').scrollIntoView({behavior:'smooth', block:'start'})" role="listitem" id="hujCatUni">
+                <div class="huj-cat-icon blue" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+                        <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M16 10v11M12 10v11"/>
+                    </svg>
+                </div>
+                <div class="huj-cat-label">Universitetga topshirishda<br>kerak bo'ladigan hujjatlar</div>
+                <div class="huj-cat-desc">Universitetlarga ariza topshirishda talab qilinadigan barcha hujjatlar ro'yxati va izohlar.</div>
+                <div class="huj-cat-arrow blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <a href="#docCatViza" class="huj-cat-card" onclick="event.preventDefault(); document.getElementById('docCatViza').scrollIntoView({behavior:'smooth', block:'start'})" role="listitem" id="hujCatViza">
+                <div class="huj-cat-icon green" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+                        <rect x="3" y="4" width="18" height="16" rx="2"/>
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M3 9h18"/>
+                    </svg>
+                </div>
+                <div class="huj-cat-label">Elchixonada D2–D4<br>vizasi uchun kerakli hujjatlar</div>
+                <div class="huj-cat-desc">D2 va D4 talaba vizasi uchun elchixonaga taqdim etiladigan hujjatlar ro'yxati va talablar.</div>
+                <div class="huj-cat-arrow green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <a href="#docTabPercent1" class="huj-cat-card" onclick="event.preventDefault(); switchDocTab('percent1'); document.getElementById('docTabPercent1').scrollIntoView({behavior:'smooth', block:'start'})" role="listitem" id="hujCat1pct">
+                <div class="huj-cat-icon purple" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+                        <circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/>
+                        <path d="m5 19 14-14"/>
+                    </svg>
+                </div>
+                <div class="huj-cat-label">1% lik uchun</div>
+                <div class="huj-cat-desc">1% lik (top universitetlar) dasturlari uchun qo'shimcha talab qilinadigan hujjatlar.</div>
+                <div class="huj-cat-arrow purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <a href="#docTabStandard" class="huj-cat-card" onclick="event.preventDefault(); switchDocTab('standard'); document.getElementById('docTabStandard').scrollIntoView({behavior:'smooth', block:'start'})" role="listitem" id="hujCatUmumiy">
+                <div class="huj-cat-icon amber" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <div class="huj-cat-label">Umumiy</div>
+                <div class="huj-cat-desc">Barcha holatlar uchun umumiy hujjatlar va foydali ma'lumotlar.</div>
+                <div class="huj-cat-arrow amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- ── Eslatma ── -->
+        <div class="huj-eslatma" role="note">
+            <div class="huj-eslatma-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+            </div>
+            <div class="huj-eslatma-text">
+                <div class="huj-eslatma-title">Eslatma</div>
+                <div class="huj-eslatma-body">Talablar universitet va dasturga qarab farq qilishi mumkin. Ariza topshirishdan oldin rasmiy manbalardagi eng so'nggi ma'lumotlarni tekshirishingizni tavsiya qilamiz.</div>
+            </div>
+        </div>
+
+        <!-- ── UNIVERSITETGA TOPSHIRISH UCHUN KERAKLI HUJJATLAR ── -->
+        <div id="docCatUni"></div>
+        <div class="section-eyebrow" style="margin-bottom:8px;">Universitetga ariza</div>
         <h2 class="section-h2" style="margin-bottom:8px;">Universitetga topshirish uchun<br><em>kerakli hujjatlar</em></h2>
         <p class="section-sub" style="margin-bottom:28px;">Kasbiy ta'lim, Bakalavr va Magistratura dasturlari uchun talab etiladigan hujjatlar.</p>
 
@@ -3261,6 +3513,8 @@
         </div>
 
 
+
+        <div id="docCatViza"></div>
         <div class="section-eyebrow" style="margin-bottom:12px;">Elchixona hujjatlari</div>
         <h2 class="section-h2"><span class="text-dark-blue">D-2 va D-4 vizalari uchun<br>Elchixonaga </span><em>topshiriladigan hujjatlar</em></h2>
         <p class="section-sub">Universitet turiga qarab elchixonaga topshiriladigan hujjatlar ro'yxati bilan tanishing.</p>
