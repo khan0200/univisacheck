@@ -101,10 +101,15 @@
             </svg>
         </button>
 
-        <!-- Tooltip Label Badge -->
-        <div class="ai-assistant-label" id="aiChatLabel">
-            AI Yordamchi 🎓
-        </div>
+        <!-- Circular Text Label -->
+        <svg class="circular-text" viewBox="0 0 100 100" width="90" height="90" id="aiChatLabel">
+            <path id="circularTextPath" d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0" fill="none"></path>
+            <text>
+                <textPath href="#circularTextPath">
+                    AI YORDAMCHI • AI YORDAMCHI • 
+                </textPath>
+            </text>
+        </svg>
     `;
 
     document.body.appendChild(widgetContainer);
