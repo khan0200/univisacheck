@@ -30,15 +30,17 @@ module.exports = async (req, res) => {
     }
 
     try {
+        let openaiKey = process.env.OPENAI_API_KEY || '';
         let geminiKey = process.env.GEMINI_API_KEY || '';
         try {
             const tursoConfig = require(path.join(__dirname, '..', 'turso.config.js'));
+            if (tursoConfig.OPENAI_API_KEY) openaiKey = tursoConfig.OPENAI_API_KEY;
             if (tursoConfig.GEMINI_API_KEY) geminiKey = tursoConfig.GEMINI_API_KEY;
         } catch (_) {}
 
-        if (!geminiKey) {
+        if (!openaiKey && !geminiKey) {
             res.status(200).json({
-                response: "⚠️ **Gemini API Key Missing**: Please set `GEMINI_API_KEY` in Vercel environment variables or local `turso.config.js` to enable the AI Admission Assistant."
+                response: "⚠️ **API Key Missing**: Please set `OPENAI_API_KEY` or `GEMINI_API_KEY` to enable the AI Admission Assistant."
             });
             return;
         }
@@ -632,42 +634,64 @@ Koreya universitetiga suhbatga (interview) tayyorgarlik ko'rayotgan talabaga quy
 
 `;
 
-        const contents = history.map(msg => ({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
-        }));
-        
-        contents.push({
-            role: 'user',
-            parts: [{ text: message }]
-        });
+        let aiText = '';
 
-        const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
-            {
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
+        if (openaiKey) {
+            const messages = [
+                { role: 'system', content: systemPrompt },
+                ...history.map(msg => ({
+                    role: msg.role === 'assistant' ? 'assistant' : 'user',
+                    content: msg.content
+                })),
+                { role: 'user', content: message }
+            ];
+
+            const response = await axios.post(
+                'https://api.openai.com/v1/chat/completions',
+                {
+                    model: 'gpt-4o-mini',
+                    messages,
+                    temperature: 0.4,
+                    max_tokens: 2048
                 },
-                contents,
-                generationConfig: {
-                    maxOutputTokens: 2048,
-                    temperature: 0.4
+                {
+                    headers: {
+                        'Authorization': `Bearer ${openaiKey}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
-            }
-        );
+            );
 
-        const candidate = response.data && response.data.candidates && response.data.candidates[0];
-        const aiText = candidate && candidate.content && candidate.content.parts && candidate.content.parts[0] && candidate.content.parts[0].text;
+            aiText = response.data && response.data.choices && response.data.choices[0] && response.data.choices[0].message && response.data.choices[0].message.content;
+        } else {
+            const contents = history.map(msg => ({
+                role: msg.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: msg.content }]
+            }));
+            contents.push({ role: 'user', parts: [{ text: message }] });
+
+            const response = await axios.post(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
+                {
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    contents,
+                    generationConfig: { maxOutputTokens: 2048, temperature: 0.4 }
+                }
+            );
+
+            const candidate = response.data && response.data.candidates && response.data.candidates[0];
+            aiText = candidate && candidate.content && candidate.content.parts && candidate.content.parts[0] && candidate.content.parts[0].text;
+        }
 
         if (!aiText) {
-            throw new Error('Invalid response structure from Gemini API');
+            throw new Error('Invalid response structure from AI API');
         }
 
         res.status(200).json({ response: aiText });
 
     } catch (err) {
-        const geminiError = err.response && err.response.data && err.response.data.error ? err.response.data.error.message : err.message;
-        console.error('[AI Assistant API Error]:', geminiError);
-        res.status(500).json({ error: 'AI Assistant failed: ' + geminiError });
+        const apiError = err.response && err.response.data && err.response.data.error ? (err.response.data.error.message || JSON.stringify(err.response.data.error)) : err.message;
+        console.error('[AI Assistant API Error]:', apiError);
+        res.status(500).json({ error: 'AI Assistant failed: ' + apiError });
     }
 };
