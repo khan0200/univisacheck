@@ -50,6 +50,7 @@
 
             <!-- Suggestions -->
             <div class="ai-chat-suggestions" id="aiChatSuggestions">
+                <div class="ai-suggestion-chip" data-query="Viza imkoniyat kalkulyatori boshlash">🧮 Viza Kalkulyator</div>
                 <div class="ai-suggestion-chip" data-query="Qaysi universitetlar 1% yengillashtirilgan?">🥇 1% Universitetlar</div>
                 <div class="ai-suggestion-chip" data-query="IELTS 5.5 bilan qanday grantlar bor?">📊 IELTS 5.5 Grantlar</div>
                 <div class="ai-suggestion-chip" data-query="Viza olish uchun qanday hujjatlar kerak?">🛂 Viza Hujjatlari</div>
