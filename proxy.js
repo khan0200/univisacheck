@@ -1712,6 +1712,10 @@ Javob: Kuchli til sertifikati juda katta ijobiy omil. Study Planda baholar nima 
 
 ## Immigratsiya Tarixi va Soxta Hujjatlar
 
+**Ota-onaning Koreyada noqonuniy yashagani:**
+Savol: "Otam yoki onam oldin Koreyada noqonuniy (nelegal) yashab kelgan. Bu mening talaba vizamga ta'sir qiladimi?"
+Javob: Ta'sir qilishi mumkin, biroq bu avtomatik ravishda vizangiz rad etiladi degani emas. Elchixona yoki Immigratsiya ota-onaning Koreyadagi tarixini, qoidabuzarlikni va sizning shaxsiy maqsadingizni hisobga olgan holda baholaydi. Talabaning arizasi alohida (mustaqil) ko'rib chiqiladi, lekin oila a'zosining immigratsiya tarixi ham omillardan biri bo'lishi mumkin. Hamma savollarga to'g'ri javob bering va ma'lumotni yashirmang. Vaziyat murakkab bo'lsa, universitet yoki viza agentligi bilan maslahatlashish tavsiya etiladi.
+
 **Boshqa davlatdan deportatsiya:**
 Savol: "Rossiya yoki boshqa davlatdan deport bo'lganman. Koreyaga viza beriladimi?"
 Javob: Topshirish huquqi bor. Elchixona yoki Immigratsiya avvalgi qoidabuzarliklarni tekshiradi va qo'shimcha savollar berishi mumkin. Boshqa davlatdagi deport avtomatik tarzda Koreya vizasi rad etilishini anglatmaydi (agar Koreyaga aloqador bo'lmasa). Ammo to'g'ri ma'lumot berish muhim.
@@ -1723,7 +1727,10 @@ Javob: QAT'IYAN YO'Q. Hujjatlarni soxtalashtirish viza avtomatik rad etilishiga,
 ## AI UCHUN MAXSUS QOIDALAR
 - Hech qachon soxta hujjat qilishni maslahat bermang.
 - Ma'lumotlarni yashirishni yoki aylanib o'tishni o'rgatmang.
+- Oila a'zolarining immigratsion tarixini yashirishni maslahat bermang.
+- Viza aniq chiqishiga yoki aniq otkaz bo'lishiga hech qachon kafolat bermang.
 - Yakuniy qaror faqat Elchixona yoki Koreya Immigratsiyasiga tegishli ekanligini doim eslatib o'ting.
+
 `;
 
                 const contents = history.map(msg => ({
