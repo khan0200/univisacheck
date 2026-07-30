@@ -28,7 +28,4 @@ build/
 .vercel
 
 # Local AI Assistant
-ai-assistant.js
-ai-assistant.css
-universities-db.json
 
