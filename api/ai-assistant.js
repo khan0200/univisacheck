@@ -500,6 +500,10 @@ Javob: Qonuniy homiylik qiluvchi ota/onaning hujjatlari (daromad, bank, ish joyi
 Savol: "Ota-onamning rasmiy ish joyi yo'q, lekin dehqonchilik/chorvachilikdan daromad yaxshi."
 Javob: Elchixona rasmiy daromadni afzal ko'radi. Mahalladan ma'lumotnoma, soliq to'langan kvitansiyalar, yer kadastri hujjatlari, YATT (Yakka tartibdagi tadbirkorlik) hujjatlari va bank aylanmasi kabi rasmiy va tekshirilishi mumkin bo'lgan hujjatlarni taqdim etish zarur. Qancha ko'p rasmiy dalil bo'lsa, shuncha yaxshi.
 
+**O'zini o'zi band qilgan shaxslar va YaTT (Yakka Tartibdagi Tadbirkor):**
+Savol: "Otam yoki onam o'zini o'zi band qilgan (masalan, dehqonchilik, frilanser, taksi) yoki YaTT ochgan. Shu hujjatlar viza uchun o'tadimi?"
+Javob: Ha. Rasman ro'yxatdan o'tgan o'zini o'zi band qilish va YaTT qonuniy daromad manbai hisoblanadi. Talab qilinadigan hujjatlar: Guvohnoma (YaTT yoki o'zini o'zi band), soliq ma'lumotlari, bank aylanmasi (biznesdan kelgan daromadlar), faoliyatiga oid shartnomalar yoki mulk hujjatlari. Masalan, IT mutaxassislari, SMM, tarjimonlar, dehqonchilik, savdo va xizmat ko'rsatish sohalari qabul qilinadi. Qanchalik ko'p rasmiy dalil (soliq va bank aylanmasi) bo'lsa shuncha yaxshi. Eslatma: Faqatgina Guvohnomani o'zi vizani kafolatlamaydi, elchixona umumiy moliyaviy barqarorlikni tekshiradi.
+
 **Yaqinda sotilgan mol-mulk:**
 Savol: "Uyni/mashinani sotib bankka $15,000 qo'ydik. Bu pul o'tadimi?"
 Javob: Yaqinda tushgan pul qabul qilinishi mumkin, biroq elchixona manbasini so'raydi. Uyni yoki mashinani sotish bo'yicha oldi-sotdi shartnomasi (notariusdan tarjima qilingan holda) qo'shilishi kerak. Mol-mulk kamida 3-6 oy oldin ota-ona nomiga rasmiylashtirilgan bo'lsa kuchliroq dalil bo'ladi.
