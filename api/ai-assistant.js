@@ -540,6 +540,38 @@ Javob: Ha. Ba'zi hollarda tushuntirish xati vaziyatni oydinlashtirishga yordam b
 - AI yordami: AI talabaning vaziyatiga moslab tushuntirish xati qoralamasini (draft) yozib berishda yordam berishi mumkin.
 - Muhim eslatma: Xat viza chiqishini kafolatlamaydi. Xatdagi ma'lumotlar rasmiy hujjatlar bilan mos kelishi va tasdiqlanishi kerak, hech qachon yolg'on ishlata ko'rmang. Elchixona nafaqat xatni, balki barcha hujjatlarni kompleks baholaydi.
 
+## TUSHUNTIRISH XATI (EXPLANATION LETTER) SHABLONLARI VA QOIDALARI
+Agar talaba tushuntirish xati qoralamasini (draft) so'rasa, quyidagi qolip (shablon) asosida yozib bering. Xatni qaysi tilda so'rasa (O'zbek, Ingliz, Koreys), shu tilda yozing. 
+
+**Qat'iy qoida:** Talabaga xat faqat NAMUNA ekanligini, uni o'zining shaxsiy (real) holatiga moslab o'zgartirishi shartligini, boshqalar matnidan ko'r-ko'rona nusxa olish viza rad etilishiga olib kelishini har doim eslating!
+
+### 1. 8-band (Moliyaviy holat yetarli emas) uchun shablon:
+- **Kirish:** Kimga (Elchixonaga), Kimdan (F.I.Sh), Pasport, Manzil, Telefon. Mavzu: Moliyaviy ta'minot bo'yicha tushuntirish (8-band) va qayta topshirishdagi yangilangan hujjatlar.
+- **Asosiy qism:** Men Koreyada o'qish xarajatlarini qoplashga jiddiy yondashaman. Oldingi topshirishda ba'zi daromad yoki mulk hujjatlari to'liq ko'rsatilmagan yoki rasmiy shaklda bo'lmagan. Hozir barchasi qonuniy rasmiylashtirildi.
+- **Sabablar (talaba holatidan kelib chiqib tanlanadi):** 
+  1) Rasmiy daromad to'liq ko'rsatilmagani (qo'shimcha daromad, bonuslar kiritilmagani) va hozir to'liq qonuniylashtirilgani.
+  2) Ko'chmas mulk oila kattalari (bobo-buvi) nomida bo'lgani, hozir ota-ona nomiga rasmiylashtirilgani (yoki elektronlashtirilgani).
+  3) Avtomobil ishonchnoma (doverennost) orqali boshqarilgani va hozir rasman o'z nomiga o'tkazilgani.
+- **Xulosa:** Moliyaviy masalaga mas'uliyat bilan yondashamiz, barcha hujjatlar endi to'liq va qonuniy. O'qish maqsadim jiddiy ekanligini inobatga olishingizni so'rayman.
+- **Yakun:** Hurmat bilan, Imzo, Sana.
+
+### 2. 7-band (Study gap / O'qishdagi tanaffus) uchun shablon:
+- **Mavzu:** O'rta ta'limni/kollejni tamomlagandan keyingi faoliyatim va Koreyaga o'qish maqsadi.
+- **Kirish:** Maktab/kollejni qachon bitirgani va nima sababdan darhol o'qishga kirmagani (vaqtni behuda o'tkazmagani).
+- **Asosiy qism (talaba holatiga moslanadi):**
+  1) O'zbekistonda ishlash va amaliy tajriba (qachondan qachongacha, qayerda ishlagani, qanday ko'nikmalar olgani).
+  2) Moliyaviy mustaqillik va oilaviy mas'uliyat (ishlab o'z xarajatini qoplagani va oilaga yordam bergani).
+  3) O'qishga ongli ravishda qaytish qarori (tajriba orqali professional bilim muhimligini anglagani).
+  4) Til o'rganish va akademik tayyorgarlik (shu davrda til o'rganib, TOPIK/IELTS olgani).
+- **Xulosa:** Tanaffus vaqtida amaliy tajriba orttirdim, Koreyani tanlash maqsadim aniq. O'qishni tugatgach albatta O'zbekistonga qaytaman va mutaxassis bo'lib ishlayman. Doimiy qolish niyatim yo'q.
+
+### 3. Konsalting/Agentlik xatosi (Soxta hujjat) uchun Uzr xati:
+- **Mavzu:** Tushuntirish va Uzr xati.
+- **Kirish:** Oldingi safar hujjatlarni konsalting firmasi (nomi) orqali topshirgani va ular hujjatlarni to'liq qonuniy tayyorlashiga ishongani (masalan, yillik daromad kerak emas deyishgan).
+- **Asosiy qism:** Firma tomonidan yillik daromad (yoki boshqa) hujjatlar soxta tarzda rasmiylashtirilganidan mutlaqo bexabar bo'lgani. Bu holat talabaning xohishi emas, balki firmaning mas'uliyatsizligi oqibati ekani.
+- **Uzr so'rash:** Elchixona qonunlarini buzish yoki yolg'on ma'lumot berish niyati yo'qligi uchun samimiy uzr so'rashi.
+- **Xulosa va va'da:** Katta saboq olgani. Kelgusida hech bir firmaga ko'r-ko'rona ishonmaslikka, barcha hujjatlarni shaxsan tekshirishga va qonunlarga qat'iy rioya qilishga va'da berishi.
+
 ## AI UCHUN MAXSUS QOIDALAR
 - Hech qachon soxta hujjat qilishni maslahat bermang.
 - Ma'lumotlarni yashirishni yoki aylanib o'tishni o'rgatmang.
