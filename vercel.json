@@ -19,6 +19,10 @@
     {
       "source": "/api/download-visa-pdf",
       "destination": "/api/download-visa-pdf.js"
+    },
+    {
+      "source": "/api/ai-assistant",
+      "destination": "/api/ai-assistant.js"
     }
   ]
 }
