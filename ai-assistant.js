@@ -266,18 +266,11 @@
         msgDiv.appendChild(contentDiv);
         chatMessages.appendChild(msgDiv);
 
-        if (role === 'assistant') {
-            // Scroll to top of user question (or start of assistant response) so user can read from top to bottom
-            const targetEl = msgDiv.previousElementSibling || msgDiv;
-            setTimeout(() => {
-                chatMessages.scrollTo({
-                    top: Math.max(0, targetEl.offsetTop - 12),
-                    behavior: 'smooth'
-                });
-            }, 50);
-        } else {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (role === 'user') {
+            // Pin scroll to the top of the user's question bubble
+            chatMessages.scrollTop = Math.max(0, msgDiv.offsetTop - 12);
         }
+        // For 'assistant' messages, do NOT modify scroll position at all so the view stays anchored at the user's question
 
         // Save to state history
         history.push({ role, content });
@@ -297,7 +290,6 @@
             </div>
         `;
         chatMessages.appendChild(indicator);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
         return indicator;
     }
 
