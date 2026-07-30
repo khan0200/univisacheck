@@ -284,6 +284,74 @@ Hisob-kitob qilgandan so'ng AYNAN shu formatda javob ber:
 ### ❌ Rasmiy ish joyi yo'q yoki Vafot etgan:
 - Vafot: o'lim guvohnomasi (tarjima bilan)
 - Ish yo'q: XAVF — elchixona bu holatni juda qiyin ko'radi. Mulk va bank balansi juda muhim bo'ladi. Maslahatchi bilan uchrashuv tavsiya etiladi.
+
+========================================================
+== QISM 3: MOLIYAVIY TAYYORGARLIK EKSPERT BILIMI ==
+========================================================
+
+## YILLIK DAROMAD GUVOHNOMASI — MUHIM TUSHUNTIRISH
+
+### Daromad va Mulk Kombinatsiyasi — Viza Imkoniyatini Belgilaydi
+
+Agar ota yoki ona rasmiy tarzda oyiga 3,000,000 - 4,000,000 UZS yoki undan yuqori maosh olsa VA shu bilan birga:
+- Ota yoki ona nomida ro'yxatdan o'tgan 1 ta uy, kvartira YOKI
+- Ota yoki ona nomida ro'yxatdan o'tgan mashina mavjud bo'lsa
+
+➡️ VIZA CHIQISH EHTIMOLI JUDA YUQORI deb baholash mumkin.
+
+Bu kombinatsiya elchixonaga quyidagini ko'rsatadi:
+1. Oila barqaror va rasmiy daromad manbayiga ega
+2. Oilada to'plangan boylik (mulk) mavjud — bu moliyaviy barqarorlik belgisi
+3. Talabaning ta'limini qo'llab-quvvatlash uchun imkoniyat bor
+
+### Hududga Qarab Talablar Farqlanadi — JUDA MUHIM!
+
+#### 📍 Seoul, Incheon, Gyeonggi-do Hududidagi Universitetlar (Yuqori Talablar):
+Seul, Incheon va Gyeonggi viloyatidagi universitetlarga kiruvchi talabalar uchun elchixona KUCHLIROQ moliyaviy hujjatlar talab qiladi. Shu sababli quyidagi hujjatlar majmui TAVSIYA ETILADI:
+- ✅ Ota/onaning rasmiy ish joyi daromad guvohnomasi
+- ✅ Ota/ona nomidagi uy-joy yoki kvartira kadastr guvohnomasi
+- ✅ Ota/ona nomidagi mashina(lar) texnik pasporti
+- ✅ Qo'shimcha daromad manbalari hujjatlari (agar mavjud bo'lsa — ijaradan tushum, boshqa biznes va h.k.)
+- ✅ Bank balansi guvohnomasi ($12,000 - $14,000 USD atrofida)
+Bu hududlarda elchixona moliyaviy barqarorlikni ancha qattiqroq tekshiradi, chunki yashash xarajatlari yuqori.
+
+#### 📍 Boshqa Hududlardagi Universitetlar (Busan, Daegu, Cheonan va h.k. — O'rtacha Talablar):
+Boshqa shaharlardagi universitetlar uchun talablar nisbatan yumshoqroq:
+- Oyiga 3,000,000 - 4,000,000 UZS rasmiy maosh + 1 ta uy yoki mashina ota/ona nomida bo'lsa — viza chiqish ehtimoli JUDA YUQORI
+- Bank balansi guvohnomasi ($12,000 - $14,000 USD) tavsiya etiladi, lekin boshqa hujjatlar kuchli bo'lsa qisman qoplanishi mumkin
+
+## BANK BALANSI GUVOHNOMASI — TUSHUNTIRISH VA SABABI
+
+### Nima uchun Bank Balansi kerak?
+
+Bank balansi guvohnomasi — elchixonaga quyidagi mantiqni isbotlash uchun taqdim etiladi:
+
+> "Ota-ona rasmiy daromad topadi, kundalik xarajatlardan ortib qolgan mablag'ni bankda to'playdi. Bank hisobidagi mablag' talabaning Koreyada o'qish uchun zarur xarajatlarni qoplashga yetarli ekanini ko'rsatadi."
+
+### Tavsiya Etiladigan Miqdor:
+- **$12,000 - $14,000 USD** atrofida (Kapital Bank yoki Milliy Bank orqali)
+- Bu miqdor uchun 2 bank tavsiya etiladi: **Kapital Bank** va **O'zbekiston Milliy Banki**
+- Hujjat ota yoki onaning NOMIDA bo'lishi shart (talaba nomida emas)
+
+### Kimga Ko'proq Muhim?
+- Nomida mulk (uy/kvartira/yer) yoki rasmiy daromad manbai bor ota yoki onaga bu hujjat JUDA MUHIM
+- Mulk va daromad kuchli bo'lsa — bank balansi qo'shimcha kuch qo'shadi va viza imkoniyatini yanada oshiradi
+- Mulk yoki daromad yetarli bo'lmasa — bank balansi ASOSIY dalil bo'lib qoladi
+
+### Vizual Mantiq (Elchixona ko'z bilan qanday ko'radi):
+
+| Holat | Baho |
+|---|---|
+| Rasmiy daromad + Mulk + Bank balansi | 🟢 JUDA KUCHLI |
+| Rasmiy daromad + Mulk (bank yo'q) | 🟡 KUCHLI |
+| Rasmiy daromad + Bank balansi (mulk yo'q) | 🟡 O'RTACHA-KUCHLI |
+| Faqat Bank balansi (daromad/mulk yo'q) | 🟠 ZAIF |
+| Hech biri yo'q | 🔴 JUDA XAVFLI |
+
+### Miqdorlar Haqida Muhim Eslatma:
+- $12,000 - $14,000 USD tavsiya etiladigan minimum — 1% yengillashtirilgan va standart universitetlar uchun ham amal qiladi
+- Standart (non-1%) universitetlar uchun elchixona ba'zan $16,000 USD 31 kunlik KDB hisobini ham so'rashi mumkin — bu boshqa hujjat
+- Bank balansi guvohnomasi (Kapital/Milliy Bank) va KDB bank ko'chirmasi — bu ikki BOSHQA hujjat, aralashtirmang
 `;
 
         const contents = history.map(msg => ({
