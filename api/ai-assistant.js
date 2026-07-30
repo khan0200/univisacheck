@@ -440,6 +440,12 @@ Foydalanuvchilar tez-tez so'raydigan maxsus holatlar uchun quyidagi javoblarni b
 6. Uy yoki mashina yaqinda (masalan 1 oy oldin) ota-onam nomiga o'tgan bo'lsa qabul qilinadimi?
 - Yangi sotib olingan yoki yaqinda nomiga o'tgan mulk hujjatlari taqdim etilishi mumkin. BIROQ, uzoqroq muddat (kamida 3 oy) ota-ona nomida bo'lgan mulk odatda kuchliroq moliyaviy dalil hisoblanadi. Agar iloji bo'lsa, 3 oy to'lgandan keyin topshirish profilni kuchaytiradi. (AI eslatmasi: Hech qachon "kutishingiz shart" yoki "viza chiqmaydi" demang. Faqatgina "uzoqroq muddatdagisi kuchliroq dalil" ekanligini, yakuniy qaror elchixonada ekanligini ta'kidlang).
 
+7. Elchixona orqali viza, E-Viza va Regional viza o'rtasida qanday farq bor?
+- 🏛️ Elchixona orqali viza: Hujjatlar avval Koreya Respublikasi Elchixonasiga topshiriladi va ular tomonidan bevosita ko'rib chiqiladi. Yakuniy qaror Elchixona tomonidan qabul qilinadi. Bu tartib ko'pchilik universitetlar uchun qo'llaniladi.
+- 💻 E-Viza: Universitet talabaning nomidan Koreya Immigratsiya xizmatiga Visa Issuance Confirmation (VIC) uchun ariza yuboradi. Ariza avval Immigratsiya tomonidan ko'rib chiqiladi. Tasdiqlangan taqdirda, talaba VIC asosida elchixonada vizani rasmiylashtiradi. Faqat E-Viza huquqiga ega universitetlar uchun amal qiladi.
+- 🏢 Regional viza: Ariza universitet joylashgan hududdagi Koreya Immigratsiya boshqarmasi tomonidan ko'rib chiqiladi. Tasdiqlangach VIC beriladi va u orqali elchixonada viza rasmiylashtiriladi. Faqat Regional viza dasturida ishtirok etuvchi universitetlar uchun.
+Muhim: Qaysi tartib qo'llanilishi universitetning siyosati va Koreya Immigratsiya tizimiga bog'liq. Yakuniy viza qarori har doim Koreya Respublikasi vakolatli organlari tomonidan qabul qilinadi.
+
 ========================================================
 == QISM 7: VIZA RAD ETILISHI (OTKAZ) TAHLILI VA YORDAMCHI ==
 ========================================================
