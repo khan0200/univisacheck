@@ -1275,49 +1275,49 @@ Boshqa mavzular (kodlash, tibbiyot, siyosat, uy vazifalari) so'ralsa — xushmuo
 - Universitet so'ralsa: FAQAT yuqoridagi bazadagi ma'lumotlarni ishlat — tuition, appFee, language, scholarships, majors, visaStatus, kdb1DayAfterAdmission — barchasini AYNAN yoz.
 - Bazada yo'q ma'lumotni HECH QACHON o'ylab topma. Bazada bo'lmasa — ochiq ayt, rasmiy saytni tavsiya qil.
 - **1% (YENGILLASHTIRILGAN) UNIVERSITETLAR RO'YXATI**:
-  Foydalanuvchi "1% universitetlar qaysilar?", "qaysi universitetlar 1% lik?", "yengillashtirilgan viza tartibidagi universitetlar ro'yxati" deb so'rasa, FAQAT va FAQAT quyidagi rasmiy 1% yengillashtirilgan ro'yxatdagilarni chiqarib ber. Boshqa HECH QAYSI universitetni 1% lik deb aytma!
+  Foydalanuvchi "1% universitetlar qaysilar?", "qaysi universitetlar 1% lik?", "yengillashtirilgan viza tartibidagi universitetlar ro'yxati" deb so'rasa, AYNAN va FAQAT quyidagi rasmiy 35 ta universitet va 3 ta kollejni sanab ber. Boshqa HECH QAYSI universitetni 1% lik deb aytma!
 
-  **1% Universitetlar:**
-  1. Ajou University
-  2. Busan University of Foreign Studies
-  3. Chung-Ang University
-  4. Chungnam National University (CNU)
-  5. Dankook University
-  6. Dongguk University (Seoul)
-  7. Duksung Women's University
-  8. Ewha Womans University
-  9. Hansung University
-  10. Hanyang University
-  11. Hongik University
-  12. Inha University
-  13. Jeju National University
-  14. Joongbu University
-  15. Keimyung University
-  16. Konkuk University
-  17. Konyang University
-  18. Korea Aerospace University (KAU)
-  19. Korea University
-  20. Kyung Hee University
-  21. Kyungpook National University
-  22. Kyungsung University
-  23. POSTECH (Pohang University of Science & Technology)
-  24. Pusan National University
-  25. Sejong University
-  26. Seokyeong University
-  27. Seoul Theological University
-  28. Seoul Women's University
-  29. Sookmyung Women's University
-  30. Sungkyul University
-  31. Sungkyunkwan University (SKKU)
-  32. Sungshin Women's University
-  33. Sunmoon University
-  34. UNIST (Ulsan National Institute of Science & Technology)
-  35. University of Seoul
+  **1% Universitetlar (35 ta):**
+  1. SUNGKYUNKWAN UNIVERSITY (SKKU) — QS #102
+  2. KOREA UNIVERSITY — QS #67
+  3. HANYANG UNIVERSITY — QS #162
+  4. KYUNG HEE UNIVERSITY — QS #328
+  5. SEJONG UNIVERSITY — QS #396
+  6. AJOU UNIVERSITY — QS #631-640
+  7. CHUNG-ANG UNIVERSITY — QS #494
+  8. EWHA WOMANS UNIVERSITY — QS #511
+  9. KYUNGPOOK NATIONAL UNIVERSITY — QS #516
+  10. INHA UNIVERSITY — QS #651-660
+  11. CHUNGNAM NATIONAL UNIVERSITY (CNU) — QS #751-760
+  12. KONKUK UNIVERSITY — QS #501-510
+  13. UNIVERSITY OF SEOUL — QS #751-760
+  14. KOREA AEROSPACE UNIVERSITY — Aero #1
+  15. KEIMYUNG UNIVERSITY
+  16. BUSAN UNIVERSITY OF FOREIGN STUDIES
+  17. SUNGSHIN WOMEN'S UNIVERSITY — QS #1001-1200
+  18. KYUNGSUNG UNIVERSITY
+  19. HANSUNG UNIVERSITY
+  20. JOONGBU UNIVERSITY
+  21. POHANG UNIVERSITY OF SCIENCE AND TECHNOLOGY (POSTECH) — QS #98
+  22. ULSAN NATIONAL INSTITUTE OF SCIENCE AND TECHNOLOGY (UNIST) — QS #280
+  23. DONGGUK UNIVERSITY (SEOUL) — QS #498
+  24. DUKSUNG WOMEN'S UNIVERSITY
+  25. KONYANG UNIVERSITY
+  26. SEOKYEONG UNIVERSITY
+  27. SEOUL THEOLOGICAL UNIVERSITY
+  28. SEOUL WOMEN'S UNIVERSITY
+  29. SUNGKYUL UNIVERSITY
+  30. SUNMOON UNIVERSITY
+  31. PUSAN NATIONAL UNIVERSITY — QS #501-510
+  32. DANKOOK UNIVERSITY — QS #1001-1200
+  33. HONGIK UNIVERSITY — QS #1001-1200
+  34. SOOKMYUNG WOMEN'S UNIVERSITY — QS #1001-1200
+  35. JEJU NATIONAL UNIVERSITY — QS #1201-1400
 
-  **1% Kollejlar:**
-  1. Inha Technical College
-  2. Kyungbok University
-  3. Ulsan College
+  **1% Kollejlar (3 ta):**
+  1. INHA TECHNICAL COLLEGE
+  2. KYUNGBOK UNIVERSITY
+  3. ULSAN COLLEGE
 
   ⚠️ **O'TA MUHIM**: Boshqa barcha universitetlar (masalan: Anyang University, Youngsan University, Calvin University, Kyungin Women's University, Sahmyook University, Woosung SolBridge University, Seoyeong University, Far East University, Dongwon Institute, Chosun College, Induk University, SEOULTECH, Tongwon University, Kunjang University, Hoseo University, Chungbuk National University, Gachon University, Namseoul University, Chonnam National University) **STANDART VIZA TEKSHIRUVI** guruhiga kiradi. Ularni HECH QACHON 1% yengillashtirilgan deb atama!
 
