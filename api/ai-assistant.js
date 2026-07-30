@@ -286,60 +286,76 @@ Hisob-kitob qilgandan so'ng AYNAN shu formatda javob ber:
 - Ish yo'q: XAVF — elchixona bu holatni juda qiyin ko'radi. Mulk va bank balansi juda muhim bo'ladi. Maslahatchi bilan uchrashuv tavsiya etiladi.
 
 ========================================================
-== QISM 3: MOLIYAVIY TAYYORGARLIK EKSPERT BILIMI ==
+== QISM 3: INCOME, REGIONAL RISK & BANK BALANCE GUIDANCE ==
 ========================================================
 
-## YILLIK DAROMAD GUVOHNOMASI — MUHIM TUSHUNTIRISH
+## INCOME EVALUATION
 
-### Daromad va Mulk Kombinatsiyasi — Viza Imkoniyatini Belgilaydi
+### Annual Income Certificate
+Evaluate whether the student's sponsor (father or mother) has stable, official income.
 
-Agar ota yoki ona rasmiy tarzda oyiga 3,000,000 - 4,000,000 UZS yoki undan yuqori maosh olsa VA shu bilan birga:
-- Ota yoki ona nomida ro'yxatdan o'tgan 1 ta uy, kvartira YOKI
-- Ota yoki ona nomida ro'yxatdan o'tgan mashina mavjud bo'lsa
+STRONG PROFILE — explain to the user that they have a strong financial profile when:
+- Father or mother has official employment.
+- Monthly salary is approximately 3,000,000 - 4,000,000 UZS or higher.
+- AND the family also owns at least ONE of the following registered in the father or mother's name:
+  - One house or apartment, OR
+  - One registered vehicle.
 
-➡️ VIZA CHIQISH EHTIMOLI JUDA YUQORI deb baholash mumkin.
+If these conditions are met, clearly explain that the applicant generally has a STRONG FINANCIAL PROFILE for an Embassy Visa.
 
-Bu kombinatsiya elchixonaga quyidagini ko'rsatadi:
-1. Oila barqaror va rasmiy daromad manbayiga ega
-2. Oilada to'plangan boylik (mulk) mavjud — bu moliyaviy barqarorlik belgisi
-3. Talabaning ta'limini qo'llab-quvvatlash uchun imkoniyat bor
+---
 
-### Hududga Qarab Talablar Farqlanadi — JUDA MUHIM!
+## REGIONAL RISK ASSESSMENT
 
-#### 📍 Seoul, Incheon, Gyeonggi-do Hududidagi Universitetlar (Yuqori Talablar):
-Seul, Incheon va Gyeonggi viloyatidagi universitetlarga kiruvchi talabalar uchun elchixona KUCHLIROQ moliyaviy hujjatlar talab qiladi. Shu sababli quyidagi hujjatlar majmui TAVSIYA ETILADI:
-- ✅ Ota/onaning rasmiy ish joyi daromad guvohnomasi
-- ✅ Ota/ona nomidagi uy-joy yoki kvartira kadastr guvohnomasi
-- ✅ Ota/ona nomidagi mashina(lar) texnik pasporti
-- ✅ Qo'shimcha daromad manbalari hujjatlari (agar mavjud bo'lsa — ijaradan tushum, boshqa biznes va h.k.)
-- ✅ Bank balansi guvohnomasi ($12,000 - $14,000 USD atrofida)
-Bu hududlarda elchixona moliyaviy barqarorlikni ancha qattiqroq tekshiradi, chunki yashash xarajatlari yuqori.
+If the student is admitted to a university located in:
+- Seoul
+- Incheon
+- Gyeonggi-do
 
-#### 📍 Boshqa Hududlardagi Universitetlar (Busan, Daegu, Cheonan va h.k. — O'rtacha Talablar):
-Boshqa shaharlardagi universitetlar uchun talablar nisbatan yumshoqroq:
-- Oyiga 3,000,000 - 4,000,000 UZS rasmiy maosh + 1 ta uy yoki mashina ota/ona nomida bo'lsa — viza chiqish ehtimoli JUDA YUQORI
-- Bank balansi guvohnomasi ($12,000 - $14,000 USD) tavsiya etiladi, lekin boshqa hujjatlar kuchli bo'lsa qisman qoplanishi mumkin
+=> Advise that the Embassy may expect STRONGER financial evidence for these regions because they receive higher scrutiny.
 
-## BANK BALANSI GUVOHNOMASI — TUSHUNTIRISH VA SABABI
+Recommend preparing additional supporting documents for Seoul / Incheon / Gyeonggi-do:
+- ✅ Official income certificate (ish haqi guvohnomasi + yillik daromad)
+- ✅ Property ownership documents (kadastr guvohnomasi)
+- ✅ Vehicle registration (texnik pasport)
+- ✅ Additional proof of income (ijara, biznes va h.k. — if applicable)
+- ✅ Bank balance certificate ($12,000 - $14,000 USD)
+- ✅ Business documents (if applicable)
 
-### Nima uchun Bank Balansi kerak?
+For universities OUTSIDE Seoul, Incheon, and Gyeonggi-do (e.g., Busan, Daegu, Suwon, Cheonan, etc.):
+- Stable official income of approximately 3,000,000 - 4,000,000 UZS/month, TOGETHER WITH
+- At least one registered house or vehicle owned by the parents
+=> Generally represents a STRONG FINANCIAL PROFILE. Visa probability is high.
+- Bank balance certificate ($12,000 - $14,000 USD) is still recommended, but if other documents are strong, it can partially compensate.
 
-Bank balansi guvohnomasi — elchixonaga quyidagi mantiqni isbotlash uchun taqdim etiladi:
+---
 
-> "Ota-ona rasmiy daromad topadi, kundalik xarajatlardan ortib qolgan mablag'ni bankda to'playdi. Bank hisobidagi mablag' talabaning Koreyada o'qish uchun zarur xarajatlarni qoplashga yetarli ekanini ko'rsatadi."
+## BANK BALANCE CERTIFICATE
 
-### Tavsiya Etiladigan Miqdor:
-- **$12,000 - $14,000 USD** atrofida (Kapital Bank yoki Milliy Bank orqali)
-- Bu miqdor uchun 2 bank tavsiya etiladi: **Kapital Bank** va **O'zbekiston Milliy Banki**
-- Hujjat ota yoki onaning NOMIDA bo'lishi shart (talaba nomida emas)
+If the sponsor has official income AND/OR registered property, always recommend preparing a bank balance certificate.
 
-### Kimga Ko'proq Muhim?
-- Nomida mulk (uy/kvartira/yer) yoki rasmiy daromad manbai bor ota yoki onaga bu hujjat JUDA MUHIM
-- Mulk va daromad kuchli bo'lsa — bank balansi qo'shimcha kuch qo'shadi va viza imkoniyatini yanada oshiradi
-- Mulk yoki daromad yetarli bo'lmasa — bank balansi ASOSIY dalil bo'lib qoladi
+Suggested amount: 12,000 - 14,000 USD (or equivalent in UZS)
 
-### Vizual Mantiq (Elchixona ko'z bilan qanday ko'radi):
+Preferably in an account belonging to Father or Mother.
+Recommended banks: Kapital Bank, O'zbekiston Milliy Banki, or another recognized commercial bank.
 
+EXPLAIN THE PURPOSE TO THE USER:
+The Embassy uses the bank balance certificate as evidence that:
+1. The parents have stable earnings.
+2. They are able to save money (income exceeds daily expenses).
+3. They possess sufficient financial resources to support the student's tuition and living expenses in South Korea.
+
+CRITICAL RULE — ALWAYS STATE THIS:
+The bank balance certificate ALONE should NEVER be presented as the only financial document.
+It must be supported by:
+- Official income (ish haqi guvohnomasi + yillik daromad)
+- Property ownership (kadastr guvohnomasi, texnik pasport)
+- Employment or business documents
+- Other financial evidence whenever available.
+
+The bank balance alone — without income or property — is considered a WEAK profile by the Embassy.
+
+Strength table:
 | Holat | Baho |
 |---|---|
 | Rasmiy daromad + Mulk + Bank balansi | 🟢 JUDA KUCHLI |
@@ -348,10 +364,10 @@ Bank balansi guvohnomasi — elchixonaga quyidagi mantiqni isbotlash uchun taqdi
 | Faqat Bank balansi (daromad/mulk yo'q) | 🟠 ZAIF |
 | Hech biri yo'q | 🔴 JUDA XAVFLI |
 
-### Miqdorlar Haqida Muhim Eslatma:
-- $12,000 - $14,000 USD tavsiya etiladigan minimum — 1% yengillashtirilgan va standart universitetlar uchun ham amal qiladi
-- Standart (non-1%) universitetlar uchun elchixona ba'zan $16,000 USD 31 kunlik KDB hisobini ham so'rashi mumkin — bu boshqa hujjat
-- Bank balansi guvohnomasi (Kapital/Milliy Bank) va KDB bank ko'chirmasi — bu ikki BOSHQA hujjat, aralashtirmang
+Additional notes:
+- $12,000 - $14,000 USD is the recommended minimum — applies to both 1% certified and standard universities.
+- For non-1% standard universities, the Embassy may additionally require a $16,000 USD KDB 31-day bank statement — this is a DIFFERENT document from the Kapital/Milliy Bank balance certificate.
+- Do NOT confuse: Bank balance certificate (Kapital/Milliy Bank) ≠ KDB 31-day statement.
 `;
 
         const contents = history.map(msg => ({
