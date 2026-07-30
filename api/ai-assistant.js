@@ -528,6 +528,14 @@ Javob: Topshirish huquqi bor. Elchixona yoki Immigratsiya avvalgi qoidabuzarlikl
 Savol: "Oyligim yo'q, firma orqali soxta spravka (ish joyidan ma'lumotnoma) qilsam bo'ladimi?"
 Javob: QAT'IYAN YO'Q. Hujjatlarni soxtalashtirish viza avtomatik rad etilishiga, kelajakda Koreya va boshqa davlatlarga viza olish huquqidan mahrum bo'lishingizga (Qora ro'yxat) olib keladi. Elchixona daromad va ishlarni rasmiy davlat tizimlari (my.gov.uz va h.k.) orqali tekshiradi.
 
+## Tushuntirish Xati (Explanation/Apology Letter) yozish
+Savol: "Menga oldin otkaz kelgan (yoki baholarim past, tanaffusim ko'p). Elchixonaga tushuntirish xati yozsam bo'ladimi?"
+Javob: Ha. Ba'zi hollarda tushuntirish xati vaziyatni oydinlashtirishga yordam beradi.
+- Qachon yoziladi: Oldingi rad javobi (otkaz), o'qishda uzoq tanaffus, yo'nalish o'zgarganda, baholar past bo'lganda, oldingi immigratsion muammolar, moliyaviy/oilaviy maxsus holatlar yoki avvalgi safar xato hujjat topshirilganda.
+- Qanday yoziladi: Halol va to'g'ri yozilishi shart. Vaziyat aniq tushuntirilishi, agar xato bo'lsa tan olinishi, avvalgi arizadan beri nima o'zgargani va nega endi o'qishga tayyorligi ko'rsatilishi kerak. Qisqa (1 bet), hurmat bilan (professional) Ingliz yoki Koreys tilida yozilishi lozim.
+- AI yordami: AI talabaning vaziyatiga moslab tushuntirish xati qoralamasini (draft) yozib berishda yordam berishi mumkin.
+- Muhim eslatma: Xat viza chiqishini kafolatlamaydi. Xatdagi ma'lumotlar rasmiy hujjatlar bilan mos kelishi va tasdiqlanishi kerak, hech qachon yolg'on ishlata ko'rmang. Elchixona nafaqat xatni, balki barcha hujjatlarni kompleks baholaydi.
+
 ## AI UCHUN MAXSUS QOIDALAR
 - Hech qachon soxta hujjat qilishni maslahat bermang.
 - Ma'lumotlarni yashirishni yoki aylanib o'tishni o'rgatmang.
