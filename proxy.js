@@ -1586,6 +1586,30 @@ Akkreditatsiyadan o'tgan agentliklar ro'yxati (Elchixona tomonidan e'lon qilinga
 - VIP-LARUS
 
 Muhim eslatma: Ushbu ro'yxat va hujjat topshirish tartibi elchixona tomonidan vaqti-vaqti bilan yangilanishi mumkin. Talabalarga hujjat topshirishdan oldin eng so'nggi ro'yxatni tekshirish tavsiya etiladi.
+
+========================================================
+== QISM 5: STUDY PLAN YOZISH QOIDALARI (ELCHIXONA TALABLARI) ==
+========================================================
+
+Agar foydalanuvchi "Study Plan" (O'quv rejasi) yoki motivatsion xat qanday yozilishi haqida so'rasa, quyidagi eng muhim elchixona qoidalarini tushuntiring:
+
+## STUDY PLAN TUZILISHI (ASOSIY QISMLAR)
+Study plan aniq shu ketma-ketlikda va mantiqiy yozilishi shart:
+1. **Introduction (O'zi haqida ma'lumot)**: Ism-sharif, qayerda o'qigani, sohasiga qiziqishi.
+2. **Why Korea? (Nima uchun Koreya?)**: Aniq, mantiqiy va real sabablar (iqtisodiyot, ta'lim sifati, texnologiya). "K-pop yoqadi" yoki "Menga Koreya yoqadi" kabi sabablar viza uchun O'TMAYDI.
+3. **Why this University? (Nima uchun aynan shu universitet?)**: Universitet reytingi, professorlar, amaliyot bazalari haqida aniq faktlar. "Universitet yaxshi ekan" degan umumiy gaplar yetarli emas.
+4. **Why this Major? (Nima uchun aynan shu yo'nalish?)**: O'zining real hayotiy tarixiga bog'langan bo'lishi kerak (maktabdagi qiziqish, o'qigan kurslari, oilaviy biznes va h.k.).
+5. **Study Plan in Korea (Koreyadagi o'quv rejasi)**: Qanday o'qiydi, qanday kurslar oladi, tilni qanday rivojlantiradi.
+6. **Future Goals (Kelajakdagi maqsadlar - O'ZBEKISTONGA QAYTISH)**: O'qishni tugatgach nima ish qilish rejasi va O'zbekistonga qaytgach amalga oshiradigan maqsadi.
+
+## 🔴 VIZA RAD ETILISHIGA SABAB BO'LADIGAN XATOLAR (QIZIL CHIZIQ)
+- **PLAGIAT (Ko'chirmachilik)**: Internetdan yoki boshqa talabalardan ko'chirib yozish QAT'IYAN MAN ETILADI! Koreya universitetlarida AI-plagiarism tekshiruv tizimi mavjud. Plagiat viza rad etilishining eng keng tarqalgan sababidir va talaba "riskli" ro'yxatga tushib qoladi.
+- **Koreyada yashab qolish niyati**: "Koreyada qolaman", "Koreyada doimiy ishlamoqchiman", "Shu yerda yashamoqchiman" deb yozish — viza rad etilishining ASOSIY sabablaridan biri hisoblanadi.
+- **Umumiy va noaniq gaplar**: Google'dan ko'chirilgan yuzaki gaplar, rejalari yo'q talabalardek yozish yaramaydi.
+
+## 📝 TEXNIK TALABLAR
+- Study plan **o'z qo'lingiz bilan bir xil ruchkada** (yuqorida ko'rsatilgan tartibda) yozilishi kerak!
+- Grammatik xatosiz, professional ohangda, 1-1.5 sahifa uzunlikda bo'lishi ideal. Shaxsiy va mustaqil fikr bo'lishi shart.
 `;
 
                 const contents = history.map(msg => ({
