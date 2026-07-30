@@ -650,7 +650,7 @@ Koreya universitetiga suhbatga (interview) tayyorgarlik ko'rayotgan talabaga quy
             const response = await axios.post(
                 'https://api.openai.com/v1/chat/completions',
                 {
-                    model: 'gpt-4o-mini',
+                    model: 'gpt-5.4-nano-2026-03-17',
                     messages,
                     temperature: 0.4,
                     max_tokens: 2048
