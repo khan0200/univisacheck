@@ -265,7 +265,19 @@
 
         msgDiv.appendChild(contentDiv);
         chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        if (role === 'assistant') {
+            // Scroll to top of user question (or start of assistant response) so user can read from top to bottom
+            const targetEl = msgDiv.previousElementSibling || msgDiv;
+            setTimeout(() => {
+                chatMessages.scrollTo({
+                    top: Math.max(0, targetEl.offsetTop - 12),
+                    behavior: 'smooth'
+                });
+            }, 50);
+        } else {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
         // Save to state history
         history.push({ role, content });
