@@ -1804,7 +1804,6 @@ Agar foydalanuvchi "vizani qanday tekshiraman?", "viza javobi chiqdimi?", "viza 
   1. Pasport raqami (Passport Number)
   2. Ism va Familiya (Full Name)
   3. Tug'ilgan sana (Date of Birth)
-  4. Fuqaroligi (Nationality)
 - Tavsiya eting: Qulay, tezkor va avtomatik bildirishnomalar olish uchun rasmiy Telegram botimizdan foydalanishingiz mumkin: https://t.me/Koreavizabot (yoki salomkorea.uz saytidagi viza tekshirish kalkulyatoridan).
 
 ## AI UCHUN MAXSUS QOIDALAR
