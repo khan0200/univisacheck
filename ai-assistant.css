@@ -120,18 +120,42 @@
     background: #22c55e;
 }
 
+.ai-chat-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-chat-toggle-size,
 .ai-chat-close {
     background: none;
     border: none;
     color: #ffffff;
     cursor: pointer;
     opacity: 0.7;
-    transition: opacity 0.2s;
-    padding: 4px;
+    transition: all 0.2s ease;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
 }
 
+.ai-chat-toggle-size:hover,
 .ai-chat-close:hover {
     opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.ai-chat-toggle-size:active,
+.ai-chat-close:active {
+    transform: scale(0.95);
+}
+
+.ai-chat-toggle-size svg,
+.ai-chat-close svg {
+    display: block;
 }
 
 /* Chat Messages */
@@ -353,4 +377,23 @@
     background: #f8fafc;
     border-radius: 0 0 20px 20px;
     letter-spacing: 0.01em;
+}
+
+/* Expanded state for Chat Widget */
+.ai-chat-widget.expanded {
+    width: 800px;
+    height: 750px;
+}
+
+@media (max-width: 850px) {
+    .ai-chat-widget.expanded {
+        width: calc(100vw - 48px);
+        height: calc(100vh - 140px);
+    }
+}
+
+@media (max-width: 500px) {
+    .ai-chat-toggle-size {
+        display: none;
+    }
 }
