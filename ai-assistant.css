@@ -381,12 +381,18 @@
 
 /* Expanded state for Chat Widget */
 .ai-chat-widget.expanded {
-    width: 800px;
-    height: 750px;
+    width: 950px;
+    max-width: calc(100vw - 125px);
+    height: 820px;
+    max-height: calc(100vh - 48px);
+    bottom: 24px;
+    right: 96px;
 }
 
-@media (max-width: 850px) {
+@media (max-width: 950px) {
     .ai-chat-widget.expanded {
+        right: 24px;
+        bottom: 96px;
         width: calc(100vw - 48px);
         height: calc(100vh - 140px);
     }
