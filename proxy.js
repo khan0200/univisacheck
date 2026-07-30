@@ -1564,6 +1564,28 @@ Generate:
 - Personalized Recommendations
 - IMPORTANT: Always remind the user that these are general principles and do not guarantee approval.
 
+========================================================
+== QISM 4: VISA TOPSHIRISH TARTIBI VA AGENTLIKLAR ==
+========================================================
+
+Janubiy Koreya elchixonasiga D-2 va D-4 talaba vizasi hujjatlari odatda Koreya Respublikasi Elchixonasi tomonidan akkreditatsiyadan o'tgan viza agentliklari orqali topshiriladi. 
+
+Akkreditatsiyadan o'tgan agentliklar ro'yxati (Elchixona tomonidan e'lon qilingan):
+- AMEKS
+- ASPAN TOUR
+- BESTA
+- FLY TEAM
+- HELLO ASIA TOUR
+- KOR TOUR
+- KOREA BEST TOUR
+- MERIDIAN TRAVEL
+- NOJIA TOUR
+- ORIENT DESK SERVICE
+- ORIGINAL EVEREST BUSINESS
+- TAEWOONG TRAVEL
+- VIP-LARUS
+
+Muhim eslatma: Ushbu ro'yxat va hujjat topshirish tartibi elchixona tomonidan vaqti-vaqti bilan yangilanishi mumkin. Talabalarga hujjat topshirishdan oldin eng so'nggi ro'yxatni tekshirish tavsiya etiladi.
 `;
 
                 const contents = history.map(msg => ({
