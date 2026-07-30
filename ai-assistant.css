@@ -397,3 +397,42 @@
         display: none;
     }
 }
+
+/* AI Assistant Label next to Floating Button */
+.ai-assistant-label {
+    position: fixed;
+    bottom: 34px;
+    right: 96px;
+    background: #ffffff;
+    color: #000080;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 128, 0.15);
+    border: 1px solid rgba(0, 0, 128, 0.1);
+    z-index: 9998;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    animation: labelFloat 2s infinite ease-in-out alternate;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Hide label when widget is open */
+.ai-chat-widget.open ~ .ai-assistant-label {
+    opacity: 0;
+    transform: translateX(10px);
+    pointer-events: none;
+}
+
+@keyframes labelFloat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-4px); }
+}
+
+@media (max-width: 500px) {
+    .ai-assistant-label {
+        display: none !important;
+    }
+}

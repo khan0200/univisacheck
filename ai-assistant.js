@@ -12,14 +12,19 @@
     // 2. DOM Elements Construction
     const widgetContainer = document.createElement('div');
     widgetContainer.id = 'aiChatWidgetContainer';
-    widgetContainer.innerHTML = `
-        <!-- Floating Button -->
-        <button class="ai-assistant-btn" id="aiChatBtn" aria-label="Suhbatni boshlash">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-        </button>
+    
+    // Hide initially to prevent Flash of Unstyled Content (FOUC)
+    widgetContainer.style.visibility = 'hidden';
+    
+    link.addEventListener('load', () => {
+        widgetContainer.style.visibility = 'visible';
+    });
+    // Fallback in case load event is cached or doesn't fire
+    setTimeout(() => {
+        widgetContainer.style.visibility = 'visible';
+    }, 500);
 
+    widgetContainer.innerHTML = `
         <!-- Chat Widget -->
         <div class="ai-chat-widget" id="aiChatWidget">
             <div class="ai-chat-header">
@@ -87,6 +92,18 @@
             <div class="ai-chat-disclaimer">
                 ⚠️ AI xato qilishi mumkin. Ma'lumotlarni ikki marta tekshiring.
             </div>
+        </div>
+
+        <!-- Floating Button -->
+        <button class="ai-assistant-btn" id="aiChatBtn" aria-label="Suhbatni boshlash">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </button>
+
+        <!-- Tooltip Label Badge -->
+        <div class="ai-assistant-label" id="aiChatLabel">
+            AI Yordamchi 🎓
         </div>
     `;
 
