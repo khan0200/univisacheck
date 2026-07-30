@@ -1711,9 +1711,10 @@ Otkaz haqida gapirganlarga quyidagi formatda xulosa bering:
                 res.end(JSON.stringify({ response: aiText }));
 
             } catch (err) {
-                console.error('[AI Assistant] Error:', err.message);
+                const geminiError = err.response && err.response.data && err.response.data.error ? err.response.data.error.message : err.message;
+                console.error('[AI Assistant] Error:', geminiError);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'AI Assistant failed: ' + err.message }));
+                res.end(JSON.stringify({ error: 'AI Assistant failed: ' + geminiError }));
             }
         });
 

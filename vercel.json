@@ -24,5 +24,10 @@
       "source": "/api/ai-assistant",
       "destination": "/api/ai-assistant.js"
     }
-  ]
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  }
 }

@@ -513,7 +513,8 @@ Otkaz haqida gapirganlarga quyidagi formatda xulosa bering:
         res.status(200).json({ response: aiText });
 
     } catch (err) {
-        console.error('[AI Assistant API Error]:', err.message);
-        res.status(500).json({ error: 'AI Assistant failed: ' + err.message });
+        const geminiError = err.response && err.response.data && err.response.data.error ? err.response.data.error.message : err.message;
+        console.error('[AI Assistant API Error]:', geminiError);
+        res.status(500).json({ error: 'AI Assistant failed: ' + geminiError });
     }
 };

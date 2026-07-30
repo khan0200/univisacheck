@@ -268,11 +268,18 @@
                 })
             });
 
-            if (!res.ok) {
-                throw new Error('API server returned error');
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                data = null;
             }
 
-            const data = await res.json();
+            if (!res.ok) {
+                const errorMsg = data && data.error ? data.error : `HTTP ${res.status}`;
+                throw new Error(errorMsg);
+            }
+
             
             // Remove typing indicator
             indicator.remove();
@@ -288,7 +295,9 @@
         } catch (err) {
             console.error('[AI Assistant]:', err);
             indicator.remove();
-            addMessage('assistant', '❌ Kechirasiz, tarmoq xatoligi sababli javob olish imkoni bo\'lmadi. Local proxy server ishlayotganligini tekshiring.');
+            let displayMsg = err.message || 'Kechirasiz, tarmoq xatoligi sababli javob olish imkoni bo\'lmadi.';
+            addMessage('assistant', `❌ Xatolik: ${displayMsg}`);
+
         } finally {
             isWaiting = false;
         }
