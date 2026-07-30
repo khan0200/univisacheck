@@ -1283,7 +1283,7 @@ CORE GUIDELINES & RULES:
 
                 const axios = require('axios');
                 const response = await axios.post(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
                     {
                         systemInstruction: {
                             parts: [{ text: systemPrompt }]
