@@ -342,3 +342,15 @@
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1); }
 }
+
+/* AI Disclaimer */
+.ai-chat-disclaimer {
+    text-align: center;
+    font-size: 10.5px;
+    color: #94a3b8;
+    padding: 6px 12px 8px;
+    border-top: 1px solid #f1f5f9;
+    background: #f8fafc;
+    border-radius: 0 0 20px 20px;
+    letter-spacing: 0.01em;
+}
