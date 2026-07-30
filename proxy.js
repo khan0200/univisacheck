@@ -1610,6 +1610,30 @@ Study plan aniq shu ketma-ketlikda va mantiqiy yozilishi shart:
 ## 📝 TEXNIK TALABLAR
 - Study plan **o'z qo'lingiz bilan bir xil ruchkada** (yuqorida ko'rsatilgan tartibda) yozilishi kerak!
 - Grammatik xatosiz, professional ohangda, 1-1.5 sahifa uzunlikda bo'lishi ideal. Shaxsiy va mustaqil fikr bo'lishi shart.
+
+========================================================
+== QISM 6: KO'P SO'RALADIGAN SAVOLLAR VA MUSTASNO HOLATLAR (FAQ & EDGE CASES) ==
+========================================================
+
+Foydalanuvchilar tez-tez so'raydigan maxsus holatlar uchun quyidagi javoblarni bering:
+
+1. Aka-uka, opa-singil yoki boshqa qarindoshlar homiy (sponsor) bo'lishi mumkinmi?
+- Ha, ayrim hollarda yaqin qarindosh sponsor bo'lishi mumkin. Lekin ota-ona homiyligi eng kuchli variant. Qarindosh homiy bo'lsa, Notarius orqali rasmiy kafillik (Guarantee Letter), qarindoshlikni isbotlovchi hujjatlar, homiyning daromadi, mol-mulki va bank mablag'lari talab etiladi. Elchixona qo'shimcha tekshirishi mumkin.
+
+2. O'qishdagi tanaffus (Gap Year) yoki yosh bo'yicha cheklov bormi?
+- Rasmiy maksimal yosh cheklovi yo'q va tanaffus sababli avtomatik rad etilmaysiz. Ammo elchixona tanaffus davrida nima bilan shug'ullanganingizni (ish tajribasi va h.k.) va Koreyada o'qish rejangizni jiddiy baholaydi. Uzoq tanaffusni mantiqiy tushuntirish tavsiya etiladi.
+
+3. Bankdagi mablag' (masalan $12,000) ota-onam emas, o'zimning nomimda bo'lsa o'tadimi?
+- Bo'lishi mumkin, ammo elchixona katta pulning manbasini so'rashi mumkin (qayerdan kelgan?). Ota-ona nomidagi bank mablag'i, daromadi va mol-mulki kuchliroq hisoblanadi. Agar talaba nomida bo'lsa, pulning qonuniy manbasini tasdiqlovchi hujjatlar bo'lishi kerak.
+
+4. Avval vizadan rad javobi (otkaz) olingan bo'lsa, qayta topshirish mumkinmi?
+- Ha, qayta murojaat qilish mumkin. Lekin faqat avvalgi rad etilish sabablari (moliyaviy hujjatlar, til sertifikati va h.k.) bartaraf etilgandan keyingina qayta topshirish tavsiya etiladi. Oldingi rad javobi avtomatik tarzda keyingisini anglatmaydi.
+
+5. D-4 (til) yoki D-2 (bakalavr/magistr) vizasi bilan ishlash mumkinmi?
+- Ha, lekin faqat qonuniy doirada va ruxsat olingandan keyin. D-4 da ma'lum muddat o'qigandan so'ng ruxsat olinadi. D-2 talabalari ham qonuniy part-time ishlashi mumkin. Ruxsatsiz ishlash vizaning bekor qilinishiga olib kelishi mumkin.
+
+6. Uy yoki mashina yaqinda (masalan 1 oy oldin) ota-onam nomiga o'tgan bo'lsa qabul qilinadimi?
+- Yangi sotib olingan yoki yaqinda nomiga o'tgan mulk hujjatlari taqdim etilishi mumkin. BIROQ, uzoqroq muddat (kamida 3 oy) ota-ona nomida bo'lgan mulk odatda kuchliroq moliyaviy dalil hisoblanadi. Agar iloji bo'lsa, 3 oy to'lgandan keyin topshirish profilni kuchaytiradi. (AI eslatmasi: Hech qachon "kutishingiz shart" yoki "viza chiqmaydi" demang. Faqatgina "uzoqroq muddatdagisi kuchliroq dalil" ekanligini, yakuniy qaror elchixonada ekanligini ta'kidlang).
 `;
 
                 const contents = history.map(msg => ({
