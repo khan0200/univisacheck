@@ -3470,7 +3470,7 @@
         <div class="hero-right" aria-hidden="true">
             <div class="hero-img-wrap">
                 <img
-                    src="hero banner.png"
+                    src="hero_banner.png"
                     alt="Seul shahri, Janubiy Koreya"
                     loading="eager"
                 />
@@ -4974,7 +4974,7 @@
             koreanName: "서울대학교",
             location: "SEOUL",
             address: "📍 1 Gwanak-ro, Gwanak-gu, Seoul 08826, Republic of Korea",
-            img: "https://oga.snu.ac.kr/sites/default/files/inline-images/SNU_002_ed1.jpg",
+            img: "snu.png",
             qsRank: "#41 (TOP 50)",
             founded: "1946-yil",
             tuition: "2,442,000 - 5,038,000 KRW / semestr",
@@ -5356,7 +5356,7 @@
             koreanName: "서울대학교",
             location: "SEOUL",
             address: "📍 1 Gwanak-ro, Gwanak-gu, Seoul 08826, Republic of Korea",
-            img: "https://oga.snu.ac.kr/sites/default/files/inline-images/SNU_002_ed1.jpg",
+            img: "snu.png",
             qsRank: "#41 (TOP 50)",
             founded: "1946",
             programs: "150+",
@@ -7664,18 +7664,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v710') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v720') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v710')) {
-        localStorage.setItem('custom_universities_v710', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v720')) {
+        localStorage.setItem('custom_universities_v720', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v710'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v720'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -8973,5 +8973,6 @@
         renderTopUniCards();
     });
 </script>
+<script src="ai-assistant.js" defer></script>
 </body>
 </html>
