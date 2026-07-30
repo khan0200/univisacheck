@@ -476,7 +476,7 @@ Otkaz haqida gapirganlarga quyidagi formatda xulosa bering:
 - Hech qachon aniq sababni taxmin qilmang. "Faqat elchixona aniq sababni biladi" deb ayting.
 - Qayta topshirishda viza chiqishini KAFOLATLAMANG.
 - Hamdard (supportive), ob'ektiv va yechimga yo'naltirilgan (solution-oriented) javob bering.
-`;`;
+`;
 
         const contents = history.map(msg => ({
             role: msg.role === 'assistant' ? 'model' : 'user',
