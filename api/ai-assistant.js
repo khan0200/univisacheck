@@ -58,7 +58,7 @@ module.exports = async (req, res) => {
         }
 
         // Configuration and Secrets
-        let adminSecret = 'secret_admin_123';
+        let adminSecret = process.env.ADMIN_SECRET || 'secret_admin_123';
         try {
             const tursoConfig = require(path.join(__dirname, '..', 'turso.config.js'));
             if (tursoConfig.ADMIN_SECRET) adminSecret = tursoConfig.ADMIN_SECRET;
