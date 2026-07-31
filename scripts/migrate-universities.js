@@ -28,9 +28,22 @@ async function migrate() {
             visa_status TEXT,
             kdb_amount TEXT,
             description TEXT,
-            other_grants_note TEXT
+            other_grants_note TEXT,
+            uni_type TEXT,
+            visa_details TEXT
         )
     `);
+
+    // ALTER TABLE for tables created before uni_type/visa_details existed
+    // (CREATE TABLE IF NOT EXISTS is a no-op on an existing table, so columns
+    // added to the schema above don't retroactively appear without this).
+    const existingCols = (await db.execute("PRAGMA table_info(ai_universities)")).rows.map(r => r.name);
+    if (!existingCols.includes('uni_type')) {
+        await db.execute("ALTER TABLE ai_universities ADD COLUMN uni_type TEXT");
+    }
+    if (!existingCols.includes('visa_details')) {
+        await db.execute("ALTER TABLE ai_universities ADD COLUMN visa_details TEXT");
+    }
 
     await db.execute(`
         CREATE TABLE IF NOT EXISTS ai_majors (
@@ -68,9 +81,9 @@ async function migrate() {
         const id = key.trim().toUpperCase();
         
         await db.execute({
-            sql: `INSERT INTO ai_universities 
-                (id, name, korean_name, location, address, qs_rank, founded, tuition, app_fee, language, is_1_percent, visa_status, kdb_amount, description, other_grants_note)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            sql: `INSERT INTO ai_universities
+                (id, name, korean_name, location, address, qs_rank, founded, tuition, app_fee, language, is_1_percent, visa_status, kdb_amount, description, other_grants_note, uni_type, visa_details)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             args: [
                 id,
                 uni.name || '',
@@ -86,7 +99,9 @@ async function migrate() {
                 uni.visaStatus || '',
                 uni.kdb1DayAfterAdmission || '',
                 uni.description || '',
-                uni.otherGrantsNote || ''
+                uni.otherGrantsNote || '',
+                uni.type || '',
+                uni.visaDetails || ''
             ]
         });
 
