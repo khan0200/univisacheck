@@ -267,10 +267,12 @@
         chatMessages.appendChild(msgDiv);
 
         if (role === 'user') {
-            // Pin scroll to the top of the user's question bubble
+            // Scroll to bottom when user sends a message so they see it and the typing indicator
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        } else if (role === 'assistant') {
+            // Scroll to the top of the assistant's response bubble so they can read from the beginning
             chatMessages.scrollTop = Math.max(0, msgDiv.offsetTop - 12);
         }
-        // For 'assistant' messages, do NOT modify scroll position at all so the view stays anchored at the user's question
 
         // Save to state history
         history.push({ role, content });
