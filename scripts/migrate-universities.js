@@ -53,9 +53,11 @@ async function migrate() {
     `);
 
     // Clear existing data just in case
+    await db.execute("PRAGMA foreign_keys = OFF");
     await db.execute("DELETE FROM ai_scholarships");
     await db.execute("DELETE FROM ai_majors");
     await db.execute("DELETE FROM ai_universities");
+    await db.execute("PRAGMA foreign_keys = ON");
 
     const dataPath = path.join(__dirname, '..', 'universities-db.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
@@ -103,6 +105,26 @@ async function migrate() {
             for (const major of uni.koreanTrackMajors) {
                 await db.execute({
                     sql: `INSERT INTO ai_majors (university_id, name, track) VALUES (?, ?, 'korean')`,
+                    args: [id, major]
+                });
+            }
+        }
+
+        // Insert majors (english track masters)
+        if (uni.englishTrackMasters && Array.isArray(uni.englishTrackMasters)) {
+            for (const major of uni.englishTrackMasters) {
+                await db.execute({
+                    sql: `INSERT INTO ai_majors (university_id, name, track) VALUES (?, ?, 'english_master')`,
+                    args: [id, major]
+                });
+            }
+        }
+
+        // Insert majors (korean track masters)
+        if (uni.koreanTrackMasters && Array.isArray(uni.koreanTrackMasters)) {
+            for (const major of uni.koreanTrackMasters) {
+                await db.execute({
+                    sql: `INSERT INTO ai_majors (university_id, name, track) VALUES (?, ?, 'korean_master')`,
                     args: [id, major]
                 });
             }

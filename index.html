@@ -5192,6 +5192,12 @@
                 { cert: "Sejong Prep Course / Language Center Graduates (Scholarship B)", percent: "100% Tuition Waiver (1st Sem)" }
             ],
             otherGrantsNote: "Ingliz va Koreys tillaridagi yo'nalishlarga kiruvchi talabalar uchun til sertifikati darajasiga qarab 1-semestrda 30% dan 100% gacha grantlar taqdim etiladi. 2-semestrdan boshlab GPA natijalariga ko'ra 20% dan 50% gacha stipendiyalar ajratiladi.",
+            englishTrackMasters: [
+                "MBA (Master of Business Administration)",
+                "AI",
+                "Finance"
+            ],
+            koreanTrackMasters: [],
             majors: ["Hospitality & Tourism Management", "Computer Science and Engineering", "Business Administration", "Comics & Animation Technology", "Fashion Design", "Media & Communication"]
         },
         "SOGANG UNIVERSITY": {
@@ -5734,6 +5740,12 @@
                 { cert: "Sejong Prep Course / Language Center Graduates (Scholarship B)", percent: "100% Tuition Waiver (1st Sem)" }
             ],
             otherGrantsNote: "Ingliz va Koreys tillaridagi yo'nalishlarga kiruvchi talabalar uchun til sertifikati darajasiga qarab 1-semestrda 30% dan 100% gacha grantlar taqdim etiladi. 2-semestrdan boshlab GPA natijalariga ko'ra 20% dan 50% gacha stipendiyalar ajratiladi.",
+            englishTrackMasters: [
+                "MBA (Master of Business Administration)",
+                "AI",
+                "Finance"
+            ],
+            koreanTrackMasters: [],
             majors: ["Hospitality & Tourism Management", "Computer Science and Engineering", "Business Administration", "Comics & Animation Technology", "Fashion Design", "Media & Communication"]
         },
 {
@@ -6564,24 +6576,49 @@
             koreanTrackMajors: [
                 "Korean Language and Literature"
             ],
-            scholarships: [
-                { cert: "IELTS 5.5", percent: "30%" },
-                { cert: "IELTS 6.0", percent: "40%" },
-                { cert: "IELTS 6.5", percent: "50%" },
-                { cert: "IELTS 7.0", percent: "60%" },
-                { cert: "TOPIK 3", percent: "30%" },
-                { cert: "TOPIK 4", percent: "40%" },
-                { cert: "TOPIK 5", percent: "50%" },
-                { cert: "TOPIK 6", percent: "60%" }
+            englishTrackMasters: [
+                "Global Area & Language Studies",
+                "PSC Based Entrepreneurship",
+                "Global Business & AI Marketing",
+                "AI Convergence"
             ],
-            otherGrantsNote: "TOEFL HOME EDITION - 71+ KERAK. 1-Yil hamma Foundation o'qiydi, 2-Yildan yo'nalish tanlanadi."
+            koreanTrackMasters: [
+                "Global Area & Language Studies",
+                "Natural Science Integrative Medicine",
+                "Natural Agricultural Forest Therapy",
+                "Healing Tourism Industry",
+                "Healing Taekwondo",
+                "Beauty Exercise Rehabilitation"
+            ],
+            scholarships: [
+                { cert: "TOPIK / IELTS / TOEFL yo'q (1-semestr)", percent: "20% chegirma" },
+                { cert: "Hamkor OTM / Til markazi bitiruvchisi / F vizalar (1-semestr)", percent: "30% chegirma" },
+                { cert: "TOPIK 3 / IELTS 5.5 / TOEFL 53 (1-semestr)", percent: "30% grant" },
+                { cert: "TOPIK 4 / IELTS 6.0 / TOEFL 69 (1-semestr)", percent: "40% grant" },
+                { cert: "TOPIK 5 / IELTS 6.5 / TOEFL 86 / Ingliz tili ona tili (1-semestr)", percent: "50% grant" },
+                { cert: "TOPIK 6 / IELTS 7.0 / TOEFL 98 (1-semestr)", percent: "60% grant" }
+            ],
+            bachelorScholarships: [
+                { cert: "TOPIK / IELTS / TOEFL yo'q (1-semestr)", percent: "20% chegirma" },
+                { cert: "Hamkor OTM / Til markazi bitiruvchisi / F vizalar (1-semestr)", percent: "30% chegirma" },
+                { cert: "TOPIK 3 / IELTS 5.5 / TOEFL 53 (1-semestr)", percent: "30% grant" },
+                { cert: "TOPIK 4 / IELTS 6.0 / TOEFL 69 (1-semestr)", percent: "40% grant" },
+                { cert: "TOPIK 5 / IELTS 6.5 / TOEFL 86 / Ingliz tili ona tili (1-semestr)", percent: "50% grant" },
+                { cert: "TOPIK 6 / IELTS 7.0 / TOEFL 98 (1-semestr)", percent: "60% grant" }
+            ],
+            masterScholarships: [
+                { cert: "Partner Institution Graduates (1st sem)", percent: "100% (2nd sem+: 50%)" },
+                { cert: "TOPIK 4 / IELTS 6.0 / TOEFL 69+ (1st sem)", percent: "100% (2nd sem+: 50%)" },
+                { cert: "Ministry of Justice Watch-list Country Graduates (1st sem)", percent: "30% (2nd sem+: 50%)" }
+            ],
+            otherGrantsNote: "Bakalavriat: TOEFL HOME EDITION - 71+ KERAK. 1-Yil hamma Foundation o'qiydi, 2-Yildan yo'nalish tanlanadi. Magistratura: Hamkor universitet bitiruvchilari, TOPIK 4 yoki IELTS 6.0+ egalari birinchi semestrda 100% grant (keyingi semestrlar 50% grant) oladilar."
         },
 {
             name: "Hoseo University",
             koreanName: "호서대학교",
             location: "ASAN / DANGJIN",
             address: "📍 20 Hoseo-ro 79beon-gil, Baebang-eup, Asan-si, Chungcheongnam-do, South Korea",
-            img: "https://forkast.news/wp-content/uploads/2022/02/hoseo.png",
+            img: "hoseo.png",
             qsRank: "Akkreditatsiyalangan Uni",
             founded: "1978",
             programs: "90+",
@@ -7663,18 +7700,18 @@
     // Clean up old custom_universities keys from localStorage to prevent cache issues
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v720') {
+        if (key && key.startsWith('custom_universities') && key !== 'custom_universities_v721') {
             localStorage.removeItem(key);
             i--; // Adjust index because length decreased
         }
     }
 
     // Load custom universities from localStorage if they exist, otherwise initialize them
-    if (!localStorage.getItem('custom_universities_v720')) {
-        localStorage.setItem('custom_universities_v720', JSON.stringify(TOP_UNIS_DATA));
+    if (!localStorage.getItem('custom_universities_v721')) {
+        localStorage.setItem('custom_universities_v721', JSON.stringify(TOP_UNIS_DATA));
     } else {
         try {
-            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v720'));
+            TOP_UNIS_DATA = JSON.parse(localStorage.getItem('custom_universities_v721'));
         } catch (e) {
             console.error('Error loading custom universities:', e);
         }
@@ -8544,7 +8581,7 @@
                 : `<li>Koreys tili yo'nalishlari</li>`;
 
             let html = '';
-            if (details.name === 'Gachon University') {
+            if (details.name === 'Gachon University' || details.name === 'Sejong University' || details.name === 'Busan University of Foreign Studies') {
                 html += `<div style="font-weight: 800; font-size: 14px; margin-bottom: 12px; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">🎓 BAKALAVR (BACHELOR DEGREE):</div>`;
             }
 
@@ -8565,7 +8602,7 @@
 
             const engMasters = details.englishTrackMasters;
             const korMasters = details.koreanTrackMasters;
-            if (details.name === 'Gachon University' && ((engMasters && engMasters.length > 0) || (korMasters && korMasters.length > 0))) {
+            if ((details.name === 'Gachon University' || details.name === 'Sejong University' || details.name === 'Busan University of Foreign Studies') && ((engMasters && engMasters.length > 0) || (korMasters && korMasters.length > 0))) {
                 const engMastersList = (engMasters && engMasters.length > 0)
                     ? engMasters.map(m => `<li>${m}</li>`).join('')
                     : `<li>Mavjud emas</li>`;
@@ -8599,7 +8636,7 @@
         if (grantsContainer) {
             let grantsHtml = '';
 
-            if (details.name === 'Gachon University') {
+            if (details.name === 'Gachon University' || details.name === 'Busan University of Foreign Studies') {
                 const bachList = details.bachelorScholarships || [];
                 const mastList = details.masterScholarships || [];
 
