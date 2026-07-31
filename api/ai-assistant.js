@@ -1,5 +1,7 @@
 const axios = require('axios');
 const path = require('path');
+const IntentAnalyzer = require('../lib/ai/intent-analyzer');
+const UniversityService = require('../lib/university-service');
 
 const ALLOWED_ORIGINS = [
     'https://visa.unibridge.uz',
@@ -53,21 +55,168 @@ module.exports = async (req, res) => {
             return;
         }
 
-        let unis = {};
-        try {
-            unis = require(path.join(__dirname, '..', 'universities-db.json'));
-        } catch (_) {}
+        // 1. Analyze Intent
+        const analysis = await IntentAnalyzer.analyze(message);
+        console.log("Intent Analysis:", analysis);
 
+        // 2. Fetch Relevant Data from Turso
+        let dynamicContext = "";
+        let isPureFactual = analysis.intent === 'factual_lookup' && analysis.attribute && analysis.entities.length === 1;
+
+        if (analysis.entities && analysis.entities.length > 0) {
+            const unis = await UniversityService.getUniversitiesForComparison(analysis.entities);
+            if (unis.length > 0) {
+                if (isPureFactual) {
+                    const uni = unis[0];
+                    const attr = analysis.attribute;
+                    let answer = "";
+                    if (attr === 'tuition') answer = `${uni.name} kontrakt narxi: ${uni.tuition}`;
+                    else if (attr === 'app_fee') answer = `${uni.name} application fee: ${uni.app_fee}`;
+                    else if (attr === 'location') answer = `${uni.name} joylashuvi: ${uni.location}, ${uni.address}`;
+                    else if (attr === 'qs_rank') answer = `${uni.name} QS reytingi: ${uni.qs_rank}`;
+                    else if (attr === 'language') answer = `${uni.name} til talabi: ${uni.language}`;
+                    else isPureFactual = false; // fallback
+
+                    if (isPureFactual && answer) {
+                        res.status(200).json({ response: answer });
+                        return;
+                    }
+                }
+
+                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\n${JSON.stringify(unis, null, 2)}\n== END RELEVANT DATA ==\n`;
+            } else {
+                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\nFoydalanuvchi so'ragan universitetlar bazadan topilmadi.\n== END RELEVANT DATA ==\n`;
+            }
+        }
+
+        if (analysis.intent === 'visa_calc' || analysis.visa_related) {
+            // Keep visa rules in prompt implicitly (it's already in the system prompt text below)
+        }        
+        // Dynamically fetch 1% universities if requested
+        if (message.includes('1%') || message.toLowerCase().includes('yengil') || (analysis.intent === 'university_info' && analysis.entities.length === 0)) {
+            const onePercentUnis = await UniversityService.get1PercentUniversities();
+            if (onePercentUnis && onePercentUnis.length > 0) {
+                dynamicContext += `\n\n== 1% (YENGILLASHTIRILGAN) UNIVERSITETLAR RO'YXATI (DATABASE) ==\n`;
+                onePercentUnis.forEach((u, i) => {
+                    dynamicContext += `${i+1}. ${u.name} (${u.korean_name}) - ${u.qs_rank || 'Top'}\n`;
+                });
+                dynamicContext += `\n== TUGADI ==\n`;
+            }
+        }
+        
         const systemPrompt = `
 Sen — Koreya ta'limi bo'yicha eng tajribali va ishonchli Qabul Maslahatchi va Viza Tayyorgarlik Mutaxassisiisan.
 Sen salomkorea.uz web ilovasining rasmiy AI assistanti (sun'iy intellekt yordamchisi) hisoblanasan. Agar kimdir salomkorea.uz haqida so'rasa, quyidagicha javob ber: "salomkorea.uz - bu Janubiy Koreyada o'qish istagida bo'lgan talabalar uchun mo'ljallangan yagona, qulay va ishonchli axborot portali. Bu orqali talabalar universitetlar haqida to'liq ma'lumot olishlari, viza talablarini tekshirishlari, elchixona yangiliklaridan xabardor bo'lishlari va AI assistant orqali o'z savollariga javob topishlari mumkin."
 Sening maqsading: talabalarga Janubiy Koreyada o'qishni rejalashtirish, universitetni tanlash, viza imkoniyatlarini baholash va hujjatlarni tayyorlashda aniq, qisqa va foydali yordam berish.
-
-== UNIVERSITETLAR MA'LUMOTLAR BAZASI ==
-${JSON.stringify(unis, null, 2)}
-== MA'LUMOTLAR BAZASI TUGADI ==
-
+${dynamicContext}
+════════════════════════════════════════��════════════════════════════
+== QISM 1: ASOSIY MASLAHAT QOIDALARI ==
 ════════════════════════════════════════
+
+[1] FAQAT KOREYA TA'LIMI HAQIDA GAPLASH
+Boshqa mavzular (kodlash, tibbiyot, siyosat, uy vazifalari) so'ralsa — xushmuomalalik bilan rad et.
+
+[2] MA'LUMOTLAR BAZASIDAN FOYDALANISH — MAJBURIY
+- Universitet so'ralsa: FAQAT yuqoridagi bazadagi ma'lumotlarni ishlat — tuition, appFee, language, scholarships, majors, visaStatus, kdb1DayAfterAdmission — barchasini AYNAN yoz.
+- Bazada yo'q ma'lumotni HECH QACHON o'ylab topma. Bazada bo'lmasa — ochiq ayt, rasmiy saytni tavsiya qil.
+h = require('path');
+const IntentAnalyzer = require('../lib/ai/intent-analyzer');
+const UniversityService = require('../lib/university-service');
+
+const ALLOWED_ORIGINS = [
+    'https://visa.unibridge.uz',
+    'https://visa-sable.vercel.app',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:3000',
+    'https://www.salomkorea.uz',
+    'https://salomkorea.uz'
+];
+
+module.exports = async (req, res) => {
+    // CORS
+    const origin = req.headers.origin || '*';
+    const isAllowed = ALLOWED_ORIGINS.some(o => origin.startsWith(o));
+    res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.status(204).end();
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+    }
+
+    try {
+        let openaiKey = process.env.OPENAI_API_KEY || '';
+        let geminiKey = process.env.GEMINI_API_KEY || '';
+        try {
+            const tursoConfig = require(path.join(__dirname, '..', 'turso.config.js'));
+            if (tursoConfig.OPENAI_API_KEY) openaiKey = tursoConfig.OPENAI_API_KEY;
+            if (tursoConfig.GEMINI_API_KEY) geminiKey = tursoConfig.GEMINI_API_KEY;
+        } catch (_) {}
+
+        if (!openaiKey && !geminiKey) {
+            res.status(200).json({
+                response: "⚠️ **API Key Missing**: Please set `OPENAI_API_KEY` or `GEMINI_API_KEY` to enable the AI Admission Assistant."
+            });
+            return;
+        }
+
+        const body = req.body && typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
+        const { message, history = [] } = body;
+
+        if (!message) {
+            res.status(400).json({ error: 'Missing message parameter' });
+            return;
+        }
+
+        // 1. Analyze Intent
+        const analysis = await IntentAnalyzer.analyze(message);
+        console.log("Intent Analysis:", analysis);
+
+        // 2. Fetch Relevant Data from Turso
+        let dynamicContext = "";
+        let isPureFactual = analysis.intent === 'factual_lookup' && analysis.attribute && analysis.entities.length === 1;
+
+        if (analysis.entities && analysis.entities.length > 0) {
+            const unis = await UniversityService.getUniversitiesForComparison(analysis.entities);
+            if (unis.length > 0) {
+                if (isPureFactual) {
+                    const uni = unis[0];
+                    const attr = analysis.attribute;
+                    let answer = "";
+                    if (attr === 'tuition') answer = `${uni.name} kontrakt narxi: ${uni.tuition}`;
+                    else if (attr === 'app_fee') answer = `${uni.name} application fee: ${uni.app_fee}`;
+                    else if (attr === 'location') answer = `${uni.name} joylashuvi: ${uni.location}, ${uni.address}`;
+                    else if (attr === 'qs_rank') answer = `${uni.name} QS reytingi: ${uni.qs_rank}`;
+                    else if (attr === 'language') answer = `${uni.name} til talabi: ${uni.language}`;
+                    else isPureFactual = false; // fallback
+
+                    if (isPureFactual && answer) {
+                        res.status(200).json({ response: answer });
+                        return;
+                    }
+                }
+
+                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\n${JSON.stringify(unis, null, 2)}\n== END RELEVANT DATA ==\n`;
+            } else {
+                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\nFoydalanuvchi so'ragan universitetlar bazadan topilmadi.\n== END RELEVANT DATA ==\n`;
+            }
+        }
+
+        if (analysis.intent === 'visa_calc' || analysis.visa_related) {
+            // Keep visa rules in prompt implicitly (it's already in the system prompt text below)
+        }        const systemPrompt = `
+Sen — Koreya ta'limi bo'yicha eng tajribali va ishonchli Qabul Maslahatchi va Viza Tayyorgarlik Mutaxassisiisan.
+Sen salomkorea.uz web ilovasining rasmiy AI assistanti (sun'iy intellekt yordamchisi) hisoblanasan. Agar kimdir salomkorea.uz haqida so'rasa, quyidagicha javob ber: "salomkorea.uz - bu Janubiy Koreyada o'qish istagida bo'lgan talabalar uchun mo'ljallangan yagona, qulay va ishonchli axborot portali. Bu orqali talabalar universitetlar haqida to'liq ma'lumot olishlari, viza talablarini tekshirishlari, elchixona yangiliklaridan xabardor bo'lishlari va AI assistant orqali o'z savollariga javob topishlari mumkin."
+Sening maqsading: talabalarga Janubiy Koreyada o'qishni rejalashtirish, universitetni tanlash, viza imkoniyatlarini baholash va hujjatlarni tayyorlashda aniq, qisqa va foydali yordam berish.
+${dynamicContext}
+════════════════════════════════════════��════════════════════════════
 == QISM 1: ASOSIY MASLAHAT QOIDALARI ==
 ════════════════════════════════════════
 
