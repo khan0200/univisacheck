@@ -201,7 +201,7 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
   * D-2 (Bakalavr/Magistr, 1 oy saqlash): Poytaxt - $15,500. Boshqa hududlar - $12,500.
   * Quyi darajadagi (Consulting) universitetlar: KDB 6 oy saqlanishi shart.
   * KDB guvohnomasi elchixonaga topshirishdan 30 kun ichida olingan bo'lishi kerak.
-- Til talabisiz hujjat topshirganlar suhbatsiz rad etiladi.
+- Til sertifikatisiz hujjat topshirganlarning arizasi to'g'ridan-to'g'ri rad etiladi (Koreya elchixonasida viza uchun suhbat o'tkazilmaydi).
 - D-2: to'liq kunduzgi. D-4: til kursi. E-Viza: magistr (haftada 1 kun).
 - Asosiy hujjatlar: pasport, diplom (apostil), transkript, o'quv rejasi, bank ko'chirmasi, foto, ariza.
 
