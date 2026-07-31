@@ -2,6 +2,8 @@ const axios = require('axios');
 const path = require('path');
 const IntentAnalyzer = require('../lib/ai/intent-analyzer');
 const UniversityService = require('../lib/university-service');
+const KnowledgeProcessor = require('../lib/ai/knowledge-processor');
+const KnowledgeRetriever = require('../lib/ai/knowledge-retriever');
 
 const ALLOWED_ORIGINS = [
     'https://visa.unibridge.uz',
@@ -55,17 +57,74 @@ module.exports = async (req, res) => {
             return;
         }
 
+        // Configuration and Secrets
+        let adminSecret = 'secret_admin_123';
+        try {
+            const tursoConfig = require(path.join(__dirname, '..', 'turso.config.js'));
+            if (tursoConfig.ADMIN_SECRET) adminSecret = tursoConfig.ADMIN_SECRET;
+        } catch (_) {}
+
+        // Admin Session & Authentication
+        let isAdmin = false;
+        if (message.startsWith('/login ')) {
+            const token = message.split(' ')[1];
+            if (token === adminSecret) {
+                res.status(200).json({ response: "✅ **Admin tizimga kirdi!** Endi `/savol`, `/javob` buyruqlaridan foydalanishingiz mumkin." });
+                return;
+            }
+        }
+        
+        for (const msg of history) {
+            if (msg.role === 'user' && msg.content.startsWith('/login ')) {
+                const token = msg.content.split(' ')[1];
+                if (token === adminSecret) isAdmin = true;
+            }
+        }
+
+        if (isAdmin) {
+            if (message.startsWith('/savol ')) {
+                res.status(200).json({ response: "✅ **Savol qabul qilindi.** Endi iltimos, javobni `/javob <matn>` shaklida yuboring." });
+                return;
+            } else if (message.startsWith('/javob ')) {
+                let lastSavol = null;
+                for (let i = history.length - 1; i >= 0; i--) {
+                    if (history[i].role === 'user' && history[i].content.startsWith('/savol ')) {
+                        lastSavol = history[i].content.replace('/savol ', '').trim();
+                        break;
+                    }
+                }
+                
+                if (!lastSavol) {
+                    res.status(200).json({ response: "❌ Xatolik: Oldingi `/savol` topilmadi." });
+                    return;
+                }
+                
+                const answer = message.replace('/javob ', '').trim();
+                const result = await KnowledgeProcessor.processAndSave(lastSavol, answer, "admin");
+                
+                if (result.status === 'success') {
+                    res.status(200).json({ 
+                        response: `✅ **Ma'lumot saqlandi!** (ID: ${result.id})\n\n**Savol:** ${result.metadata.improved_question}\n**Javob:** ${result.metadata.improved_answer}\n**Teglar:** ${result.metadata.keywords.join(', ')}`
+                    });
+                } else {
+                    res.status(200).json({ response: `ℹ️ **Natija:** ${result.message}` });
+                }
+                return;
+            }
+        }
+
         // 1. Analyze Intent
         const analysis = await IntentAnalyzer.analyze(message);
         console.log("Intent Analysis:", analysis);
 
-        // 2. Fetch Relevant Data from Turso
+        // 2. Fetch Relevant Data dynamically from Turso
         let dynamicContext = "";
         let isPureFactual = analysis.intent === 'factual_lookup' && analysis.attribute && analysis.entities.length === 1;
 
+        // Fetch university data if mentioned
         if (analysis.entities && analysis.entities.length > 0) {
             const unis = await UniversityService.getUniversitiesForComparison(analysis.entities);
-            if (unis.length > 0) {
+            if (unis && unis.length > 0) {
                 if (isPureFactual) {
                     const uni = unis[0];
                     const attr = analysis.attribute;
@@ -82,34 +141,36 @@ module.exports = async (req, res) => {
                         return;
                     }
                 }
-
-                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\n${JSON.stringify(unis, null, 2)}\n== END RELEVANT DATA ==\n`;
-            } else {
-                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\nFoydalanuvchi so'ragan universitetlar bazadan topilmadi.\n== END RELEVANT DATA ==\n`;
+                dynamicContext += `\n== RELEVANT UNIVERSITIES DATA ==\n${JSON.stringify(unis, null, 2)}\n== END RELEVANT DATA ==\n`;
             }
         }
 
-        if (analysis.intent === 'visa_calc' || analysis.visa_related) {
-            // Keep visa rules in prompt implicitly (it's already in the system prompt text below)
-        }        
-        // Dynamically fetch 1% universities if requested
+        // Fetch 1% list if user asks for it
         if (message.includes('1%') || message.toLowerCase().includes('yengil') || (analysis.intent === 'university_info' && analysis.entities.length === 0)) {
             const onePercentUnis = await UniversityService.get1PercentUniversities();
             if (onePercentUnis && onePercentUnis.length > 0) {
-                dynamicContext += `\n\n== 1% (YENGILLASHTIRILGAN) UNIVERSITETLAR RO'YXATI (DATABASE) ==\n`;
+                dynamicContext += `\n== 1% (YENGILLASHTIRILGAN) UNIVERSITETLAR RO'YXATI (DATABASE) ==\n`;
                 onePercentUnis.forEach((u, i) => {
                     dynamicContext += `${i+1}. ${u.name} (${u.korean_name}) - ${u.qs_rank || 'Top'}\n`;
                 });
                 dynamicContext += `\n== TUGADI ==\n`;
             }
         }
-        
+
+        // Fetch KMS Knowledge base content
+        const kmsRecords = await KnowledgeRetriever.retrieve(analysis.intent, analysis.keywords, message);
+        if (kmsRecords && kmsRecords.length > 0) {
+            dynamicContext += `\n== BAZADAGI QO'SHIMCHA MA'LUMOTLAR ==\n` + kmsRecords.map(r => `Savol: ${r.question}\nJavob: ${r.answer}`).join('\n\n') + `\n== BAZA TUGADI ==\n`;
+        }
+
         const systemPrompt = `
 Sen — Koreya ta'limi bo'yicha eng tajribali va ishonchli Qabul Maslahatchi va Viza Tayyorgarlik Mutaxassisiisan.
 Sen salomkorea.uz web ilovasining rasmiy AI assistanti (sun'iy intellekt yordamchisi) hisoblanasan. Agar kimdir salomkorea.uz haqida so'rasa, quyidagicha javob ber: "salomkorea.uz - bu Janubiy Koreyada o'qish istagida bo'lgan talabalar uchun mo'ljallangan yagona, qulay va ishonchli axborot portali. Bu orqali talabalar universitetlar haqida to'liq ma'lumot olishlari, viza talablarini tekshirishlari, elchixona yangiliklaridan xabardor bo'lishlari va AI assistant orqali o'z savollariga javob topishlari mumkin."
 Sening maqsading: talabalarga Janubiy Koreyada o'qishni rejalashtirish, universitetni tanlash, viza imkoniyatlarini baholash va hujjatlarni tayyorlashda aniq, qisqa va foydali yordam berish.
+
 ${dynamicContext}
-════════════════════════════════════════��════════════════════════════
+
+════════════════════════════════════════
 == QISM 1: ASOSIY MASLAHAT QOIDALARI ==
 ════════════════════════════════════════
 
@@ -119,159 +180,7 @@ Boshqa mavzular (kodlash, tibbiyot, siyosat, uy vazifalari) so'ralsa — xushmuo
 [2] MA'LUMOTLAR BAZASIDAN FOYDALANISH — MAJBURIY
 - Universitet so'ralsa: FAQAT yuqoridagi bazadagi ma'lumotlarni ishlat — tuition, appFee, language, scholarships, majors, visaStatus, kdb1DayAfterAdmission — barchasini AYNAN yoz.
 - Bazada yo'q ma'lumotni HECH QACHON o'ylab topma. Bazada bo'lmasa — ochiq ayt, rasmiy saytni tavsiya qil.
-h = require('path');
-const IntentAnalyzer = require('../lib/ai/intent-analyzer');
-const UniversityService = require('../lib/university-service');
-
-const ALLOWED_ORIGINS = [
-    'https://visa.unibridge.uz',
-    'https://visa-sable.vercel.app',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    'http://localhost:3000',
-    'https://www.salomkorea.uz',
-    'https://salomkorea.uz'
-];
-
-module.exports = async (req, res) => {
-    // CORS
-    const origin = req.headers.origin || '*';
-    const isAllowed = ALLOWED_ORIGINS.some(o => origin.startsWith(o));
-    res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        res.status(204).end();
-        return;
-    }
-
-    if (req.method !== 'POST') {
-        res.status(405).json({ error: 'Method not allowed' });
-        return;
-    }
-
-    try {
-        let openaiKey = process.env.OPENAI_API_KEY || '';
-        let geminiKey = process.env.GEMINI_API_KEY || '';
-        try {
-            const tursoConfig = require(path.join(__dirname, '..', 'turso.config.js'));
-            if (tursoConfig.OPENAI_API_KEY) openaiKey = tursoConfig.OPENAI_API_KEY;
-            if (tursoConfig.GEMINI_API_KEY) geminiKey = tursoConfig.GEMINI_API_KEY;
-        } catch (_) {}
-
-        if (!openaiKey && !geminiKey) {
-            res.status(200).json({
-                response: "⚠️ **API Key Missing**: Please set `OPENAI_API_KEY` or `GEMINI_API_KEY` to enable the AI Admission Assistant."
-            });
-            return;
-        }
-
-        const body = req.body && typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
-        const { message, history = [] } = body;
-
-        if (!message) {
-            res.status(400).json({ error: 'Missing message parameter' });
-            return;
-        }
-
-        // 1. Analyze Intent
-        const analysis = await IntentAnalyzer.analyze(message);
-        console.log("Intent Analysis:", analysis);
-
-        // 2. Fetch Relevant Data from Turso
-        let dynamicContext = "";
-        let isPureFactual = analysis.intent === 'factual_lookup' && analysis.attribute && analysis.entities.length === 1;
-
-        if (analysis.entities && analysis.entities.length > 0) {
-            const unis = await UniversityService.getUniversitiesForComparison(analysis.entities);
-            if (unis.length > 0) {
-                if (isPureFactual) {
-                    const uni = unis[0];
-                    const attr = analysis.attribute;
-                    let answer = "";
-                    if (attr === 'tuition') answer = `${uni.name} kontrakt narxi: ${uni.tuition}`;
-                    else if (attr === 'app_fee') answer = `${uni.name} application fee: ${uni.app_fee}`;
-                    else if (attr === 'location') answer = `${uni.name} joylashuvi: ${uni.location}, ${uni.address}`;
-                    else if (attr === 'qs_rank') answer = `${uni.name} QS reytingi: ${uni.qs_rank}`;
-                    else if (attr === 'language') answer = `${uni.name} til talabi: ${uni.language}`;
-                    else isPureFactual = false; // fallback
-
-                    if (isPureFactual && answer) {
-                        res.status(200).json({ response: answer });
-                        return;
-                    }
-                }
-
-                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\n${JSON.stringify(unis, null, 2)}\n== END RELEVANT DATA ==\n`;
-            } else {
-                dynamicContext = `\n== RELAVANT UNIVERSITIES DATA ==\nFoydalanuvchi so'ragan universitetlar bazadan topilmadi.\n== END RELEVANT DATA ==\n`;
-            }
-        }
-
-        if (analysis.intent === 'visa_calc' || analysis.visa_related) {
-            // Keep visa rules in prompt implicitly (it's already in the system prompt text below)
-        }        const systemPrompt = `
-Sen — Koreya ta'limi bo'yicha eng tajribali va ishonchli Qabul Maslahatchi va Viza Tayyorgarlik Mutaxassisiisan.
-Sen salomkorea.uz web ilovasining rasmiy AI assistanti (sun'iy intellekt yordamchisi) hisoblanasan. Agar kimdir salomkorea.uz haqida so'rasa, quyidagicha javob ber: "salomkorea.uz - bu Janubiy Koreyada o'qish istagida bo'lgan talabalar uchun mo'ljallangan yagona, qulay va ishonchli axborot portali. Bu orqali talabalar universitetlar haqida to'liq ma'lumot olishlari, viza talablarini tekshirishlari, elchixona yangiliklaridan xabardor bo'lishlari va AI assistant orqali o'z savollariga javob topishlari mumkin."
-Sening maqsading: talabalarga Janubiy Koreyada o'qishni rejalashtirish, universitetni tanlash, viza imkoniyatlarini baholash va hujjatlarni tayyorlashda aniq, qisqa va foydali yordam berish.
-${dynamicContext}
-════════════════════════════════════════��════════════════════════════
-== QISM 1: ASOSIY MASLAHAT QOIDALARI ==
-════════════════════════════════════════
-
-[1] FAQAT KOREYA TA'LIMI HAQIDA GAPLASH
-Boshqa mavzular (kodlash, tibbiyot, siyosat, uy vazifalari) so'ralsa — xushmuomalalik bilan rad et.
-
-[2] MA'LUMOTLAR BAZASIDAN FOYDALANISH — MAJBURIY
-- Universitet so'ralsa: FAQAT yuqoridagi bazadagi ma'lumotlarni ishlat — tuition, appFee, language, scholarships, majors, visaStatus, kdb1DayAfterAdmission — barchasini AYNAN yoz.
-- Bazada yo'q ma'lumotni HECH QACHON o'ylab topma. Bazada bo'lmasa — ochiq ayt, rasmiy saytni tavsiya qil.
-- **1% (YENGILLASHTIRILGAN) UNIVERSITETLAR RO'YXATI**:
-  Foydalanuvchi "1% universitetlar qaysilar?", "qaysi universitetlar 1% lik?", "yengillashtirilgan viza tartibidagi universitetlar ro'yxati" deb so'rasa, AYNAN va FAQAT quyidagi rasmiy 35 ta universitet va 3 ta kollejni sanab ber. Boshqa HECH QAYSI universitetni 1% lik deb aytma!
-
-  **1% Universitetlar (35 ta):**
-  1. SUNGKYUNKWAN UNIVERSITY (SKKU) — QS #102
-  2. KOREA UNIVERSITY — QS #67
-  3. HANYANG UNIVERSITY — QS #162
-  4. KYUNG HEE UNIVERSITY — QS #328
-  5. SEJONG UNIVERSITY — QS #396
-  6. AJOU UNIVERSITY — QS #631-640
-  7. CHUNG-ANG UNIVERSITY — QS #494
-  8. EWHA WOMANS UNIVERSITY — QS #511
-  9. KYUNGPOOK NATIONAL UNIVERSITY — QS #516
-  10. INHA UNIVERSITY — QS #651-660
-  11. CHUNGNAM NATIONAL UNIVERSITY (CNU) — QS #751-760
-  12. KONKUK UNIVERSITY — QS #501-510
-  13. UNIVERSITY OF SEOUL — QS #751-760
-  14. KOREA AEROSPACE UNIVERSITY — Aero #1
-  15. KEIMYUNG UNIVERSITY
-  16. BUSAN UNIVERSITY OF FOREIGN STUDIES
-  17. SUNGSHIN WOMEN'S UNIVERSITY — QS #1001-1200
-  18. KYUNGSUNG UNIVERSITY
-  19. HANSUNG UNIVERSITY
-  20. JOONGBU UNIVERSITY
-  21. POHANG UNIVERSITY OF SCIENCE AND TECHNOLOGY (POSTECH) — QS #98
-  22. ULSAN NATIONAL INSTITUTE OF SCIENCE AND TECHNOLOGY (UNIST) — QS #280
-  23. DONGGUK UNIVERSITY (SEOUL) — QS #498
-  24. DUKSUNG WOMEN'S UNIVERSITY
-  25. KONYANG UNIVERSITY
-  26. SEOKYEONG UNIVERSITY
-  27. SEOUL THEOLOGICAL UNIVERSITY
-  28. SEOUL WOMEN'S UNIVERSITY
-  29. SUNGKYUL UNIVERSITY
-  30. SUNMOON UNIVERSITY
-  31. PUSAN NATIONAL UNIVERSITY — QS #501-510
-  32. DANKOOK UNIVERSITY — QS #1001-1200
-  33. HONGIK UNIVERSITY — QS #1001-1200
-  34. SOOKMYUNG WOMEN'S UNIVERSITY — QS #1001-1200
-  35. JEJU NATIONAL UNIVERSITY — QS #1201-1400
-
-  **1% Kollejlar (3 ta):**
-  1. INHA TECHNICAL COLLEGE
-  2. KYUNGBOK UNIVERSITY
-  3. ULSAN COLLEGE
-
-  ⚠️ **O'TA MUHIM**: Boshqa barcha universitetlar (masalan: Anyang University, Youngsan University, Calvin University, Kyungin Women's University, Sahmyook University, Woosung SolBridge University, Seoyeong University, Far East University, Dongwon Institute, Chosun College, Induk University, SEOULTECH, Tongwon University, Kunjang University, Hoseo University, Chungbuk National University, Gachon University, Namseoul University, Chonnam National University) **STANDART VIZA TEKSHIRUVI** guruhiga kiradi. Ularni HECH QACHON 1% yengillashtirilgan deb atama!
+- **1% (YENGILLASHTIRILGAN) UNIVERSITETLAR RO'YXATI**: Ushbu universitetlar ro'yxati bazadan olinadi (dynamicContext-ga qara). Boshqa barcha universitetlar STANDART VIZA TEKSHIRUVI guruhiga kiradi. Ularni HECH QACHON 1% yengillashtirilgan deb atama!
 
 [3] QISQA VA ANIQ JAVOB BER
 - Keraksiz kirish so'zlarisiz — to'g'ridan-to'g'ri javob.
