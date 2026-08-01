@@ -190,11 +190,13 @@ module.exports = async (req, res) => {
         if (analysis.intent === 'scholarship' && (!analysis.entities || analysis.entities.length === 0)) {
             const topScholarshipUnis = await UniversityService.getTopScholarshipUniversities();
             if (topScholarshipUnis && topScholarshipUnis.length > 0) {
-                dynamicContext += `\n== STIPENDIYA FOIZI BO'YICHA ENG YAXSHI UNIVERSITETLAR (DATABASE, eng yuqoridan pastga) ==\n`;
-                topScholarshipUnis.forEach((u, i) => {
-                    dynamicContext += `${i+1}. ${u.name} (${u.korean_name}) - eng yuqori stipendiya: ${u.best_scholarship}${u.best_scholarship_cert ? ' (' + u.best_scholarship_cert + ')' : ''} - ${u.is_1_percent ? '1%' : 'Standart'}\n`;
-                });
-                dynamicContext += `\n== TUGADI ==\n`;
+                // Full records (tuition, app_fee, kdb_amount, majors, etc.),
+                // not just name/percent -- capped at 12 results so this stays
+                // a bounded, reasonable context size while still letting the
+                // AI answer natural follow-ups (tuition, majors, KDB) without
+                // claiming data it actually has is "bazada yo'q".
+                const trimmed = topScholarshipUnis.map(({ description, ...rest }) => rest);
+                dynamicContext += `\n== STIPENDIYA FOIZI BO'YICHA ENG YAXSHI UNIVERSITETLAR (DATABASE, eng yuqoridan pastga) ==\n${JSON.stringify(trimmed)}\n== TUGADI ==\n`;
             }
         }
 
@@ -210,11 +212,13 @@ module.exports = async (req, res) => {
             const topikLevel = topikMatch ? parseInt(topikMatch[1], 10) : null;
             const colleges = await UniversityService.getCollegesForTopikLevel(topikLevel);
             if (colleges && colleges.length > 0) {
-                dynamicContext += `\n== KOLLEJ (전문학사) DARAJASIDAGI MUASSASALAR${topikLevel ? ` (TOPIK ${topikLevel} bilan mos)` : ''} (DATABASE) ==\n`;
-                colleges.forEach((u, i) => {
-                    dynamicContext += `${i+1}. ${u.name} (${u.korean_name}) - Til talabi: ${u.language || 'bazada yo\'q'} - ${u.is_1_percent ? '1%' : 'Standart'}\n`;
-                });
-                dynamicContext += `\n== TUGADI ==\n`;
+                // Full records (tuition, app_fee, kdb_amount, majors,
+                // scholarships, etc.), same shape/trimming as the regular
+                // university-comparison block -- previously only 4 fields
+                // were printed here, so the AI reported real data as
+                // "bazada yo'q" simply because this block never sent it.
+                const trimmedColleges = colleges.map(({ description, ...rest }) => rest);
+                dynamicContext += `\n== KOLLEJ (전문학사) DARAJASIDAGI MUASSASALAR${topikLevel ? ` (TOPIK ${topikLevel} bilan mos)` : ''} (DATABASE) ==\n${JSON.stringify(trimmedColleges)}\n== TUGADI ==\n`;
             }
         }
 
