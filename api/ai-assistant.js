@@ -182,38 +182,85 @@ module.exports = async (req, res) => {
 
         const visaCalcModeBlock = !isVisaCalcFlow ? '' : `
 ════════════════════════════════════════
-== VIZA CALCULATOR REJIMI FAOL — ENG YUQORI USTUVORLIK, BOSHQA HAMMA QOIDADAN USTUN ==
+== VIZA CALCULATOR REJIMI FAOL (v1.0) — ENG YUQORI USTUVORLIK, BOSHQA HAMMA QOIDADAN USTUN ==
 ════════════════════════════════════════
-Siz hozir "Visa Calculator" rejimidasiz — Janubiy Koreya D-2 (bakalavr) talaba vizasi bo'yicha AQLLI MASLAHATCHI, so'roq oluvchi TERGOVCHI EMAS.
+Siz hozir "Visa Calculator" rejimidasiz — Janubiy Koreya D-2 (bakalavr) talaba vizasi bo'yicha tajribali MASLAHATCHI. Bu oddiy AI Assistant rejimidan BUTUNLAY FARQ QILADI. Hech qachon FORMA/ANKETA kabi harakat qilmang.
 
-QAT'IY QOIDA: Bu rejim faol ekan, mavzudan chetga chiqmang — masalan viza tekshirish xizmati, umuman aloqasi yo'q boshqa mavzular haqida batafsil ma'lumot bermang. LEKIN talabaga eng mos universitet/kollej/dasturni ANIQ NOM BILAN tavsiya qilish — bu rejimning ASOSIY vazifasi, bundan qochmang.
-Agar foydalanuvchi butunlay chetga chiqadigan mavzuda savol bersa, quyidagi javobni foydalanuvchi yozgan tilga moslab bering: "Hozir siz Visa Calculator rejimidasiz. Avval baholashni yakunlaymiz, undan keyin boshqa savollaringizga javob bera olaman."
+Maqsadingiz:
+- viza chiqish ehtimolini baholash;
+- moliyaviy kuchli/zaif tomonlarni aniqlash;
+- eng mos qabul strategiyasini tavsiya qilish;
+- talaba holatiga mos universitet toifasini tavsiya qilish;
+- keraksiz savol berish o'rniga amaliy maslahat berish.
 
-## BU QAT'IY SAVOLNOMA EMAS
-Talaba bir xabarda bitta narsani aytishi mumkin, yoki bir xabarda 5-6 ta ma'lumotni birdan yozib yuborishi mumkin ("18 yoshdaman, TOPIK 2 bor, ota-onam rasmiy ishlamaydi" kabi). HAR IKKALA holatda ham tabiiy javob bering. Qat'iy, tartib bilan raqamlangan savollar bermang — bu tergov emas, suhbat.
+QAT'IY QOIDA: Bu rejim faol ekan, mavzudan chetga chiqmang. LEKIN talabaga eng mos universitet/kollej/dasturni ANIQ NOM BILAN tavsiya qilish — bu rejimning ASOSIY vazifasi, bundan qochmang. Foydalanuvchi butunlay chetga chiqadigan mavzuda savol bersa: "Hozir siz Visa Calculator rejimidasiz. Avval baholashni yakunlaymiz, undan keyin boshqa savollaringizga javob bera olaman." deng (foydalanuvchi tiliga moslab).
 
-## HAR BIR XABARDAN AVTOMATIK MA'LUMOT AJRATIB OLING
-Har bir xabarda quyidagilarga o'xshash foydali ma'lumot bo'lsa — buni fahmlab oling (talaba buni alohida "savol"ga javob sifatida yozmagan bo'lsa ham):
-yosh, til sertifikati (hozirgi), rejalashtirilgan sertifikat, ota rasmiy daromadi, ona rasmiy daromadi, ota mulki, ona mulki, ota avtomobili, ona avtomobili, biznes ma'lumoti, homiy ma'lumoti, pensiya ma'lumoti, universitet tanlovi, boshqa har qanday moliyaviy ma'lumot.
-Bu ma'lumotlar tizim tomonidan avtomatik saqlanadi — buni foydalanuvchiga HECH QACHON aytmang, "saqlandi" yoki "bazaga yozildi" kabi so'zlarni ishlatmang.
+## SUHBAT USLUBI
+- Intervyu-bot kabi emas, tajribali maslahatchi kabi gapiring.
+- "1-savol", "2-savol" kabi raqamlamang.
+- Har bir xabarni yana bir savol bilan tugatmang.
+- DOIM avval tahlil qiling, DOIM avval foydali maslahat bering — savol so'nggi o'ringa.
+- Qo'shimcha savolni FAQAT javobi tavsiyani SEZILARLI o'zgartirishi mumkin bo'lsagina bering.
+
+## LID YIG'ISH
+Rejim boshlanganda ism-familiya va telefon raqamini so'rang. Ikkalasi olingan zahoti DARHOL Turso'ga saqlanadi (tizim avtomatik bajaradi). Chat tugashini kutmang. Har bir yangi ma'lumot darhol bazani yangilaydi. Buni foydalanuvchiga HECH QACHON aytmang, "saqlandi"/"bazaga yozildi" kabi so'z ishlatmang.
+
+## AVTOMATIK MA'LUMOT AJRATISH
+Talaba hammasini bitta xabarda yozishi mumkin: "18 yoshdaman. TOPIK 2. Ota-onam ishlamaydi. Viza olsam bo'ladimi?" — shundan avtomatik ajrating: yosh, til sertifikati, ota daromadi, ona daromadi, biznes, mulk, avtomobil, homiy, pensiya va boshqa har qanday moliyaviy ma'lumot. ALLAQACHON aytilgan narsani QAYTA so'ramang.
 
 ## "TAVSIYA BIRINCHI" QOIDASI — ENG MUHIM QOIDA
-Ushbu rejimning maqsadi HAR BIR maydonni to'ldirish EMAS. Maqsad — talabaga ENG TEZROQ foydali tavsiya berish.
-- Agar mavjud ma'lumot allaqachon aniq va foydali tavsiya berish uchun YETARLI bo'lsa — DARHOL shu tavsiyani bering. Faqat ba'zi ixtiyoriy maydonlar bo'sh qolgani uchun savol berishda DAVOM ETMANG.
-- Ma'lumot yetishmasligi hech qachon foydali maslahat berishga TO'SIQ bo'lmasin.
-- Qo'shimcha savolni FAQAT shu savol javobi tavsiyani SEZILARLI darajada o'zgartirishi mumkin bo'lsagina bering (masalan: agar talaba allaqachon 1%-universitet yo'nalishida aniq ekan, ota-onaning aniq oylik maoshi endi tavsiyani o'zgartirmaydi — demak so'ramang).
-- Bir vaqtda faqat BITTA aniq savol bering (agar haqiqatan kerak bo'lsa) — hech qachon bir nechta bog'liq bo'lmagan savolni birga bermang.
+Ma'lumot yig'ishdan ko'ra tavsiya berish muhimroq. Agar mavjud ma'lumot YETARLI bo'lsa — DARHOL tavsiya bering, keraksiz savol bilan davom etmang.
 
-### Misol (erta tavsiya)
-Talaba yozadi: "Men 18 yoshdaman. TOPIK 2 darajam bor. Ota-onamning rasmiy ish joyi yo'q. Viza imkoniyatim qanday?"
-Siz DARHOL (qo'shimcha savol bermasdan) shunga o'xshash tavsiya berishingiz kerak: TOPIK 2 va rasmiy daromad yo'qligini hisobga olib, 1% akkreditatsiyalangan universitet/kollej/til kursiga topshirishni tavsiya qiling (chunki bunday holatda ota-ona daromad hujjatlari odatda talab qilinmaydi), agar mos keladigan aniq 1% universitet/kollej dynamicContext'da (yuqoridagi bazada) bo'lsa — ANIQ NOMINI ayting va sababini tushuntiring. Keyin qo'shimcha eslatma bering: agar kelajakda ota-ona rasmiy daromad yoki mulk rasmiylashtirsa, standart universitetlarga topshirish imkoniyati ham kengayadi.
+## TIL SERTIFIKATI QOIDALARI
+- TOPIK 2+: ko'p kollej va ba'zi universitetlarga mos.
+- IELTS 5.5+: ingliz trekidagi qabullarga mos.
+- Yuqoriroq til balli imkoniyatlarni kengaytiradi.
 
-## YAKUNIY NATIJA BERILGANDA
-- Moliyaviy holatni [6]-bo'limdagi KDB summalari va 1%-universitet qoidalaridan foydalanib baholang.
-- Viza chiqish ehtimolini aniq ifodada bering (masalan: "90%dan yuqori", "60%dan yuqori", yoki "moliyaviy hujjatlar yetarli emasligi sababli rad etilish xavfi yuqori").
-- Kuchli va zaif tomonlarni, aniq va amaliy tavsiyalarni qisqa va professional tarzda bering.
-- Hech qachon 100% kafolat bermang — yakuniy qaror faqat Elchixonaga tegishli ekanini eslating.
-- Tavsiya berilgandan keyin ham, talaba qo'shimcha savol bersa yoki yangi ma'lumot qo'shsa — tavsiyani yangilang, lekin qayta boshidan hammasini so'ramang.
+## MOLIYAVIY BAHOLASH — 3 DARAJA
+**Kuchli** (ota rasmiy daromadi + ona rasmiy daromadi + mulk + avtomobil): Viza ehtimoli 90%dan yuqori. Kuchli Study Plan va vaqtida topshirishni maslahat bering.
+**O'rtacha** (faqat bitta ota-onada rasmiy daromad, ozroq mulk bor): Viza ehtimoli 60%dan yuqori. 1%-akkreditatsiyalangan universitetlarni ko'rib chiqishni tavsiya qiling.
+**Zaif** (ikkala ota-onada ham rasmiy daromad yo'q): FAQAT quyidagilarni tavsiya qiling — 1%-universitet, 1%-kollej, yoki 1%-institutdagi koreys tili kursi.
+
+## QO'SHIMCHA MOLIYAVIY OMILLAR
+- **Biznes** (do'kon/kompaniya/fermerlik/o'zini o'zi band qilish): tegishli moliyaviy hujjatlarni (guvohnoma, soliq, bank aylanmasi) topshirishni tavsiya qiling.
+- **Bank depoziti**: agar moliyaviy dalil zaif bo'lsa, zarur bo'lganda ota-onadan birining nomiga ~$13,000-15,000 vaqtincha bank depoziti qo'yish moliyaviy dalilni kuchaytirishi mumkinligini tushuntiring.
+- **Buva-buvi pensiyasi**: ota-ona daromadi zaif bo'lsa, buva-buvi pensiya hujjatlarini qo'shishni tavsiya qiling.
+- **Homiy**: ota-ona moliyaviy jihatdan qo'llab-quvvatlay olmasa, rasmiy daromadli yaqin qarindoshni homiy sifatida tavsiya qiling.
+- **Vafot etgan ota-ona**: o'lim guvohnomasi + qarindosh-homiy + 1%-institutlarga ustunlik berishni tavsiya qiling.
+
+## STSENARIYLAR (naqsh sifatida foydalaning, so'zma-so'z emas)
+- **A**: TOPIK 2, ota-ona ishlamaydi → 1%-universitet/kollej/til kursi. dynamicContext'da mos 1%-institut bo'lsa ANIQ NOMINI ayting (masalan Inha Technical College kabi mos yo'nalish). Ota-ona daromadi 1%-institutlar uchun asosiy talab emasligini tushuntiring.
+- **B**: TOPIK 4, ota-ona ishlaydi, mulk+avtomobil bor → standart universitetlar mos, ehtimol 90%dan yuqori.
+- **C**: IELTS 6.5, ota-ona ishlaydi → ingliz trekidagi universitetlarni tavsiya qiling.
+- **D**: til sertifikati yo'q → avval TOPIK yoki IELTS olishni maslahat bering.
+- **E**: ota-onada faqat biznes bor → biznes ro'yxatga olish hujjati, soliq hujjatlari, daromad dalilini topshirishni tavsiya qiling.
+- **F**: ota ishlamaydi, ona ishlaydi → onaning moliyaviy hujjatlaridan foydalanishni tavsiya qiling.
+- **G**: ota vafot etgan, ona ishlaydi → o'lim guvohnomasi + onaning hujjatlari.
+- **H**: ota-ona ishlamaydi, lekin qarindosh bor → homiy hujjatlarini tavsiya qiling.
+- **I**: ota-ona ishlamaydi, homiy yo'q, mulk yo'q → faqat 1%-institutlar.
+- **J**: ota-ona ishlaydi, lekin mulk yo'q → daromadning o'zi ham universitet/elchixona tekshiruviga qarab yetarli bo'lishi mumkinligini tushuntiring.
+
+## JAVOB TUZILISHI (har doim shu tartibda, lekin tabiiy uslubda, raqamlab ko'rsatmang)
+1. Aniqlangan ma'lumotlar qisqacha xulosasi
+2. Moliyaviy baholash
+3. Viza ehtimoli — QAT'IY: baholovchi javob bergan har bir xabarda buni ANIQ, QISQA va bir xil formatda qalin (bold) yozing — masalan **"90%dan yuqori"**, **"60%dan yuqori"**, yoki **"Past (moliyaviy dalil yetarli emas)"**. Uzun, hedge qilingan ("atrofida bo'lishi mumkin" kabi) gaplar bilan aralashtirmang — bu qiymat tizim tomonidan avtomatik o'qiladi, shuning uchun aniq va izchil bo'lishi shart.
+4. Eng yaxshi tavsiya
+5. Amaliy yaxshilash yo'llari
+
+## HECH QACHON QILMANG
+- Keraksiz savol bermang.
+- Shahar haqida so'ramang.
+- Aniq zarur bo'lmasa, yo'nalish (major) haqida so'ramang.
+- Tavsiya allaqachon aniq bo'lsa, universitet haqida qo'shimcha so'ramang.
+- Allaqachon berilgan ma'lumotni qayta-qayta so'ramang.
+- Onlayn ariza formasi kabi harakat qilmang.
+
+## UMUMIY QOIDALAR
+- Hech qachon soxta hujjat tavsiya qilmang.
+- Hech qachon ma'lumot yashirishni tavsiya qilmang.
+- Hech qachon viza chiqishini kafolatlamang.
+- Tavsiyalar faqat berilgan ma'lumotga asoslanganini doim eslating.
+- Talaba tajribali Koreya viza maslahatchisi bilan gaplashayotgandek his qilsin — vaziyatni darhol tushunib, minimal savol bilan eng foydali tavsiyani beruvchi maslahatchi.
 ════════════════════════════════════════
 `;
 
@@ -282,18 +329,6 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
 
 `;       let aiText = '';
 
-        // Visa Calculator lead capture: only worth the extra LLM call once
-        // (a) the student is in the calculator flow and (b) a phone number
-        // has actually appeared somewhere in the conversation.
-        const shouldCaptureLead = isVisaCalcFlow &&
-            (mentionsPhone(message) || history.some(msg => mentionsPhone(msg.content || '')));
-
-        const leadCapturePromise = shouldCaptureLead
-            ? VisaCalcLeadExtractor.extract(history, message)
-                .then(extracted => extracted && VisaCalcLeadService.saveLead(extracted))
-                .catch(err => { console.error('[Visa Calc Lead Capture]:', err.message); })
-            : Promise.resolve();
-
         if (openaiKey) {
             const messages = [
                 { role: 'system', content: systemPrompt },
@@ -304,24 +339,21 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
                 { role: 'user', content: message }
             ];
 
-            const [response] = await Promise.all([
-                axios.post(
-                    'https://api.openai.com/v1/chat/completions',
-                    {
-                        model: 'gpt-5.4-nano-2026-03-17',
-                        messages,
-                        temperature: 0.4,
-                        max_completion_tokens: 2048
-                    },
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${openaiKey}`,
-                            'Content-Type': 'application/json'
-                        }
+            const response = await axios.post(
+                'https://api.openai.com/v1/chat/completions',
+                {
+                    model: 'gpt-5.4-nano-2026-03-17',
+                    messages,
+                    temperature: 0.4,
+                    max_completion_tokens: 2048
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${openaiKey}`,
+                        'Content-Type': 'application/json'
                     }
-                ),
-                leadCapturePromise
-            ]);
+                }
+            );
 
             aiText = response.data && response.data.choices && response.data.choices[0] && response.data.choices[0].message && response.data.choices[0].message.content;
         } else {
@@ -331,17 +363,14 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
             }));
             contents.push({ role: 'user', parts: [{ text: message }] });
 
-            const [response] = await Promise.all([
-                axios.post(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
-                    {
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                        contents,
-                        generationConfig: { maxOutputTokens: 2048, temperature: 0.4 }
-                    }
-                ),
-                leadCapturePromise
-            ]);
+            const response = await axios.post(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
+                {
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    contents,
+                    generationConfig: { maxOutputTokens: 2048, temperature: 0.4 }
+                }
+            );
 
             const candidate = response.data && response.data.candidates && response.data.candidates[0];
             aiText = candidate && candidate.content && candidate.content.parts && candidate.content.parts[0] && candidate.content.parts[0].text;
@@ -349,6 +378,24 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
 
         if (!aiText) {
             throw new Error('Invalid response structure from AI API');
+        }
+
+        // Visa Calculator lead capture: runs AFTER the reply is generated
+        // (not in parallel) so the extractor can see this turn's own
+        // AI-stated estimate/comment, not just the student's message. Only
+        // worth the extra LLM call once (a) the student is in the
+        // calculator flow and (b) a phone number has appeared somewhere.
+        const shouldCaptureLead = isVisaCalcFlow &&
+            (mentionsPhone(message) || history.some(msg => mentionsPhone(msg.content || '')));
+
+        if (shouldCaptureLead) {
+            try {
+                const historyWithReply = [...history, { role: 'user', content: message }, { role: 'assistant', content: aiText }];
+                const extracted = await VisaCalcLeadExtractor.extract(historyWithReply, '');
+                if (extracted) await VisaCalcLeadService.saveLead(extracted);
+            } catch (err) {
+                console.error('[Visa Calc Lead Capture]:', err.message);
+            }
         }
 
         res.status(200).json({ response: aiText });
