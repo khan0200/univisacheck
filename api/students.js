@@ -5,6 +5,25 @@
 const db = require('./db');
 const { verifyToken, setCors } = require('./auth-helper');
 
+// Keeps users.students_count in step with how many active students the
+// cabinet holds. Recomputed from the students table rather than
+// incremented, so the column self-heals if a write is ever missed.
+// Never lets a bookkeeping failure break the student operation that
+// already succeeded — the count is reporting data, not source of truth.
+async function syncStudentsCount(userId) {
+    try {
+        await db.execute({
+            sql: `UPDATE users SET students_count = (
+                      SELECT COUNT(*) FROM students
+                      WHERE students.userId = ? AND students.deletedAt IS NULL
+                  ) WHERE id = ?`,
+            args: [userId, userId]
+        });
+    } catch (err) {
+        console.error('[Students API] Failed to sync students_count:', err.message);
+    }
+}
+
 module.exports = async (req, res) => {
     // CORS
     setCors(req, res);
@@ -126,6 +145,7 @@ module.exports = async (req, res) => {
             const sql = `UPDATE students SET deletedAt = ? WHERE passport IN (${placeholders}) AND userId = ?`;
             const args = [new Date().toISOString(), ...passports, userId];
             await db.execute({ sql, args });
+            await syncStudentsCount(userId);
 
             res.status(200).json({ success: true });
             return;
@@ -258,6 +278,7 @@ module.exports = async (req, res) => {
                         applicationNo || ''
                     ]
                 });
+                await syncStudentsCount(userId);
                 res.status(201).json({ success: true, message: 'Student created successfully' });
             } else {
                 // Update existing student — only if it belongs to this user
@@ -288,6 +309,9 @@ module.exports = async (req, res) => {
                 args.push(isRename ? originalPassport : passport, userId);
                 const sql = `UPDATE students SET ${updateFields.join(', ')} WHERE passport = ? AND userId = ?`;
                 await db.execute({ sql, args });
+                // Ordinary edits leave the count alone; a revive clears
+                // deletedAt and puts the student back in the cabinet.
+                if (isRevive) await syncStudentsCount(userId);
                 res.status(200).json({ success: true, message: 'Student updated successfully' });
             }
             return;
