@@ -198,6 +198,26 @@ module.exports = async (req, res) => {
             }
         }
 
+        // Fetch college-level (전문학사) institutions for "TOPIK N bilan qaysi
+        // kollejga topshirsa bo'ladi" style questions -- without this, the AI
+        // has no matching data and stalls asking about track/type instead of
+        // answering, since college-tier schools aren't a separate DB field,
+        // just names containing "College".
+        const fullConversationText = [...history.map(m => m.content || ''), message].join(' ');
+        const wantsCollegeList = /\bkoll?ej|college|전문학사/i.test(fullConversationText);
+        if (wantsCollegeList) {
+            const topikMatch = fullConversationText.match(/topik\s*(\d)/i);
+            const topikLevel = topikMatch ? parseInt(topikMatch[1], 10) : null;
+            const colleges = await UniversityService.getCollegesForTopikLevel(topikLevel);
+            if (colleges && colleges.length > 0) {
+                dynamicContext += `\n== KOLLEJ (전문학사) DARAJASIDAGI MUASSASALAR${topikLevel ? ` (TOPIK ${topikLevel} bilan mos)` : ''} (DATABASE) ==\n`;
+                colleges.forEach((u, i) => {
+                    dynamicContext += `${i+1}. ${u.name} (${u.korean_name}) - Til talabi: ${u.language || 'bazada yo\'q'} - ${u.is_1_percent ? '1%' : 'Standart'}\n`;
+                });
+                dynamicContext += `\n== TUGADI ==\n`;
+            }
+        }
+
         // Fetch KMS Knowledge base content
         const kmsRecords = await KnowledgeRetriever.retrieve(analysis.intent, analysis.keywords, message);
         if (kmsRecords && kmsRecords.length > 0) {
@@ -370,6 +390,8 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
 - YAXSHI: universitetni darhol tavsiya qil, ikkala trek borligini ayt.
 
 **Scholarship/Ranking so'rovlari** (masalan "ko'proq scholarship beradigan universitetlarni tavsiya qil", "eng yaxshi/arzon universitetlarni ayt"): daraja (bakalavr/magistr) aniq bo'lgach — yo'nalish (major) so'ralmasa ham — DARHOL bazadagi shu darajadagi universitetlarni STIPENDIYA FOIZI (yoki so'ralgan mezon) bo'yicha saralab, TO'LIQ RO'YXAT qilib ber. Yo'nalish, hudud, byudjet — bularning HECH BIRI majburiy savol emas, faqat ixtiyoriy FILTR. Ro'yxatni bergandan keyin bitta jumla bilan taklif qil, masalan: "Agar sizga qulay shahar yozsangiz, shahar bo'yicha filtr qilib beraman, yoki biror o'qishni xohlaydigan yo'nalishni yozsangiz, shunga moslab universitetni qoldiraman." — bu taklif, savol emas; ro'yxatni bermasdan oldin bunday narsalarni so'rab kutib turma.
+
+**Kollej (전문학사) so'rovlari** (masalan "TOPIK 2 bilan qaysi kollejga topshirsa bo'ladi"): agar dynamicContext'da "KOLLEJ (전문학사) DARAJASIDAGI MUASSASALAR" ro'yxati bo'lsa, uni DARHOL to'liq ro'yxat qilib ber — "koreys yoki ingliz trekmi" deb so'ramang (TOPIK darajasi allaqachon koreys trekni bildiradi, bu qayta so'rash shart emas), "qaysi turdagi kollej" deb ham qayta-qayta so'ramang. Talaba TOPIK darajasini allaqachon aytgan bo'lsa, shu darajaga mos ro'yxat tayyor — darhol ber.
 
 **Progressive Consultation** (naqsh, so'zma-so'z emas):
 User: "AI magistrga tavsiya qil."
