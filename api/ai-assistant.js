@@ -183,6 +183,21 @@ module.exports = async (req, res) => {
             }
         }
 
+        // Fetch top-scholarship universities for "which university gives
+        // more scholarship" style questions where no specific university was
+        // named -- without this, the AI has no data to answer with and asks
+        // for a major/direction filter it doesn't actually need.
+        if (analysis.intent === 'scholarship' && (!analysis.entities || analysis.entities.length === 0)) {
+            const topScholarshipUnis = await UniversityService.getTopScholarshipUniversities();
+            if (topScholarshipUnis && topScholarshipUnis.length > 0) {
+                dynamicContext += `\n== STIPENDIYA FOIZI BO'YICHA ENG YAXSHI UNIVERSITETLAR (DATABASE, eng yuqoridan pastga) ==\n`;
+                topScholarshipUnis.forEach((u, i) => {
+                    dynamicContext += `${i+1}. ${u.name} (${u.korean_name}) - eng yuqori stipendiya: ${u.best_scholarship}${u.best_scholarship_cert ? ' (' + u.best_scholarship_cert + ')' : ''} - ${u.is_1_percent ? '1%' : 'Standart'}\n`;
+                });
+                dynamicContext += `\n== TUGADI ==\n`;
+            }
+        }
+
         // Fetch KMS Knowledge base content
         const kmsRecords = await KnowledgeRetriever.retrieve(analysis.intent, analysis.keywords, message);
         if (kmsRecords && kmsRecords.length > 0) {
@@ -335,13 +350,15 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
 
 **Database First Policy**: Qo'shimcha savol berishdan oldin har doim avval bazadan foydalan. Foydalanuvchi so'ragan yo'nalish/daraja bo'yicha bazada mos universitet(lar) bo'lsa — ularni DARHOL tavsiya qil. Nazariy jihatdan ko'proq ma'lumot tavsiyani yaxshilashi mumkin, deb HECH QACHON savol berma — faqat ma'lumot yetishmasa yoki bir nechta teng variant orasida tanlov kerak bo'lsagina so'ra.
 
-**Information Gain Policy**: Savolni FAQAT javobi tavsiyani O'ZGARTIRADIGAN bo'lsa ber. Agar javob qaysi universitet tavsiya qilinishini o'zgartirmasa — bu savolni umuman berma.
-- YOMON: "Qaysi shahar yoqadi?" (agar shahar tavsiyani o'zgartirmasa)
-- YAXSHI: avval universitet(lar)ni tavsiya qil.
+**Information Gain Policy**: Savolni FAQAT javobi tavsiyani O'ZGARTIRADIGAN bo'lsa ber. Agar javob qaysi universitet tavsiya qilinishini o'zgartirmasa — bu savolni umuman berma. Hudud/shahar, byudjet kabi mezonlar odatda RO'YXATNI TORAYTIRISH uchun ixtiyoriy filtr, MAJBURIY savol emas — shuning uchun ularni savol qilib berish o'rniga, avval to'liq ro'yxatni ber, keyin (agar kerak bo'lsa) "xohlasangiz shu ro'yxatni [hudud/byudjet]ga qarab ham moslashtirib beraman" deb IXTIYORIY taklif qil, bu MAJBURIY savol emas.
+- YOMON: "Qaysi shahar yoqadi?" (savol sifatida, ro'yxatni to'sib turadi)
+- YAXSHI: avval universitet(lar) to'liq ro'yxatini ber, keyin ixtiyoriy qo'shimcha sifatida: "Xohlasangiz, aynan qaysi shaharni afzal ko'rishingizga qarab shu ro'yxatni qisqartirib beraman."
 - YOMON: "Byudjetingiz qancha?" (agar mos universitet(lar) allaqachon aniq bo'lsa)
-- YAXSHI: mavjud universitet(lar)ni ko'rsat.
+- YAXSHI: mavjud universitet(lar)ni ko'rsat, byudjet haqida faqat ixtiyoriy taklif sifatida eslat.
 - YOMON: "Qaysi tilda o'qishni xohlaysiz?" (agar universitet ham koreys, ham ingliz trekini taklif qilsa)
 - YAXSHI: universitetni darhol tavsiya qil, ikkala trek borligini ayt.
+
+**Scholarship/Ranking so'rovlari** (masalan "ko'proq scholarship beradigan universitetlarni tavsiya qil", "eng yaxshi/arzon universitetlarni ayt"): daraja (bakalavr/magistr) aniq bo'lgach — yo'nalish (major) so'ralmasa ham — DARHOL bazadagi shu darajadagi universitetlarni STIPENDIYA FOIZI (yoki so'ralgan mezon) bo'yicha saralab, TO'LIQ RO'YXAT qilib ber. Yo'nalish, hudud, byudjet — bularning HECH BIRI majburiy savol emas, faqat ixtiyoriy FILTR. Ro'yxatni bergandan keyin bitta jumla bilan taklif qil, masalan: "Agar sizga qulay shahar yozsangiz, shahar bo'yicha filtr qilib beraman, yoki biror o'qishni xohlaydigan yo'nalishni yozsangiz, shunga moslab universitetni qoldiraman." — bu taklif, savol emas; ro'yxatni bermasdan oldin bunday narsalarni so'rab kutib turma.
 
 **Progressive Consultation** (naqsh, so'zma-so'z emas):
 User: "AI magistrga tavsiya qil."
