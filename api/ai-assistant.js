@@ -11,10 +11,6 @@ const VisaCalcLeadService = require('../lib/visa-calc-lead-service');
 // (+998 90 123 45 67, 998901234567, 90-123-45-67, etc.)
 const PHONE_PATTERN = /(?:\+?\d[\d\s\-()]{6,}\d)/;
 
-function mentionsPhone(text) {
-    return !!text && PHONE_PATTERN.test(text);
-}
-
 const ALLOWED_ORIGINS = [
     'https://visa.unibridge.uz',
     'https://visa-sable.vercel.app',
@@ -130,9 +126,15 @@ module.exports = async (req, res) => {
         const isVisaCalcFlow = /viza (imkoniyat|kalkulyator)/i.test(message) ||
             history.some(msg => /viza (imkoniyat|kalkulyator)/i.test(msg.content || ''));
 
-        // 1. Analyze Intent
-        const analysis = await IntentAnalyzer.analyze(message);
-        console.log("Intent Analysis:", analysis);
+        // 1. Analyze Intent — skipped inside an active Visa Calculator flow,
+        // since the intent is already locked and this would otherwise be a
+        // full extra OpenAI call on every single turn of every calculator
+        // conversation for no benefit (the mode-lock prompt ignores intent
+        // anyway, and KMS retrieval below still gets the raw message text).
+        const analysis = isVisaCalcFlow
+            ? { intent: 'visa_calc', entities: [], attribute: null, visa_related: true }
+            : await IntentAnalyzer.analyze(message);
+        console.log("Intent Analysis:", analysis, isVisaCalcFlow ? '(skipped, visa-calc mode)' : '');
 
         // 2. Fetch Relevant Data dynamically from Turso
         let dynamicContext = "";
@@ -158,7 +160,11 @@ module.exports = async (req, res) => {
                         return;
                     }
                 }
-                dynamicContext += `\n== RELEVANT UNIVERSITIES DATA ==\n${JSON.stringify(unis, null, 2)}\n== END RELEVANT DATA ==\n`;
+                // Drop `description` (long marketing prose never referenced by the
+                // mandated [7] answer format) and skip pretty-print indentation —
+                // pure token savings, no information the AI actually needs is lost.
+                const trimmedUnis = unis.map(({ description, ...rest }) => rest);
+                dynamicContext += `\n== RELEVANT UNIVERSITIES DATA ==\n${JSON.stringify(trimmedUnis)}\n== END RELEVANT DATA ==\n`;
             }
         }
 
@@ -402,14 +408,25 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
         // AI-stated estimate/comment, not just the student's message. Only
         // worth the extra LLM call once (a) the student is in the
         // calculator flow and (b) a phone number has appeared somewhere.
-        const shouldCaptureLead = isVisaCalcFlow &&
-            (mentionsPhone(message) || history.some(msg => mentionsPhone(msg.content || '')));
+        const historyWithReply = [...history, { role: 'user', content: message }, { role: 'assistant', content: aiText }];
+        const phoneCandidate = [historyWithReply.map(m => m.content || '').join(' ')]
+            .map(text => (text.match(PHONE_PATTERN) || [])[0])[0];
+
+        const shouldCaptureLead = isVisaCalcFlow && !!phoneCandidate;
 
         if (shouldCaptureLead) {
             try {
-                const historyWithReply = [...history, { role: 'user', content: message }, { role: 'assistant', content: aiText }];
-                const extracted = await VisaCalcLeadExtractor.extract(historyWithReply, '');
-                if (extracted) await VisaCalcLeadService.saveLead(extracted);
+                // Bounded window instead of full history -- keeps extraction
+                // cost flat regardless of how long the conversation has run.
+                const RECENT_WINDOW = 8;
+                const recentMessages = historyWithReply.slice(-RECENT_WINDOW);
+
+                const existingLead = await VisaCalcLeadService.findByPhone(phoneCandidate);
+                const extracted = await VisaCalcLeadExtractor.extract(existingLead, recentMessages);
+                if (extracted) {
+                    if (!extracted.phone) extracted.phone = phoneCandidate;
+                    await VisaCalcLeadService.saveLead(extracted);
+                }
             } catch (err) {
                 console.error('[Visa Calc Lead Capture]:', err.message);
             }
