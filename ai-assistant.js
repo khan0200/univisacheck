@@ -282,6 +282,11 @@
             </div>
         `;
         chatMessages.appendChild(indicator);
+        // Re-scroll now that the indicator bubble is in the DOM -- the
+        // scroll triggered by the user's own message (addMessage) happens
+        // before this bubble exists, so without this the indicator stays
+        // off-screen until the AI's reply arrives and repositions the view.
+        chatMessages.scrollTop = chatMessages.scrollHeight;
         return indicator;
     }
 
