@@ -67,7 +67,7 @@
             border-bottom: 1px solid var(--border);
         }
         .top-nav-inner {
-            max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 100%;
+            max-width: 1240px; margin: 0 auto; padding: 0 19px; height: 100%;
             display: flex; align-items: center; justify-content: space-between; gap: 12px;
         }
         .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--primary); }
@@ -83,7 +83,7 @@
         .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
 
         /* ─── GATE ────────────────────────────────────────────────── */
-        .gate-page { display: flex; flex-direction: column; align-items: center; min-height: calc(100dvh - var(--nav-h)); padding: 64px 24px; }
+        .gate-page { display: flex; flex-direction: column; align-items: center; min-height: calc(100dvh - var(--nav-h)); padding: 64px 19px; }
         .gate-card {
             width: 100%; max-width: 380px; background: var(--card); border: 1px solid var(--border);
             border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm);
@@ -115,7 +115,7 @@
         }
 
         /* ─── DASHBOARD ───────────────────────────────────────────── */
-        .dash-page { max-width: 1240px; margin: 0 auto; padding: 32px 24px 64px; display: none; }
+        .dash-page { max-width: 1240px; margin: 0 auto; padding: 32px 19px 64px; display: none; }
         .dash-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
         .dash-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
         .dash-header p { font-size: 13px; color: var(--text-2); margin-top: 3px; }
@@ -158,17 +158,17 @@
         /* ─── TABLE ───────────────────────────────────────────────── */
         .table-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
         .table-scroll { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 980px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1120px; }
         thead th {
             text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.04em; color: var(--text-3); padding: 12px 14px; border-bottom: 1px solid var(--border);
+            letter-spacing: 0.04em; color: var(--text-3); padding: 12px 11.2px; border-bottom: 1px solid var(--border);
             background: #FAFBFC; white-space: nowrap; user-select: none;
         }
         th.sortable { cursor: pointer; transition: color var(--dur) var(--ease); }
         th.sortable:hover { color: var(--text-2); }
         th.sortable .sort-arrow { display: inline-block; margin-left: 3px; opacity: 0.35; }
         th.sortable.sort-active .sort-arrow { opacity: 1; color: var(--primary); }
-        tbody td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        tbody td { padding: 12px 11.2px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: top; }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: #FAFBFC; }
         .cell-name { font-weight: 600; }
@@ -204,9 +204,17 @@
         .details-btn {
             border: 1px solid var(--border); background: #fff; color: var(--text-2); border-radius: var(--radius-sm);
             padding: 5px 10px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: var(--font);
-            transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+            white-space: nowrap; transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
         }
         .details-btn:hover { color: var(--primary); border-color: var(--border-strong); }
+        .edit-btn, .delete-btn {
+            border: 1px solid var(--border); background: #fff; color: var(--text-2); border-radius: var(--radius-sm);
+            width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+        }
+        .edit-btn:hover { color: var(--primary); border-color: var(--border-strong); }
+        .delete-btn:hover { color: var(--danger); border-color: var(--danger-brd); background: var(--danger-bg); }
+        .row-actions { display: flex; gap: 5px; white-space: nowrap; align-items: center; }
 
         .empty-state { text-align: center; padding: 56px 24px; color: var(--text-2); }
         .empty-state svg { width: 32px; height: 32px; color: var(--text-3); margin-bottom: 10px; }
@@ -237,12 +245,25 @@
             width: 100%; max-width: 560px; max-height: 84vh; overflow-y: auto;
             animation: slideUp 0.25s var(--ease) both;
         }
-        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--card); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 17.6px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--card); }
         .modal-header h2 { font-size: 16px; font-weight: 700; }
         .modal-close { border: none; background: #F1F5F9; color: var(--text-2); width: 28px; height: 28px; border-radius: 8px; cursor: pointer; display: grid; place-items: center; }
         .modal-close:hover { color: var(--primary); }
         .modal-close svg { width: 14px; height: 14px; }
-        .modal-body { padding: 18px 22px 24px; }
+        .modal-body { padding: 18px 17.6px 24px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 17.6px; border-top: 1px solid var(--border); position: sticky; bottom: 0; background: var(--card); }
+
+        .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+        .edit-item { display: flex; flex-direction: column; gap: 4px; }
+        .edit-item.full-span { grid-column: 1 / -1; }
+        .edit-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); }
+        .edit-input, .edit-select, .edit-textarea {
+            width: 100%; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            color: var(--primary); font-family: var(--font); font-size: 13px; padding: 8px 10px; outline: none;
+            transition: border-color var(--dur) var(--ease);
+        }
+        .edit-input:focus, .edit-select:focus, .edit-textarea:focus { border-color: var(--accent); }
+        .edit-textarea { resize: vertical; min-height: 54px; font-family: var(--font); }
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
         .detail-item { display: flex; flex-direction: column; gap: 3px; }
         .detail-item.full-span { grid-column: 1 / -1; }
@@ -350,7 +371,7 @@
                         <th>AI sharhi</th>
                         <th>Holat</th>
                         <th class="sortable sort-active" data-sort="created_at">Qo'shildi <span class="sort-arrow">↓</span></th>
-                        <th></th>
+                        <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody id="leadsBody"></tbody>
@@ -377,6 +398,42 @@
             </button>
         </div>
         <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<!-- ─── EDIT MODAL ──────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="editModalOverlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 id="editModalTitle">Talaba ma'lumotlarini tahrirlash</h2>
+            <button class="modal-close" id="editModalClose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body" id="editModalBody"></div>
+        <div class="modal-footer" id="editModalFooter">
+            <button class="icon-btn" id="editCancelBtn">Bekor qilish</button>
+            <button class="btn-primary" id="editSaveBtn" style="padding: 9px 16px; min-height: auto;">Saqlash</button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── DELETE CONFIRM MODAL ────────────────────────────────────────── -->
+<div class="modal-overlay" id="deleteModalOverlay">
+    <div class="modal-card" style="max-width: 400px;">
+        <div class="modal-header">
+            <h2>Lidni o'chirish</h2>
+            <button class="modal-close" id="deleteModalClose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 13.5px; color: var(--text-2); line-height: 1.5;" id="deleteModalText">Ushbu lidni butunlay o'chirmoqchimisiz? Bu amalni orqaga qaytarib bo'lmaydi.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="icon-btn" id="deleteCancelBtn">Bekor qilish</button>
+            <button class="btn-primary" id="deleteConfirmBtn" style="padding: 9px 16px; min-height: auto; background: var(--danger);">O'chirish</button>
+        </div>
     </div>
 </div>
 
@@ -465,6 +522,26 @@
             body: JSON.stringify({ id, status })
         });
         if (!res.ok) throw new Error('Yangilashda xatolik');
+        return res.json();
+    }
+
+    async function updateFields(id, fields) {
+        const res = await fetch(API_URL, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminSecret },
+            body: JSON.stringify({ id, fields })
+        });
+        if (!res.ok) throw new Error('Saqlashda xatolik');
+        return res.json();
+    }
+
+    async function deleteLead(id) {
+        const res = await fetch(API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminSecret },
+            body: JSON.stringify({ id })
+        });
+        if (!res.ok) throw new Error("O'chirishda xatolik");
         return res.json();
     }
 
@@ -557,7 +634,17 @@
                         </select>
                     </td>
                     <td class="cell-sub">${formatDate(l.created_at)}</td>
-                    <td><button class="details-btn" data-id="${l.id}">Batafsil</button></td>
+                    <td>
+                        <div class="row-actions">
+                            <button class="details-btn" data-id="${l.id}">Batafsil</button>
+                            <button class="edit-btn" data-id="${l.id}" title="Tahrirlash" aria-label="Tahrirlash">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                            </button>
+                            <button class="delete-btn" data-id="${l.id}" title="O'chirish" aria-label="O'chirish">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `;
         }).join('');
@@ -611,6 +698,14 @@
 
         leadsBody.querySelectorAll('.details-btn').forEach(btn => {
             btn.addEventListener('click', () => openDetails(btn.dataset.id));
+        });
+
+        leadsBody.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => openEdit(btn.dataset.id));
+        });
+
+        leadsBody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => confirmDelete(btn.dataset.id));
         });
     }
 
@@ -676,6 +771,151 @@
 
     modalClose.addEventListener('click', () => modalOverlay.classList.remove('open'));
     modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove('open'); });
+
+    // ─── EDIT MODAL ──────────────────────────────────────────────────
+    const editModalOverlay = document.getElementById('editModalOverlay');
+    const editModalBody = document.getElementById('editModalBody');
+    const editModalClose = document.getElementById('editModalClose');
+    const editCancelBtn = document.getElementById('editCancelBtn');
+    const editSaveBtn = document.getElementById('editSaveBtn');
+    let editingId = null;
+
+    const EDIT_FIELDS = [
+        { section: 'Asosiy ma\'lumot', fields: [
+            ['full_name', 'Ism-familiya', 'text'],
+            ['phone', 'Telefon', 'text'],
+            ['age', 'Yosh', 'text'],
+            ['university_name', 'Universitet', 'text'],
+            ['university_type', 'Universitet turi', 'select', [['', "Noma'lum"], ['1_percent', '1% akkreditatsiya'], ['standard', 'Standart'], ['not_sure', 'Bilmayman']]],
+            ['language_certificate', 'Til sertifikati', 'text'],
+            ['planned_language_certificate', 'Rejalashtirilgan sertifikat', 'text'],
+        ]},
+        { section: 'Ota', fields: [
+            ['father_official_income', 'Rasmiy daromad', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"], ['deceased', 'Vafot etgan']]],
+            ['father_monthly_salary', 'Oylik maosh', 'text'],
+            ['father_house', 'Uy/Kvartira', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"]]],
+            ['father_vehicle', 'Avtomobil', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"]]],
+        ]},
+        { section: 'Ona', fields: [
+            ['mother_official_income', 'Rasmiy daromad', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"], ['deceased', 'Vafot etgan']]],
+            ['mother_monthly_salary', 'Oylik maosh', 'text'],
+            ['mother_house', 'Uy/Kvartira', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"]]],
+            ['mother_vehicle', 'Avtomobil', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"]]],
+        ]},
+        { section: "Qo'shimcha moliyaviy ma'lumot", fields: [
+            ['business_info', 'Biznes', 'textarea', null, true],
+            ['self_employed_status', "O'zini o'zi band qilish", 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"]]],
+            ['grandparents_pension', 'Buva-buvi pensiyasi', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"]]],
+            ['temp_bank_deposit_availability', 'Vaqtincha bank depoziti', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"], ['not_sure', 'Bilmayman']]],
+            ['sponsor_availability', 'Homiy mavjudmi', 'select', [['', "Noma'lum"], ['yes', 'Ha'], ['no', "Yo'q"]]],
+            ['parent_deceased_status', 'Vafot etgan ota-ona', 'text'],
+            ['parent_income_info', 'Ota-ona daromadi (erkin matn)', 'textarea', null, true],
+        ]},
+        { section: 'AI natijasi', fields: [
+            ['estimated_visa_approval_percentage', 'Viza ehtimoli', 'text'],
+            ['ai_generated_comment', 'AI sharhi', 'textarea', null, true],
+        ]},
+    ];
+
+    function editField(key, label, type, options, fullSpan, value) {
+        const id = 'edit_' + key;
+        let control;
+        if (type === 'select') {
+            control = `<select class="edit-select" id="${id}" data-field="${key}">
+                ${options.map(([v, l]) => `<option value="${v}" ${value === v ? 'selected' : ''}>${escapeHtml(l)}</option>`).join('')}
+            </select>`;
+        } else if (type === 'textarea') {
+            control = `<textarea class="edit-textarea" id="${id}" data-field="${key}">${escapeHtml(value || '')}</textarea>`;
+        } else {
+            control = `<input class="edit-input" id="${id}" data-field="${key}" type="text" value="${escapeHtml(value || '')}">`;
+        }
+        return `<div class="edit-item${fullSpan ? ' full-span' : ''}">
+            <div class="edit-label">${label}</div>
+            ${control}
+        </div>`;
+    }
+
+    function openEdit(id) {
+        const l = allLeads.find(x => String(x.id) === String(id));
+        if (!l) return;
+        editingId = id;
+        document.getElementById('editModalTitle').textContent = 'Tahrirlash — ' + (l.full_name || ('Talaba #' + l.id));
+
+        editModalBody.innerHTML = EDIT_FIELDS.map(group => `
+            <div class="detail-section-title">${group.section}</div>
+            <div class="edit-grid">
+                ${group.fields.map(([key, label, type, options, fullSpan]) => editField(key, label, type, options, fullSpan, l[key])).join('')}
+            </div>
+        `).join('');
+
+        editModalOverlay.classList.add('open');
+    }
+
+    async function saveEdit() {
+        if (!editingId) return;
+        const fields = {};
+        editModalBody.querySelectorAll('[data-field]').forEach(el => {
+            fields[el.dataset.field] = el.value.trim();
+        });
+
+        editSaveBtn.disabled = true;
+        try {
+            await updateFields(editingId, fields);
+            const lead = allLeads.find(l => String(l.id) === String(editingId));
+            if (lead) Object.assign(lead, fields);
+            renderTable();
+            renderStats();
+            editModalOverlay.classList.remove('open');
+            toast("O'zgarishlar saqlandi");
+        } catch (err) {
+            toast('Xatolik: ' + err.message);
+        } finally {
+            editSaveBtn.disabled = false;
+        }
+    }
+
+    editModalClose.addEventListener('click', () => editModalOverlay.classList.remove('open'));
+    editCancelBtn.addEventListener('click', () => editModalOverlay.classList.remove('open'));
+    editModalOverlay.addEventListener('click', (e) => { if (e.target === editModalOverlay) editModalOverlay.classList.remove('open'); });
+    editSaveBtn.addEventListener('click', saveEdit);
+
+    // ─── DELETE CONFIRM MODAL ────────────────────────────────────────
+    const deleteModalOverlay = document.getElementById('deleteModalOverlay');
+    const deleteModalClose = document.getElementById('deleteModalClose');
+    const deleteCancelBtn = document.getElementById('deleteCancelBtn');
+    const deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+    let deletingId = null;
+
+    function confirmDelete(id) {
+        const l = allLeads.find(x => String(x.id) === String(id));
+        deletingId = id;
+        document.getElementById('deleteModalText').textContent = l && l.full_name
+            ? `"${l.full_name}" nomli lidni butunlay o'chirmoqchimisiz? Bu amalni orqaga qaytarib bo'lmaydi.`
+            : "Ushbu lidni butunlay o'chirmoqchimisiz? Bu amalni orqaga qaytarib bo'lmaydi.";
+        deleteModalOverlay.classList.add('open');
+    }
+
+    async function performDelete() {
+        if (!deletingId) return;
+        deleteConfirmBtn.disabled = true;
+        try {
+            await deleteLead(deletingId);
+            allLeads = allLeads.filter(l => String(l.id) !== String(deletingId));
+            renderStats();
+            renderTable();
+            deleteModalOverlay.classList.remove('open');
+            toast('Lid o\'chirildi');
+        } catch (err) {
+            toast('Xatolik: ' + err.message);
+        } finally {
+            deleteConfirmBtn.disabled = false;
+        }
+    }
+
+    deleteModalClose.addEventListener('click', () => deleteModalOverlay.classList.remove('open'));
+    deleteCancelBtn.addEventListener('click', () => deleteModalOverlay.classList.remove('open'));
+    deleteModalOverlay.addEventListener('click', (e) => { if (e.target === deleteModalOverlay) deleteModalOverlay.classList.remove('open'); });
+    deleteConfirmBtn.addEventListener('click', performDelete);
 
     function exportCsv() {
         const rows = getFiltered();

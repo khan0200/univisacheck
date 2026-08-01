@@ -830,7 +830,10 @@ const server = http.createServer(async (req, res) => {
             res.end(JSON.stringify(data));
         };
 
-        if (req.method === 'PATCH') {
+        const urlParsed = new URL(req.url, `http://localhost:${PORT}`);
+        req.query = Object.fromEntries(urlParsed.searchParams.entries());
+
+        if (req.method === 'PATCH' || req.method === 'DELETE') {
             let body = '';
             req.on('data', chunk => body += chunk);
             req.on('end', () => {
