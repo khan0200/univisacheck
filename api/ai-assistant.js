@@ -4,6 +4,16 @@ const IntentAnalyzer = require('../lib/ai/intent-analyzer');
 const UniversityService = require('../lib/university-service');
 const KnowledgeProcessor = require('../lib/ai/knowledge-processor');
 const KnowledgeRetriever = require('../lib/ai/knowledge-retriever');
+const VisaCalcLeadExtractor = require('../lib/ai/visa-calc-lead-extractor');
+const VisaCalcLeadService = require('../lib/visa-calc-lead-service');
+
+// Matches an Uzbek/international phone number written in any common format
+// (+998 90 123 45 67, 998901234567, 90-123-45-67, etc.)
+const PHONE_PATTERN = /(?:\+?\d[\d\s\-()]{6,}\d)/;
+
+function mentionsPhone(text) {
+    return !!text && PHONE_PATTERN.test(text);
+}
 
 const ALLOWED_ORIGINS = [
     'https://visa.unibridge.uz',
@@ -113,6 +123,13 @@ module.exports = async (req, res) => {
             }
         }
 
+        // Visa Calculator is a dedicated, topic-locked mode: once triggered,
+        // it must stay locked onto the interview until finished, regardless
+        // of what else the student asks. Detected before intent analysis so
+        // the mode-lock instruction can be woven into the system prompt.
+        const isVisaCalcFlow = /viza (imkoniyat|kalkulyator)/i.test(message) ||
+            history.some(msg => /viza (imkoniyat|kalkulyator)/i.test(msg.content || ''));
+
         // 1. Analyze Intent
         const analysis = await IntentAnalyzer.analyze(message);
         console.log("Intent Analysis:", analysis);
@@ -163,11 +180,48 @@ module.exports = async (req, res) => {
             dynamicContext += `\n== BAZADAGI QO'SHIMCHA MA'LUMOTLAR ==\n` + kmsRecords.map(r => `Savol: ${r.question}\nJavob: ${r.answer}`).join('\n\n') + `\n== BAZA TUGADI ==\n`;
         }
 
+        const visaCalcModeBlock = !isVisaCalcFlow ? '' : `
+════════════════════════════════════════
+== VIZA CALCULATOR REJIMI FAOL — ENG YUQORI USTUVORLIK, BOSHQA HAMMA QOIDADAN USTUN ==
+════════════════════════════════════════
+Siz hozir "Visa Calculator" rejimidasiz — Janubiy Koreya D-2 (bakalavr) talaba vizasi bo'yicha AQLLI MASLAHATCHI, so'roq oluvchi TERGOVCHI EMAS.
+
+QAT'IY QOIDA: Bu rejim faol ekan, mavzudan chetga chiqmang — masalan viza tekshirish xizmati, umuman aloqasi yo'q boshqa mavzular haqida batafsil ma'lumot bermang. LEKIN talabaga eng mos universitet/kollej/dasturni ANIQ NOM BILAN tavsiya qilish — bu rejimning ASOSIY vazifasi, bundan qochmang.
+Agar foydalanuvchi butunlay chetga chiqadigan mavzuda savol bersa, quyidagi javobni foydalanuvchi yozgan tilga moslab bering: "Hozir siz Visa Calculator rejimidasiz. Avval baholashni yakunlaymiz, undan keyin boshqa savollaringizga javob bera olaman."
+
+## BU QAT'IY SAVOLNOMA EMAS
+Talaba bir xabarda bitta narsani aytishi mumkin, yoki bir xabarda 5-6 ta ma'lumotni birdan yozib yuborishi mumkin ("18 yoshdaman, TOPIK 2 bor, ota-onam rasmiy ishlamaydi" kabi). HAR IKKALA holatda ham tabiiy javob bering. Qat'iy, tartib bilan raqamlangan savollar bermang — bu tergov emas, suhbat.
+
+## HAR BIR XABARDAN AVTOMATIK MA'LUMOT AJRATIB OLING
+Har bir xabarda quyidagilarga o'xshash foydali ma'lumot bo'lsa — buni fahmlab oling (talaba buni alohida "savol"ga javob sifatida yozmagan bo'lsa ham):
+yosh, til sertifikati (hozirgi), rejalashtirilgan sertifikat, ota rasmiy daromadi, ona rasmiy daromadi, ota mulki, ona mulki, ota avtomobili, ona avtomobili, biznes ma'lumoti, homiy ma'lumoti, pensiya ma'lumoti, universitet tanlovi, boshqa har qanday moliyaviy ma'lumot.
+Bu ma'lumotlar tizim tomonidan avtomatik saqlanadi — buni foydalanuvchiga HECH QACHON aytmang, "saqlandi" yoki "bazaga yozildi" kabi so'zlarni ishlatmang.
+
+## "TAVSIYA BIRINCHI" QOIDASI — ENG MUHIM QOIDA
+Ushbu rejimning maqsadi HAR BIR maydonni to'ldirish EMAS. Maqsad — talabaga ENG TEZROQ foydali tavsiya berish.
+- Agar mavjud ma'lumot allaqachon aniq va foydali tavsiya berish uchun YETARLI bo'lsa — DARHOL shu tavsiyani bering. Faqat ba'zi ixtiyoriy maydonlar bo'sh qolgani uchun savol berishda DAVOM ETMANG.
+- Ma'lumot yetishmasligi hech qachon foydali maslahat berishga TO'SIQ bo'lmasin.
+- Qo'shimcha savolni FAQAT shu savol javobi tavsiyani SEZILARLI darajada o'zgartirishi mumkin bo'lsagina bering (masalan: agar talaba allaqachon 1%-universitet yo'nalishida aniq ekan, ota-onaning aniq oylik maoshi endi tavsiyani o'zgartirmaydi — demak so'ramang).
+- Bir vaqtda faqat BITTA aniq savol bering (agar haqiqatan kerak bo'lsa) — hech qachon bir nechta bog'liq bo'lmagan savolni birga bermang.
+
+### Misol (erta tavsiya)
+Talaba yozadi: "Men 18 yoshdaman. TOPIK 2 darajam bor. Ota-onamning rasmiy ish joyi yo'q. Viza imkoniyatim qanday?"
+Siz DARHOL (qo'shimcha savol bermasdan) shunga o'xshash tavsiya berishingiz kerak: TOPIK 2 va rasmiy daromad yo'qligini hisobga olib, 1% akkreditatsiyalangan universitet/kollej/til kursiga topshirishni tavsiya qiling (chunki bunday holatda ota-ona daromad hujjatlari odatda talab qilinmaydi), agar mos keladigan aniq 1% universitet/kollej dynamicContext'da (yuqoridagi bazada) bo'lsa — ANIQ NOMINI ayting va sababini tushuntiring. Keyin qo'shimcha eslatma bering: agar kelajakda ota-ona rasmiy daromad yoki mulk rasmiylashtirsa, standart universitetlarga topshirish imkoniyati ham kengayadi.
+
+## YAKUNIY NATIJA BERILGANDA
+- Moliyaviy holatni [6]-bo'limdagi KDB summalari va 1%-universitet qoidalaridan foydalanib baholang.
+- Viza chiqish ehtimolini aniq ifodada bering (masalan: "90%dan yuqori", "60%dan yuqori", yoki "moliyaviy hujjatlar yetarli emasligi sababli rad etilish xavfi yuqori").
+- Kuchli va zaif tomonlarni, aniq va amaliy tavsiyalarni qisqa va professional tarzda bering.
+- Hech qachon 100% kafolat bermang — yakuniy qaror faqat Elchixonaga tegishli ekanini eslating.
+- Tavsiya berilgandan keyin ham, talaba qo'shimcha savol bersa yoki yangi ma'lumot qo'shsa — tavsiyani yangilang, lekin qayta boshidan hammasini so'ramang.
+════════════════════════════════════════
+`;
+
         const systemPrompt = `
 Sen — Koreya ta'limi bo'yicha eng tajribali va ishonchli Qabul Maslahatchi va Viza Tayyorgarlik Mutaxassisiisan.
 Sen salomkorea.uz web ilovasining rasmiy AI assistanti (sun'iy intellekt yordamchisi) hisoblanasan. Agar kimdir salomkorea.uz haqida so'rasa, quyidagicha javob ber: "salomkorea.uz - bu Janubiy Koreyada o'qish istagida bo'lgan talabalar uchun mo'ljallangan yagona, qulay va ishonchli axborot portali. Bu orqali talabalar universitetlar haqida to'liq ma'lumot olishlari, viza talablarini tekshirishlari, elchixona yangiliklaridan xabardor bo'lishlari va AI assistant orqali o'z savollariga javob topishlari mumkin."
 Sening maqsading: talabalarga Janubiy Koreyada o'qishni rejalashtirish, universitetni tanlash, viza imkoniyatlarini baholash va hujjatlarni tayyorlashda aniq, qisqa va foydali yordam berish.
-
+${visaCalcModeBlock}
 ${dynamicContext}
 
 ════════════════════════════════════════
@@ -228,6 +282,18 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
 
 `;       let aiText = '';
 
+        // Visa Calculator lead capture: only worth the extra LLM call once
+        // (a) the student is in the calculator flow and (b) a phone number
+        // has actually appeared somewhere in the conversation.
+        const shouldCaptureLead = isVisaCalcFlow &&
+            (mentionsPhone(message) || history.some(msg => mentionsPhone(msg.content || '')));
+
+        const leadCapturePromise = shouldCaptureLead
+            ? VisaCalcLeadExtractor.extract(history, message)
+                .then(extracted => extracted && VisaCalcLeadService.saveLead(extracted))
+                .catch(err => { console.error('[Visa Calc Lead Capture]:', err.message); })
+            : Promise.resolve();
+
         if (openaiKey) {
             const messages = [
                 { role: 'system', content: systemPrompt },
@@ -238,21 +304,24 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
                 { role: 'user', content: message }
             ];
 
-            const response = await axios.post(
-                'https://api.openai.com/v1/chat/completions',
-                {
-                    model: 'gpt-5.4-nano-2026-03-17',
-                    messages,
-                    temperature: 0.4,
-                    max_completion_tokens: 2048
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${openaiKey}`,
-                        'Content-Type': 'application/json'
+            const [response] = await Promise.all([
+                axios.post(
+                    'https://api.openai.com/v1/chat/completions',
+                    {
+                        model: 'gpt-5.4-nano-2026-03-17',
+                        messages,
+                        temperature: 0.4,
+                        max_completion_tokens: 2048
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${openaiKey}`,
+                            'Content-Type': 'application/json'
+                        }
                     }
-                }
-            );
+                ),
+                leadCapturePromise
+            ]);
 
             aiText = response.data && response.data.choices && response.data.choices[0] && response.data.choices[0].message && response.data.choices[0].message.content;
         } else {
@@ -262,14 +331,17 @@ Foydalanuvchi qaysi tilda yozsa — o'sha tilda javob ber: O'zbek, Rus, Ingliz y
             }));
             contents.push({ role: 'user', parts: [{ text: message }] });
 
-            const response = await axios.post(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
-                {
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    contents,
-                    generationConfig: { maxOutputTokens: 2048, temperature: 0.4 }
-                }
-            );
+            const [response] = await Promise.all([
+                axios.post(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
+                    {
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        contents,
+                        generationConfig: { maxOutputTokens: 2048, temperature: 0.4 }
+                    }
+                ),
+                leadCapturePromise
+            ]);
 
             const candidate = response.data && response.data.candidates && response.data.candidates[0];
             aiText = candidate && candidate.content && candidate.content.parts && candidate.content.parts[0] && candidate.content.parts[0].text;

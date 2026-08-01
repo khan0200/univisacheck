@@ -100,16 +100,6 @@
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
         </button>
-
-        <!-- Circular Text Label -->
-        <svg class="circular-text" viewBox="0 0 100 100" width="90" height="90" id="aiChatLabel">
-            <path id="circularTextPath" d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0" fill="none"></path>
-            <text>
-                <textPath href="#circularTextPath">
-                    AI YORDAMCHI • AI YORDAMCHI • 
-                </textPath>
-            </text>
-        </svg>
     `;
 
     document.body.appendChild(widgetContainer);

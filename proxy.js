@@ -822,6 +822,25 @@ const server = http.createServer(async (req, res) => {
             authHandler(req, res);
         }
 
+    } else if (req.url.startsWith('/api/visa-calc-leads')) {
+        // ── Visa Calculator leads (admin dashboard) ─────────────────────────
+        res.status = (statusCode) => { res.statusCode = statusCode; return res; };
+        res.json = (data) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(data));
+        };
+
+        if (req.method === 'PATCH') {
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+                try { req.body = JSON.parse(body || '{}'); } catch { req.body = body; }
+                require('./api/visa-calc-leads.js')(req, res);
+            });
+        } else {
+            require('./api/visa-calc-leads.js')(req, res);
+        }
+
     } else if (req.url.startsWith('/api/students')) {
         // ── Students CRUD route ───────────────────────────────────────────────
         const urlParsed = new URL(req.url, `http://localhost:${PORT}`);
