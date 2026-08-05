@@ -12,7 +12,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from './turso';
 import { encrypt, decrypt } from './encryption';
-import { signToken, JWT_SECRET } from '../api/auth-helper';
+import { signToken, JWT_SECRET } from '../api/_lib/auth-helper';
 import { t, Lang } from './i18n';
 
 export interface BotUser {

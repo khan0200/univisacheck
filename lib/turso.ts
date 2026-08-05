@@ -5,7 +5,7 @@
  */
 
 // Import the existing db client so we reuse the connection
-import db from '../api/db';
+import db from '../api/_lib/db';
 import { 
     CREATE_NOTIFICATIONS_TABLE, 
     CREATE_SESSIONS_TABLE, 
