@@ -1,9 +1,9 @@
 // Vercel Serverless Function — /api/auth
 // Handles signup, login, and me endpoints.
 
-const db = require('./db');
+const db = require('./_lib/db');
 const bcrypt = require('bcryptjs');
-const { signToken, verifyToken, setCors } = require('./auth-helper');
+const { signToken, verifyToken, setCors } = require('./_lib/auth-helper');
 
 const SALT_ROUNDS = 12;
 

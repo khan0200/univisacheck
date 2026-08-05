@@ -2,8 +2,8 @@
 // Handles CRUD operations for students in Turso database.
 // All operations are scoped to the authenticated user via JWT.
 
-const db = require('./db');
-const { verifyToken, setCors } = require('./auth-helper');
+const db = require('./_lib/db');
+const { verifyToken, setCors } = require('./_lib/auth-helper');
 
 // Keeps users.students_count in step with how many active students the
 // cabinet holds. Recomputed from the students table rather than

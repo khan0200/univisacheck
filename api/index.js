@@ -3,7 +3,7 @@
 // Returns JSON: { status, detail, applicationDate, rejectionReason, pdfUrl }
 
 const { checkVisaDirect } = require('../direct-visa-check');
-const db = require('./db');
+const db = require('./_lib/db');
 
 const ALLOWED_ORIGINS = [
     'https://visa.unibridge.uz',
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
         // Only update the DB row when we can verify which user owns this student.
         // The cabinet frontend always sends a JWT; bot flows handle their own
         // DB updates via lib/cabinet.ts:refreshStudent(), so we skip them here.
-        const { verifyToken } = require('./auth-helper');
+        const { verifyToken } = require('./_lib/auth-helper');
         const authUser = verifyToken(req);
         try {
             const lastChecked = new Date().toISOString();

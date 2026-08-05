@@ -114,8 +114,8 @@ function formatLastChecked(dateString, lang = 'uz') {
     }
 }
 
-const { verifyToken } = require('./auth-helper');
-const db = require('./db');
+const { verifyToken } = require('./_lib/auth-helper');
+const db = require('./_lib/db');
 
 module.exports = async (req, res) => {
     setCors(req, res);

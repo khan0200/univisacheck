@@ -1,7 +1,7 @@
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const db = require('./api/db');
+const db = require('./api/_lib/db');
 const authHandler = require('./api/auth');
 const { checkVisaDirect } = require('./direct-visa-check');
 const axios = require('axios');

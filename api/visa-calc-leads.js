@@ -5,7 +5,7 @@
 // commands use) since this page surfaces PII across all students, not
 // just the caller's own data -- there is no per-user ownership here.
 
-const db = require('./db');
+const db = require('./_lib/db');
 const path = require('path');
 
 const ALLOWED_ORIGINS = [

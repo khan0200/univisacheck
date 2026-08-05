@@ -8,7 +8,7 @@ const path = require('path');
 // production. No secret is hardcoded in this tracked file.
 let localConfig = {};
 try {
-    localConfig = require(path.join(__dirname, '..', 'turso.config.js'));
+    localConfig = require(path.join(__dirname, '..', '..', 'turso.config.js'));
 } catch (_) {
     // Not present — expected in production, where env vars are used instead.
 }

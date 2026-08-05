@@ -8,7 +8,7 @@ const path = require('path');
 // a committed JWT secret would let anyone forge a login token for any user.
 let localConfig = {};
 try {
-    localConfig = require(path.join(__dirname, '..', 'turso.config.js'));
+    localConfig = require(path.join(__dirname, '..', '..', 'turso.config.js'));
 } catch (_) {
     // Not present — expected in production.
 }
