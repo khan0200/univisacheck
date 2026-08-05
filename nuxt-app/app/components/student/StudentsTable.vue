@@ -163,6 +163,7 @@ function onRowClick(student: Student, event: MouseEvent) {
               <UiLoadingButton
                 size="sm"
                 color="primary"
+                class="text-white"
                 :loading="checkingPassports.has(student.passport)"
                 @click="emit('refresh', student)"
               >
