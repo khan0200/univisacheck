@@ -29,3 +29,4 @@ build/
 
 # Local AI Assistant
 
+.env*
