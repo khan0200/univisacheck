@@ -1273,6 +1273,22 @@ const server = http.createServer(async (req, res) => {
             }
         });
 
+    } else if (req.url.startsWith('/api/qabul-dates')) {
+        try {
+            res.status = (code) => { res.statusCode = code; return res; };
+            res.json = (data) => {
+                if (!res.headersSent) res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(data));
+            };
+            const handler = require('./api/qabul-dates.js');
+            await handler(req, res);
+        } catch (err) {
+            console.error('[Qabul Dates Proxy Error]:', err);
+            if (!res.headersSent) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: err.message }));
+            }
+        }
     } else {
         res.writeHead(404);
         res.end('Not Found');

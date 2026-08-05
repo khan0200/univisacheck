@@ -1,0 +1,30 @@
+{
+  "name": "salomkorea-nuxt",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --port 3100",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.121",
+    "@libsql/client": "^0.17.4",
+    "@nuxt/fonts": "^0.11.0",
+    "@nuxt/ui": "^4.10.0",
+    "@pinia/nuxt": "^0.9.0",
+    "@vueuse/nuxt": "^12.4.0",
+    "nuxt": "^4.5.1",
+    "pinia": "^2.3.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.16.0",
+    "eslint": "^10.8.0",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.9"
+  }
+}

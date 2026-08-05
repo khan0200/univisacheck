@@ -27,6 +27,10 @@
     {
       "source": "/api/visa-calc-leads",
       "destination": "/api/visa-calc-leads.js"
+    },
+    {
+      "source": "/api/qabul-dates",
+      "destination": "/api/qabul-dates.js"
     }
   ],
   "functions": {

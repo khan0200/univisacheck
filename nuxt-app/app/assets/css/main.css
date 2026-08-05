@@ -1,0 +1,194 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@theme static {
+  --font-sans: 'Plus Jakarta Sans', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Brand — deep luxury Korean green */
+  --color-primary-50: #E9F3F0;
+  --color-primary-100: #C9E1D9;
+  --color-primary-200: #A0CBBE;
+  --color-primary-300: #6FAF9C;
+  --color-primary-400: #418F79;
+  --color-primary-500: #1F6E58;
+  --color-primary-600: #0F4F3D;
+  --color-primary-700: #0B4133;
+  --color-primary-800: #08352A;
+  --color-primary-900: #06382D;
+  --color-primary-950: #032019;
+
+  /* Secondary — premium gold */
+  --color-secondary-50: #FEFBEF;
+  --color-secondary-100: #FDF6D8;
+  --color-secondary-200: #FBEDAE;
+  --color-secondary-300: #F9EC85;
+  --color-secondary-400: #F5E077;
+  --color-secondary-500: #F1D86F;
+  --color-secondary-600: #DCB249;
+  --color-secondary-700: #B98F35;
+  --color-secondary-800: #8F6E29;
+  --color-secondary-900: #6B5320;
+
+  /* Supporting */
+  --color-navy: #16213E;
+  --color-navy-dark: #1A1A2E;
+  --color-blue-deep: #0F3460;
+
+  /* Surfaces */
+  --color-bg: #F8FAFC;
+  --color-bg-dark: #0D1520;
+  --color-card: #FFFFFF;
+  --color-card-dark: #131D2E;
+  --color-border: rgba(0, 0, 0, 0.06);
+  --color-border-dark: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-primary-dark: #F3F4F6;
+  --color-text-secondary-dark: #9CA3AF;
+
+  /* Semantic — success (emerald scale anchored on #10B981) */
+  --color-success-50: #ECFDF5;
+  --color-success-100: #D1FAE5;
+  --color-success-200: #A7F3D0;
+  --color-success-300: #6EE7B7;
+  --color-success-400: #34D399;
+  --color-success-500: #10B981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065F46;
+  --color-success-900: #064E3B;
+  --color-success-950: #022C22;
+
+  /* Semantic — warning (amber scale anchored on #F59E0B) */
+  --color-warning-50: #FFFBEB;
+  --color-warning-100: #FEF3C7;
+  --color-warning-200: #FDE68A;
+  --color-warning-300: #FCD34D;
+  --color-warning-400: #FBBF24;
+  --color-warning-500: #F59E0B;
+  --color-warning-600: #D97706;
+  --color-warning-700: #B45309;
+  --color-warning-800: #92400E;
+  --color-warning-900: #78350F;
+  --color-warning-950: #451A03;
+
+  /* Semantic — danger (red scale anchored on #EF4444) */
+  --color-danger-50: #FEF2F2;
+  --color-danger-100: #FEE2E2;
+  --color-danger-200: #FECACA;
+  --color-danger-300: #FCA5A5;
+  --color-danger-400: #F87171;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
+  --color-danger-700: #B91C1C;
+  --color-danger-800: #991B1B;
+  --color-danger-900: #7F1D1D;
+  --color-danger-950: #450A0A;
+
+  /*
+   * Radius hierarchy — structured/architectural, not soft.
+   * Buttons/inputs/dropdowns 10px · cards 14px · dialogs 16px · tables 12px
+   * · images 16px (hero 20px max) · badges/avatars stay pill/circle via rounded-full.
+   */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+}
+
+:root {
+  --ui-radius: 0.625rem;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-feature-settings: 'ss01' 1, 'cv01' 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Native <button> defaults to cursor:default in most browsers — every
+   clickable button (UButton and plain <button>s alike) should show a hand. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+:root[data-theme='dark'] body,
+.dark body {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary-dark);
+}
+
+::selection {
+  background-color: var(--color-secondary-300);
+  color: var(--color-primary-900);
+}
+
+/* Custom soft scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Glass effect utility, used sparingly (headers, command palette, modals) */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--color-border);
+}
+
+.dark .glass {
+  background: rgba(19, 29, 46, 0.72);
+  border-color: var(--color-border-dark);
+}
+
+/*
+ * Subtle square-grid background texture for app-shell pages (dashboard,
+ * cabinet). Pure CSS (no image asset) — two repeating linear-gradients
+ * forming a faint square lattice, kept very low-opacity so it reads as a
+ * premium surface texture rather than a distraction.
+ */
+.bg-pattern-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
+}
+
+.dark .bg-pattern-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+}

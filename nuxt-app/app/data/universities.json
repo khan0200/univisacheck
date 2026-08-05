@@ -1,0 +1,3248 @@
+[
+  {
+    "name": "Seoul National University",
+    "koreanName": "서울대학교",
+    "type": "Davlat Universiteti",
+    "visaDetails": "Standart viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "location": "SEOUL",
+    "address": "📍 1 Gwanak-ro, Gwanak-gu, Seoul 08826, Republic of Korea",
+    "img": "snu.png",
+    "qsRank": "#41 (TOP 50)",
+    "founded": "1946",
+    "programs": "150+",
+    "badge1": "National University",
+    "badge2": "SKY National Uni",
+    "badge1Class": "badge-blue",
+    "brandColor": "#0f3b82",
+    "statusTag": "📜 Akkreditatsiyaga ega (Milliy)",
+    "is1Percent": false,
+    "tuition": "2,442,000 - 5,038,000 KRW / semestr",
+    "appFee": "70,000 KRW",
+    "language": "TOPIK 3+ yoki IELTS 6.0+",
+    "visaStatus": "Standart Tekshiruv",
+    "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
+    "description": "Seoul National University (SNU) — Janubiy Koreyaning #1 raqamli eng nufuzli milliy universiteti. SKY akademiyasining eng birinchi vakili bo'lib, xalqaro miqyosda yuqori obro'ga ega.",
+    "englishTrackMajors": [
+      "Business Administration"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Korean Language and Literature",
+      "Economics (Iqtisodiyot)",
+      "Computer Science and Engineering (Kompyuter ilmlari va muhandislik)",
+      "Transdisciplinary Innovations Digital Healthcare (School of Transdisciplinary Innovations)",
+      "Integrative Data Science (School of Transdisciplinary Innovations)",
+      "Sustainable Technology (School of Transdisciplinary Innovations)",
+      "Intelligent Semiconductor System (School of Transdisciplinary Innovations)",
+      "Innovative Pharmaceutical Sciences (School of Transdisciplinary Innovations)"
+    ],
+    "scholarships": [],
+    "otherGrantsNote": "Bakalavriat uchun ushbu qabul yo'nalishida stipendiyalar mavjud emas.",
+    "majors": [
+      "Business Administration",
+      "Korean Language and Literature",
+      "Economics",
+      "Computer Science and Engineering"
+    ]
+  },
+  {
+    "name": "KAIST",
+    "koreanName": "한국과학기술원 (KAIST)",
+    "location": "DAEJEON",
+    "address": "📍 291 Daehak-ro, Yuseong-gu, Daejeon 34141, South Korea",
+    "img": "https://uploaded.kcampus.kr/en_spot_0_1537495127_a20d73f48c.jpg",
+    "qsRank": "TOP 100 (#53 World / #1 Korea)",
+    "founded": "1971",
+    "programs": "100+",
+    "appFee": "80 USD",
+    "badge1": "Full Scholarship",
+    "badge2": "National Research Institute",
+    "badge1Class": "badge-gold",
+    "brandColor": "#004184",
+    "statusTag": "📜 Akkreditatsiyaga ega (Koreya #1 Texnologik)",
+    "is1Percent": false,
+    "tuition": "Full Scholarship (100% Kontrakt $0 + Oylik Stipendiya)",
+    "language": "IELTS 6.5+ | TOEFL 83+ | TOEIC 720+ | TEPS 326+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Universitet 1% lik emas (Standart Akkreditatsiyalangan Milliy Institut). Elchixona viza bosqichida 1-Oylik KDB bank ko'chirmasi ($3,200 USD / KAIST Full Scholarship tufayli) hamda Ota-ona daromad manbai ma'lumotnomasi TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$3,200 USD (KAIST Full Scholarship tufayli)",
+    "description": "1971-yilda tashkil topgan Koreyaning #1 ilmiy-tadqiqot va texnologiyalar universiteti (QS World #53, Korea #1). Barcha qabul qilingan xalqaro talabalarga 100% to'liq kontrakt granti, har oylik stipendiya (~350,000 KRW) va bepul tibbiy sug'urta beriladi. Darslar 100% ingliz tilida.",
+    "englishTrackMajors": [
+      "1-kurs: Yonalishsiz kirish (Undeclared Major System) - 2-kursdan erkin STEM yonalish tanlash",
+      "School of Computing (Computer Science & AI Computing)",
+      "School of Electrical Engineering & Semiconductor",
+      "School of Mechanical & Aerospace Engineering",
+      "Biological Sciences & Brain and Cognitive Sciences",
+      "Civil & Environmental, Bio & Brain, Industrial Design",
+      "Business and Technology Management (College of Business)"
+    ],
+    "koreanTrackMajors": [
+      "Mavjud emas"
+    ],
+    "scholarships": [
+      {
+        "cert": "KAIST International Student Scholarship",
+        "percent": "100% To'liq grant"
+      },
+      {
+        "cert": "Oylik yashash stipendiyasi (Living Stipend)",
+        "percent": "~350,000 KRW / oyiga"
+      },
+      {
+        "cert": "Tibbiy sug'urta (Health Insurance)",
+        "percent": "100% Qoplanadi"
+      },
+      {
+        "cert": "SAT / ACT / AP / IB Top Ball sohiblari",
+        "percent": "Qo'shimcha ilmiy-tadqiqot grantlari (URP)"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: $80 USD. Barcha qabul qilingan xalqaro talabalarga avtomatik ravishda 100% to'liq kontrakt granti va har oylik yashash stipendiyasi ajratiladi. Kam ta'minlangan mamlakatlar (LDC) talabalari uchun Application Fee Waiver dasturi mavjud.",
+    "majors": [
+      "Computer Science",
+      "Artificial Intelligence",
+      "Electrical Engineering",
+      "Mechanical Engineering",
+      "Biotechnology",
+      "Physics & Mathematics"
+    ]
+  },
+  {
+    "name": "Sungkyunkwan University (SKKU)",
+    "koreanName": "성균관대학교",
+    "type": "Xususiy Universitet",
+    "visaDetails": "1% yengillashtirilgan viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI. Qabuldan so'ng 1 kunlik KDB ko'chirmasi talab qilinadi.",
+    "location": "SEOUL & SUWON",
+    "address": "📍 Seoul Campus: 25-2, Sungkyunkwan-ro, Jongno-gu, Seoul | Suwon Campus: 2066 Seobu-ro, Jangan-gu, Suwon-si, Gyeonggi-do",
+    "img": "https://i.ytimg.com/vi/_rbwN6NCD8Q/maxresdefault.jpg",
+    "qsRank": "TOP 150 (#126)",
+    "founded": "1398",
+    "programs": "170+",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "TOP 150 World",
+    "badge1Class": "badge-gold",
+    "brandColor": "#004028",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "4,000,000 KRW / semestr (o'rtacha)",
+    "appFee": "150,000 KRW",
+    "language": "TOPIK 4+ yoki IELTS 6.5+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
+    "description": "Sungkyunkwan University (SKKU) — 1398-yilda asos solingan Koreyadagi eng qadimgi tarixiy va nufuzli universitet. Hozirda Samsung guruhi ko'magida rivojlanayotgan, dunyo reytingida TOP #126 o'rinda turuvchi elita ta'lim muassasasi.",
+    "englishTrackMajors": [
+      "Economics",
+      "Global Business",
+      "Advanced Materials Science & Engineering",
+      "Chemical Engineering",
+      "Computer Science and Engineering",
+      "Mechanical Engineering",
+      "Nano Engineering",
+      "Biomedical Engineering",
+      "Human Science and Society"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Computer Science",
+      "Electrical Engineering",
+      "Electronic Engineering"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 8.0 / TOEFL 110",
+        "percent": "100%"
+      },
+      {
+        "cert": "IELTS 7.5 / TOEFL 100",
+        "percent": "50%"
+      },
+      {
+        "cert": "IELTS 7.0 / TOEFL 90",
+        "percent": "30%"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "100%"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "30%"
+      }
+    ],
+    "otherGrantsNote": "Bitirganiga 3 yildan oshganlarni qabul qilmaydi. Bitiruv talabi: TOPIK 5+ olish shart. Dars jadvali: haftada 4 kun.",
+    "majors": [
+      "Business Administration",
+      "Economics",
+      "Computer Science",
+      "Engineering"
+    ]
+  },
+  {
+    "name": "Yonsei University",
+    "koreanName": "연세대학교",
+    "location": "SEOUL",
+    "address": "📍 50 Yonsei-ro, Seodaemun-gu, Seoul, 03722, South Korea",
+    "img": "https://brocku.ca/international/learning/wp-content/uploads/sites/266/yonsei-main.jpg?x20964",
+    "qsRank": "TOP 100 (#79)",
+    "founded": "1885",
+    "programs": "150+",
+    "badge1": "SKY Trinity",
+    "badge2": "Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#000080",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "8,202,000 KRW / semestr",
+    "appFee": "150,000 KRW (yoki 150 USD)",
+    "language": "TOPIK 4+ yoki IELTS 6.5+",
+    "visaStatus": "Standart Tekshiruv",
+    "kdb1DayAfterAdmission": "$25,000 USD (33,000,000 KRW)",
+    "description": "Koreyadagi mashhur SKY uchligining nufuzli a'zosi. Underwood International College (UIC) orqali to'liq ingliz tilida o'qitiladigan bakalavr dasturlarini va yashash uchun qulay Songdo xalqaro kampusini taklif etadi.",
+    "englishTrackMajors": [
+      "Comparative Literature and Culture",
+      "Economics",
+      "International Studies",
+      "Political Science and International Relations",
+      "Life Science and Biotechnology",
+      "Asian Studies",
+      "Information and Interaction Design",
+      "Creative Technology Management",
+      "Culture and Design Management",
+      "Justice and Civil Leadership",
+      "Quantitative Risk Management",
+      "Science, Technology, and Policy",
+      "Sustainable Development and Cooperation",
+      "Bio-Convergence",
+      "Energy and Environmental Science and Engineering",
+      "Nano Science and Engineering"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Economics",
+      "Computer Science and Engineering",
+      "Biotechnology",
+      "Medicine"
+    ],
+    "scholarships": [
+      {
+        "cert": "Admissions Scholarship (UIC incoming students)",
+        "percent": "100% (4 yillik)"
+      },
+      {
+        "cert": "Merit-based Scholarship (UIC enrolled students)",
+        "percent": "33% - 100%"
+      },
+      {
+        "cert": "Need-based Scholarship (Financial need-based)",
+        "percent": "33% - 100%"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 150,000 KRW (yoki $150 USD). Kontrakt to'lovi: semestriga ~8,202,000 KRW (miscellaneous to'lovlar bilan jami 8,258,000 KRW, 1-semestr uchun 8,416,000 KRW). Yonsei UIC barcha qabul qilingan xalqaro talabalarni avtomatik ravishda 100% lik kirish grantiga nomzod sifatida ko'rib chiqadi. Viza uchun bank ko'chirmasi: $25,000 USD (31 kunlik/1 oylik KDB ko'chirmasi talab etiladi).",
+    "majors": [
+      "Underwood International College (UIC)",
+      "Business Administration",
+      "Medicine",
+      "Biotechnology",
+      "Economics"
+    ]
+  },
+  {
+    "name": "Korea University",
+    "koreanName": "고려대학교 (Korea University)",
+    "type": "Xususiy Universitet",
+    "location": "SEOUL (ANAM CAMPUS)",
+    "address": "📍 Korea University, International Education Team, #301 Dongwon Global Leadership Hall, 145 Anam-ro, Seongbuk-gu, Seoul 02841, Korea",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqkufvOYzOsu5BtSgoe22YU5TUQeG6Pzh-_pfAuufbmjMS7iSKRRr_V9Wc&s=10",
+    "qsRank": "TOP 100 (#67 QS 2025)",
+    "founded": "1905",
+    "programs": "130+",
+    "appFee": "150,000 KRW (Humanities/Science) / 200,000 KRW (Art & Design)",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "SKY Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#8b0000",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "4,200,000 - 5,600,000 KRW / semestr",
+    "language": "TOPIK 4+ | IELTS 6.0+ | TOEFL iBT 80+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD (KRW 20,000,000)",
+    "description": "1905-yilda tashkil etilgan Koreyadagi elita SKY uchligining eng yetakchi va shonli xususiy universiteti (Seul Anam kampusi). Biznes, Xalqaro munosabatlar, Huquq, Tibbiyot, IT va Muhandislik sohalarida dunyoning TOP 100 taligida turadi. International Undergraduate Admission I va II dasturlari orqali 100% full va 50% grant imkoniyatlarini taqdim etadi.",
+    "englishTrackMajors": [
+      "International Studies"
+    ],
+    "koreanTrackMajors": [
+      "University College",
+      "Business Administration",
+      "Economics",
+      "Computer Science & Engineering",
+      "Media & Communication",
+      "Life Sciences & Biotechnology"
+    ],
+    "scholarships": [
+      {
+        "cert": "Anam Global (Top-ranked in track)",
+        "percent": "Full tuition fee (8 semesters)"
+      },
+      {
+        "cert": "KU STEM (Top-tier in STEM)",
+        "percent": "Full tuition fee (4 semesters)"
+      },
+      {
+        "cert": "Global Leader A (Highest admission results)",
+        "percent": "Full tuition fee (4 semesters)"
+      },
+      {
+        "cert": "Global Leader B (Upper-ranking admission results)",
+        "percent": "50% of tuition fee (4 semesters)"
+      },
+      {
+        "cert": "KU Global Friends (Developing countries)",
+        "percent": "Full tuition fee (4 semesters)"
+      },
+      {
+        "cert": "Bright Future (B) (Selected by national gov)",
+        "percent": "KRW 1,000,000 per semester (8 semesters)"
+      },
+      {
+        "cert": "Challenge (C) (KU Language Center Level 5/6)",
+        "percent": "Level 6: KRW 500,000 / Level 5: KRW 300,000"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: Humanities/Science — 150,000 KRW | Art & Design — 200,000 KRW. Alohida ariza talab etilmaydi (barcha grantlar qabul baholashi asosida avtomatik ajratiladi). Viza uchun bank balans ko'chirmasi: KRW 20,000,000+ ($16,000 USD). KU Online Korean Level Test to'lovi: 100,000 KRW.",
+    "majors": [
+      "Business Administration",
+      "International Studies",
+      "Computer Science & Engineering",
+      "Economics",
+      "Artificial Intelligence",
+      "Media & Communication",
+      "Biotechnology",
+      "Art & Design"
+    ]
+  },
+  {
+    "name": "Hanyang University",
+    "koreanName": "한양대학교",
+    "location": "SEOUL",
+    "address": "📍 222 Wangsimni-ro, Seongdong-gu, Seoul, South Korea",
+    "img": "https://uploaded.kcampus.kr/52208281643_5b9a113e9c_o_91ef216f25.jpg",
+    "qsRank": "TOP 200",
+    "founded": "1939",
+    "programs": "180+",
+    "appFee": "142,000 KRW",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "TOP 200 World",
+    "badge1Class": "badge-gold",
+    "brandColor": "#0e2b5c",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "5,279,000 - 7,820,000 KRW / semestr",
+    "language": "TOPIK 4+ | IELTS 6.0+ | TOEFL 80+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD",
+    "description": "Koreyaning 'Muhandislik poytaxti' deb tan olingan TOP universitet. Samsung va Hyundai kompaniyalari bilan hamkorlik qiladi. 1% yengillashtirilgan viza rejimiga ega.",
+    "englishTrackMajors": [
+      "Data Science",
+      "Business Administration (Global Management)",
+      "International Studies",
+      "Global Content Convergence"
+    ],
+    "koreanTrackMajors": [
+      "Computer Science & Engineering",
+      "Mechanical Engineering",
+      "Business School",
+      "Data Science"
+    ],
+    "scholarships": [
+      {
+        "cert": "HISP 100%",
+        "percent": "100% kontrakt (Freshman 8 semestr)"
+      },
+      {
+        "cert": "HISP 70%",
+        "percent": "70% kontrakt (Freshman 8 semestr)"
+      },
+      {
+        "cert": "HISP 50%",
+        "percent": "50% kontrakt (Freshman 8 semestr)"
+      },
+      {
+        "cert": "IELTS 6.5 / TOEFL 90",
+        "percent": "30% kontrakt (1-semestr)"
+      },
+      {
+        "cert": "TOPIK 6 / TOPIK IBT 6",
+        "percent": "100% kontrakt (1-semestr)"
+      },
+      {
+        "cert": "TOPIK 5 / TOPIK IBT 5",
+        "percent": "50% kontrakt (1-semestr)"
+      }
+    ],
+    "otherGrantsNote": "HISP (Hanyang International Scholarship Program) stipendiyasi hujjatlar topshirish jarayonida tanlab olinadi va o'qish davomida minimal 2.5 GPA saqlangan taqdirda 8 semestrgacha 50%, 70% yoki 100% kontraktni qoplaydi. Ingliz tili (IELTS 6.5+) yoki TOPIK darajasi uchun birinchi semestrga alohida 30% dan 100% gacha grantlar beriladi. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi."
+  },
+  {
+    "name": "Kyung Hee University",
+    "koreanName": "경희대학교 (Kyung Hee University)",
+    "location": "SEOUL & GLOBAL CAMPUS",
+    "address": "📍 Division of Global Admissions, 1F Cheongwoonkwan bldg, 26 Kyunghee-daero, Dongdaemun-gu, Seoul 02447, Korea",
+    "img": "https://www.timeshighereducation.com/cms-academic/sites/default/files/styles/profile_gallery_image/public/2024-10/3-2.jpg?itok=KRpqOK9C",
+    "qsRank": "TOP 350 (#331 QS / #39 Asia)",
+    "founded": "1949",
+    "programs": "160+",
+    "appFee": "180,000 KRW (General) / 250,000 KRW (Post Modern Music)",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "TOP 350 World",
+    "badge1Class": "badge-gold",
+    "brandColor": "#700000",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "4,977,400 - 6,718,400 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 6.0+ | TOEFL iBT 80+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD (KRW 20,000,000)",
+    "description": "1949-yilda tashkil etilgan Seul va Suwon/Yongin (Global) kampuslariga ega Koreyaning nufuzli 1% akkreditatsiyalangan universiteti (QS World #331, QS Asia #39, THE World #252). Gotiya me'morchiligidagi afsonaviy kampusi, Mehmonxona & Turizm, Xalqaro munosabatlar, Biznes, Tibbiyot, IT va Art & Design bo'yicha dunyoda tan olingan. Bir nechta to'liq (100%) va 50% qiymatdagi xalqaro grantlarni taqdim etadi.",
+    "englishTrackMajors": [
+      "Business Administration",
+      "Global Hospitality & Tourism Management",
+      "International Studies",
+      "Asian Studies"
+    ],
+    "koreanTrackMajors": [
+      "Department of Global Eminence (1st yr Int'l Program)",
+      "Business Administration",
+      "Hospitality Management",
+      "Media & Communication",
+      "Computer Engineering & AI",
+      "Postmodern Music"
+    ],
+    "scholarships": [
+      {
+        "cert": "Admission A (Highest Evaluated)",
+        "percent": "100% (1st Sem)"
+      },
+      {
+        "cert": "Admission B (TOPIK 6 / IELTS 7.5+)",
+        "percent": "100% (1st Sem)"
+      },
+      {
+        "cert": "Admission C (TOPIK 5)",
+        "percent": "50% (1st Sem)"
+      },
+      {
+        "cert": "Admission G (Engineering/IT)",
+        "percent": "100% (4 Years)"
+      },
+      {
+        "cert": "Admission H (Int'l Studies)",
+        "percent": "100% (1st Sem)"
+      },
+      {
+        "cert": "Admission I (Global Business)",
+        "percent": "50% (Each Sem)"
+      },
+      {
+        "cert": "Pioneer / SDGs Scholarship",
+        "percent": "100% (1-4 Years)"
+      },
+      {
+        "cert": "TOPIK Encouragement Scholarship",
+        "percent": "500,000 KRW/sem"
+      },
+      {
+        "cert": "Academic Encouragement (GPA 3.0+)",
+        "percent": "500k-4M KRW"
+      },
+      {
+        "cert": "KHU-PASS Core Scholarship",
+        "percent": "500,000 KRW"
+      },
+      {
+        "cert": "Kyunghee Sibling / Alumni",
+        "percent": "50% (1st Sem)"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: Standard — 180,000 KRW | Postmodern Music — 250,000 KRW. KHU Korean Language Test (muqobil til testi): 60,000 KRW. Kontrakt narxi: 4,977,400 - 6,718,400 KRW / semestr. Viza uchun bank ko'chirmasi: KRW 20,000,000+ ($16,000 USD). Yotoqxona: Sewha-won (Seoul) — 1,290,000 KRW / 4 oy; Woojungwon (Global) — 1,340,000 KRW / 4 oy.",
+    "majors": [
+      "Hospitality & Tourism Management",
+      "Business Administration",
+      "International Studies",
+      "Computer Engineering",
+      "Art & Design",
+      "Postmodern Music",
+      "Biomedical Engineering"
+    ]
+  },
+  {
+    "name": "Sejong University",
+    "koreanName": "세종대학교",
+    "type": "Xususiy Universitet",
+    "visaDetails": "1% yengillashtirilgan viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "location": "SEOUL",
+    "address": "📍 209 Neungdong-ro, Gwangjin-gu, Seoul 05006, Republic of Korea",
+    "img": "https://en.sejong.ac.kr/_res/sejong/eng/img/231010_%EC%84%B8%EC%A2%85%EB%8C%80%20%EC%A0%84%EA%B2%BD_.jpg",
+    "qsRank": "TOP 400",
+    "founded": "1940",
+    "programs": "110+",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "TOP 400 World",
+    "badge1Class": "badge-gold",
+    "brandColor": "#800000",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "4,669,000 - 6,392,000 KRW / semestr",
+    "appFee": "150,000 KRW",
+    "language": "TOPIK 3+ yoki IELTS 5.5+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
+    "description": "Seul markazida joylashgan va dunyo universitetlari reytingida TOP 400 o'rinda turuvchi nufuzli 1% akkreditatsiyalangan universitet. Mehmonxona & Turizm, IT va Media yo'nalishlarida mashhur.",
+    "englishTrackMajors": [
+      "Division of Global Leadership (International Affairs)",
+      "Department of Public Administration",
+      "Department of Media and Communication",
+      "Faculty of Business Administration",
+      "Department of Economics",
+      "Faculty of Hospitality, Tourism & Food Service Management",
+      "Department of Computer Science and Engineering",
+      "Faculty of Creative Studies (Comics & Animation Technology Major)",
+      "Department of Fashion Design",
+      "Department of Music (Contemporary Music)"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language & Literature",
+      "Division of International Studies",
+      "History, Education, Law, Public Administration, Media & Communication",
+      "Business Administration, Economics, Hospitality & Tourism, Food Service",
+      "Mathematics & Statistics, Physics & Astronomy, Chemistry, Biological Systems",
+      "AI Convergence Electronic Engineering, Semiconductor Systems Engineering",
+      "Computer Science & Engineering, Computer & Information Security, Software",
+      "AI & Robotics, AI & Data Science, AI & Information Technology",
+      "Architectural Engineering, Architecture (5-year), Civil & Environmental",
+      "Environment & Energy, Energy Resources & Geosystems, Mechanical Engineering",
+      "Aerospace System Engineering, Nanotechnology, Quantum & Nuclear Engineering",
+      "Painting, Fashion Design, Music, Physical Education, Dance, Film Art"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 8.0 / TOEFL iBT 112+ (Scholarship A)",
+        "percent": "80% Tuition Waiver"
+      },
+      {
+        "cert": "IELTS 6.5 / TOEFL iBT 100+ (Scholarship A)",
+        "percent": "50% Tuition Waiver"
+      },
+      {
+        "cert": "IELTS 5.5 / TOEFL iBT 71+ (Scholarship A)",
+        "percent": "30% Tuition Waiver"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "100% Tuition Waiver"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "70% Tuition Waiver"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "50% Tuition Waiver"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "30% Tuition Waiver"
+      },
+      {
+        "cert": "Sejong Prep Course / Language Center Graduates (Scholarship B)",
+        "percent": "100% Tuition Waiver (1st Sem)"
+      }
+    ],
+    "otherGrantsNote": "Ingliz va Koreys tillaridagi yo'nalishlarga kiruvchi talabalar uchun til sertifikati darajasiga qarab 1-semestrda 30% dan 100% gacha grantlar taqdim etiladi. 2-semestrdan boshlab GPA natijalariga ko'ra 20% dan 50% gacha stipendiyalar ajratiladi.",
+    "englishTrackMasters": [
+      "MBA (Master of Business Administration)",
+      "AI",
+      "Finance"
+    ],
+    "koreanTrackMasters": [],
+    "majors": [
+      "Hospitality & Tourism Management",
+      "Computer Science and Engineering",
+      "Business Administration",
+      "Comics & Animation Technology",
+      "Fashion Design",
+      "Media & Communication"
+    ]
+  },
+  {
+    "name": "Ajou University",
+    "koreanName": "아주대학교",
+    "type": "Xususiy Universitet",
+    "majors": [
+      "Software & Computer Engineering",
+      "International Business",
+      "Cyber Security",
+      "Mechanical & Automotive Engineering",
+      "Digital Media & AI"
+    ],
+    "location": "SUWON",
+    "address": "📍 World cup-ro 206, Yeongtong-gu, Suwon-si, Gyeonggi-do, South Korea",
+    "img": "https://www.ajou.ac.kr/app/board/attach/image/thumb_88961_1627950670000.do",
+    "qsRank": "THE 401-500",
+    "founded": "1973",
+    "programs": "120+",
+    "appFee": "150,000 KRW",
+    "badge1": "Outstanding 2026",
+    "badge2": "Korea #8 Comprehensive",
+    "badge1Class": "badge-gold",
+    "brandColor": "#002b66",
+    "statusTag": "🥇 2026 Outstanding Certified",
+    "is1Percent": true,
+    "tuition": "4,134,000 - 5,366,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+ | TEPS 600+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi amal qiladi. Elchixona arizalarni yengillashtirilgan shartlar asosida ko'rib chiqadi.",
+    "kdb1DayAfterAdmission": "$16,000 USD",
+    "description": "Ajou Universiteti THE World University Rankings 2026 reytingida dunyoda TOP 400 (401-500th) va Koreyada 8-o'rindagi nufuzli universitet. TOPIK 3-6 hamda IELTS 5.5-8.0 ballariga 30%-100% grantlar ajratiladi.",
+    "englishTrackMajors": [
+      "Business Administration",
+      "International Business",
+      "IT Business"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "International Business",
+      "English Language and Literature"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 5.5",
+        "percent": "30%"
+      },
+      {
+        "cert": "IELTS 6.5",
+        "percent": "50%"
+      },
+      {
+        "cert": "IELTS 7.0",
+        "percent": "70%"
+      },
+      {
+        "cert": "IELTS 8.0",
+        "percent": "100%"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "30%"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "70%"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "100%"
+      }
+    ],
+    "otherGrantsNote": "Til sertifikati yuqori talabalar 4 Yilgacha grant yutib olishi mumkin"
+  },
+  {
+    "name": "Chung-Ang University",
+    "koreanName": "중앙대학교",
+    "location": "SEOUL",
+    "address": "📍 84 Heukseok-ro, Dongjak-gu, Seoul, South Korea",
+    "img": "https://uploaded.kcampus.kr/20230207_110028_28fed632f6.jpg",
+    "qsRank": "#494",
+    "founded": "1916",
+    "appFee": "150,000 KRW",
+    "badge1": "1% Akkreditatsiyadan o'tgan",
+    "badge2": "TOP 500 World",
+    "badge1Class": "badge-gold",
+    "brandColor": "#004080",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "3,800,000 - 5,100,000 KRW / semestr",
+    "language": "TOPIK 4+ | IELTS 5.5+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD",
+    "description": "Seul markazida joylashgan CAU universiteti San'at, Media, Biznes va Muhandislik yo'nalishlarida Osiyoning yetakchi universitetidir. Darslar haftada 4 kun (4 days a week lessons) tashkil etiladi.",
+    "englishTrackMajors": [
+      "Business Administration",
+      "Computer Science"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Computer Science",
+      "Media & Communication",
+      "Film & Theatre"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 5",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "100%"
+      }
+    ],
+    "otherGrantsNote": "TOPIK 5 va 6 darajalari uchun maxsus semestr kontrakt chegirmalari mavjud."
+  },
+  {
+    "name": "Ewha Womans University",
+    "koreanName": "이화여자대학교",
+    "location": "SEOUL",
+    "address": "📍 52 Ewhayeodae-gil, Seodaemun-gu, Seoul, South Korea",
+    "img": "https://static.vecteezy.com/system/resources/previews/022/246/420/non_2x/seoul-south-korea-nov-14-2017-ewha-womans-university-is-a-private-women-s-university-it-is-currently-the-world-s-largest-female-educational-institute-free-photo.jpg",
+    "qsRank": "#498",
+    "founded": "1886",
+    "programs": "140+",
+    "appFee": "150,000 KRW (150 USD)",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#00462a",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "4,640,000 - 6,430,000 KRW / semestr",
+    "language": "TOPIK 4+ | IELTS 6.0+ | TOEFL 80+ | New TEPS 326+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD",
+    "description": "Ewha Womans University Seul shahrida joylashgan dunyodagi eng yirik ayollar universiteti hisoblanadi. Ilm-fan, gumanitar fanlar, san'at va xalqaro munosabatlar yo'nalishlarida kuchli dasturlarga ega. 1% yengillashtirilgan viza tartibiga kiradi.",
+    "englishTrackMajors": [
+      "International Studies*",
+      "Global Korean Studies*"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language & Literature",
+      "Public Administration",
+      "Economics"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 4",
+        "percent": "Qisman kontrakt (Partial)"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "50% kontrakt (Half)"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "100% kontrakt (Full)"
+      }
+    ],
+    "otherGrantsNote": "TOPIK 4-6 darajalari uchun birinchi semestr o'qish kontrakt pulining qisman, 50% yoki 100% qismi qoplanadi. Ingliz tili yo'nalishlariga topshirish uchun IELTS 6.0 yoki TOEFL 80 ball kerak. HOKMA kolleji kontrakt puli: 6.31M KRW; Scranton kolleji (Xalqaro munosabatlar): 5.09M - 5.56M KRW."
+  },
+  {
+    "name": "Kyungpook National University",
+    "koreanName": "경북대학교",
+    "type": "Davlat Milliy Universiteti",
+    "appFee": "80,000 KRW",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "koreanTrackMajors": [
+      "Business Administration (Biznes va Boshqaruv - TOPIK 4+)",
+      "Economics and Trade (Iqtisodiyot va Xalqaro Savdo - TOPIK 3+)",
+      "Computer Science and Engineering (Kompyuter va Dasturlash - TOPIK 4+)",
+      "Electronics Engineering (Elektronika Muhandisligi - TOPIK 4+)",
+      "Mechanical Engineering (Mexanika Muhandisligi - TOPIK 3+)",
+      "Media and Communication (OAV va Kommunikatsiya - TOPIK 4+)",
+      "Korean Language & Literature",
+      "Applied Bioscience & Food Science (Biotexnologiya va Oziq-ovqat - TOPIK 3+)",
+      "Design & Fine Arts (Dizayn va Tasviriy San'at - TOPIK 3+)"
+    ],
+    "location": "DAEGU",
+    "address": "📍 80 Daehak-ro, Buk-gu, Daegu, South Korea",
+    "img": "https://www.timeshighereducation.com/cms-academic/sites/default/files/migrated_institution_images/5_gold-profile_gallery1200x675.jpg",
+    "qsRank": "TOP 500",
+    "founded": "1946",
+    "programs": "170+",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "National University",
+    "badge1Class": "badge-green",
+    "brandColor": "#b91c1c",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "2,200,000 - 3,300,000 KRW / semestr",
+    "language": "TOPIK 3+ | Mavjud emas",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "description": "Daegu shahrida joylashgan eng yirik milliy universitet. Elektronika va IT muhandisligi bo'yicha kuchli IT bazaga ega.",
+    "englishTrackMajors": [],
+    "scholarships": [
+      {
+        "cert": "TOPIK 3",
+        "percent": "30% chegirma"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "50% chegirma"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "70% chegirma"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "100% chegirma"
+      }
+    ],
+    "otherGrantsNote": "Kyungpook National University stipendiyalari: TOPIK darajasiga qarab 30% dan 100% gacha chegirmalar beriladi. Ingliz tili (IELTS/TOEFL) uchun stipendiyalar taqdim etilmaydi.",
+    "majors": [
+      "Electronics Engineering",
+      "Computer Science",
+      "Business Administration",
+      "Economics"
+    ]
+  },
+  {
+    "name": "Inha University",
+    "koreanName": "인하대학교",
+    "location": "INCHEON",
+    "address": "📍 100 Inha-ro, Michuhol-gu, Incheon, South Korea",
+    "img": "https://inha.uz/wp-content/uploads/2021/01/jeong-seock-library-1024x678.jpg",
+    "qsRank": "TOP 600",
+    "founded": "1954",
+    "programs": "130+",
+    "appFee": "105,000 KRW",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "TOP 600 World",
+    "badge1Class": "badge-gold",
+    "brandColor": "#003865",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "$2,500 – $3,000 (~3,400,000 - 4,600,000 KRW) / semestr",
+    "language": "TOPIK 3+ | IELTS 6.0+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi (1% Universitet). Elchixonaga ota-ona daromad manbai va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI. Darslar haftasiga 4 kun o'tkaziladi. Qabuldan so'ng $16,000 USD (KDB bank) balans ko'chirmasi taqdim etiladi.",
+    "kdb1DayAfterAdmission": "$16,000 USD (KDB Bank)",
+    "description": "Inha University — Janubiy Koreyaning Incheon shahrida joylashgan dunyoning TOP 600 reytingidagi yetakchi 1% akkreditatsiyalangan universitet (1954-yil). Darslar haftasiga 4 kun o'tkaziladi. Muhandislik, Xalqaro Biznes va Tabiiy fanlar bo'yicha kuchli. Ota-ona daromad manbai va 1-oylik bank ko'chirmasi talab etilmaydi.",
+    "englishTrackMajors": [
+      "International Trade and Business",
+      "Integrated System Engineering"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language and Literature",
+      "GLOBAL BUSINESS",
+      "Integrated System Engineering",
+      "Economics"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 6.5 / TOPIK 3",
+        "percent": "50-100% grant (1-semestr)"
+      },
+      {
+        "cert": "IELTS 7.0–7.5 / TOPIK 4",
+        "percent": "100% grant (1-yilgacha)"
+      },
+      {
+        "cert": "IELTS 8.0+ / TOPIK 5+",
+        "percent": "100% grant (2–4 yilgacha)"
+      }
+    ],
+    "otherGrantsNote": "Inha University stipendiyalari: IELTS 6.5 yoki TOPIK 3 darajasiga 1-semestr uchun 50-100% kontrakt chegirmasi beriladi. IELTS 7.0-7.5 / TOPIK 4 bo'lganlarga 1 yilgacha, IELTS 8.0+ / TOPIK 5+ egalariga esa 2 yildan 4 yilgacha to'liq grantlar taqdim etiladi. 1% yengillashtirilgan viza rejimi bo'lganligi sababli ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi talab qilinmaydi.",
+    "majors": [
+      "International Trade and Business",
+      "Integrated System Engineering",
+      "Korean Language and Literature",
+      "Economics",
+      "GLOBAL BUSINESS"
+    ]
+  },
+  {
+    "name": "Gachon University",
+    "koreanName": "가천대학교",
+    "location": "SEONGNAM & INCHEON",
+    "address": "📍 1342 Seongnam-daero, Sujeong-gu, Seongnam-si, Gyeonggi-do, South Korea",
+    "img": "https://uploaded.kcampus.kr/2_d9bf8cef74.jpg",
+    "qsRank": "TOP 600",
+    "founded": "1939",
+    "programs": "120+",
+    "appFee": "150,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Medical & Engineering",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003b70",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "4,373,800 - 5,939,800 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 59+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "BAKALAVR UCHUN Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
+    "description": "Gachon Gyeonggi viloyati Seongnam shahrida joylashgan nufuzli universitet bo'lib, Seul metrosiga bevosita ulangan. Tibbiyot va muhandislik sohalarida yetakchi o'rinda turadi.",
+    "englishTrackMajors": [
+      "Business Administration",
+      "Computer Engineering"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Computer Engineering"
+    ],
+    "englishTrackMasters": [
+      "Business Administration"
+    ],
+    "koreanTrackMasters": [
+      "Business Administration",
+      "Computer Engineering",
+      "Korean Language and Literature"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 3 (Korean Track)",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 4+ (Korean Track)",
+        "percent": "100%"
+      },
+      {
+        "cert": "IELTS / English (For Magistr E-Viza)",
+        "percent": "50% ONLY"
+      }
+    ],
+    "bachelorScholarships": [
+      {
+        "cert": "TOPIK 6",
+        "percent": "90% chegirma"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "80% chegirma"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "60% chegirma"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "40% chegirma"
+      },
+      {
+        "cert": "Boshlang'ich (Without TOPIK)",
+        "percent": "30% chegirma"
+      },
+      {
+        "cert": "IELTS 8.0 / TOEFL 112",
+        "percent": "70% chegirma"
+      },
+      {
+        "cert": "IELTS 6.5 / TOEFL 86",
+        "percent": "40% chegirma"
+      },
+      {
+        "cert": "IELTS 5.5 / TOEFL 59",
+        "percent": "30% chegirma"
+      },
+      {
+        "cert": "Partner Institution / Gachon Language Center",
+        "percent": "+10% qo'shimcha"
+      }
+    ],
+    "masterScholarships": [
+      {
+        "cert": "IELTS / English (For Magistr E-Viza)",
+        "percent": "50% ONLY"
+      },
+      {
+        "cert": "TOPIK 3 (Korean Track)",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 4+ (Korean Track)",
+        "percent": "100%"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 150,000 KRW. Magistr bosqichi uchun ingliz tili sertifikatiga (IELTS) faqat 50% lik grant taqdim etiladi. Koreys tili yo'nalishida esa TOPIK 3 darajasi bilan 50% va TOPIK 4 yoki undan yuqori daraja uchun 100% lik to'liq grantlar mavjud.",
+    "majors": [
+      "Business Administration",
+      "Computer Engineering",
+      "Korean Language and Literature"
+    ]
+  },
+  {
+    "name": "Jeonbuk National University",
+    "koreanName": "전북대학교",
+    "location": "JEONJU",
+    "address": "📍 567 Baekje-daero, Deokjin-gu, Jeonju-si, Jeollabuk-do, South Korea",
+    "img": "https://uploaded.kcampus.kr/20230215_72172286_c109cd0cca.jpg",
+    "qsRank": "TOP 700",
+    "founded": "1947",
+    "programs": "160+",
+    "appFee": "80,000 KRW",
+    "badge1": "Top National",
+    "badge2": "National University",
+    "badge1Class": "badge-green",
+    "brandColor": "#002b49",
+    "statusTag": "📜 Akkreditatsiyaga ega (Milliy Universitet)",
+    "is1Percent": false,
+    "tuition": "2,016,000 – 2,779,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "description": "Jeonbuk National University — Janubiy Koreyaning Jeonju shahrida joylashgan yetakchi milliy davlat universiteti (1947-yil). Arzon kontrakt narxlari (2.0M - 2.7M KRW), keng kampus va saxiy 2026 Fall grant dasturlariga ega.",
+    "englishTrackMajors": [
+      "International Studies",
+      "International Engineering & Science"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Computer Science & Engineering",
+      "Social Sciences",
+      "Agricultural & Life Sciences"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 6 / IELTS 8.0+",
+        "percent": "100% to'liq grant (Tuition I & II 100%)"
+      },
+      {
+        "cert": "TOPIK 5 / IELTS 7.5",
+        "percent": "50% grant (Tuition II 50%)"
+      },
+      {
+        "cert": "Boshqa rasmiy til sertifikati",
+        "percent": "Tuition I 100% grant (by budget)"
+      }
+    ],
+    "otherGrantsNote": "Jeonbuk National University 2026 Fall birinchi semestr stipendiyalari: TOPIK 6 yoki IELTS 8.0 va undan yuqori natijaga ega talabalarga 100% to'liq grant (Tuition I va II) taqdim etiladi. TOPIK 5 yoki IELTS 7.5 egalariga Tuition II ning 50% gacha granti beriladi.",
+    "majors": [
+      "International Studies",
+      "International Engineering and Science",
+      "Engineering Division",
+      "Commerce Division",
+      "Social Science Division",
+      "Agriculture & Life Science",
+      "Natural Sciences Division"
+    ]
+  },
+  {
+    "name": "Chonnam National University",
+    "koreanName": "전남대학교",
+    "location": "GWANGJU",
+    "address": "📍 77 Yongbong-ro, Buk-gu, Gwangju, 61186, South Korea",
+    "img": "https://uploaded.kcampus.kr/20230831_61241760_ed2bf2d7ed.jpg",
+    "qsRank": "#851-900",
+    "founded": "1952",
+    "appFee": "50,000 KRW",
+    "badge1": "Top National",
+    "badge2": "National University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003366",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,100,000 - 3,200,000 KRW / semestr",
+    "language": "TOPIK 3+ (Gwangju) / TOPIK 2+ (Yeosu) | IELTS 5.5+ | TOEFL 71+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Chonnam National University (CNU) Gvanju shahridagi eng nufuzli milliy (davlat) universitet hisoblanadi. Arzon ta'lim narxlari va yuqori stipendiya dasturlari bilan ajralib turadi. Darslar haftada 4 kun (4 days a week lessons) tashkil etiladi.",
+    "englishTrackMajors": [
+      "Computer Science",
+      "Business Administration"
+    ],
+    "koreanTrackMajors": [
+      "Computer Science",
+      "Business Administration"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 5.5+",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "30%"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "70%"
+      },
+      {
+        "cert": "TOPIK 5+",
+        "percent": "100%"
+      }
+    ],
+    "otherGrantsNote": "Arzon davlat universiteti. Milliy universitetlar orasida nufuzli o'ringa ega."
+  },
+  {
+    "name": "Chungnam National University",
+    "koreanName": "충남대학교",
+    "location": "DAEJEON",
+    "address": "📍 99 Daehak-ro, Yuseong-gu, Daejeon, South Korea (대전광역시 유성구 대학로 99)",
+    "img": "https://uploaded.kcampus.kr/20230216_80353152_efda109ebf.jpg",
+    "qsRank": "#851-900",
+    "founded": "1952",
+    "programs": "150+",
+    "appFee": "60,000 - 80,000 KRW",
+    "badge1": "🥇 1% Universitet",
+    "badge2": "National University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#0f2b5c",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "1,807,500 - 2,572,000 KRW / semestr",
+    "language": "TOPIK 3+ (Nursing/Veterinary: 4+) | IELTS 5.5+ | TOEFL 71+ | CEFR B2 | New TEPS 326+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$13,000 USD",
+    "description": "Chungnam National University (CNU) Daejeon ilmiy poytaxtida joylashgan yetakchi milliy (davlat) universitetidir. 1% lik yengillashtirilgan viza rejimiga ega bo'lib, o'qish jarayoni haftada 4 kun (4 days a week lessons) tashkil etiladi. Arzon ta'lim narxlari va yuqori stipendiya dasturlari bilan ajralib turadi.",
+    "englishTrackMajors": [
+      "International Studies"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language and Literature",
+      "English Language and Literature",
+      "Business Administration",
+      "International Trade",
+      "Electrical Engineering",
+      "Aerospace Engineering"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 4",
+        "percent": "Qisman (Some portion) (1-semestr)"
+      },
+      {
+        "cert": "TOPIK 5+",
+        "percent": "100% (1-semestr)"
+      }
+    ],
+    "otherGrantsNote": "Kontrakt to'lovlari (semestr uchun): Biznes va Xalqaro savdo - 1,807,500 KRW; Koreys va Ingliz tili adabiyoti - 1,819,000 KRW; Xalqaro munosabatlar (International Studies) - 2,469,000 KRW; Muhandislik (Elektr/Aerokosmik) - 2,572,000 KRW. TOPIK 5+ darajasi uchun birinchi semestr 100% grant beriladi. UN Koreya urushi qatnashchilari to'g'ridan-to'g'ri avlodlari uchun 100% grant dasturlari bor."
+  },
+  {
+    "name": "Chungbuk National University",
+    "koreanName": "충북대학교",
+    "location": "CHEONGJU",
+    "address": "📍 Cheongju, Chungcheongbuk-do, South Korea",
+    "img": "https://uploaded.kcampus.kr/20230714_38397916_25dd5a6ba7.jpg",
+    "qsRank": "#1000-1200",
+    "founded": "1951",
+    "appFee": "50,000 KRW",
+    "badge1": "Magistr E-Viza",
+    "badge2": "1% Akkreditatsiya",
+    "badge1Class": "badge-green",
+    "brandColor": "#003399",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": false,
+    "tuition": "2,000,000 - 3,100,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
+    "visaStatus": "Magistr E-Viza",
+    "visaDetails": "Magistr E-Viza tartibi amal qiladi. Elchixonaga ota-ona daromadi va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$13,000 USD",
+    "description": "Cheongju shahridagi milliy universitet bo'lib, biotexnologiya va yarimo'tkazgichlar muhandisligi bo'yicha kuchli ilmiy markazga ega. Darslar haftada 1 kun (1 day a week lessons) tashkil etiladi.",
+    "englishTrackMajors": [
+      "Global Education",
+      "Global Software Convergence"
+    ],
+    "koreanTrackMajors": [
+      "Global Education",
+      "Global Software Convergence"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 5.5+",
+        "percent": "30%"
+      },
+      {
+        "cert": "IELTS 7.0+",
+        "percent": "70%"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "40%"
+      },
+      {
+        "cert": "TOPIK 4+",
+        "percent": "60%"
+      }
+    ],
+    "otherGrantsNote": "CEFR B2, EF SET B2+ va TEPS 600 (New TEPS 326) sertifikatlari ham til talabi sifatida qabul qilinadi."
+  },
+  {
+    "name": "Konkuk University",
+    "koreanName": "건국대학교",
+    "location": "SEOUL",
+    "address": "📍 120 Neungdong-ro, Gwangjin-gu, Seoul 05029, South Korea (Subway Lines 2 & 7)",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHAKa4Fa_1RulF2jjINHjMy59B1meuF31QqYpHbF5wxFqGelQMlQzrW3wb&s=10",
+    "qsRank": "#801-1000",
+    "founded": "1931",
+    "programs": "140+",
+    "appFee": "150,000 KRW",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#003466",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "4,768,000 - 7,320,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD (KRW 20,000,000)",
+    "description": "1947-yilda tashkil etilgan Seul markazidagi yetakchi 1% akkreditatsiyalangan universitet (JoongAng Ilbo #7-#10). Seul metrosining 2 va 7-liniyalari kesishgan joyda go'zal ko'l bo'yida joylashgan. Xalqaro kolleji (International College) orqali ingliz tili va koreys tili yo'nalishlariga 30% - 100% grantlar taqdim etiladi.",
+    "englishTrackMajors": [
+      "International Commerce & Business (International College)",
+      "Computer Software"
+    ],
+    "koreanTrackMajors": [
+      "Gumanitar va Ijtimoiy fanlar (Biznes, Kochmas mulk, Iqtisodiyot, OAV, Madaniyat)",
+      "Muhandislik va Texnologiya (Kompyuter, Mexanika, Elektrotexnika, AI Design)",
+      "Tabiiy va Hayotiy fanlar (Biotexnologiya, Oziq-ovqat, Vetenerariya, Kimyo)",
+      "San'at va Dizayn (Kommunikatsiya dizayn, Kiyim dizayn, Teatr va Kino)"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 6 (IELTS 8.5+ / TOEFL 114+)",
+        "percent": "100% To'liq grant"
+      },
+      {
+        "cert": "TOPIK 5 (IELTS 7.5+ / TOEFL 102+)",
+        "percent": "70% chegirma"
+      },
+      {
+        "cert": "TOPIK 4 (IELTS 7.0+ / TOEFL 91+)",
+        "percent": "50% chegirma"
+      },
+      {
+        "cert": "TOPIK 3 (IELTS 5.5+ / TOEFL 71+)",
+        "percent": "30% chegirma"
+      },
+      {
+        "cert": "STEM / International Top Ball sohibi",
+        "percent": "+1,000,000 KRW bonus"
+      },
+      {
+        "cert": "GPA 3.0+ (2-semestrdan boshlab)",
+        "percent": "10% - 100% grant"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 150,000 KRW (General) / 180,000 KRW (Art & Design). Konkuk Til Institutida 2 semestr o'qiganlarga 500,000 KRW bonus beriladi. Bank ko'chirmasi talabi 20,000,000 KRW. Yotoqxona (KU:L House) semestriga 2,114,000 KRW.",
+    "majors": [
+      "International Commerce & Business",
+      "Computer Software",
+      "Business Administration",
+      "Real Estate Studies",
+      "AI Design",
+      "Biological Sciences"
+    ]
+  },
+  {
+    "name": "Sogang University",
+    "koreanName": "서강대학교",
+    "type": "Xususiy Universitet",
+    "visaDetails": "Standart viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "location": "SEOUL",
+    "address": "📍 35 Baekbeom-ro, Mapo-gu, Seoul 04107, Republic of Korea",
+    "img": "https://smapse.com/storage/2019/12/k1-2.jpg",
+    "qsRank": "THE 801-1000",
+    "founded": "1960",
+    "programs": "100+",
+    "badge1": "Top Business/Econ",
+    "badge2": "Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#990000",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "5,245,000 - 6,794,000 KRW / semestr",
+    "appFee": "150,000 KRW",
+    "language": "TOPIK 3+ yoki IELTS 5.5+",
+    "visaStatus": "Standart Tekshiruv",
+    "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
+    "description": "Seulning Sinchon hududida joylashgan juda nufuzli ilmiy universitet. Biznes va Iqtisodiyot sohasida kuchli bitiruvchilar tarmog'iga ega.",
+    "englishTrackMajors": [
+      "Division of English (American Culture)",
+      "Economics",
+      "Business Administration",
+      "Division of Global Korean Studies",
+      "Geppert School of International Studies"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language & Literature",
+      "Business Administration",
+      "Economics"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 8.0+ / TOEFL 110+",
+        "percent": "100%"
+      },
+      {
+        "cert": "IELTS 7.5+ / TOEFL 100+",
+        "percent": "50%"
+      },
+      {
+        "cert": "IELTS 7.0+ / TOEFL 88+",
+        "percent": "25%"
+      },
+      {
+        "cert": "TOPIK 6 / KLEC Level 6",
+        "percent": "100%"
+      },
+      {
+        "cert": "TOPIK 5 / KLEC Level 5",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 4 / KLEC Level 4",
+        "percent": "25%"
+      },
+      {
+        "cert": "Sogang KLEC Level 3+ completed",
+        "percent": "25%"
+      },
+      {
+        "cert": "Excellence I (Top 1%)",
+        "percent": "100% (8 Sem)"
+      },
+      {
+        "cert": "Excellence II (Top 3%)",
+        "percent": "100% (2 Sem)"
+      },
+      {
+        "cert": "Excellence III (Top 5%)",
+        "percent": "100% (1st Sem)"
+      },
+      {
+        "cert": "Admission I (Top 10%)",
+        "percent": "50%"
+      },
+      {
+        "cert": "Admission II (Top 25%)",
+        "percent": "25%"
+      },
+      {
+        "cert": "Admission III (Top 50%)",
+        "percent": "10%"
+      }
+    ],
+    "otherGrantsNote": "Sogang KLEC darajalarini tamomlagan yoki IELTS 7.0+, TOPIK 4+ ga ega bo'lgan talabalarga birinchi semestrda 25% dan 100% gacha til grantlari taqdim etiladi. Shuningdek, kirish natijalari reytingi asosida 10% dan 100% gacha Akademik grantlar ajratiladi.",
+    "majors": [
+      "Business Administration",
+      "Economics",
+      "Korean Language & Literature"
+    ]
+  },
+  {
+    "name": "University of Seoul",
+    "koreanName": "서울시립대학교",
+    "location": "SEOUL",
+    "address": "📍 163, Seoulsiripdae-ro, Dongdaemun-gu, Seoul, South Korea (02504)",
+    "img": "https://www.uos.ac.kr/eng/web/file/download/uu/969498b6366144d8b1a91b51320fbe30",
+    "qsRank": "TOP 850",
+    "founded": "1918",
+    "programs": "120+",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Public University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#003366",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "2,044,000 - 3,221,000 KRW / semestr",
+    "appFee": "80,000 KRW",
+    "language": "TOPIK 3+ (KLCP Level 3+)",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "kdb1DayAfterAdmission": "20,000,000 KRW ($16,000 USD)",
+    "description": "Seul Shahar Hukumati tomonidan moliyalashtiriladigan munitsipal universitet. Koreyadagi eng arzon va nufuzli ta'lim shaffofligini beradi.",
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [
+      "Visual Design",
+      "Industrial Design",
+      "Computer Science and Engineering",
+      "Artificial Intelligence",
+      "English Language and Literature",
+      "Korean Language and Literature",
+      "Business Administration",
+      "Electrical and Computer Engineering"
+    ],
+    "scholarships": [
+      {
+        "cert": "Xalqaro talabalar reytingida Top 10% ga kirsangiz",
+        "percent": "100%"
+      },
+      {
+        "cert": "Xalqaro talabalar reytingida Top 10% - 20% oralig'ida bo'lsangiz",
+        "percent": "50%"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 80,000 KRW. Eng arzon davlat kontrakti (semestriga ~2,044,000 - 3,221,000 KRW). Grantlar: kirish reytingi va o'qish davomidagi natijalarga ko'ra avtomatik ajratiladi (qo'shimcha ariza talab qilinmaydi). Yotoqxona narxi: semestriga 796,000 KRW (Residence Hall) / 1,100,000 KRW (International House).",
+    "majors": [
+      "Urban Planning",
+      "Civil Engineering",
+      "Taxation Science",
+      "Computer Science"
+    ]
+  },
+  {
+    "name": "Kangwon National University",
+    "koreanName": "강원대학교",
+    "location": "CHUNCHEON & SAMCHEOK",
+    "address": "📍 Chuncheon Campus: 1 Gangwondaehak-gil, Chuncheon-si, Gangwon-do / Samcheok Campus: 346 Jungang-ro, Samcheok-si",
+    "img": "https://uploaded.kcampus.kr/1_c9360529_3661_4dd1_9c20_5fdf80073b26_25d925c392.jpg",
+    "qsRank": "Top National (IEQAS)",
+    "founded": "1947",
+    "programs": "110+",
+    "appFee": "50,000 KRW",
+    "badge1": "IEQAS Certified",
+    "badge2": "National University",
+    "badge1Class": "badge-green",
+    "brandColor": "#002147",
+    "statusTag": "📜 Akkreditatsiyaga ega (Davlat Milliy)",
+    "is1Percent": false,
+    "tuition": "1,797,000 - 2,539,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Universitet 1% lik emas BAKALAVR UCHUN (Standart Akkreditatsiyalangan Davlat Milliy Universiteti). Elchixona viza bosqichida 1-Oylik KDB bank ko'chirmasi ($13,000 USD / KRW 16,000,000) hamda Ota-ona daromad manbai ma'lumotnomasi TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (KRW 16,000,000)",
+    "description": "1947-yilda tashkil etilgan yirik Davlat Milliy Universiteti (KNU). Chuncheon (Seuldan 1 soat) va Samcheok kampuslarida 110 dan ortiq yo'nalishlar, arzon kontrakt (1.79 mln KRW dan) va TOPIK 5+ bilan 100% grant taklif etadi.",
+    "englishTrackMajors": [
+      "Global Business (Dept of Global Convergence)",
+      "Global Media & Communication (Dept of Global Convergence)",
+      "Global Industrial Technology (Dept of Global Convergence)",
+      "Computer Science & Engineering (College of IT)"
+    ],
+    "koreanTrackMajors": [
+      "Standart yonalishlar (TOPIK 3+)",
+      "TOPIK 4 talab qilinadigan yonalishlar (Business Admin, Economics, Smart Farm, Dance, Fine Arts, Sports Science, Psychology, Environmental Eng)",
+      "TOPIK 5 talab qilinadigan yonalishlar (Accounting, International Trade, Computer Science, Food Science, Nursing, Emergency Medical)",
+      "KNU Preparatory Program bitiruvchilariga Global Convergence yonalishlari uchun TOPIK 2+ yetarli"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 5 / 6 (IELTS 7.0+ / TOEFL 94+)",
+        "percent": "100% (To'liq grant)"
+      },
+      {
+        "cert": "TOPIK 4 (IELTS 6.5+ / TOEFL 86+)",
+        "percent": "60% chegirma"
+      },
+      {
+        "cert": "KNU Til kursi bitiruvchisi (TOPIK 3+)",
+        "percent": "35% chegirma"
+      },
+      {
+        "cert": "Samcheok/Dogye barcha yangi talabalar",
+        "percent": "Qo'shimcha 20% chegirma"
+      },
+      {
+        "cert": "GPA 2.5+ (A'lochi talabalar)",
+        "percent": "20% - 100% grant"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 50,000 KRW. Barcha yangi xalqaro talabalar uchun yotoqxona каfolatli ajratiladi (Semestriga 590,000 - 840,000 KRW). Samcheok va Dogye kampusida 1-semestr uchun qo'shimcha 20% grant beriladi.",
+    "majors": [
+      "Global Business",
+      "Computer Science",
+      "Mechanical Engineering",
+      "Biotechnology",
+      "Business Administration",
+      "Media & Communication"
+    ]
+  },
+  {
+    "name": "Hallym University",
+    "koreanName": "한림대학교",
+    "location": "CHUNCHEON",
+    "address": "📍 1 Hallymdaehak-gil, Chuncheon-si, Gangwon-do, South Korea",
+    "img": "https://www.uia.no/studier/utveksling/avtaler/bilder/hallym-campus.jpg",
+    "qsRank": "#1001-1200",
+    "founded": "1982",
+    "programs": "95+",
+    "appFee": "65,000 KRW",
+    "badge1": "Medical Leader",
+    "badge2": "Private University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#1c3d5a",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "3,673,800 - 4,773,800 KRW / semestr",
+    "language": "TOPIK 3+ yoki IELTS 5.5+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD",
+    "description": "Hallym University Gangwon viloyatining Chuncheon shahrida joylashgan nufuzli xususiy universitet. Tibbiyot, media va biznes yo'nalishlarida kuchli ta'lim dasturlariga ega.",
+    "englishTrackMajors": [
+      "Global Business"
+    ],
+    "koreanTrackMajors": [
+      "Culture Industry Management",
+      "Korean-Chinese Translation & Interpretation"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 3 / IELTS 5.5+",
+        "percent": "50% kontrakt (Half)"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "60% kontrakt"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "70% kontrakt"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "80% kontrakt"
+      },
+      {
+        "cert": "HU TOPIK / TOPIK 2",
+        "percent": "40% kontrakt"
+      }
+    ],
+    "otherGrantsNote": "Ingliz tili yo'nalishi hamda TOPIK 3 darajaga ega bo'lganlar uchun 50% kontrakt chegirmasi beriladi. Yuqori darajalar (TOPIK 4-6) uchun 60% dan 80% gacha stipendiyalar taqdim etiladi. Universitet Seul tashqarisida (Chuncheon) joylashganligi sababli bank ko'chirmasi uchun $13,000 USD (16,000,000 KRW) yetarli deb hisoblanadi."
+  },
+  {
+    "name": "Korea Aerospace University",
+    "koreanName": "한국항공대학교 (KAU)",
+    "location": "GOYANG (SEOUL METRO)",
+    "address": "📍 76 Hanggongdaehak-ro, Deogyang-gu, Goyang-si, Gyeonggi-do 10540, Republic of Korea",
+    "img": "https://static.wixstatic.com/media/f7a03e_3b495f30b989408ea0dd0e3d9ffc20d9~mv2.jpg/v1/fill/w_640,h_344,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/f7a03e_3b495f30b989408ea0dd0e3d9ffc20d9~mv2.jpg",
+    "qsRank": "1% Akkreditatsiya (#1 Aviation)",
+    "founded": "1952",
+    "programs": "50+",
+    "appFee": "90,000 KRW",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Aviation & Space Leader",
+    "badge1Class": "badge-gold",
+    "brandColor": "#0b2545",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "3,923,000 - 5,032,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD (KRW 20,000,000)",
+    "description": "1952-yilda tashkil etilgan Koreyadagi yagona aviatsiya, parvoz boshqaruvi va kosmonavtika sohalariga ixtisoslashgan 1% akkreditatsiyalangan milliy yetakchi universitet (Seul yaqinidagi Goyang shahrida joylashgan). School of Global Aviation Studies orqali to'liq ingliz va koreys tili yo'nalishlarida ta'lim hamda IELTS 7.0+ va TOPIK 6 uchun 70%-100% grantlar ajratiladi.",
+    "englishTrackMajors": [
+      "Air Transportation and Logistics Major (School of Global Aviation Studies)",
+      "Aviation Management Major (School of Global Aviation Studies)"
+    ],
+    "koreanTrackMajors": [
+      "Service Management Major (School of Global Aviation Studies)"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 7.0+ / TOEFL 96+",
+        "percent": "100% To'liq grant"
+      },
+      {
+        "cert": "IELTS 6.5+ / TOEFL 90+",
+        "percent": "50% chegirma"
+      },
+      {
+        "cert": "IELTS 6.0+ / TOEFL 81+",
+        "percent": "20% chegirma"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "70% chegirma"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "50% chegirma"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "30% chegirma"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "20% chegirma"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 90,000 KRW. Bank ko'chirmasi talabi 20,000,000 KRW. KAU Til Markazi (2.6 mln KRW / 6 oy) talabalariga 80%+ davomat bilan 600,000 KRW grant qaytariladi. Yotoqxona semestriga 860,000 KRW.",
+    "majors": [
+      "Air Transportation and Logistics Major",
+      "Aviation Management Major",
+      "Service Management Major"
+    ]
+  },
+  {
+    "name": "Keimyung University",
+    "koreanName": "계명대학교",
+    "location": "DAEGU",
+    "address": "📍 1095 Dalgubeol-daero, Dalseo-gu, Daegu 42601, Republic of Korea",
+    "img": "https://www.kmu.ac.kr/uni/main/img/layout2024/sub_visual01.jpg",
+    "qsRank": "1% Akkreditatsiya",
+    "founded": "1954",
+    "programs": "120+",
+    "appFee": "75,000 KRW",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#0f2e5a",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "3,460,000 - 5,066,000 KRW / semestr",
+    "language": "TOPIK 3+ (Arts 2+) | IELTS 5.5+ (KAC) | TOEFL 80+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (Keimyung Til kursini bitirganlarga $8,000 USD)",
+    "description": "1954-yilda tashkil topgan Daegu shahrida joylashgan 1% akkreditatsiyalangan nufuzli universitet. Keimyung Adams College (KAC) va Digipen Game Engineering orqali to'liq ingliz tili dasturlari hamda TOPIK 3-5+ sertifikatlariga 50%-100% birinchi semestr grantlari taqdim etiladi.",
+    "englishTrackMajors": [
+      "Keimyung Adams College (KAC): International Business (IB)",
+      "Keimyung Adams College (KAC): International Relations (IR)",
+      "Digipen Game Engineering (College of Engineering)"
+    ],
+    "koreanTrackMajors": [
+      "Gumanitar va Ijtimoiy fanlar (Biznes, Turizm, Iqtisodiyot, OAV, Psixologiya, Huquq - TOPIK 3+)",
+      "Tabiiy fanlar va Muhandislik (Kompyuter, Mexanika, Avtomobil, Kimyo, Farmatsevtika - TOPIK 3+)",
+      "San'at, Dizayn, Musiqa, Teatr, Sport (TOPIK 2+)"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 5 yoki undan yuqori",
+        "percent": "100% To'liq grant"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "70% chegirma"
+      },
+      {
+        "cert": "TOPIK 3 (yoki KAC uchun IELTS 5.5 / TOEFL 80)",
+        "percent": "50% chegirma"
+      },
+      {
+        "cert": "GPA 4.2+ (2-semestrdan boshlab)",
+        "percent": "100% grant"
+      },
+      {
+        "cert": "GPA 3.0+ (2-semestrdan boshlab)",
+        "percent": "50% grant"
+      },
+      {
+        "cert": "GPA 2.0+ (2-semestrdan boshlab)",
+        "percent": "30% grant"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 75,000 KRW (General) / 105,000 KRW (Arts/Music). Keimyung Til markazida o'qigan talabalar uchun bank ko'chirmasi talabi $16,000 USD o'rniga $8,000 USD (KRW 8M) hisoblanadi. Yotoqxona 651,000 - 1,335,000 KRW / semestr.",
+    "majors": [
+      "International Business",
+      "Digipen Game Engineering",
+      "Business Administration",
+      "Fashion Design",
+      "Computer Engineering",
+      "Pharmacy"
+    ]
+  },
+  {
+    "name": "Dong-Eui University",
+    "koreanName": "동의대학교",
+    "location": "BUSAN",
+    "address": "📍 176 Eomgwang-ro, Busanjin-gu, Busan 47340, South Korea",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKcH2DZcpwdQhl8V5spT3rkWhRxuKjqjruBwAuxMBV7Q&s=10",
+    "qsRank": "Akkreditatsiyaga ega",
+    "founded": "1977",
+    "programs": "110+",
+    "appFee": "60,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Private University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003b70",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,800,000 - 3,700,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 6.0+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "BAKALAVR UCHUN Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Busan shahrida joylashgan nufuzli xususiy universitet. Kompyuter Dasturlash, Biznes hamda Mehmonxona boshqaruvi yo'nalishlarida ingliz va koreys tili dasturlarini taklif etadi. Bakalavr bosqichida darslar haftasiga 4 kun tashkil etiladi.",
+    "englishTrackMajors": [
+      "Business Administration",
+      "Computer Engineering",
+      "Hospitality and Tourism"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Computer Engineering",
+      "Hospitality and Tourism"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 4 / IELTS 6.5",
+        "percent": "100% grant (To'liq)"
+      },
+      {
+        "cert": "TOPIK 3 / IELTS 6.0",
+        "percent": "50% grant (Yarim)"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 60,000 KRW. Bakalavr darslari haftada 4 kun tashkil etiladi. Kurslar faqat ushbu uchta yo'nalish doirasida grantlar bilan ta'minlanadi.",
+    "majors": [
+      "Business Administration",
+      "Computer Engineering",
+      "Hospitality and Tourism"
+    ]
+  },
+  {
+    "name": "Dong-A University",
+    "koreanName": "동아대학교",
+    "location": "BUSAN",
+    "address": "📍 225 Gudeok-ro, Seo-gu, Busan, South Korea",
+    "img": "https://uploaded.kcampus.kr/TM_Uky_B1_As_Wixxn_Ttr2wf_61c1fdff91.jpg",
+    "qsRank": "CWUR: #1428",
+    "founded": "1946",
+    "programs": "110+",
+    "appFee": "60,000 KRW",
+    "badge1": "Busan Leader",
+    "badge2": "Private University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#002d62",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "3,857,000 - 4,450,600 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+ | New TEPS 327+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "BAKALAVR UCHUN Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD",
+    "description": "Dong-A Universiteti Busanning eng nufuzli xususiy universitetlaridan biridir. Bumin, Seunghak va Gudeok shaharchalarida joylashgan bo'lib, biznes, muhandislik va tibbiyot yo'nalishlarida kuchli ta'lim beradi.",
+    "englishTrackMajors": [
+      "Integrated Business Management",
+      "Global Advanced Integrated Engineering"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language and Literature",
+      "Business Administration",
+      "International Trade",
+      "Economics"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 5.5 / TOEFL 71",
+        "percent": "15% (1-semestr)"
+      },
+      {
+        "cert": "IELTS 6.0 / TOEFL 77",
+        "percent": "25% (1-semestr)"
+      },
+      {
+        "cert": "IELTS 6.5 / TOEFL 84",
+        "percent": "50% (1-semestr)"
+      },
+      {
+        "cert": "IELTS 7.0 / TOEFL 90",
+        "percent": "100% (1-semestr)"
+      }
+    ],
+    "otherGrantsNote": "Ingliz tili yo'nalishlari uchun IELTS ballariga asosan 15% dan 100% gacha stipendiyalar mavjud. Shuningdek, ona tili ingliz tili bo'lgan davlatlar talabalari uchun ham imtiyozlar bor. Muhandislik (Global Advanced Integrated Engineering) yo'nalishiga kirish to'lovi (158,200 KRW) faqat birinchi semestr uchun alohida to'lanadi."
+  },
+  {
+    "name": "Busan University of Foreign Studies",
+    "koreanName": "부산외국어대학교",
+    "location": "BUSAN",
+    "address": "📍 65 Geumsaem-ro 485beon-gil, Geumjeong-gu, Busan, South Korea",
+    "img": "https://uploaded.kcampus.kr/20230215_28972133_3ab9f0739c.jpg",
+    "qsRank": "🥇 1% Universitet",
+    "founded": "1981",
+    "appFee": "80,000 KRW",
+    "badge1": "🥇 1% Universitet",
+    "badge2": "Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#004080",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "2,800,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "Talab etilmaydi",
+    "description": "Busan Chet Tillari Universiteti (BUFS) xalqaro savdo va tillarni o'rganish bo'yicha Janubiy Koreyadagi eng mashhur universitetlardan biridir. Darslar haftada 2 kun (2 days a week lessons) tashkil etiladi. Bu talabalarga ishlash va mustaqil o'qish uchun ajoyib imkoniyat beradi.",
+    "englishTrackMajors": [
+      "Business Administration",
+      "Global Business",
+      "Information Technology",
+      "Global Korean Studies",
+      "Global Studies"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language and Literature"
+    ],
+    "englishTrackMasters": [
+      "Global Area & Language Studies",
+      "PSC Based Entrepreneurship",
+      "Global Business & AI Marketing",
+      "AI Convergence"
+    ],
+    "koreanTrackMasters": [
+      "Global Area & Language Studies",
+      "Natural Science Integrative Medicine",
+      "Natural Agricultural Forest Therapy",
+      "Healing Tourism Industry",
+      "Healing Taekwondo",
+      "Beauty Exercise Rehabilitation"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK / IELTS / TOEFL yo'q (1-semestr)",
+        "percent": "20% chegirma"
+      },
+      {
+        "cert": "Hamkor OTM / Til markazi bitiruvchisi / F vizalar (1-semestr)",
+        "percent": "30% chegirma"
+      },
+      {
+        "cert": "TOPIK 3 / IELTS 5.5 / TOEFL 53 (1-semestr)",
+        "percent": "30% grant"
+      },
+      {
+        "cert": "TOPIK 4 / IELTS 6.0 / TOEFL 69 (1-semestr)",
+        "percent": "40% grant"
+      },
+      {
+        "cert": "TOPIK 5 / IELTS 6.5 / TOEFL 86 / Ingliz tili ona tili (1-semestr)",
+        "percent": "50% grant"
+      },
+      {
+        "cert": "TOPIK 6 / IELTS 7.0 / TOEFL 98 (1-semestr)",
+        "percent": "60% grant"
+      }
+    ],
+    "bachelorScholarships": [
+      {
+        "cert": "TOPIK / IELTS / TOEFL yo'q (1-semestr)",
+        "percent": "20% chegirma"
+      },
+      {
+        "cert": "Hamkor OTM / Til markazi bitiruvchisi / F vizalar (1-semestr)",
+        "percent": "30% chegirma"
+      },
+      {
+        "cert": "TOPIK 3 / IELTS 5.5 / TOEFL 53 (1-semestr)",
+        "percent": "30% grant"
+      },
+      {
+        "cert": "TOPIK 4 / IELTS 6.0 / TOEFL 69 (1-semestr)",
+        "percent": "40% grant"
+      },
+      {
+        "cert": "TOPIK 5 / IELTS 6.5 / TOEFL 86 / Ingliz tili ona tili (1-semestr)",
+        "percent": "50% grant"
+      },
+      {
+        "cert": "TOPIK 6 / IELTS 7.0 / TOEFL 98 (1-semestr)",
+        "percent": "60% grant"
+      }
+    ],
+    "masterScholarships": [
+      {
+        "cert": "Partner Institution Graduates (1st sem)",
+        "percent": "100% (2nd sem+: 50%)"
+      },
+      {
+        "cert": "TOPIK 4 / IELTS 6.0 / TOEFL 69+ (1st sem)",
+        "percent": "100% (2nd sem+: 50%)"
+      },
+      {
+        "cert": "Ministry of Justice Watch-list Country Graduates (1st sem)",
+        "percent": "30% (2nd sem+: 50%)"
+      }
+    ],
+    "otherGrantsNote": "Bakalavriat: TOEFL HOME EDITION - 71+ KERAK. 1-Yil hamma Foundation o'qiydi, 2-Yildan yo'nalish tanlanadi. Magistratura: Hamkor universitet bitiruvchilari, TOPIK 4 yoki IELTS 6.0+ egalari birinchi semestrda 100% grant (keyingi semestrlar 50% grant) oladilar."
+  },
+  {
+    "name": "Hoseo University",
+    "koreanName": "호서대학교",
+    "location": "ASAN / DANGJIN",
+    "address": "📍 20 Hoseo-ro 79beon-gil, Baebang-eup, Asan-si, Chungcheongnam-do, South Korea",
+    "img": "hoseo.png",
+    "qsRank": "Akkreditatsiyalangan Uni",
+    "founded": "1978",
+    "programs": "90+",
+    "appFee": "60,000 KRW",
+    "badge1": "Venture Leader",
+    "badge2": "Private University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003b73",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "3,693,000 - 4,688,000 KRW (1-semestr) / 3,543,000 - 4,538,000 KRW (keyingi semestrlar)",
+    "language": "TOPIK 3+ (Arts: TOPIK 2+) | IELTS 5.5+ (TOEFL 71+)",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Akkreditatsiyadan o'tgan universitet standarti bo'yicha viza rasmiylashtiriladi. Elchixonaga 31 kunlik KDB bank ko'chirmasi va ota-ona daromad manbalari ma'lumotnomasi taqdim etiladi.",
+    "kdb1DayAfterAdmission": "13,000,000 KRW (~$10,000 USD / 13,000 USD KDB Bank)",
+    "description": "Hoseo University — Venchur biznesi, IT, Sun'iy intellekt hamda Xalqaro ta'lim bo'yicha Koreyadagi yetakchi xususiy universitet (1978-yil). Asan va Dangjin shaharlarida zamonaviy kampuslarga ega. Xalqaro talabalar uchun ingliz va koreys tillarida keng ko'lamli bakalavr va grant dasturlarini taklif etadi.",
+    "englishTrackMajors": [
+      "International Studies Track"
+    ],
+    "koreanTrackMajors": [
+      "International Business Administration Track",
+      "Global Silvercare Track",
+      "Global Business Track",
+      "Humanities and Social Sciences",
+      "Digital Technology Management",
+      "Engineering & Computer Science",
+      "Airline Services",
+      "Arts and Sports (TOPIK 2+ accepted)"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 3 / IELTS 5.5",
+        "percent": "40% grant"
+      },
+      {
+        "cert": "TOPIK 4 / IELTS 6.5",
+        "percent": "50% grant"
+      },
+      {
+        "cert": "TOPIK 5 / IELTS 7.5",
+        "percent": "60% grant"
+      },
+      {
+        "cert": "TOPIK 6 / IELTS 8.5+",
+        "percent": "100% grant (To'liq grant)"
+      }
+    ],
+    "otherGrantsNote": "Ingliz tili yo'nalishi bo'yicha grantlar ham IELTS/TOEFL ballarini TOPIK darajasiga o'girish jadvali bo'yicha beriladi (IELTS 5.5 = 40%, IELTS 6.5 = 50%, IELTS 7.5 = 60%, IELTS 8.5 = 100%). Hoseo tili markazida 1 semestr o'qiganlarga +10%, 2 semestr o'qiganlarga +20% qo'shimcha grant taqdim etiladi.",
+    "majors": [
+      "International Studies",
+      "International Business Administration",
+      "Global Silvercare",
+      "Global Business",
+      "Digital Technology Management",
+      "Engineering",
+      "Airline Services"
+    ]
+  },
+  {
+    "name": "Woosung SolBridge University",
+    "koreanName": "우송대학교",
+    "location": "DAEJEON",
+    "address": "📍 171 Dongdaejeon-ro, Dong-gu, Daejeon, Republic of Korea (34606)",
+    "img": "https://smapse.com/storage/2019/03/solbridge-international-school-of-business-woosong-university-19.jpg",
+    "qsRank": "SolBridge Int'l",
+    "founded": "1995",
+    "programs": "80+",
+    "badge1": "SolBridge Business",
+    "badge2": "Private University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#002147",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "$3,200 - $6,296 USD / semestr",
+    "appFee": "$50 USD",
+    "language": "IELTS 5.5+ yoki TOPIK 3+",
+    "visaStatus": "Standart Tekshiruv",
+    "description": "SolBridge International School of Business, Endicott College va boshqa nufuzli kollejlari orqali to'liq (100%) ingliz va koreys tillarida ta'lim beruvchi yetakchi universitet.",
+    "englishTrackMajors": [
+      "Business Administration (BBA - SolBridge)",
+      "AI Management (Endicott College)",
+      "Global Hospitality (Endicott College)",
+      "AI and Big Data (Endicott College)",
+      "AI • HCI (JCFS College)",
+      "Data Science (JCFS College)",
+      "Global Interdisciplinary Studies",
+      "K-Beauty Design",
+      "Early Childhood Education",
+      "Global Media & Communication Arts",
+      "Global Culinary Arts",
+      "Global Restaurant Management",
+      "Global Railroad",
+      "IDegree (Online)"
+    ],
+    "koreanTrackMajors": [
+      "Culinary Arts",
+      "Baking and Pastry",
+      "K-Beauty Makeup",
+      "K-Pop Music and Dance"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 5.5+ / TOPIK 3+",
+        "percent": "30% - 100% (Admission evaluation)"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: $50 USD. Ro'yxatdan o'tish to'lovi (Enrollment Fee): $650 USD. SolBridge va Endicott maktablari xalqaro talabalar uchun ingliz tilida mukammal ta'lim va 30%-100% gacha akademik grantlarni taklif qiladi. Yotoqxona va ovqatlanish (1 mahal ovqat): semestriga ~$1,176 USD.",
+    "majors": [
+      "Business Administration (BBA)",
+      "Global Culinary Arts",
+      "AI Management",
+      "Data Science"
+    ]
+  },
+  {
+    "name": "Sungshin Women`s University",
+    "koreanName": "성신여자대학교",
+    "type": "Xususiy Universitet",
+    "visaDetails": "1% yengillashtirilgan viza tartibi (IEQAS Best Accredited) amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "location": "SEOUL",
+    "address": "📍 (02844) 2, Bomun-ro 34da-gil, Seongbuk-gu, Seoul, Republic of Korea",
+    "img": "https://image.free-apply.com/gallery/l/uni/gallery/lg/1041000210/0247a23bf81c6a1c1f0f689ce820e3f6feb46383.jpg?s=640",
+    "qsRank": "QS #1201-1400 / Asia #322",
+    "founded": "1936",
+    "programs": "85+",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Private University",
+    "badge1Class": "badge-green",
+    "brandColor": "#4a154b",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "3,833,000 - 5,893,000 KRW / semestr",
+    "appFee": "150,000 KRW (General) / 170,000 KRW (Arts/Music/PE)",
+    "language": "TOPIK 3+ (Arts/Music/Fashion 2+) / IELTS 5.5+ (TOEFL iBT 71+)",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
+    "description": "Sungshin Women's University (SMU) — 1936-yilda tashkil etilgan Seul markasidagi mashhur va nufuzli ayollar universiteti. K-Beauty, Dizayn, San'at va Xalqaro tadqiqotlar bo'yicha eng ilg'or xususiy oliy ta'lim muassasalaridan biri.",
+    "englishTrackMajors": [
+      "Global Korean Studies(K-Culture and Entertainment Track)",
+      "Beauty and Fashion Design"
+    ],
+    "koreanTrackMajors": [
+      "Global Korean Studies(Korean Education Track)"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 5.5+ / TOEFL 71+",
+        "percent": "100%"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "100%"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "80%"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "60%"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "40%"
+      },
+      {
+        "cert": "TOPIK 2 (Arts/PE/Fashion)",
+        "percent": "20%"
+      },
+      {
+        "cert": "Sungshin Language Center (Level 4+ & 2 sem completed)",
+        "percent": "100%"
+      },
+      {
+        "cert": "Completed Level 3+ language program",
+        "percent": "20%"
+      }
+    ],
+    "otherGrantsNote": "Faqat xotin-qizlar topshira oladi. Bitiruv talabi: TOPIK 5+ olish shart.",
+    "majors": [
+      "Global Korean Studies",
+      "Beauty and Fashion Design"
+    ]
+  },
+  {
+    "name": "Anyang University",
+    "koreanName": "안양대학교",
+    "location": "ANYANG - SEOUL, ANYANG SI",
+    "address": "📍 22 Samdeok-ro 37beon-gil, Manan-gu, Anyang-si, Gyeonggi-do, South Korea",
+    "img": "https://pcnbwgqmunezqtoljdec.supabase.co/storage/v1/object/public/university-thumbnails/anyang-university-189.png",
+    "qsRank": "Akkreditatsiyaga ega",
+    "founded": "1948",
+    "appFee": "100,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Private University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#1a365d",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,800,000 - 3,800,000 KRW / semestr",
+    "language": "TOPIK 3+ yoki IELTS 5.5+",
+    "visaStatus": "Magistr E-Viza",
+    "visaDetails": "Magistr E-Viza tartibi amal qiladi. Elchixonaga ota-ona daromadi va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$13,000 USD",
+    "description": "Anyang Universiteti 1948-yilda tashkil topgan nufuzli xususiy universitetdir. Seul aglomeratsiyasining Anyang shahrida joylashgan bo'lib, global biznes, raqamli kontentlar va muhandislik sohalarida yuqori sifatli ta'lim beradi.",
+    "englishTrackMajors": [
+      "Business Administration"
+    ],
+    "koreanTrackMajors": [
+      "K-Contents and Business"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 5.5",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "50%"
+      }
+    ]
+  },
+  {
+    "name": "Kyungsung University",
+    "koreanName": "경성대학교",
+    "type": "Xususiy Universitet",
+    "visaDetails": "1% yengillashtirilgan viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "location": "BUSAN",
+    "address": "📍 309 Suyeong-ro, Nam-gu, Busan 48434, Republic of Korea",
+    "img": "https://www.timeshighereducation.com/cms-academic/sites/default/files/migrated_institution_images/01_unist-header.jpg",
+    "qsRank": "1% Akkreditatsiya",
+    "founded": "1955",
+    "programs": "90+",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Busan Campus",
+    "badge1Class": "badge-green",
+    "brandColor": "#002d62",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "3,396,000 - 4,621,000 KRW / semestr",
+    "appFee": "80,000 KRW / $60 USD",
+    "language": "TOPIK 3+ yoki IELTS 5.5+ (Global Open: TOPIK 1+)",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Busan shahrining markazida joylashgan zamonaviy 1% akkreditatsiyali universitet. Media, Film, Biznes va IT fakultetlari mashhur. Fall 2026 qabuli uchun saxiy grantlar va ingliz dasturlari mavjud.",
+    "englishTrackMajors": [
+      "Global Business Administration (School of Global Studies)",
+      "Global Hospitality Management (School of Global Studies)",
+      "Global Mechanical Design Engineering (School of Global Engineering)",
+      "Global IT Engineering (School of Global Engineering Studies)",
+      "Korea-America Business School"
+    ],
+    "koreanTrackMajors": [
+      "School of Global Open Majors (Erkin Mutaxassislik - TOPIK 1+)",
+      "Global Korean Studies",
+      "Media & Communication (OAV va Kommunikatsiya)",
+      "Advertising & Public Relations (Reklama va PR)",
+      "Film, Theatre & Screen Arts (Kino, Teatr va Ekran san",
+      "Visual Communication Design & Industrial Design (Dizayn)",
+      "Computer Science & Engineering (Kompyuter muhandisligi)",
+      "Electronic & Electrical Engineering (Elektronika va Elektr muhandisligi)",
+      "Mechanical & Automotive Engineering (Mexanika muhandisligi)",
+      "Business Administration, Economics, Finance & Logistics",
+      "Hospitality, Tourism & Food Service Management",
+      "Food Science, Biotechnology & Cosmetic Sciences",
+      "AI Media & AI Mathematical Sciences"
+    ],
+    "scholarships": [
+      {
+        "cert": "Top Scorer (TOPIK 5+ / IELTS 6.0+)",
+        "percent": "100%"
+      },
+      {
+        "cert": "IELTS 7.5+ / TOEFL 104+",
+        "percent": "50%"
+      },
+      {
+        "cert": "IELTS 7.0 / TOEFL 95",
+        "percent": "40%"
+      },
+      {
+        "cert": "IELTS 5.5+ / TOEFL 71+",
+        "percent": "30%"
+      },
+      {
+        "cert": "TOPIK 4+",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 3 / KS TOPIK 4",
+        "percent": "40%"
+      },
+      {
+        "cert": "Standard Proficiency",
+        "percent": "30%"
+      }
+    ],
+    "otherGrantsNote": "Korean-track (TOPIK < 3) bo'yicha qabul qilingan talabalar uchun 300 soatlik Koreys tili kursi to'loviga 50% chegirma taqdim etiladi. 2-semestrdan boshlab GPA natijalariga qarab 20% dan 100% gacha stipendiyalar ajratiladi.",
+    "majors": [
+      "Global Business",
+      "Global IT Engineering",
+      "Film & Performing Arts",
+      "Media & Communication",
+      "Hotel Management"
+    ]
+  },
+  {
+    "name": "Hansung University",
+    "koreanName": "한성대학교",
+    "location": "SEOUL",
+    "address": "📍 116 Samseongyo-ro 16-gil, Seongbuk-gu, Seoul, South Korea",
+    "img": "https://uploaded.kcampus.kr/1_0d0999c1_085a_412f_853c_36672db31a4f_76e03d9407.jpg",
+    "qsRank": "1% Akkreditatsiya",
+    "founded": "1972",
+    "programs": "85+",
+    "appFee": "100,000 KRW",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Seoul Campus",
+    "badge1Class": "badge-green",
+    "brandColor": "#0a2540",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "4,103,000 - 5,468,000 KRW / semestr",
+    "language": "TOPIK 3+ yoki IELTS 5.5+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$16,000 USD",
+    "description": "Seul markazida joylashgan zamonaviy universitet. Dizayn, K-Beauty, IT va Biznes fakultetlari xalqaro talabalar orasida ommabop. 1% yengillashtirilgan viza rejimiga ega.",
+    "englishTrackMajors": [
+      "Global Asset Management"
+    ],
+    "koreanTrackMajors": [
+      "Korean Language & Culture Education",
+      "Global K-Business"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 6",
+        "percent": "100% kontrakt"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "80% kontrakt"
+      },
+      {
+        "cert": "TOPIK 4 / IELTS 8.0",
+        "percent": "50% / 80% kontrakt"
+      },
+      {
+        "cert": "TOPIK 3 / IELTS 7.0",
+        "percent": "30% / 50% kontrakt"
+      },
+      {
+        "cert": "TOPIK 2 / IELTS 5.5",
+        "percent": "20% / 30% kontrakt"
+      }
+    ],
+    "otherGrantsNote": "Birinchi semestr uchun: Korean Track yo'nalishlariga TOPIK darajaga qarab 20% dan 100% gacha grant beriladi. English Track (IELTS/TOEFL) bo'yicha 30% dan 80% gacha grant mavjud. Hansung tili kursini bitirganlar uchun qo'shimcha 20%-30% grant qo'shilishi mumkin. 1% lik universitet bo'lgani sababli KDB bank ko'chirmasi qabuldan so'ng $16,000 USD talab qilinadi.",
+    "majors": [
+      "Global Asset Management",
+      "Korean Language & Culture Education",
+      "Global K-Business"
+    ]
+  },
+  {
+    "name": "Namseoul University",
+    "koreanName": "남서울대학교",
+    "type": "Xususiy Universitet (Magistratura)",
+    "location": "CHEONAN",
+    "address": "📍 91 Maeugjeong-gil, Seonghwan-eup, Seobuk-gu, Cheonan-si, Chungcheongnam-do",
+    "img": "https://lh3.googleusercontent.com/p/AF1QipPcy2bwknKsF1ejCu37w321c-LrqK2qhp_qFzqS=s680-w680-h510",
+    "qsRank": "Magistr E-Viza",
+    "founded": "1994",
+    "programs": "70+",
+    "badge1": "Magistr E-Viza",
+    "badge2": "Haftada 1 kun",
+    "badge1Class": "badge-gold",
+    "brandColor": "#1a365d",
+    "statusTag": "⚡ Magistr E-Viza Imkoniyati",
+    "is1Percent": false,
+    "tuition": "3,250,000 KRW → 2,437,500 KRW (25% chegirma)",
+    "appFee": "50,000 KRW",
+    "language": "IELTS 5.5+ yoki TOPIK 3+",
+    "visaStatus": "Magistr E-Viza",
+    "visaDetails": "Magistratura E-Visa imkoniyati amal qiladi. Haftada 1 kunlik darslar. Elchixonaga ota-ona daromad manbai va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Cheonan shahrida joylashgan Magistratura E-Visa dasturi. Global Hospitality and Management. IELTS 5.5+ yoki TOPIK 3 bilan 25% semestr chegirmasi (2,437,500 KRW).",
+    "englishTrackMajors": [
+      "Global Hospitality Management",
+      "International Business"
+    ],
+    "koreanTrackMajors": [
+      "Global Hospitality Management",
+      "International Business"
+    ],
+    "scholarships": [
+      {
+        "cert": "Standard International Master Discount (Global Hospitality)",
+        "percent": "25% Tuition Waiver"
+      }
+    ],
+    "otherGrantsNote": "Barcha magistratura xalqaro talabalariga 25% semestr chegirmasi taqdim etiladi: 3,250,000 KRW kontrakt narxi 2,437,500 KRW ga tushadi.",
+    "majors": [
+      "Global Hospitality Management",
+      "International Business"
+    ]
+  },
+  {
+    "name": "Joongbu University",
+    "koreanName": "중부대학교",
+    "location": "GOYANG & CHUNGCHEONG",
+    "address": "📍 Goyang Campus (Gyeonggi-do) & Chungcheong Campus (Geumsan-gun)",
+    "img": "https://rustudy.uz/wp-content/uploads/2026/02/0403010000_02.jpg",
+    "qsRank": "1% Akkreditatsiya",
+    "founded": "1983",
+    "programs": "75+",
+    "appFee": "60,000 KRW",
+    "badge1": "1% Akkreditatsiya",
+    "badge2": "Private University",
+    "badge1Class": "badge-gold",
+    "brandColor": "#1e3a8a",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "3,383,500 - 4,241,000 KRW / semestr (입학금: 600,000 KRW)",
+    "language": "TOPIK 3+ (JB-TOPIK 3+) | IELTS 5.5+",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "2026-yilgi Ta'lim vazirligi (IEAQ) 1% 우수 인증대학 (Akkreditatsiyadan o'tgan universitet). Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi talab etilmaydi.",
+    "kdb1DayAfterAdmission": "$13,000 USD",
+    "description": "Joongbu Universiteti 1983-yilda tashkil etilgan bo'lib, Seul yaqinidagi Goyang hamda Chungcheong kampuslarida bakalavriat ta'limi taklif etiladi. 2026-yil IEAQ 1% akkreditatsiyalangan nufuzli oliygoh.",
+    "englishTrackMajors": [
+      "Global Health Administration",
+      "International Trade",
+      "Hotel & Tourism Management",
+      "Entertainment"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Game Software & AI",
+      "Hotel & Tourism Management",
+      "Nursing & Physical Therapy"
+    ],
+    "scholarships": [
+      {
+        "cert": "Tavsiyanoma (Recommendation)",
+        "percent": "10%"
+      },
+      {
+        "cert": "TOPIK 2 (Arts/Sports)",
+        "percent": "10%"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "20%"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "30%"
+      },
+      {
+        "cert": "TOPIK 5",
+        "percent": "50%"
+      },
+      {
+        "cert": "TOPIK 6",
+        "percent": "60%"
+      },
+      {
+        "cert": "IELTS 5.5 / TOEFL 59 / TEPS 202",
+        "percent": "20%"
+      },
+      {
+        "cert": "GPA 4.0+ (O'tgan semestr)",
+        "percent": "10%"
+      }
+    ],
+    "otherGrantsNote": "Bakalavriat uchun 10% dan 60% gacha kontrakt chegirmasi va a'lochi talabalar uchun yotoqxona subsidiyasi (Chungcheong: 250k KRW / Goyang: 400k KRW) taqdim etiladi.",
+    "majors": [
+      "Global Health Admin",
+      "International Trade",
+      "Hotel & Tourism",
+      "Entertainment",
+      "Software Engineering",
+      "Nursing & Therapy"
+    ]
+  },
+  {
+    "name": "Inha Technical College",
+    "koreanName": "인하공업전문대학",
+    "location": "INCHEON",
+    "address": "📍 100 Inha-ro, Michuhol-gu, Incheon, South Korea",
+    "img": "https://uploaded.kcampus.kr/20230214_78453092_7cf78637e5.jpg",
+    "qsRank": "1% Lik Kollej",
+    "founded": "1958",
+    "programs": "40+",
+    "appFee": "100,000 KRW",
+    "badge1": "1% Lik Kollej",
+    "badge2": "Root Industry Partner",
+    "badge1Class": "badge-green",
+    "brandColor": "#003366",
+    "statusTag": "🥇 1% Akkreditatsiyadan o'tgan",
+    "is1Percent": true,
+    "tuition": "3,868,000 KRW (1-semestr) / 3,600,000 KRW (keyingi semestrlar)",
+    "language": "TOPIK 3+ (Root Industry: TOPIK 2+)",
+    "visaStatus": "Yengillashtirilgan (1%)",
+    "visaDetails": "1% yengillashtirilgan viza tartibi (1% Kollej). Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI. Arizachi yoki ota-onasi hisobida kamida 20,000,000 KRW (~$15,000–$16,000 USD) bank balans sertifikati yetarli.",
+    "kdb1DayAfterAdmission": "20,000,000 KRW (~$15,000–$16,000 USD)",
+    "description": "Inha Technical College — Janubiy Koreyaning Incheon shahrida joylashgan 1% akkreditatsiyalangan yetakchi kollej (1958-yil). Poydevor sanoati (Root Industry) bo'yicha davlat loyihasi ishtirokchisi bo'lib, Kemasozlik va Dengiz Muhandisligi yo'nalishida TOPIK 2 bilan qabul qiladi hamda bitiruvchilarga E-7 vizasi va yetakchi kompaniyalarda (HD Hyundai, Samsung Heavy Industries) ish bilan ta'minlash dasturini taklif etadi.",
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [
+      "Marketing (TOPIK 3+)",
+      "Automotive Engineering (TOPIK 3+)",
+      "Computer Science (TOPIK 3+)",
+      "Electrical Engineering (TOPIK 3+)",
+      "Electronic Engineering (TOPIK 3+)",
+      "Mechanical Engineering (TOPIK 3+)",
+      "Tourism Management (TOPIK 3+)",
+      "Naval Architecture & Marine Engineering (Root Industry Department - TOPIK 2+ qabul qilinadi)"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 4+",
+        "percent": "40% (1-semestr)"
+      },
+      {
+        "cert": "TOPIK 3",
+        "percent": "30% (1-semestr)"
+      },
+      {
+        "cert": "TOPIK 2 / past",
+        "percent": "Berilmaydi (0%)"
+      },
+      {
+        "cert": "Root Industry (Naval Arch.)",
+        "percent": "30% (Barcha semestrlar)"
+      }
+    ],
+    "otherGrantsNote": "Root Industry Training Department (Naval Architecture & Marine Engineering - 2 yillik): Barcha semestrlar uchun 30% kontrakt chegirmasi beriladi. O'qishni bitirib skill verification'dan o'tgan talabalarga E-7 vizasi hamda HD Hyundai Heavy Industries, Samsung Heavy Industries va boshqa hamkor kompaniyalarda ish bilan ta'minlash yordami ko'rsatiladi.",
+    "majors": [
+      "Marketing",
+      "Automotive Engineering",
+      "Computer Science",
+      "Electrical Engineering",
+      "Electronic Engineering",
+      "Mechanical Engineering",
+      "Tourism Management",
+      "Naval Architecture & Marine Engineering"
+    ]
+  },
+  {
+    "name": "Daegu University",
+    "koreanName": "대구대학교",
+    "location": "GYEONGSAN (DAEGU AREA)",
+    "address": "📍 201 Daegudae-ro, Jillyang-eup, Gyeongsan-si, Gyeongsangbuk-do, South Korea",
+    "img": "https://i.namu.wiki/i/7yMQDXP9LZpeupaiJK3JCOdjcMdyVz9pHGYMwlBcAUgPf1--v6JeQzb3IpPDkH46T5R1o1ugvjk1s8CcziDpMA.webp",
+    "qsRank": "Akkreditatsiyaga ega",
+    "founded": "1956",
+    "programs": "100+",
+    "appFee": "100,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Private University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#004080",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "3,772,000 - 5,502,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 51+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Daegu shahrida joylashgan xususiy universitet. Xalqaro talabalar faqat Oliy Xalqaro Tadqiqotlar Kolleji (College of International Studies) yo'nalishlariga qabul qilinadi.",
+    "englishTrackMajors": [
+      "Global Business (Division of Global Service)",
+      "Media Studies (Division of Global Service)",
+      "Agri-Industry (Division of Global Service)",
+      "AI Computer Engineering (Division of Global Service)",
+      "Electronic and Electrical ICT Engineering (Division of Global Service)",
+      "Design and Arts (Division of Global Service)"
+    ],
+    "koreanTrackMajors": [
+      "Korean Education",
+      "Korean Language Interpretation and Translation",
+      "Division of Global Liberal Studies (Yonalishsiz kirish - 2 semestrdan song mutaxassislik tanlanadi)"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 6 (Freshman)",
+        "percent": "100% grant (Birinchi 8 semestr)"
+      },
+      {
+        "cert": "TOPIK 5 (Freshman)",
+        "percent": "100% grant (Birinchi 4 semestr)"
+      },
+      {
+        "cert": "TOPIK 4 (Freshman)",
+        "percent": "100% grant (Birinchi 2 semestr)"
+      },
+      {
+        "cert": "TOPIK 3 (Freshman)",
+        "percent": "100% grant (1-semestr)"
+      },
+      {
+        "cert": "TOPIK 2",
+        "percent": "100% grant (1-semestr)"
+      },
+      {
+        "cert": "Daegu Language Center (Level 3-6)",
+        "percent": "50% grant (1-semestr)"
+      },
+      {
+        "cert": "DU-TOPIK Passers",
+        "percent": "40% grant (1-semestr)"
+      },
+      {
+        "cert": "IELTS 7.5 / TOEFL 100+",
+        "percent": "100% grant (1-semestr)"
+      },
+      {
+        "cert": "IELTS 7.0 / TOEFL 91+",
+        "percent": "70% grant (1-semestr)"
+      },
+      {
+        "cert": "IELTS 5.5 / TOEFL 51+",
+        "percent": "50% grant (1-semestr)"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: 100,000 KRW. Ko'rsatilgan yo'nalishlardan boshqa mutaxassisliklar xalqaro talabalarni qabul qilmaydi. English Track darslari to'liq ingliz tilida olib boriladi.",
+    "majors": [
+      "Global Business",
+      "Media Studies",
+      "Korean Education",
+      "AI Computer Engineering",
+      "Design and Arts"
+    ]
+  },
+  {
+    "name": "Pukyong National University",
+    "koreanName": "부경대학교 (PKNU)",
+    "location": "BUSAN",
+    "address": "📍 45 Yongso-ro, Nam-gu, Busan 48513, South Korea",
+    "img": "https://www.nord.no/sites/default/files/styles/half_desktop_width/public/2025-05/Pukyong%20j.jpg?itok=TV2JwlBg",
+    "qsRank": "Akkreditatsiyaga ega (Milliy Davlat)",
+    "founded": "1924",
+    "programs": "130+",
+    "appFee": "Waived (0 KRW)",
+    "badge1": "Licensed Uni",
+    "badge2": "National University",
+    "badge1Class": "badge-blue",
+    "brandColor": "#002d62",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "1,703,000 - 2,241,500 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 69+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Busan shahrida joylashgan Koreyaning eng birinchi birlashgan Milliy Davlat Universiteti (PKNU). 1-kurs talabalari Division of Global & Interdisciplinary Studies yo'nalishida tahsil olib, 2-kursdan asosiy mutaxassislikka o'tadilar.",
+    "englishTrackMajors": [
+      "Division of Global & Interdisciplinary Studies (1-kurs umumiy)",
+      "↳ Computer Science & Artificial Intelligence",
+      "↳ Tourism and Hospitality Management"
+    ],
+    "koreanTrackMajors": [
+      "Division of Global & Interdisciplinary Studies (1-kurs umumiy)",
+      "↳ Istalgan koreys tili treki mutaxassisligi (2-kursdan barcha yonalishlar)"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 5 / 6",
+        "percent": "100% birinchi semestr"
+      },
+      {
+        "cert": "TOPIK 4",
+        "percent": "40% birinchi semestr"
+      },
+      {
+        "cert": "IELTS 8.0 / TOEFL 111",
+        "percent": "100% birinchi semestr"
+      },
+      {
+        "cert": "IELTS 7.5 / TOEFL 102",
+        "percent": "80% birinchi semestr"
+      },
+      {
+        "cert": "IELTS 7.0 / TOEFL 93",
+        "percent": "40% birinchi semestr"
+      },
+      {
+        "cert": "IELTS 6.5 / TOEFL 84",
+        "percent": "20% birinchi semestr"
+      },
+      {
+        "cert": "PKNU Language Center (TOPIK 4)",
+        "percent": "80% birinchi semestr"
+      },
+      {
+        "cert": "PKNU Language Center (TOPIK 3)",
+        "percent": "40% birinchi semestr"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: Waived (Bepul). 1-kursni Division of Global & Interdisciplinary Studies (KR/ENG) yo'nalishida o'qib, 2-semestrda (2-kursdan) yo'nalish o'zgartiriladi. English track talabalari faqat Computer Science & AI yoki Tourism & Hospitality yo'nalishlariga o'ta oladilar.",
+    "majors": [
+      "Computer Science & AI",
+      "Tourism & Hospitality Management",
+      "Global Business"
+    ]
+  },
+  {
+    "name": "SeoulTech",
+    "koreanName": "서울과학기술대학교 (SeoulTech)",
+    "location": "SEOUL",
+    "address": "📍 232 Gongneung-ro, Nowon-gu, Seoul 01811, South Korea",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH7-ADK5qXf1x-C4-lHmt7eCafyIO_cNjrkv0U05WhjDJFv2SfUcGr0qKh&s=10",
+    "qsRank": "QS #1001-1200 (THE #1201-1500)",
+    "founded": "1910",
+    "programs": "120+",
+    "appFee": "120,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "National Tech Uni",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003b6e",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,599,230 - 3,288,410 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
+    "description": "Seulda joylashgan Koreyaning yirik va nufuzli Milliy Texnologiyalar Universiteti (SeoulTech). Muhandislik, IT, Dizayn va Biznes sohalarida dunyoning TOP reytinglarida turadi va 1-semestr uchun munosib grantlarni taklif etadi.",
+    "englishTrackMajors": [
+      "MSDE (Manufacturing Systems & Design Engineering)",
+      "Business Administration (IMS program - International Management Studies)",
+      "Global IT Convergence"
+    ],
+    "koreanTrackMajors": [
+      "Computer Science and Engineering",
+      "Mechanical Engineering",
+      "Automotive Engineering",
+      "Industrial Design Program",
+      "Visual Communication Design Program"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 6 / IELTS 7.0+ (Level A Assessment)",
+        "percent": "100% grant + Bepul yotoqxona"
+      },
+      {
+        "cert": "TOPIK 6 / IELTS 7.0+ (Level B Assessment)",
+        "percent": "100% To'liq grant"
+      },
+      {
+        "cert": "TOPIK 5 / IELTS 6.5+ (Level A Assessment)",
+        "percent": "100% To'liq grant"
+      },
+      {
+        "cert": "TOPIK 5 / IELTS 6.5+ (Level B Assessment)",
+        "percent": "70% chegirma"
+      },
+      {
+        "cert": "TOPIK 4 / IELTS 6.0+ (Level A Assessment)",
+        "percent": "70% chegirma"
+      },
+      {
+        "cert": "TOPIK 4 / IELTS 6.0+ (Level B Assessment)",
+        "percent": "50% chegirma"
+      }
+    ],
+    "otherGrantsNote": "Application Fee: Single - 120,000 KRW | Dual - 170,000 KRW. 2-semestrdan boshlab GPA ballariga ko'ra (3.5 GPA dan yuqori) 30% dan 100% gacha akademik stipendiyalar beriladi.",
+    "majors": [
+      "MSDE",
+      "Computer Science",
+      "Business Administration",
+      "Industrial Design"
+    ]
+  },
+  {
+    "name": "Dong-Eui Institute of Technology",
+    "koreanName": "동의과학대학교 (DIT)",
+    "location": "BUSAN",
+    "address": "📍 54 Yangji-ro, Busanjin-gu, Busan, South Korea",
+    "img": "https://image.free-apply.com/gallery/l/uni/gallery/lg/1041000067/fe26d69e7a1bcecd329f0c8dcb9def27eda9e53e.jpg?s=640",
+    "qsRank": "Kollej (E-7-M / Regional Viza)",
+    "founded": "1972",
+    "programs": "45+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Regional Visa Partner",
+    "badge1Class": "badge-blue",
+    "brandColor": "#0f2e5a",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,600,000 - 3,300,000 KRW / semestr",
+    "language": "TOPIK 3",
+    "visaStatus": "Regional Viza",
+    "visaDetails": "Regional viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbalari ma'lumotnomasi va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Busan shahrida joylashgan texnik kollej. Regional viza doirasida ota-ona daromad manbai va 1-oylik KDB bank ko'chirmasi talab etilmaydi. Mexanika muhandisligi (Mechanical Engineering - E-7-M) yo'nalishiga qabul qiladi.",
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [
+      "Mechanical Engineering (E-7-M)"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 3+",
+        "percent": "30% - 40%"
+      }
+    ],
+    "otherGrantsNote": "Mechanical Engineering (E-7-M) yo'nalishi talabalariga viza va stipendiya qo'llab-quvvatlovi taqdim etiladi.",
+    "majors": [
+      "Mechanical Engineering (E-7-M)"
+    ]
+  },
+  {
+    "name": "Tongwon University",
+    "koreanName": "동원대학교",
+    "location": "GWANGJU (GYEONGGI-DO)",
+    "address": "📍 26 Gwangju-daero, Chowol-eup, Gwangju-si, Gyeonggi-do, South Korea",
+    "img": "https://www.studenteduvisa.com//media/image/1729070900.jpg",
+    "qsRank": "Kollej (Global Faculty)",
+    "founded": "1993",
+    "programs": "40+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Practical Training",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003b73",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,000,000 KRW (1-semestr) | 2,300,000 KRW (2-semestr)",
+    "language": "TOPIK 2",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $16,000 USD miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$16,000 USD (1 oylik KDB)",
+    "description": "Gyeonggi-do, Gwangju shahrida (Seulga yaqin) joylashgan kollej. Transport orqali qatnashish qulay, yashash xarajatlari arzon. Hujjatlar elchixona orqali topshiriladi. Qabul muddati: 30-iyun.",
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [
+      "Welding",
+      "Electronic",
+      "IT",
+      "Korean Culture",
+      "Beauty"
+    ],
+    "scholarships": [
+      {
+        "cert": "Dormitory",
+        "percent": "6 oy BEPUL"
+      }
+    ],
+    "otherGrantsNote": "1-semestr: 2,000,000 KRW (~$1,350) + 6 oy BEPUL yotoqxona. 2-semestr: 2,300,000 KRW (~$1,550). Jami 1 yillik o'qish: ~4,300,000 KRW (~$2,900).",
+    "majors": [
+      "Welding",
+      "Electronic",
+      "IT",
+      "Korean Culture",
+      "Beauty"
+    ]
+  },
+  {
+    "name": "Kunjang University",
+    "koreanName": "군장대학교",
+    "location": "GUNSAN (JEOLLABUK-DO)",
+    "address": "📍 608 Kunjang-daero, Seongsan-myeon, Gunsan-si, Jeollabuk-do, South Korea",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVeXbDXSnOe0tHcBXtT4vjWsyurEDxh5gsjKhsOhzoP_osGDI9CngmBWA&s=10",
+    "qsRank": "Kollej (Regional Hudud)",
+    "founded": "1994",
+    "programs": "35+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Vocational College",
+    "badge1Class": "badge-blue",
+    "brandColor": "#002b49",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,950,000 KRW / yil (1 yillik kontrakt)",
+    "language": "TOPIK 2",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$13,000 USD (1 oylik KDB)",
+    "description": "Kunsan shahrida joylashgan amaliy va texnik kollej. Arzon yashash xarajatlari hamda kasbga yo'naltirilgan Shipbuilding va Special Welding kabi yo'nalishlar taklif etiladi. Qabul vaqti: 30-iyungacha.",
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [
+      "Social Welfare",
+      "Shipbuilding",
+      "Special Welding",
+      "New Materials Engineering"
+    ],
+    "scholarships": [],
+    "otherGrantsNote": "1 yillik umumiy kontrakt to'lovi: 2,950,000 KRW (~$1,994). O'qish xarajatlari hamyonbop va katta sanoat hududlariga yaqin.",
+    "majors": [
+      "Social Welfare",
+      "Shipbuilding",
+      "Special Welding",
+      "New Materials Engineering"
+    ]
+  },
+  {
+    "name": "Dongwon Institute of Science and Technology",
+    "koreanName": "동원과학기술대학교 (DIST)",
+    "location": "YANGSAN (BUSAN METRO)",
+    "address": "📍 321 Myeonggok-ro, Yangsan-si, Gyeongsangnam-do, South Korea",
+    "img": "https://tuvanduhocmap.com/wp-content/uploads/2019/05/Mot-trong-nhung-toa-nha-chinh-truong-cao-dang-Dongwon.jpg",
+    "qsRank": "Aviation & Tech College",
+    "founded": "1990",
+    "programs": "40+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Busan Metro College",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003b70",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "$1,800 (yotoqxonasi bilan)",
+    "language": "TOPIK 2+ (Root) | TOPIK 3+ | IELTS 5.5",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va 1 oylik KDB bank ko'chirmasi ($13,000 USD / 16,000,000 KRW) topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Yangsan shahrida (Busan metrosi yaqinida) joylashgan amaliy kollej. Marine Power Machinery (Root Industry), Aircraft Maintenance va K-Beauty bo'yicha kuchli dasturlarga ega. Kontrakt to'lovi yotoqxonasi bilan birga juda hamyonbop.",
+    "englishTrackMajors": [
+      "Refrigeration & Air Conditioning Equipment",
+      "Aircraft Maintenance"
+    ],
+    "koreanTrackMajors": [
+      "Marine Power Machinery Engineering (Root Industry - TOPIK 2+)",
+      "Hair Design",
+      "Hotel & Restaurant Cooking",
+      "Health & Welfare"
+    ],
+    "scholarships": [],
+    "otherGrantsNote": "Kontrakt to'lovi: $1,800 (yotoqxonasi bilan birga). Boshqa imtiyozlar mavjud emas.",
+    "majors": [
+      "Refrigeration & Air Conditioning Equipment",
+      "Aircraft Maintenance",
+      "Marine Power Machinery Engineering",
+      "Hair Design",
+      "Hotel & Restaurant Cooking",
+      "Health & Welfare"
+    ]
+  },
+  {
+    "name": "Seoyeong University",
+    "koreanName": "서영대학교 (Paju & Gwangju Campus)",
+    "location": "PAJU & GWANGJU CAMPUS",
+    "address": "📍 Paju Campus: 1 Seoyeong-ro, Paju-si, Gyeonggi-do / Gwangju Campus: 1 Seo-ro, Buk-gu, Gwangju",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtltCQVFHZaFBKUrFbEfDQiv8CMxCDCFLRpg_ZOfVUySv1ktVO6WnMoEg&s=10",
+    "qsRank": "Kollej (Ikki Kampusli)",
+    "founded": "1978",
+    "programs": "45+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Vocational College",
+    "badge1Class": "badge-blue",
+    "brandColor": "#002147",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "1,600,000 KRW / semestr (O'rtacha)",
+    "language": "TOPIK 2+ | IELTS 5.5",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Seoyeong University — Paju (Seul yaqinida) va Gwangju shahrida ikkita kampusga ega bo'lgan amaliy kollej. Koreys tili va ingliz tili yo'nalishlarida, shuningdek avtomobilsozlik va go'zallik sohasida ta'lim beradi.",
+    "englishTrackMajors": [
+      "Applied Korean (Gwangju Campus)",
+      "Korean Language (Paju Campus)",
+      "Future Automotive (Paju Campus)"
+    ],
+    "koreanTrackMajors": [
+      "Applied Korean (Gwangju Campus)",
+      "AI Future Automotive (Gwangju Campus)",
+      "Beauty / Cosmetology (Gwangju Campus)",
+      "Industrial Engineering (Gwangju Campus)",
+      "Silver Welfare (Gwangju Campus)",
+      "Korean Language (Paju Campus)",
+      "Future Automotive (Paju Campus)",
+      "Beauty Arts (Paju Campus)"
+    ],
+    "scholarships": [
+      {
+        "cert": "1-semestr (Korean Track)",
+        "percent": "50% chegirma"
+      },
+      {
+        "cert": "Yotoqxona (Dormitory)",
+        "percent": "700,000 KRW (6 oy)"
+      }
+    ],
+    "otherGrantsNote": "Birinchi semestrda barcha talabalarga kontrakt to'lovi uchun 50% chegirma beriladi. O'rtacha kontrakt to'lovi semestriga 1,600,000 KRW. Yotoqxona to'lovi 6 oy uchun 700,000 KRW.",
+    "majors": [
+      "Applied Korean (Gwangju)",
+      "AI Future Automotive (Gwangju)",
+      "Beauty (Gwangju)",
+      "Industrial Engineering (Gwangju)",
+      "Silver Welfare (Gwangju)",
+      "Korean Language (Paju)",
+      "Future Automotive (Paju)",
+      "Beauty Arts (Paju)"
+    ]
+  },
+  {
+    "name": "Far East University",
+    "koreanName": "극동대학교 (FEU)",
+    "location": "EUMSEONG (CHUNGCHEONGBUK-DO)",
+    "address": "📍 76-32 Daehak-gil, Gamgok-myeon, Eumseong-gun, Chungcheongbuk-do, South Korea",
+    "img": "https://mksprep.com/wp-content/uploads/2024/05/image-1-1024x488.png",
+    "qsRank": "TOP 1800 (Korea)",
+    "founded": "1998",
+    "programs": "50+",
+    "appFee": "0 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "1-2 Days Lesson a Week",
+    "badge1Class": "badge-blue",
+    "brandColor": "#1d3557",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "$2,500 - $3,400 / semestr (Asl kontrakt)",
+    "language": "IELTS 5.5 | TOPIK 3",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$13,000 USD (1 oylik KDB)",
+    "description": "Eumseong shahrida joylashgan universitet. Haftasiga faqat 1-2 kunlik moslashuvchan o'qish tizimi mavjud. Kirish uchun intervyudan o'tish talab etiladi. Ariza topshirish to'lovi (App Fee) mavjud emas.",
+    "englishTrackMajors": [
+      "Business Administration",
+      "Hotel Management",
+      "Computer Science & AI"
+    ],
+    "koreanTrackMajors": [
+      "Business Administration",
+      "Hotel Management",
+      "Computer Science & AI"
+    ],
+    "scholarships": [
+      {
+        "cert": "IELTS 6.0 / TOPIK 4 (Business/Hotel)",
+        "percent": "30% grant ($1,750 / semestr)"
+      },
+      {
+        "cert": "IELTS 6.5 / TOPIK 5 (Business/Hotel)",
+        "percent": "40% grant ($1,500 / semestr)"
+      },
+      {
+        "cert": "IELTS 8.0 (Business/Hotel)",
+        "percent": "50% grant ($1,200 / semestr)"
+      },
+      {
+        "cert": "IELTS 6.0 / TOPIK 4 (Computer/AI)",
+        "percent": "30% grant ($2,400 / semestr)"
+      },
+      {
+        "cert": "IELTS 6.5 / TOPIK 5 (Computer/AI)",
+        "percent": "40% grant ($2,100 / semestr)"
+      },
+      {
+        "cert": "IELTS 8.0 (Computer/AI)",
+        "percent": "50% grant ($1,750 / semestr)"
+      }
+    ],
+    "otherGrantsNote": "Haftada faqat 1-2 kunlik darslar. Kirish uchun intervyu mavjud. Arizalar uchun qabul yig'imi (App Fee) 0 KRW. IELTS yoki TOPIK darajangizga qarab 30% dan 50% gacha kafolatlangan grantlar beriladi.",
+    "majors": [
+      "Business Administration",
+      "Hotel Management",
+      "Computer Science & AI"
+    ]
+  },
+  {
+    "name": "Youngsan University",
+    "koreanName": "영산대학교 (YSU)",
+    "location": "BUSAN (HAEUNDAE)",
+    "address": "📍 142 Bansong-ro, Haeundae-gu, Busan, South Korea",
+    "img": "https://www.timeshighereducation.com/cms-academic/sites/default/files/2025-04/Overall_01.jpg",
+    "qsRank": "Hotel & Business Leader",
+    "founded": "1973",
+    "programs": "45+",
+    "appFee": "0 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "No Parent Income Req",
+    "badge1Class": "badge-blue",
+    "brandColor": "#0b3c5d",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "3,120,000 KRW / semestr (Asl kontrakt)",
+    "language": "IELTS 5.5 | TOPIK 3",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Ota-ona yillik daromad manbai ma'lumotnomasi TALAB QILINMAYDI. Elchixonaga $13,000 USD miqdoridagi 1 kunlik KDB bank ko'chirmasi topshiriladi.",
+    "kdb1DayAfterAdmission": "$13,000 USD (1 kunlik KDB)",
+    "description": "Busan shahrida (Koreyaning 2-chi yirik shahri) joylashgan universitet. Turizm, xizmat ko'rsatish va ish topish imkoniyatlari yaxshi rivojlangan. Kirish uchun intervyudan o'tish talab etiladi. Ariza to'lovi mavjud emas (0 KRW).",
+    "englishTrackMajors": [
+      "Department of Tourism",
+      "Department of Hotel Management",
+      "Department of Fashion Design",
+      "Department of Business Logistics Management",
+      "Major in K-Business",
+      "Department of AI·Computer Engineering",
+      "Department of Electrical Engineering"
+    ],
+    "koreanTrackMajors": [
+      "Department of Tourism",
+      "Department of Hotel Management",
+      "Department of Fashion Design",
+      "Department of Business Logistics Management",
+      "Major in K-Business",
+      "Department of AI·Computer Engineering",
+      "Department of Electrical Engineering"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 3",
+        "percent": "30% grant (Kontrakt: 2,184,000 KRW)"
+      },
+      {
+        "cert": "TOPIK 4+",
+        "percent": "50% grant (Kontrakt: 1,560,000 KRW)"
+      },
+      {
+        "cert": "IELTS 5.5 (iBT 71)",
+        "percent": "30% grant (Kontrakt: 2,184,000 KRW)"
+      },
+      {
+        "cert": "IELTS 6.0 (iBT 76)",
+        "percent": "40% grant (Kontrakt: 1,872,000 KRW)"
+      },
+      {
+        "cert": "IELTS 6.5+ (iBT 81+)",
+        "percent": "50% grant (Kontrakt: 1,560,000 KRW)"
+      }
+    ],
+    "otherGrantsNote": "Haftalik dars jadvali juda moslashuvchan. IELTS sertifikati yoki TOPIK darajangizga qarab 30% dan 50% gacha dastlabki semestr uchun grant taqdim etiladi. Ota-ona yillik daromad manbai talab qilinmaydi.",
+    "majors": [
+      "Department of Tourism",
+      "Department of Hotel Management",
+      "Department of Fashion Design",
+      "Department of Business Logistics Management",
+      "Major in K-Business",
+      "Department of AI·Computer Engineering",
+      "Department of Electrical Engineering"
+    ]
+  },
+  {
+    "name": "Calvin University",
+    "koreanName": "칼빈대학교",
+    "location": "YONGIN (SEOUL YAQINIDA)",
+    "address": "📍 184 Galmachi-ro, Giheung-gu, Yongin-si, Gyeonggi-do, South Korea",
+    "img": "https://i.ytimg.com/vi/CmZbCsJe6Kk/maxresdefault.jpg",
+    "qsRank": "Flexible Study Leader",
+    "founded": "1954",
+    "programs": "20+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Yongin Campus",
+    "badge1Class": "badge-blue",
+    "brandColor": "#581b1b",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "1,800,000 KRW / semestr",
+    "language": "TOPIK 3+ | IELTS 5.5",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $16,000 USD (20,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$16,000 USD (1 oylik KDB)",
+    "description": "Seoul yaqinidagi Yongin shahrida joylashgan universitet. Haftada faqat 2 kunlik moslashuvchan o'qish tizimi (1 kun offline, 1 kun online) mavjud bo'lib, talabalarga ishlash va amaliyot uchun ajoyib sharoit yaratadi.",
+    "englishTrackMajors": [
+      "Global Culture Management Business"
+    ],
+    "koreanTrackMajors": [
+      "Global Culture Management Business"
+    ],
+    "scholarships": [],
+    "otherGrantsNote": "Kontrakt to'lovi semestriga 1,800,000 KRW (taxminan $1,220 USD). Haftasiga 2 kunlik o'qish grafigi mavjud.",
+    "majors": [
+      "Global Culture Management Business"
+    ]
+  },
+  {
+    "name": "Kyungin Women's University",
+    "koreanName": "경인여자대학교",
+    "location": "SEOUL METRO (INCHEON)",
+    "address": "📍 101 Gyeyangsan-ro, Gyeyang-gu, Incheon, South Korea",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC2fj4px-K_gQFzAP-FaAaFcw41S226bQwnfw60nv-7lnudt9q2z5xy4c&s=10",
+    "qsRank": "Women's College Leader",
+    "founded": "1992",
+    "programs": "30+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Women's Education",
+    "badge1Class": "badge-blue",
+    "brandColor": "#c2185b",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "800,000 KRW / semestr",
+    "language": "TOPIK 2",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$13,000 USD (1 oylik KDB)",
+    "description": "Seoul metro tizimiga ulangan Incheon shahrida joylashgan yirik xotin-qizlar kolleji. Zamonaviy ta'lim va amaliyot dasturlari, ayollar uchun juda qulay va qo'llab-quvvatlovchi muhitga ega. Qabul vaqti: 22-iyungacha.",
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [
+      "Hotel & Tourism Management",
+      "IT / Software",
+      "Fashion Design"
+    ],
+    "scholarships": [],
+    "otherGrantsNote": "Kontrakt to'lovi: 800,000 KRW (~$550 USD). TOPIK 2 talab qilinadi. Qabul vaqti: 22-iyungacha.",
+    "majors": [
+      "Hotel & Tourism",
+      "IT",
+      "Fashion Design"
+    ]
+  },
+  {
+    "name": "Sahmyook University",
+    "koreanName": "삼육대학교",
+    "location": "SEOUL",
+    "address": "📍 815 Hwarang-ro, Nowon-gu, Seoul, South Korea",
+    "img": "https://www.syu.ac.kr/eng/wp-content/uploads/sites/81/2023/02/img_undergraduate.png",
+    "qsRank": "Seoul Health Care Leader",
+    "founded": "1906",
+    "programs": "50+",
+    "appFee": "100,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Seoul Health Campus",
+    "badge1Class": "badge-blue",
+    "brandColor": "#1d5c3f",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "5,900,000 KRW / semestr (Asl kontrakt)",
+    "language": "TOPIK 3 | IELTS 5.5",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $20,000 USD miqdoridagi 1 oylik bank ko'chirmasi (istalgan bankdan) topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$20,000 USD (Istalgan bank, 1 oylik)",
+    "description": "Seoul shahrida joylashgan nufuzli xususiy universitet. English Track orqali Health Care yo'nalishida o'qish imkoniyati va 50% lik kafolatlangan stipendiya taklif etadi. Qabul muddati: 30-iyungacha.",
+    "englishTrackMajors": [
+      "Health Care"
+    ],
+    "koreanTrackMajors": [
+      "Health Care"
+    ],
+    "scholarships": [
+      {
+        "cert": "English / TOPIK 3",
+        "percent": "50% chegirma (2,950,000 KRW)"
+      }
+    ],
+    "otherGrantsNote": "Admission fee: 835,000 KRW. Umumiy birinchi semestr to'lovi: 3,785,000 KRW (~$2,520). 1 oylik 20,000$ bank hisob varag'i talab etiladi (istalgan bankdan).",
+    "majors": [
+      "Health Care"
+    ]
+  },
+  {
+    "name": "Chosun College of Science & Technology",
+    "koreanName": "조선이공대학교",
+    "location": "GWANGJU",
+    "address": "📍 309 Pilmun-daero, Dong-gu, Gwangju, South Korea",
+    "img": "https://image.free-apply.com/gallery/l/uni/gallery/lg/1041000098/e08b69f18297f92a1b197ff16121f5faae0dd988.jpg?s=640",
+    "qsRank": "Vocational Excellence",
+    "founded": "1963",
+    "programs": "25+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Gwangju Tech College",
+    "badge1Class": "badge-blue",
+    "brandColor": "#002855",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "3,030,000 KRW / semestr (Asl kontrakt)",
+    "language": "TOPIK 2",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$13,000 USD (1 oylik KDB)",
+    "description": "Gwangju shahrida joylashgan zamonaviy texnik kollej. Kichik sinflar, individual yondashuv va xalqaro talabalar uchun kuchli qo'llab-quvvatlash tizimi. Qabul muddati: 1-iyulgacha.",
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [
+      "Global Mechanical Convergence"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 2",
+        "percent": "1,000,000 KRW chegirma (2,030,000 KRW)"
+      }
+    ],
+    "otherGrantsNote": "TOPIK 2 sertifikati bo'lgan talabalar uchun kontrakt to'lovi 2,030,000 KRW. Ota-ona yillik daromadi va $13,000 USD 1 oylik KDB bank ko'chirmasi talab qilinadi.",
+    "majors": [
+      "Global Mechanical Convergence"
+    ]
+  },
+  {
+    "name": "Induk University",
+    "koreanName": "인덕대학교",
+    "location": "SEOUL",
+    "address": "📍 12 Choansan-ro, Nowon-gu, Seoul, South Korea",
+    "img": "https://vkec.edu.vn/wp-content/uploads/2025/08/induk-8.jpg",
+    "qsRank": "Design & Tech Leader",
+    "founded": "1972",
+    "programs": "2-year program",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "2 Yillik Dastur",
+    "badge1Class": "badge-blue",
+    "brandColor": "#004b87",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "1-semestr: 1,935,600 KRW | 2-semestr: 2,160,900 KRW (Asl kontrakt: 3,226,000 KRW)",
+    "language": "TOPIK 2 yoki English cert",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $16,000 USD (20,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
+    "kdb1DayAfterAdmission": "$16,000 USD (1 oylik KDB)",
+    "description": "Seoul shahrida joylashgan universitet. 2 yillik dastur bo'lgani uchun talabalar uchun ajoyib imkoniyatdir. TOPIK 2 yoki English sertifikati (IELTS va boshqalar) talab etiladi.",
+    "englishTrackMajors": [
+      "Korean Tourism Service Department",
+      "Global Business Department"
+    ],
+    "koreanTrackMajors": [
+      "Korean Tourism Service Department",
+      "Global Business Department"
+    ],
+    "scholarships": [
+      {
+        "cert": "TOPIK 2 / English",
+        "percent": "40% chegirma (1-semestr: 1,935,600 KRW)"
+      }
+    ],
+    "otherGrantsNote": "TOPIK 2 yoki English certificate bo'lsa, 40% chegirma beriladi. Birinchi semestr to'lovi: 1,935,600 KRW. Ikkinchi semestr to'lovi: 2,160,900 KRW.",
+    "majors": [
+      "Korean Tourism Service Department",
+      "Global Business Department"
+    ]
+  },
+  {
+    "name": "Seojeong University",
+    "koreanName": "서정대학교 (Yangju)",
+    "location": "YANGJU (SEOUL METRO)",
+    "address": "📍 27 Hwabong-ro, Eunhyeon-myeon, Yangju-si, Gyeonggi-do, South Korea",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGwgwMwoolleyHSCKVGDBi-bmDIvc8fHnhzxo-pqQ_R8SKk4OEAWaeJEib&s=10",
+    "qsRank": "Global Vocational Leader",
+    "founded": "2002",
+    "programs": "50+",
+    "appFee": "50,000 KRW",
+    "badge1": "Licensed Uni",
+    "badge2": "Seoul Metro College",
+    "badge1Class": "badge-blue",
+    "brandColor": "#003b73",
+    "statusTag": "📜 Akkreditatsiyaga ega",
+    "is1Percent": false,
+    "tuition": "2,300,000 KRW / semestr (Chegirmadan keyin)",
+    "language": "TOPIK 2+ / TOPIK 3+ | IELTS 5.5",
+    "visaStatus": "Standart Tekshiruv",
+    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
+    "description": "Seul yaqinidagi Yangju shahrida joylashgan amaliy kollej. Birinchi semestrda barcha talabalarga avtomatik grant berilib, to'lanadigan sof kontrakt to'lovi 2,300,000 KRW etib belgilangan. Til sertifikatlariga qo'shimcha bir martalik chegirmalar beriladi.",
+    "englishTrackMajors": [
+      "Hotel & Tourism Department",
+      "Business Administration",
+      "Smart Mobility",
+      "Global AI Computer Engineering"
+    ],
+    "koreanTrackMajors": [
+      "Industrial Engineering (TOPIK 2)",
+      "Automotive Engineering (TOPIK 3)",
+      "Beauty Arts (TOPIK 3)",
+      "Hotel Culinary Arts (TOPIK 3)",
+      "Global Care Welfare (TOPIK 2)"
+    ],
+    "scholarships": [
+      {
+        "cert": "Barcha yo'nalishlar (1-semestr)",
+        "percent": "Sof to'lov: 2,300,000 KRW"
+      },
+      {
+        "cert": "TOPIK 2 / IELTS 5.5",
+        "percent": "+800,000 KRW chegirma"
+      },
+      {
+        "cert": "TOPIK 3 - 4",
+        "percent": "+1,300,000 KRW chegirma"
+      },
+      {
+        "cert": "TOPIK 5 - 6",
+        "percent": "+1,800,000 KRW chegirma"
+      }
+    ],
+    "otherGrantsNote": "Yotoqxona (semestriga): 2 kishilik - 1,300,000 KRW, 3 kishilik - 1,200,000 KRW, 4 kishilik - 1,100,000 KRW. D4 til kursi - 2,000,000 KRW (6 oylik). Qabul muddati: 30-iyungacha.",
+    "majors": [
+      "Hotel & Tourism Department",
+      "Business Administration",
+      "Industrial Engineering",
+      "Automotive Engineering",
+      "Beauty Arts",
+      "Hotel Culinary Arts",
+      "Global AI Computer Engineering"
+    ]
+  }
+]
