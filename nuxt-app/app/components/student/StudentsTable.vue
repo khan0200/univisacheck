@@ -70,7 +70,117 @@ function onRowClick(student: Student, event: MouseEvent) {
 </script>
 
 <template>
-  <div class="overflow-x-auto">
+  <!-- Mobile: card list (no horizontal scrolling/cut-off columns) -->
+  <div class="md:hidden space-y-3 p-3">
+    <div
+      v-for="student in props.students"
+      :key="student.passport"
+      class="p-4 space-y-2.5 rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-[var(--color-card-dark)] shadow-[0_4px_16px_rgba(16,24,40,0.08),0_1px_3px_rgba(16,24,40,0.06)] cursor-pointer active:bg-primary-50/60 dark:active:bg-white/[0.03]"
+      @click="onRowClick(student, $event)"
+    >
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <div class="font-bold text-[var(--color-text-primary)] dark:text-white break-words">
+            <UiCopyField :value="student.fullName" label="Copy full name" :copy-id="`m-name-${student.passport}`" />
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 mt-1">
+            <StudentVisaTypeBadge :visa-type="student.visaType" />
+            <span v-if="student.studentId" class="text-xs text-[var(--color-text-secondary)]">
+              <UiCopyField :value="student.studentId" label="Copy student ID" :copy-id="`m-sid-${student.passport}`">
+                #{{ student.studentId }}
+              </UiCopyField>
+            </span>
+          </div>
+        </div>
+        <input
+          v-if="showSelectColumn"
+          type="checkbox"
+          class="mt-1 size-4 shrink-0 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
+          :checked="Boolean(student.batchSelected)"
+          :disabled="!(currentFilter === 'application' || ((currentFilter === 'cancelled' || currentFilter === 'approved') && bulkDeleteMode)) || !isSelectable(student)"
+          :title="!isSelectable(student) ? `Selectable ${MIN_DAYS_SINCE_APPLIED} days after application date` : undefined"
+          @click.stop
+          @change="emit('toggle-select', student, ($event.target as HTMLInputElement).checked)"
+        >
+      </div>
+
+      <div class="flex items-center justify-between text-sm">
+        <div>
+          <div class="font-bold text-[var(--color-text-primary)] dark:text-white">
+            <UiCopyField :value="student.passport" label="Copy passport number" :copy-id="`m-pp-${student.passport}`" />
+          </div>
+          <div class="text-xs font-bold text-[var(--color-text-secondary)] mt-0.5">
+            <UiCopyField :value="student.birthday" label="Copy birthdate" :copy-id="`m-bd-${student.passport}`" />
+          </div>
+        </div>
+        <StudentStatusBadge :status="student.status" />
+      </div>
+
+      <p v-if="getCancellationReason(student)" class="text-xs text-danger-600 leading-snug">
+        Rejected: {{ formatCancellationReason(getCancellationReason(student)) }}
+      </p>
+
+      <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
+        <span v-if="showAppliedColumn">Applied: {{ student.applicationDate || '--' }}</span>
+        <span v-if="showStatusDateColumn">Status date: {{ getStatusDate(student) || '--' }}</span>
+        <span v-else-if="checkingPassports.has(student.passport)" class="inline-flex items-center gap-1">
+          <span class="h-3 w-16 rounded-full bg-neutral-200/70 dark:bg-white/10 animate-pulse" />
+        </span>
+        <span v-else>Checked: {{ formatTimestampCompact(student.lastChecked) }}</span>
+      </div>
+
+      <div class="flex flex-col gap-1.5 pt-2.5 border-t border-[var(--color-border)] dark:border-white/[0.08] mt-2">
+        <UButton
+          v-if="showPdfColumn && isPdfEligible(student)"
+          block
+          :icon="student.visaType === 'E-Visa' ? 'i-lucide-info' : 'i-lucide-file-down'"
+          color="neutral"
+          variant="soft"
+          class="justify-center"
+          :class="{ 'text-warning-600 dark:text-warning-400': student.visaType === 'E-Visa' }"
+          @click.stop="emit('download-pdf', student)"
+        >
+          {{ student.visaType === 'E-Visa' ? 'E-Visa PDF Info' : 'Download PDF' }}
+        </UButton>
+        <div class="grid grid-cols-3 gap-1.5">
+          <UiLoadingButton
+            block
+            color="primary"
+            class="text-white justify-center"
+            :loading="checkingPassports.has(student.passport)"
+            @click.stop="emit('refresh', student)"
+          >
+            Check
+          </UiLoadingButton>
+          <UButton
+            block
+            icon="i-lucide-pencil"
+            color="neutral"
+            variant="soft"
+            class="justify-center"
+            aria-label="Edit"
+            @click.stop="emit('edit', student)"
+          >
+            Edit
+          </UButton>
+          <UButton
+            block
+            icon="i-lucide-trash-2"
+            color="error"
+            variant="soft"
+            class="justify-center"
+            aria-label="Delete"
+            @click.stop="emit('delete', student)"
+          >
+            Delete
+          </UButton>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop/tablet: table -->
+  <div class="hidden md:block overflow-x-auto">
     <table class="w-full text-sm">
       <thead class="sticky top-0 z-10 bg-white/95 dark:bg-[var(--color-card-dark)]/95 backdrop-blur">
         <tr class="border-b border-[var(--color-border)] dark:border-white/[0.08] text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">

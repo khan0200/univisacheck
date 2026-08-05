@@ -193,6 +193,7 @@ async function handleSearch() {
               placeholder="AKHMATOV AZIZBEK MAKHMUDJON UGLI"
               size="lg"
               class="w-full"
+              :ui="{ base: 'text-sm sm:text-base' }"
               :color="fieldErrors.name ? 'error' : 'neutral'"
               autocomplete="off"
               autocapitalize="characters"

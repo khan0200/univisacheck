@@ -151,38 +151,46 @@ function setFilter(filter: StatusFilter) {
 </script>
 
 <template>
-  <div class="space-y-5">
-    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
-      <UButton icon="i-lucide-plus" color="primary" @click="openAddModal">
-        Add Student
-      </UButton>
+  <div class="space-y-5 min-w-0">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-3 min-w-0">
+      <div class="grid grid-cols-2 lg:flex lg:items-center gap-3 w-full lg:w-auto">
+        <UButton icon="i-lucide-plus" color="primary" size="lg" class="h-11 justify-center" @click="openAddModal">
+          Add Student
+        </UButton>
+
+        <UiLoadingButton
+          v-if="selectedApplicationStudents.length > 0"
+          color="primary"
+          size="lg"
+          class="h-11 justify-center"
+          :loading="batchChecking"
+          @click="handleBatchCheck"
+        >
+          Check ({{ selectedApplicationStudents.length }})
+        </UiLoadingButton>
+        <UiLoadingButton
+          v-if="selectedDeleteStudents.length > 0"
+          color="error"
+          icon="i-lucide-trash-2"
+          size="lg"
+          class="h-11 justify-center"
+          :loading="batchDeleting"
+          @click="handleBatchDelete"
+        >
+          Delete ({{ selectedDeleteStudents.length }})
+        </UiLoadingButton>
+      </div>
 
       <UInput
         v-model="studentsStore.searchQuery"
         icon="i-lucide-search"
         placeholder="Search students…"
+        size="lg"
         class="w-full lg:max-w-xs"
+        :ui="{ base: 'h-11' }"
       />
 
-      <UiLoadingButton
-        v-if="selectedApplicationStudents.length > 0"
-        color="primary"
-        :loading="batchChecking"
-        @click="handleBatchCheck"
-      >
-        Check ({{ selectedApplicationStudents.length }})
-      </UiLoadingButton>
-      <UiLoadingButton
-        v-if="selectedDeleteStudents.length > 0"
-        color="error"
-        icon="i-lucide-trash-2"
-        :loading="batchDeleting"
-        @click="handleBatchDelete"
-      >
-        Delete ({{ selectedDeleteStudents.length }})
-      </UiLoadingButton>
-
-      <div class="lg:ml-auto">
+      <div class="min-w-0 lg:ml-auto">
         <StudentStatusTabs :model-value="studentsStore.currentFilter" :counts="studentsStore.counts" @update:model-value="setFilter" />
       </div>
     </div>
