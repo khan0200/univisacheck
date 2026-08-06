@@ -72,27 +72,27 @@ export default defineAppConfig({
       variants: {
         color: {
           primary: {
-            root: 'bg-primary-900 text-white border-secondary-500/40 shadow-primary-950/40',
-            title: 'text-white font-bold',
-            description: 'text-primary-100',
+            root: 'bg-primary-900 text-white border-secondary-500/50 shadow-primary-950/40',
+            title: 'text-secondary-300 font-bold',
+            description: 'text-white/85',
             icon: 'text-secondary-400',
-            close: 'text-primary-200 hover:text-white',
+            close: 'text-secondary-300/80 hover:text-secondary-200',
             progress: 'bg-secondary-400'
           },
           secondary: {
-            root: 'bg-secondary-900 text-white border-secondary-500/60 shadow-secondary-950/40',
-            title: 'text-secondary-100 font-bold',
-            description: 'text-secondary-200/90',
-            icon: 'text-secondary-300',
-            close: 'text-secondary-300 hover:text-white',
-            progress: 'bg-secondary-400'
+            root: 'bg-primary-900 text-white border-secondary-500/30 shadow-primary-950/40',
+            title: 'text-secondary-200 font-bold',
+            description: 'text-white/70',
+            icon: 'text-secondary-500/80',
+            close: 'text-secondary-300/70 hover:text-secondary-200',
+            progress: 'bg-secondary-500/60'
           },
           error: {
-            root: 'bg-danger-900 text-white border-danger-700/50 shadow-danger-950/30',
-            title: 'text-white font-bold',
-            description: 'text-danger-100',
+            root: 'bg-primary-900 text-white border-danger-500/50 shadow-primary-950/40',
+            title: 'text-danger-300 font-bold',
+            description: 'text-white/85',
             icon: 'text-danger-400',
-            close: 'text-danger-200 hover:text-white',
+            close: 'text-secondary-300/70 hover:text-secondary-200',
             progress: 'bg-danger-400'
           }
         }
