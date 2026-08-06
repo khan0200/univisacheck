@@ -114,7 +114,7 @@ const downloadUrl = computed(() =>
           <button
             v-if="cell.copy"
             type="button"
-            class="opacity-0 group-hover/cell:opacity-100 focus:opacity-100 transition-opacity flex items-center justify-center size-5 rounded-md bg-neutral-100 dark:bg-white/10 text-[var(--color-text-secondary)] hover:text-primary-700"
+            class="flex items-center justify-center size-5 rounded-md bg-neutral-100 dark:bg-white/10 text-[var(--color-text-secondary)] hover:text-primary-700 opacity-75 hover:opacity-100 transition-opacity"
             aria-label="Copy passport number"
             @click="copyValue(cell.value, 'result-passport')"
           >

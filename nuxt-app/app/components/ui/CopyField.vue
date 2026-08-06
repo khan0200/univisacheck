@@ -16,7 +16,7 @@ const canCopy = computed(() => displayText.value !== '--')
     <button
       v-if="canCopy"
       type="button"
-      class="opacity-0 group-hover/copy:opacity-100 focus:opacity-100 transition-opacity text-[var(--color-text-secondary)] hover:text-primary-700 dark:hover:text-secondary-300"
+      class="text-[var(--color-text-secondary)] hover:text-primary-700 dark:hover:text-secondary-300 transition-colors opacity-70 hover:opacity-100"
       :title="label"
       :aria-label="label"
       @click="copyValue(props.value, props.copyId)"
