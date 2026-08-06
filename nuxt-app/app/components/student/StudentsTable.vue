@@ -50,9 +50,8 @@ function daysSinceApplied(student: Student): number {
   return Math.floor((Date.now() - applied) / (1000 * 60 * 60 * 24))
 }
 
-function isSelectable(student: Student): boolean {
-  if (props.currentFilter !== 'application') return true
-  return daysSinceApplied(student) >= MIN_DAYS_SINCE_APPLIED
+function isSelectable(_student: Student): boolean {
+  return true
 }
 
 function onRowClick(student: Student, event: MouseEvent) {

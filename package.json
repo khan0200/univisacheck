@@ -4,8 +4,8 @@
   "description": "SalomKorea — Visa & Education Application",
   "main": "proxy.js",
   "scripts": {
-    "dev": "node proxy.js",
-    "start": "node proxy.js"
+    "dev": "npm run --prefix nuxt-app dev",
+    "start": "npm run --prefix nuxt-app build && npm run --prefix nuxt-app preview"
   },
   "keywords": [
     "visa",

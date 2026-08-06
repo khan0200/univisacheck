@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Student, StatusFilter } from '~/types/student'
-import { isApplicationStatus } from '~/utils/visa-status'
+import { isApplicationStatus, displayStatusText, bucketForStatus } from '~/utils/visa-status'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -65,10 +65,34 @@ async function handleDelete(student: Student) {
   }
 }
 
+function statusToastColor(status: string): 'success' | 'error' | 'warning' | 'primary' | 'neutral' {
+  const bucket = bucketForStatus(status)
+  if (bucket === 'approved') return 'success'
+  if (bucket === 'cancelled') return 'error'
+  if (bucket === 'application') return 'warning'
+  return 'neutral'
+}
+
 async function handleRefresh(student: Student) {
+  const oldStatus = student.status || 'Pending'
   try {
-    await checkOne(student)
+    const changed = await checkOne(student)
     studentsStore.upsertLocal(student)
+    const newStatus = student.status || 'Unknown'
+
+    if (changed) {
+      toast.add({
+        title: `${student.fullName}`,
+        description: `${displayStatusText(oldStatus)} → ${displayStatusText(newStatus)}`,
+        color: statusToastColor(newStatus)
+      })
+    } else {
+      toast.add({
+        title: `${student.fullName}`,
+        description: `Status: ${displayStatusText(newStatus)} (no change)`,
+        color: 'neutral'
+      })
+    }
   } catch {
     toast.add({ title: 'Error checking visa status.', color: 'error' })
   }
