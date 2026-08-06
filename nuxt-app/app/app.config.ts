@@ -63,7 +63,39 @@ export default defineAppConfig({
     },
     toast: {
       slots: {
-        root: 'rounded-xl shadow-lg border border-[var(--color-border)] dark:border-white/10'
+        root: 'relative group overflow-hidden shadow-xl rounded-xl p-4 flex gap-3 border transition-all duration-200',
+        title: 'text-sm font-bold',
+        description: 'text-xs opacity-90',
+        icon: 'shrink-0 size-5',
+        progress: 'absolute inset-x-0 bottom-0 h-1'
+      },
+      variants: {
+        color: {
+          primary: {
+            root: 'bg-primary-900 text-white border-secondary-500/40 shadow-primary-950/40',
+            title: 'text-white font-bold',
+            description: 'text-primary-100',
+            icon: 'text-secondary-400',
+            close: 'text-primary-200 hover:text-white',
+            progress: 'bg-secondary-400'
+          },
+          secondary: {
+            root: 'bg-secondary-900 text-white border-secondary-500/60 shadow-secondary-950/40',
+            title: 'text-secondary-100 font-bold',
+            description: 'text-secondary-200/90',
+            icon: 'text-secondary-300',
+            close: 'text-secondary-300 hover:text-white',
+            progress: 'bg-secondary-400'
+          },
+          error: {
+            root: 'bg-danger-900 text-white border-danger-700/50 shadow-danger-950/30',
+            title: 'text-white font-bold',
+            description: 'text-danger-100',
+            icon: 'text-danger-400',
+            close: 'text-danger-200 hover:text-white',
+            progress: 'bg-danger-400'
+          }
+        }
       }
     },
     toaster: {

@@ -194,44 +194,43 @@ button:not(:disabled) {
 }
 
 /* ── Toast Notifications (Dark Green & Gold styling) ── */
+.bg-primary-900 {
+  background-color: #06382D !important;
+  background-image: linear-gradient(135deg, #06382D 0%, #0F4F3D 100%) !important;
+}
+
+.bg-secondary-900 {
+  background-color: #5C4510 !important;
+  background-image: linear-gradient(135deg, #5C4510 0%, #785A18 100%) !important;
+}
+
 [data-slot="toast"],
 [role="status"],
-[role="alert"] {
+[role="alert"],
+ol[tabindex] > li,
+ul > li[role="status"] {
   border-radius: 14px !important;
   font-family: var(--font-sans);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3), 0 8px 12px -6px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Primary Toast (Dark Green) */
-[data-color="primary"][data-slot="toast"],
-[data-color="primary"][role="status"],
-[data-color="primary"][role="alert"] {
-  background-color: #06382D !important;
-  background-image: linear-gradient(135deg, #06382D 0%, #0F4F3D 100%) !important;
+[data-color="primary"],
+.bg-primary-900 {
   border: 1px solid rgba(241, 216, 111, 0.5) !important;
   color: #FFFFFF !important;
 }
 
 /* Secondary Toast (Gold) */
-[data-color="secondary"][data-slot="toast"],
-[data-color="secondary"][role="status"],
-[data-color="secondary"][role="alert"] {
-  background-color: #6B5320 !important;
-  background-image: linear-gradient(135deg, #6B5320 0%, #8F6E29 100%) !important;
+[data-color="secondary"],
+.bg-secondary-900 {
   border: 1px solid #F1D86F !important;
   color: #FFFFFF !important;
 }
 
-/* Toast Text & Description contrast */
-[data-color="primary"] *,
-[data-color="secondary"] * {
-  color: #FFFFFF !important;
-}
-
 /* Toast Progress Bar (Gold accent) */
-[data-slot="toast"] [data-slot="progress"],
-[role="status"] [data-slot="progress"],
-[role="alert"] [data-slot="progress"] {
+[data-slot="progress"],
+[class*="progress"] {
   background-color: #F1D86F !important;
-  height: 3px !important;
+  height: 4px !important;
 }
