@@ -97,9 +97,6 @@ export default defineAppConfig({
           }
         }
       }
-    },
-    toaster: {
-      duration: 2500
     }
   }
 })
