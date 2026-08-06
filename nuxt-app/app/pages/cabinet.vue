@@ -227,6 +227,12 @@ function setFilter(filter: StatusFilter) {
         :ui="{ base: 'h-11' }"
       />
 
+      <StudentVisaTypeFilterTabs
+        :model-value="studentsStore.visaTypeFilter"
+        :counts="studentsStore.visaTypeCounts"
+        @update:model-value="studentsStore.setVisaTypeFilter"
+      />
+
       <div class="min-w-0 lg:ml-auto">
         <StudentStatusTabs :model-value="studentsStore.currentFilter" :counts="studentsStore.counts" @update:model-value="setFilter" />
       </div>

@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
-import type { Student, StatusFilter } from '~/types/student'
+import type { Student, StatusFilter, VisaTypeFilter } from '~/types/student'
 import { bucketForStatus } from '~/utils/visa-status'
 
 export const useStudentsStore = defineStore('students', () => {
   const students = ref<Student[]>([])
   const isLoading = ref(false)
   const currentFilter = ref<StatusFilter>('pending')
+  const visaTypeFilter = ref<VisaTypeFilter>('all')
   const searchQuery = ref('')
   const bulkDeleteMode = ref(false)
 
@@ -17,10 +18,33 @@ export const useStudentsStore = defineStore('students', () => {
     return result
   })
 
+  const visaTypeCounts = computed(() => {
+    const query = searchQuery.value.toLowerCase().trim()
+    const result: Record<VisaTypeFilter, number> = { all: 0, Embassy: 0, 'E-Visa': 0 }
+    for (const s of students.value) {
+      if (query) {
+        const matchesQuery =
+          (s.fullName || '').toLowerCase().includes(query) ||
+          (s.passport || '').toLowerCase().includes(query) ||
+          (s.studentId || '').toLowerCase().includes(query) ||
+          (s.visaType || '').toLowerCase().includes(query) ||
+          (s.applicationNo || '').toLowerCase().includes(query)
+        if (!matchesQuery) continue
+      }
+      result.all++
+      const type = s.visaType || 'Embassy'
+      if (type === 'E-Visa') result['E-Visa']++
+      else result.Embassy++
+    }
+    return result
+  })
+
   const matchingSearch = computed(() => {
     const query = searchQuery.value.toLowerCase().trim()
-    if (!query) return students.value
     return students.value.filter((s) => {
+      const type = s.visaType || 'Embassy'
+      if (visaTypeFilter.value !== 'all' && type !== visaTypeFilter.value) return false
+      if (!query) return true
       return (
         (s.fullName || '').toLowerCase().includes(query) ||
         (s.passport || '').toLowerCase().includes(query) ||
@@ -59,6 +83,10 @@ export const useStudentsStore = defineStore('students', () => {
     }
   }
 
+  function setVisaTypeFilter(filter: VisaTypeFilter) {
+    visaTypeFilter.value = filter
+  }
+
   function upsertLocal(student: Student) {
     const index = students.value.findIndex((s) => s.passport === student.passport)
     if (index !== -1) students.value[index] = student
@@ -74,12 +102,15 @@ export const useStudentsStore = defineStore('students', () => {
     students,
     isLoading,
     currentFilter,
+    visaTypeFilter,
     searchQuery,
     bulkDeleteMode,
     counts,
+    visaTypeCounts,
     filteredStudents,
     loadStudents,
     setFilter,
+    setVisaTypeFilter,
     upsertLocal,
     removeLocal
   }

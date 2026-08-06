@@ -1,4 +1,5 @@
 export type VisaType = 'Embassy' | 'E-Visa'
+export type VisaTypeFilter = 'all' | 'Embassy' | 'E-Visa'
 
 export type StatusFilter = 'pending' | 'application' | 'cancelled' | 'approved'
 
