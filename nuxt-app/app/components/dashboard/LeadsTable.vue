@@ -55,8 +55,8 @@ function incomeLabel(lead: Lead, side: 'father' | 'mother') {
 <template>
   <div class="overflow-x-auto">
     <table class="w-full text-sm">
-      <thead class="sticky top-0 z-10 bg-white/95 dark:bg-[var(--color-card-dark)]/95 backdrop-blur">
-        <tr class="border-b border-[var(--color-border)] dark:border-white/[0.08] text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+      <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
+        <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
           <th
             v-for="col in columns"
             :key="col.field"
@@ -71,7 +71,7 @@ function incomeLabel(lead: Lead, side: 'father' | 'mother') {
           </th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.06]">
+      <tbody class="divide-y divide-neutral-200 dark:divide-white/10">
         <tr v-for="lead in leadsStore.pageRows" :key="lead.id" class="hover:bg-primary-50/60 dark:hover:bg-white/[0.03] transition-colors">
           <td class="px-4 py-3 align-top">
             <p class="font-medium text-[var(--color-text-primary)] dark:text-white">

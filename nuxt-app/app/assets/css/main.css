@@ -45,12 +45,12 @@ html {
   --color-blue-deep: #0F3460;
 
   /* Surfaces */
-  --color-bg: #F8FAFC;
-  --color-bg-dark: #0D1520;
+  --color-bg: #EEF2F6;
+  --color-bg-dark: #080D16;
   --color-card: #FFFFFF;
-  --color-card-dark: #131D2E;
-  --color-border: rgba(0, 0, 0, 0.06);
-  --color-border-dark: rgba(255, 255, 255, 0.08);
+  --color-card-dark: #131E30;
+  --color-border: rgba(15, 23, 42, 0.14);
+  --color-border-dark: rgba(255, 255, 255, 0.16);
 
   /* Text */
   --color-text-primary: #111827;
@@ -181,16 +181,16 @@ button:not(:disabled) {
  */
 .bg-pattern-grid {
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
   background-size: 28px 28px;
   background-position: -1px -1px;
 }
 
 .dark .bg-pattern-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
 }
 
 /* ── Toast Notifications (Dark Green & Gold styling) ── */

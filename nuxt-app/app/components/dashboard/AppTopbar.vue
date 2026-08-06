@@ -2,6 +2,7 @@
 const authStore = useAuthStore()
 const colorMode = useColorMode()
 const { show: showProfileModal } = useProfileModal()
+const studentsStore = useStudentsStore()
 
 const initials = computed(() => (authStore.user?.username || authStore.user?.email || 'U').charAt(0).toUpperCase())
 const displayName = computed(() => authStore.user?.username || authStore.user?.email || 'Account')
@@ -22,17 +23,24 @@ const profileMenuItems = computed(() => [
 </script>
 
 <template>
-  <header class="h-16 shrink-0 flex items-center gap-3 px-4 sm:px-6 border-b border-[var(--color-border)] dark:border-white/[0.08] glass sticky top-0 z-30">
-    <NuxtLink to="/" class="flex items-center gap-2.5 shrink-0">
+  <header class="h-16 shrink-0 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:gap-3 px-3 sm:px-6 border-b border-[var(--color-border)] dark:border-white/[0.08] glass sticky top-0 z-30">
+    <NuxtLink to="/" class="flex items-center gap-2.5 shrink-0 justify-self-start">
       <img src="/logo.png" alt="SalomKorea" class="h-8 w-8 rounded-lg object-contain">
       <span class="hidden sm:inline font-semibold text-[15px] tracking-tight text-primary-900 dark:text-white">SalomKorea</span>
     </NuxtLink>
 
-    <div class="flex-1 max-w-md">
-      <slot name="search" />
+    <div class="w-full min-w-0 px-2 sm:px-4 md:w-80 lg:w-96 justify-self-center">
+      <UInput
+        v-model="studentsStore.searchQuery"
+        icon="i-lucide-search"
+        placeholder="Search students…"
+        size="lg"
+        class="w-full"
+        :ui="{ base: 'h-10' }"
+      />
     </div>
 
-    <div class="ml-auto flex items-center gap-2">
+    <div class="ml-auto flex items-center gap-2 justify-self-end">
       <slot name="actions" />
 
       <UButton

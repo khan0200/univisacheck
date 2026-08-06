@@ -74,7 +74,7 @@ function onRowClick(student: Student, event: MouseEvent) {
     <div
       v-for="student in props.students"
       :key="student.passport"
-      class="p-4 space-y-2.5 rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-[var(--color-card-dark)] shadow-[0_4px_16px_rgba(16,24,40,0.08),0_1px_3px_rgba(16,24,40,0.06)] cursor-pointer active:bg-primary-50/60 dark:active:bg-white/[0.03]"
+      class="p-4 space-y-2.5 rounded-xl border border-neutral-300/90 dark:border-white/20 bg-white dark:bg-[var(--color-card-dark)] shadow-[0_4px_16px_rgba(15,23,42,0.08),0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-[0_6px_24px_rgba(0,0,0,0.5)] cursor-pointer active:bg-primary-50/60 dark:active:bg-white/[0.03]"
       @click="onRowClick(student, $event)"
     >
       <div class="flex items-start justify-between gap-2">
@@ -128,7 +128,7 @@ function onRowClick(student: Student, event: MouseEvent) {
         <span v-else>Checked: {{ formatTimestampCompact(student.lastChecked) }}</span>
       </div>
 
-      <div class="flex flex-col gap-1.5 pt-2.5 border-t border-[var(--color-border)] dark:border-white/[0.08] mt-2">
+      <div class="flex flex-col gap-1.5 pt-2.5 border-t border-neutral-200 dark:border-white/15 mt-2">
         <UButton
           v-if="showPdfColumn && isPdfEligible(student)"
           block
@@ -181,8 +181,8 @@ function onRowClick(student: Student, event: MouseEvent) {
   <!-- Desktop/tablet: table -->
   <div class="hidden md:block overflow-x-auto">
     <table class="w-full text-sm">
-      <thead class="sticky top-0 z-10 bg-white/95 dark:bg-[var(--color-card-dark)]/95 backdrop-blur">
-        <tr class="border-b border-[var(--color-border)] dark:border-white/[0.08] text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+      <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
+        <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
           <th class="px-4 py-3">Name</th>
           <th class="px-4 py-3">Passport</th>
           <th class="px-4 py-3">Status</th>
@@ -194,7 +194,7 @@ function onRowClick(student: Student, event: MouseEvent) {
           <th class="px-4 py-3 text-right">Actions</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.06]">
+      <tbody class="divide-y divide-neutral-200 dark:divide-white/10">
         <tr
           v-for="student in props.students"
           :key="student.passport"

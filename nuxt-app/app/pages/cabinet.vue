@@ -189,8 +189,8 @@ function setFilter(filter: StatusFilter) {
 
 <template>
   <div class="space-y-5 min-w-0">
-    <div class="flex flex-col lg:flex-row lg:items-center gap-3 min-w-0">
-      <div class="grid grid-cols-2 lg:flex lg:items-center gap-3 w-full lg:w-auto">
+    <div class="flex flex-col lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center gap-3 min-w-0">
+      <div class="grid grid-cols-2 lg:flex lg:items-center gap-3 w-full lg:w-auto justify-self-start">
         <UButton icon="i-lucide-plus" color="primary" size="lg" class="h-11 justify-center" @click="openAddModal">
           Add Student
         </UButton>
@@ -218,27 +218,20 @@ function setFilter(filter: StatusFilter) {
         </UiLoadingButton>
       </div>
 
-      <UInput
-        v-model="studentsStore.searchQuery"
-        icon="i-lucide-search"
-        placeholder="Search students…"
-        size="lg"
-        class="w-full lg:max-w-xs"
-        :ui="{ base: 'h-11' }"
-      />
+      <div class="shrink-0 justify-self-start lg:justify-self-center">
+        <StudentVisaTypeFilterTabs
+          :model-value="studentsStore.visaTypeFilter"
+          :counts="studentsStore.visaTypeCounts"
+          @update:model-value="studentsStore.setVisaTypeFilter"
+        />
+      </div>
 
-      <StudentVisaTypeFilterTabs
-        :model-value="studentsStore.visaTypeFilter"
-        :counts="studentsStore.visaTypeCounts"
-        @update:model-value="studentsStore.setVisaTypeFilter"
-      />
-
-      <div class="min-w-0 lg:ml-auto">
+      <div class="shrink-0 justify-self-start lg:justify-self-end">
         <StudentStatusTabs :model-value="studentsStore.currentFilter" :counts="studentsStore.counts" @update:model-value="setFilter" />
       </div>
     </div>
 
-    <UCard :ui="{ root: 'shadow-[0_4px_16px_rgba(16,24,40,0.08),0_1px_3px_rgba(16,24,40,0.06)]', body: 'p-0 sm:p-0' }">
+    <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
       <ClientOnly>
         <UiTableSkeleton v-if="pending" />
         <UiEmptyState

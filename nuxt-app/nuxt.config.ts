@@ -49,7 +49,9 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    '/cabinet': { ssr: false },
+    '/leads': { ssr: false }
   },
 
   // Vercel function config — the AI assistant route chains OpenAI/Gemini
