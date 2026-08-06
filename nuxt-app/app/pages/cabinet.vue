@@ -59,18 +59,25 @@ async function handleDelete(student: Student) {
     await removeStudent(student.passport)
     studentsStore.removeLocal([student.passport])
     if (detailsStudent.value?.passport === student.passport) detailsModalOpen.value = false
-    toast.add({ title: 'Student deleted', color: 'primary', duration: 2500 })
+    toast.add({ title: 'Student deleted', color: 'primary', icon: 'i-lucide-trash-2', duration: 2500 })
   } catch {
-    toast.add({ title: 'Failed to delete student.', color: 'error', duration: 2500 })
+    toast.add({ title: 'Failed to delete student.', color: 'error', icon: 'i-lucide-alert-circle', duration: 2500 })
   }
 }
 
-function statusToastColor(status: string): 'primary' | 'secondary' | 'error' | 'warning' {
+function statusToastColor(status: string): 'primary' | 'secondary' | 'error' {
   const bucket = bucketForStatus(status)
   if (bucket === 'approved') return 'primary' // Dark Green
   if (bucket === 'cancelled') return 'error'   // Red
-  if (bucket === 'application') return 'secondary' // Gold
-  return 'secondary' // Gold
+  return 'secondary' // Gold for received, under review, pending
+}
+
+function statusToastIcon(status: string): string {
+  const bucket = bucketForStatus(status)
+  if (bucket === 'approved') return 'i-lucide-check-circle-2'
+  if (bucket === 'cancelled') return 'i-lucide-x-circle'
+  if (bucket === 'application') return 'i-lucide-clock'
+  return 'i-lucide-info'
 }
 
 async function handleRefresh(student: Student) {
@@ -85,6 +92,7 @@ async function handleRefresh(student: Student) {
         title: `${student.fullName}`,
         description: `${displayStatusText(oldStatus)} → ${displayStatusText(newStatus)}`,
         color: statusToastColor(newStatus),
+        icon: statusToastIcon(newStatus),
         duration: 2500
       })
     } else {
@@ -92,11 +100,12 @@ async function handleRefresh(student: Student) {
         title: `${student.fullName}`,
         description: `Status: ${displayStatusText(newStatus)} (no change)`,
         color: 'secondary',
+        icon: 'i-lucide-info',
         duration: 2500
       })
     }
   } catch {
-    toast.add({ title: 'Error checking visa status.', color: 'error', duration: 2500 })
+    toast.add({ title: 'Error checking visa status.', color: 'error', icon: 'i-lucide-alert-triangle', duration: 2500 })
   }
 }
 
@@ -106,6 +115,7 @@ function handleDownloadPdf(student: Student) {
       title: 'E-Visa PDF',
       description: 'E-Visa certificates are issued directly by the university. Please ask the university for the PDF.',
       color: 'secondary',
+      icon: 'i-lucide-file-text',
       duration: 2500
     })
     return
