@@ -49,11 +49,34 @@ export default defineAppConfig({
     input: {
       slots: {
         base: 'rounded-md'
+      },
+      variants: {
+        size: {
+          md: {
+            base: 'px-3.5 py-2.5 text-sm gap-2'
+          }
+        }
       }
     },
     select: {
       slots: {
         base: 'rounded-md'
+      },
+      variants: {
+        size: {
+          md: {
+            base: 'px-3.5 py-2.5 text-sm gap-2'
+          }
+        }
+      }
+    },
+    textarea: {
+      variants: {
+        size: {
+          md: {
+            base: 'px-3.5 py-2.5 text-sm gap-2'
+          }
+        }
       }
     },
     dropdownMenu: {

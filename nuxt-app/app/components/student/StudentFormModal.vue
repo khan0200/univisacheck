@@ -134,22 +134,22 @@ async function handleSubmit() {
 <template>
   <UModal :open="props.open" :title="isEdit ? 'Edit Student' : 'Add New Student'" @update:open="emit('update:open', $event)">
     <template #body>
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <form class="space-y-5" @submit.prevent="handleSubmit">
         <div>
           <label class="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1.5">Visa Type</label>
-          <div class="grid grid-cols-2 gap-1 p-1 rounded-md bg-primary-50 dark:bg-white/5">
+          <div class="grid grid-cols-2 gap-1 p-1 rounded-md bg-white ring-1 ring-black/[0.06]">
             <button
               type="button"
-              class="rounded-sm py-2 text-sm font-medium transition-colors"
-              :class="form.visaType === 'Embassy' ? 'bg-white dark:bg-primary-900 text-primary-900 dark:text-white shadow-sm' : 'text-[var(--color-text-secondary)]'"
+              class="rounded-sm py-2.5 text-sm font-extrabold transition-colors"
+              :class="form.visaType === 'Embassy' ? 'bg-primary text-white shadow-sm' : 'text-primary-900'"
               @click="setVisaType('Embassy')"
             >
               Embassy
             </button>
             <button
               type="button"
-              class="rounded-sm py-2 text-sm font-medium transition-colors"
-              :class="form.visaType === 'E-Visa' ? 'bg-white dark:bg-primary-900 text-primary-900 dark:text-white shadow-sm' : 'text-[var(--color-text-secondary)]'"
+              class="rounded-sm py-2.5 text-sm font-extrabold transition-colors"
+              :class="form.visaType === 'E-Visa' ? 'bg-primary text-white shadow-sm' : 'text-primary-900'"
               @click="setVisaType('E-Visa')"
             >
               E-Visa
