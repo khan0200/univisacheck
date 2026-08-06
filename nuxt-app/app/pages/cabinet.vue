@@ -95,14 +95,6 @@ async function handleRefresh(student: Student) {
         icon: statusToastIcon(newStatus),
         duration: 2500
       })
-    } else {
-      toast.add({
-        title: `${student.fullName}`,
-        description: `Status: ${displayStatusText(newStatus)} (no change)`,
-        color: 'secondary',
-        icon: 'i-lucide-info',
-        duration: 2500
-      })
     }
   } catch {
     toast.add({ title: 'Error checking visa status.', color: 'error', icon: 'i-lucide-alert-triangle', duration: 2500 })
