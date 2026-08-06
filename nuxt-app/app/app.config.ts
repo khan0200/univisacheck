@@ -60,6 +60,14 @@ export default defineAppConfig({
       slots: {
         content: 'rounded-md'
       }
+    },
+    toast: {
+      slots: {
+        root: 'rounded-xl shadow-lg border border-[var(--color-border)] dark:border-white/10'
+      }
+    },
+    toaster: {
+      duration: 2500
     }
   }
 })

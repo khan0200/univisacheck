@@ -120,7 +120,7 @@ async function handleSubmit() {
     }
 
     await save(payload)
-    toast.add({ title: isEdit.value ? 'Student updated' : 'Student added', color: 'success' })
+    toast.add({ title: isEdit.value ? 'Student updated' : 'Student added', color: 'primary', duration: 2500 })
     emit('saved')
     emit('update:open', false)
   } catch (e: any) {
@@ -163,7 +163,6 @@ async function handleSubmit() {
             placeholder="AA1234567"
             required
             class="w-full"
-            :disabled="isEdit"
             @input="handlePassportInput"
           />
           <p v-if="lookupStatus === 'checking'" class="text-xs text-[var(--color-text-secondary)] mt-1 flex items-center gap-1">

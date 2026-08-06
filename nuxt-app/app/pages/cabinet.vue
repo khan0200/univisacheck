@@ -59,18 +59,18 @@ async function handleDelete(student: Student) {
     await removeStudent(student.passport)
     studentsStore.removeLocal([student.passport])
     if (detailsStudent.value?.passport === student.passport) detailsModalOpen.value = false
-    toast.add({ title: 'Student deleted', color: 'success' })
+    toast.add({ title: 'Student deleted', color: 'primary', duration: 2500 })
   } catch {
-    toast.add({ title: 'Failed to delete student.', color: 'error' })
+    toast.add({ title: 'Failed to delete student.', color: 'error', duration: 2500 })
   }
 }
 
-function statusToastColor(status: string): 'success' | 'error' | 'warning' | 'primary' | 'neutral' {
+function statusToastColor(status: string): 'primary' | 'secondary' | 'error' | 'warning' {
   const bucket = bucketForStatus(status)
-  if (bucket === 'approved') return 'success'
-  if (bucket === 'cancelled') return 'error'
-  if (bucket === 'application') return 'warning'
-  return 'neutral'
+  if (bucket === 'approved') return 'primary' // Dark Green
+  if (bucket === 'cancelled') return 'error'   // Red
+  if (bucket === 'application') return 'secondary' // Gold
+  return 'secondary' // Gold
 }
 
 async function handleRefresh(student: Student) {
@@ -84,17 +84,19 @@ async function handleRefresh(student: Student) {
       toast.add({
         title: `${student.fullName}`,
         description: `${displayStatusText(oldStatus)} → ${displayStatusText(newStatus)}`,
-        color: statusToastColor(newStatus)
+        color: statusToastColor(newStatus),
+        duration: 2500
       })
     } else {
       toast.add({
         title: `${student.fullName}`,
         description: `Status: ${displayStatusText(newStatus)} (no change)`,
-        color: 'neutral'
+        color: 'secondary',
+        duration: 2500
       })
     }
   } catch {
-    toast.add({ title: 'Error checking visa status.', color: 'error' })
+    toast.add({ title: 'Error checking visa status.', color: 'error', duration: 2500 })
   }
 }
 
@@ -103,7 +105,8 @@ function handleDownloadPdf(student: Student) {
     toast.add({
       title: 'E-Visa PDF',
       description: 'E-Visa certificates are issued directly by the university. Please ask the university for the PDF.',
-      color: 'warning'
+      color: 'secondary',
+      duration: 2500
     })
     return
   }
@@ -119,7 +122,7 @@ async function handleToggleSelect(student: Student, checked: boolean) {
     await setBatchSelected(student.passport, checked)
   } catch {
     student.batchSelected = !checked
-    toast.add({ title: 'Failed to save selection.', color: 'error' })
+    toast.add({ title: 'Failed to save selection.', color: 'error', duration: 2500 })
   }
 }
 
@@ -142,9 +145,9 @@ async function handleBatchCheck() {
   batchChecking.value = true
   try {
     await checkMany(list)
-    toast.add({ title: `Checked ${list.length} student(s)`, color: 'success' })
+    toast.add({ title: `Checked ${list.length} student(s)`, color: 'primary', duration: 2500 })
   } catch {
-    toast.add({ title: 'Batch check failed. Please try again.', color: 'error' })
+    toast.add({ title: 'Batch check failed. Please try again.', color: 'error', duration: 2500 })
   } finally {
     batchChecking.value = false
   }
@@ -161,9 +164,9 @@ async function handleBatchDelete() {
     await removeMany(passports)
     studentsStore.removeLocal(passports)
     studentsStore.bulkDeleteMode = false
-    toast.add({ title: `Deleted ${passports.length} student(s)`, color: 'success' })
+    toast.add({ title: `Deleted ${passports.length} student(s)`, color: 'primary', duration: 2500 })
   } catch {
-    toast.add({ title: 'Failed to delete selected students.', color: 'error' })
+    toast.add({ title: 'Failed to delete selected students.', color: 'error', duration: 2500 })
   } finally {
     batchDeleting.value = false
   }
