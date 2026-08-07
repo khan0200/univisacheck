@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Student, StatusFilter, VisaTypeFilter } from '~/types/student'
-import { bucketForStatus } from '~/utils/visa-status'
+import { bucketForStatus, displayStatusText } from '~/utils/visa-status'
 
 export const useStudentsStore = defineStore('students', () => {
   const students = ref<Student[]>([])
@@ -58,6 +58,18 @@ export const useStudentsStore = defineStore('students', () => {
   const filteredStudents = computed(() => {
     const filtered = matchingSearch.value.filter((s) => bucketForStatus(s.status) === currentFilter.value)
     return [...filtered].sort((a, b) => {
+      // If we are in the application tab, Under Review always comes first
+      if (currentFilter.value === 'application') {
+        const isUnderReviewA = displayStatusText(a.status) === 'Under Review'
+        const isUnderReviewB = displayStatusText(b.status) === 'Under Review'
+        if (isUnderReviewA && !isUnderReviewB) return -1
+        if (!isUnderReviewA && isUnderReviewB) return 1
+      }
+
+      // Pinned students come next
+      if (a.pinned && !b.pinned) return -1
+      if (!a.pinned && b.pinned) return 1
+      
       const dateA = a.applicationDate || '9999-99-99'
       const dateB = b.applicationDate || '9999-99-99'
       return dateA > dateB ? 1 : dateA < dateB ? -1 : 0

@@ -50,6 +50,7 @@ export interface Student {
   visaType: VisaType
   applicationNo?: string
   deletedAt?: string | null
+  pinned?: boolean
 }
 
 export interface StudentFormInput {

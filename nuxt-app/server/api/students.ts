@@ -84,13 +84,13 @@ export default defineEventHandler(async (event) => {
           sql: 'SELECT * FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
           args: [passport.toUpperCase().trim(), userId]
         })
-        return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1 }))
+        return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1, pinned: r.pinned === 1 }))
       } else {
         const result = await db.execute({
           sql: 'SELECT * FROM students WHERE userId = ? AND deletedAt IS NULL ORDER BY createdAt DESC',
           args: [userId]
         })
-        return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1 }))
+        return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1, pinned: r.pinned === 1 }))
       }
     }
 
@@ -185,6 +185,11 @@ export default defineEventHandler(async (event) => {
         batchSelected = body.batchSelected ? 1 : 0
       }
 
+      let pinned: number | null = null
+      if (body.pinned !== undefined) {
+        pinned = body.pinned ? 1 : 0
+      }
+
       let lastChecked: string | null = null
       if (body.lastChecked !== undefined) {
         lastChecked = new Date().toISOString()
@@ -200,8 +205,8 @@ export default defineEventHandler(async (event) => {
                     INSERT INTO students (
                         passport, fullName, birthday, studentId, status,
                         applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
-                        batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
+                        batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?)
                 `
         await db.execute({
           sql,
@@ -220,7 +225,8 @@ export default defineEventHandler(async (event) => {
             batchSelectedUpdatedAt || '',
             userId,
             visaType || 'Embassy',
-            applicationNo || ''
+            applicationNo || '',
+            pinned !== null ? pinned : 0
           ]
         })
         await syncStudentsCount(db, userId)
@@ -245,6 +251,7 @@ export default defineEventHandler(async (event) => {
         if (batchSelectedUpdatedAt !== null) { updateFields.push('batchSelectedUpdatedAt = ?'); args.push(batchSelectedUpdatedAt) }
         if (visaType !== null) { updateFields.push('visaType = ?'); args.push(visaType) }
         if (applicationNo !== null) { updateFields.push('applicationNo = ?'); args.push(applicationNo) }
+        if (pinned !== null) { updateFields.push('pinned = ?'); args.push(pinned) }
 
         if (updateFields.length === 0) {
           return { success: true, message: 'No fields to update' }

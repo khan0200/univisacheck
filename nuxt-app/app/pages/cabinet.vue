@@ -5,7 +5,7 @@ import { isApplicationStatus, displayStatusText, bucketForStatus } from '~/utils
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const studentsStore = useStudentsStore()
-const { removeMany, remove: removeStudent, downloadPdfUrl, setBatchSelected } = useStudentsService()
+const { removeMany, remove: removeStudent, downloadPdfUrl, setBatchSelected, togglePin } = useStudentsService()
 const { checkOne, checkMany, checkingPassports } = useVisaCheck()
 const toast = useToast()
 
@@ -118,6 +118,20 @@ async function handleToggleSelect(student: Student, checked: boolean) {
   } catch {
     student.batchSelected = !checked
     toast.add({ title: 'Failed to save selection.', color: 'error', duration: 2500 })
+  }
+}
+
+async function handleTogglePin(student: Student) {
+  const newPinned = !student.pinned
+  // Optimistic update
+  student.pinned = newPinned
+  studentsStore.upsertLocal(student)
+  try {
+    await togglePin(student.passport, newPinned)
+  } catch {
+    student.pinned = !newPinned // Revert
+    studentsStore.upsertLocal(student)
+    toast.add({ title: 'Failed to update pin status', color: 'error', duration: 2500 })
   }
 }
 
@@ -242,6 +256,7 @@ function setFilter(filter: StatusFilter) {
           @refresh="handleRefresh"
           @download-pdf="handleDownloadPdf"
           @toggle-select="handleToggleSelect"
+          @toggle-pin="handleTogglePin"
         />
         <template #fallback>
           <UiTableSkeleton />

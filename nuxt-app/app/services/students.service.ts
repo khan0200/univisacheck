@@ -37,6 +37,13 @@ export function useStudentsService() {
     })
   }
 
+  function togglePin(passport: string, pinned: boolean) {
+    return apiFetch<{ success: boolean }>(STUDENTS_URL, {
+      method: 'PATCH',
+      body: { passport, pinned }
+    })
+  }
+
   function remove(passport: string) {
     return apiFetch<{ success: boolean }>(`${STUDENTS_URL}?passport=${encodeURIComponent(passport)}`, {
       method: 'DELETE'
@@ -103,6 +110,7 @@ export function useStudentsService() {
     save,
     updateFields,
     setBatchSelected,
+    togglePin,
     remove,
     removeMany,
     checkStatus,

@@ -16,6 +16,7 @@ const emit = defineEmits<{
   refresh: [student: Student]
   'download-pdf': [student: Student]
   'toggle-select': [student: Student, checked: boolean]
+  'toggle-pin': [student: Student]
 }>()
 
 const showSelectColumn = computed(() => props.currentFilter === 'application')
@@ -58,21 +59,56 @@ function onRowClick(student: Student, event: MouseEvent) {
 
   emit('details', student)
 }
+
+function getContextMenuItems(student: Student) {
+  return [
+    [
+      {
+        label: 'View',
+        icon: 'i-lucide-eye',
+        onSelect: () => emit('details', student)
+      },
+      {
+        label: 'Edit',
+        icon: 'i-lucide-pencil',
+        onSelect: () => emit('edit', student)
+      }
+    ],
+    [
+      {
+        label: student.pinned ? 'Unpin from top' : 'Pin to top',
+        icon: student.pinned ? 'i-lucide-pin-off' : 'i-lucide-pin',
+        onSelect: () => emit('toggle-pin', student)
+      }
+    ],
+    [
+      {
+        label: 'Delete',
+        icon: 'i-lucide-trash-2',
+        onSelect: () => emit('delete', student)
+      }
+    ]
+  ]
+}
 </script>
 
 <template>
   <!-- Mobile: card list (no horizontal scrolling/cut-off columns) -->
   <div class="md:hidden space-y-3 p-3">
-    <div
+    <UContextMenu
       v-for="student in props.students"
       :key="student.passport"
-      class="p-4 space-y-2.5 rounded-xl border border-neutral-300/90 dark:border-white/20 bg-white dark:bg-[var(--color-card-dark)] shadow-[0_4px_16px_rgba(15,23,42,0.08),0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-[0_6px_24px_rgba(0,0,0,0.5)] cursor-pointer active:bg-primary-50/60 dark:active:bg-white/[0.03]"
-      @click="onRowClick(student, $event)"
+      :items="getContextMenuItems(student)"
     >
+      <div
+        class="p-4 space-y-2.5 rounded-xl border border-neutral-300/90 dark:border-white/20 bg-white dark:bg-[var(--color-card-dark)] shadow-[0_4px_16px_rgba(15,23,42,0.08),0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-[0_6px_24px_rgba(0,0,0,0.5)] cursor-pointer active:bg-primary-50/60 dark:active:bg-white/[0.03]"
+        @click="onRowClick(student, $event)"
+      >
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
-          <div class="font-bold text-[var(--color-text-primary)] dark:text-white break-words">
+          <div class="font-bold text-[var(--color-text-primary)] dark:text-white break-words flex items-center gap-1.5">
             <UiCopyField :value="student.fullName" label="Copy full name" :copy-id="`m-name-${student.passport}`" />
+            <UIcon v-if="student.pinned" name="i-lucide-pin" class="size-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
           </div>
           <div class="flex flex-wrap items-center gap-1.5 mt-1">
             <StudentVisaTypeBadge :visa-type="student.visaType" />
@@ -157,6 +193,7 @@ function onRowClick(student: Student, event: MouseEvent) {
         </div>
       </div>
     </div>
+    </UContextMenu>
   </div>
 
   <!-- Desktop/tablet: table -->
@@ -176,15 +213,19 @@ function onRowClick(student: Student, event: MouseEvent) {
         </tr>
       </thead>
       <tbody class="divide-y divide-neutral-200 dark:divide-white/10">
-        <tr
+        <UContextMenu
           v-for="student in props.students"
           :key="student.passport"
-          class="cursor-pointer transition-colors hover:bg-primary-50/60 dark:hover:bg-white/[0.03]"
-          @click="onRowClick(student, $event)"
+          :items="getContextMenuItems(student)"
         >
+          <tr
+            class="cursor-pointer transition-colors hover:bg-primary-50/60 dark:hover:bg-white/[0.03]"
+            @click="onRowClick(student, $event)"
+          >
           <td class="px-4 py-3 align-top">
-            <div class="font-bold text-[var(--color-text-primary)] dark:text-white">
+            <div class="font-bold text-[var(--color-text-primary)] dark:text-white flex items-center gap-1.5">
               <UiCopyField :value="student.fullName" label="Copy full name" :copy-id="`name-${student.passport}`" />
+              <UIcon v-if="student.pinned" name="i-lucide-pin" class="size-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
             </div>
             <div class="flex flex-wrap items-center gap-1.5 mt-1">
               <StudentVisaTypeBadge :visa-type="student.visaType" />
@@ -271,6 +312,7 @@ function onRowClick(student: Student, event: MouseEvent) {
             </div>
           </td>
         </tr>
+      </UContextMenu>
       </tbody>
     </table>
   </div>
