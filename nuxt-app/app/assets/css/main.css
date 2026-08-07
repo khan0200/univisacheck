@@ -99,20 +99,20 @@ html {
 
   /*
    * Radius hierarchy — structured/architectural, not soft.
-   * Buttons/inputs/dropdowns 10px · cards 14px · dialogs 16px · tables 12px
-   * · images 16px (hero 20px max) · badges/avatars stay pill/circle via rounded-full.
+   * Buttons/inputs/dropdowns 6px · cards 8px · dialogs 10px · tables 7px
+   * · images 10px (hero 12px max) · badges/avatars stay pill/circle via rounded-full.
    */
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-xl: 14px;
-  --radius-2xl: 16px;
-  --radius-3xl: 20px;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 7px;
+  --radius-xl: 8px;
+  --radius-2xl: 10px;
+  --radius-3xl: 12px;
 }
 
 :root {
-  --ui-radius: 0.625rem;
+  --ui-radius: 0.375rem;
 }
 
 body {
@@ -204,7 +204,7 @@ button:not(:disabled) {
 [role="alert"],
 ol[tabindex] > li,
 ul > li[role="status"] {
-  border-radius: 14px !important;
+  border-radius: var(--radius-xl) !important;
   font-family: var(--font-sans);
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3), 0 8px 12px -6px rgba(0, 0, 0, 0.2) !important;
 }

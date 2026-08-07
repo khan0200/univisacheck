@@ -317,7 +317,7 @@ async function handleSignup() {
 .auth-hero-logo {
   width: 64px;
   height: 64px;
-  border-radius: 16px;
+  border-radius: var(--radius-2xl);
   object-fit: contain;
   margin-bottom: 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -412,7 +412,7 @@ async function handleSignup() {
   grid-template-columns: 1fr 1fr;
   gap: 0.375rem;
   padding: 0.375rem;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   background: var(--color-primary-50);
   margin-bottom: 2rem;
 }
@@ -427,7 +427,7 @@ async function handleSignup() {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-weight: 600;
   transition: all 0.2s ease;
@@ -485,7 +485,7 @@ async function handleSignup() {
   color: var(--color-text-secondary);
   transition: color 0.15s ease;
   padding: 0.25rem;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
 }
 
 .auth-eye-btn:hover {
@@ -510,7 +510,7 @@ async function handleSignup() {
 
 /* ── Alert ── */
 .auth-alert {
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 
 /* ── Footer ── */
