@@ -47,13 +47,6 @@ function openDetails(student: Student) {
 }
 
 async function handleDelete(student: Student) {
-  const bucket = studentsStore.currentFilter
-  if (bucket === 'cancelled' || bucket === 'approved') {
-    studentsStore.bulkDeleteMode = true
-    student.batchSelected = true
-    return
-  }
-
   if (!confirm(`Are you sure you want to delete ${student.fullName}?`)) return
   try {
     await removeStudent(student.passport)
@@ -134,11 +127,7 @@ const selectedApplicationStudents = computed(() =>
     : []
 )
 
-const selectedDeleteStudents = computed(() =>
-  (studentsStore.currentFilter === 'cancelled' || studentsStore.currentFilter === 'approved') && studentsStore.bulkDeleteMode
-    ? studentsStore.filteredStudents.filter((s) => s.batchSelected)
-    : []
-)
+const bulkDeleteModalOpen = ref(false)
 
 const batchChecking = ref(false)
 async function handleBatchCheck() {
@@ -169,22 +158,17 @@ async function handleBatchCheck() {
   }
 }
 
-const batchDeleting = ref(false)
-async function handleBatchDelete() {
-  const passports = selectedDeleteStudents.value.map((s) => s.passport)
+async function handleModalBulkDelete(passports: string[]) {
   if (passports.length === 0) return
-  if (!confirm('Are you sure?')) return
+  if (!confirm(`Are you sure you want to delete ${passports.length} student(s)?`)) return
 
-  batchDeleting.value = true
   try {
     await removeMany(passports)
     studentsStore.removeLocal(passports)
-    studentsStore.bulkDeleteMode = false
+    bulkDeleteModalOpen.value = false
     toast.add({ title: `Deleted ${passports.length} student(s)`, color: 'primary', duration: 2500 })
   } catch {
     toast.add({ title: 'Failed to delete selected students.', color: 'error', duration: 2500 })
-  } finally {
-    batchDeleting.value = false
   }
 }
 
@@ -196,10 +180,21 @@ function setFilter(filter: StatusFilter) {
 <template>
   <div class="space-y-5 min-w-0">
     <div class="flex flex-col lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center gap-3 min-w-0">
-      <div class="grid grid-cols-2 lg:flex lg:items-center gap-3 w-full lg:w-auto justify-self-start">
-        <UButton icon="i-lucide-plus" color="primary" size="lg" class="h-11 justify-center" @click="openAddModal">
+      <div class="flex flex-wrap lg:flex-nowrap items-center gap-3 w-full lg:w-auto justify-self-start">
+        <UButton icon="i-lucide-plus" color="primary" size="lg" class="h-11 justify-center grow lg:grow-0" @click="openAddModal">
           Add Student
         </UButton>
+        <UButton
+          v-if="studentsStore.currentFilter === 'cancelled' || studentsStore.currentFilter === 'approved' || studentsStore.currentFilter === 'pending'"
+          icon="i-lucide-trash-2"
+          color="error"
+          variant="soft"
+          size="lg"
+          square
+          class="h-11 shrink-0"
+          title="Bulk delete"
+          @click="bulkDeleteModalOpen = true"
+        />
 
         <UiLoadingButton
           v-if="selectedApplicationStudents.length > 0"
@@ -210,17 +205,6 @@ function setFilter(filter: StatusFilter) {
           @click="handleBatchCheck"
         >
           Check ({{ selectedApplicationStudents.length }})
-        </UiLoadingButton>
-        <UiLoadingButton
-          v-if="selectedDeleteStudents.length > 0"
-          color="error"
-          icon="i-lucide-trash-2"
-          size="lg"
-          class="h-11 justify-center"
-          :loading="batchDeleting"
-          @click="handleBatchDelete"
-        >
-          Delete ({{ selectedDeleteStudents.length }})
         </UiLoadingButton>
       </div>
 
@@ -250,7 +234,6 @@ function setFilter(filter: StatusFilter) {
           v-else
           :students="studentsStore.filteredStudents"
           :current-filter="studentsStore.currentFilter"
-          :bulk-delete-mode="studentsStore.bulkDeleteMode"
           :checking-passports="checkingPassports"
           @edit="openEditModal"
           @details="openDetails"
@@ -280,6 +263,12 @@ function setFilter(filter: StatusFilter) {
       @delete="handleDelete"
       @refresh="handleRefresh"
       @download-pdf="handleDownloadPdf"
+    />
+
+    <StudentBulkDeleteModal
+      v-model:open="bulkDeleteModalOpen"
+      :students="studentsStore.filteredStudents"
+      @delete="handleModalBulkDelete"
     />
   </div>
 </template>

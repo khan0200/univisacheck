@@ -8,7 +8,6 @@ export const useStudentsStore = defineStore('students', () => {
   const currentFilter = ref<StatusFilter>('pending')
   const visaTypeFilter = ref<VisaTypeFilter>('all')
   const searchQuery = ref('')
-  const bulkDeleteMode = ref(false)
 
   const counts = computed(() => {
     const result: Record<StatusFilter, number> = { pending: 0, application: 0, cancelled: 0, approved: 0 }
@@ -78,7 +77,6 @@ export const useStudentsStore = defineStore('students', () => {
 
   function setFilter(filter: StatusFilter) {
     currentFilter.value = filter
-    bulkDeleteMode.value = false
     for (const s of students.value) {
       if (bucketForStatus(s.status) !== 'application') s.batchSelected = false
     }
@@ -105,7 +103,6 @@ export const useStudentsStore = defineStore('students', () => {
     currentFilter,
     visaTypeFilter,
     searchQuery,
-    bulkDeleteMode,
     counts,
     visaTypeCounts,
     filteredStudents,

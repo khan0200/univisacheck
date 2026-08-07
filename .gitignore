@@ -30,3 +30,7 @@ build/
 # Local AI Assistant
 
 .env*
+
+# Local visa-check debug scripts and saved responses (contain real student data)
+test-visa*.js
+result_*.html

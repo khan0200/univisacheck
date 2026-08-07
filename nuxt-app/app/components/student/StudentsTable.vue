@@ -6,7 +6,6 @@ import { formatCancellationReason, getCancellationReason, getStatusDate } from '
 const props = defineProps<{
   students: Student[]
   currentFilter: string
-  bulkDeleteMode: boolean
   checkingPassports: Set<string>
 }>()
 
@@ -19,10 +18,7 @@ const emit = defineEmits<{
   'toggle-select': [student: Student, checked: boolean]
 }>()
 
-const showSelectColumn = computed(() =>
-  props.currentFilter === 'application' ||
-  ((props.currentFilter === 'cancelled' || props.currentFilter === 'approved') && props.bulkDeleteMode)
-)
+const showSelectColumn = computed(() => props.currentFilter === 'application')
 
 const showAppliedColumn = computed(() => props.currentFilter !== 'pending')
 
@@ -58,11 +54,7 @@ function onRowClick(student: Student, event: MouseEvent) {
   const target = event.target as HTMLElement
   if (target.closest('button, input, select, a')) return
 
-  const isBulkSelectable = props.bulkDeleteMode && (props.currentFilter === 'cancelled' || props.currentFilter === 'approved')
-  if (isBulkSelectable) {
-    emit('toggle-select', student, !student.batchSelected)
-    return
-  }
+
 
   emit('details', student)
 }
@@ -96,7 +88,7 @@ function onRowClick(student: Student, event: MouseEvent) {
           type="checkbox"
           class="mt-1 size-4 shrink-0 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
           :checked="Boolean(student.batchSelected)"
-          :disabled="!(currentFilter === 'application' || ((currentFilter === 'cancelled' || currentFilter === 'approved') && bulkDeleteMode)) || !isSelectable(student)"
+          :disabled="currentFilter !== 'application' || !isSelectable(student)"
           :title="!isSelectable(student) ? `Selectable ${MIN_DAYS_SINCE_APPLIED} days after application date` : undefined"
           @click.stop
           @change="emit('toggle-select', student, ($event.target as HTMLInputElement).checked)"
@@ -141,7 +133,7 @@ function onRowClick(student: Student, event: MouseEvent) {
         >
           {{ student.visaType === 'E-Visa' ? 'E-Visa PDF Info' : 'Download PDF' }}
         </UButton>
-        <div class="grid grid-cols-3 gap-1.5">
+        <div class="grid grid-cols-2 gap-1.5">
           <UiLoadingButton
             block
             color="primary"
@@ -153,25 +145,14 @@ function onRowClick(student: Student, event: MouseEvent) {
           </UiLoadingButton>
           <UButton
             block
-            icon="i-lucide-pencil"
+            icon="i-lucide-eye"
             color="neutral"
             variant="soft"
             class="justify-center"
-            aria-label="Edit"
-            @click.stop="emit('edit', student)"
+            aria-label="View details"
+            @click.stop="emit('details', student)"
           >
-            Edit
-          </UButton>
-          <UButton
-            block
-            icon="i-lucide-trash-2"
-            color="error"
-            variant="soft"
-            class="justify-center"
-            aria-label="Delete"
-            @click.stop="emit('delete', student)"
-          >
-            Delete
+            View
           </UButton>
         </div>
       </div>
@@ -250,7 +231,7 @@ function onRowClick(student: Student, event: MouseEvent) {
               type="checkbox"
               class="size-4 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
               :checked="Boolean(student.batchSelected)"
-              :disabled="!(currentFilter === 'application' || ((currentFilter === 'cancelled' || currentFilter === 'approved') && bulkDeleteMode)) || !isSelectable(student)"
+              :disabled="currentFilter !== 'application' || !isSelectable(student)"
               :title="!isSelectable(student) ? `Selectable ${MIN_DAYS_SINCE_APPLIED} days after application date` : undefined"
               @change="emit('toggle-select', student, ($event.target as HTMLInputElement).checked)"
             >
@@ -274,29 +255,19 @@ function onRowClick(student: Student, event: MouseEvent) {
                 color="primary"
                 class="text-white"
                 :loading="checkingPassports.has(student.passport)"
-                @click="emit('refresh', student)"
+                @click.stop="emit('refresh', student)"
               >
                 Check
               </UiLoadingButton>
               <UButton
-                icon="i-lucide-pencil"
+                icon="i-lucide-eye"
                 size="sm"
                 color="neutral"
                 variant="ghost"
                 square
                 :ui="{ leadingIcon: 'size-5' }"
-                aria-label="Edit"
-                @click="emit('edit', student)"
-              />
-              <UButton
-                icon="i-lucide-trash-2"
-                size="sm"
-                color="error"
-                variant="ghost"
-                square
-                :ui="{ leadingIcon: 'size-5' }"
-                aria-label="Delete"
-                @click="emit('delete', student)"
+                aria-label="View details"
+                @click.stop="emit('details', student)"
               />
             </div>
           </td>
