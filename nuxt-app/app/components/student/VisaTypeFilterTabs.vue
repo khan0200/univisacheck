@@ -11,7 +11,8 @@ const emit = defineEmits<{ 'update:modelValue': [value: VisaTypeFilter] }>()
 const options: { value: VisaTypeFilter; label: string; icon?: string }[] = [
   { value: 'all', label: 'All', icon: 'i-lucide-layers' },
   { value: 'Embassy', label: 'Embassy', icon: 'i-lucide-building-2' },
-  { value: 'E-Visa', label: 'E-Visa', icon: 'i-lucide-file-text' }
+  { value: 'E-Visa', label: 'E-Visa', icon: 'i-lucide-file-text' },
+  { value: 'Regional', label: 'Regional', icon: 'i-lucide-map' }
 ]
 </script>
 

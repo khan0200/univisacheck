@@ -80,7 +80,7 @@ function validate(): boolean {
   if (!name) { fieldErrors.name = true; errorMessage.value = 'Full name is required.'; return false }
   if (!dob) { fieldErrors.dob = true; errorMessage.value = 'Date of birth is required.'; return false }
   if (!DATE_REGEX.test(dob)) { fieldErrors.dob = true; errorMessage.value = 'Date of birth must be in YYYY-MM-DD format (e.g. 1998-07-15).'; return false }
-  if (visaType.value === 'E-Visa' && !appNo) { fieldErrors.appNo = true; errorMessage.value = 'Application number is required for E-Visa.'; return false }
+  if ((visaType.value === 'E-Visa' || visaType.value === 'Regional') && !appNo) { fieldErrors.appNo = true; errorMessage.value = 'Application number is required.'; return false }
   return true
 }
 
@@ -150,7 +150,7 @@ async function handleSearch() {
       </header>
 
       <UCard class="w-full max-w-md" :ui="{ body: 'p-7' }">
-        <div class="grid grid-cols-2 gap-1 p-1 rounded-md bg-primary-50 dark:bg-white/5 mb-6">
+        <div class="grid grid-cols-3 gap-1 p-1 rounded-md bg-primary-50 dark:bg-white/5 mb-6">
           <button
             type="button"
             class="rounded-sm py-2.5 text-[13.5px] font-semibold transition-colors"
@@ -166,6 +166,14 @@ async function handleSearch() {
             @click="selectType('E-Visa')"
           >
             E-Visa
+          </button>
+          <button
+            type="button"
+            class="rounded-sm py-2.5 text-[13.5px] font-semibold transition-colors"
+            :class="visaType === 'Regional' ? 'bg-white dark:bg-primary-900 text-primary-900 dark:text-white shadow-sm' : 'text-[var(--color-text-secondary)]'"
+            @click="selectType('Regional')"
+          >
+            Regional
           </button>
         </div>
 
@@ -219,7 +227,7 @@ async function handleSearch() {
             />
           </UFormField>
 
-          <UFormField v-if="visaType === 'E-Visa'" label="Application Number">
+          <UFormField v-if="visaType === 'E-Visa' || visaType === 'Regional'" label="Application Number">
             <UInput
               :model-value="form.appNo"
               placeholder="AP2026123456"

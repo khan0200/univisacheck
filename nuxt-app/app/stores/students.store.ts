@@ -20,7 +20,7 @@ export const useStudentsStore = defineStore('students', () => {
 
   const visaTypeCounts = computed(() => {
     const query = searchQuery.value.toLowerCase().trim()
-    const result: Record<VisaTypeFilter, number> = { all: 0, Embassy: 0, 'E-Visa': 0 }
+    const result: Record<VisaTypeFilter, number> = { all: 0, Embassy: 0, 'E-Visa': 0, Regional: 0 }
     for (const s of students.value) {
       if (query) {
         const matchesQuery =
@@ -34,6 +34,7 @@ export const useStudentsStore = defineStore('students', () => {
       result.all++
       const type = s.visaType || 'Embassy'
       if (type === 'E-Visa') result['E-Visa']++
+      else if (type === 'Regional') result.Regional++
       else result.Embassy++
     }
     return result

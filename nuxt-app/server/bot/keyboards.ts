@@ -46,7 +46,8 @@ export function getStudentCardKeyboard(passport: string, canDownloadPdf = false,
 export function getVisaTypeKeyboard(lang: Lang = 'uz'): InlineKeyboard {
     return new InlineKeyboard()
         .text(t('visa_type_embassy', lang), 'check_type:Embassy').row()
-        .text(t('visa_type_evisa', lang), 'check_type:E-Visa');
+        .text(t('visa_type_evisa', lang), 'check_type:E-Visa').row()
+        .text(t('visa_type_regional', lang), 'check_type:Regional');
 }
 
 /** Static fallback (UZ). */

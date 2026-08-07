@@ -110,6 +110,7 @@ const translations: Record<string, Record<Lang, string>> = {
     // ── Keyboards ─────────────────────────────────────────────────────────
     visa_type_embassy:      { uz: 'Elchixona orqali', en: 'Embassy' },
     visa_type_evisa:        { uz: 'Elektron (E-Visa)', en: 'Electronic (E-Visa)' },
+    visa_type_regional:     { uz: 'Viza tasdiqnomasi (Regional)', en: 'Visa Issuance Certificate' },
     tab_pending:            { uz: '⏳ Kutilmoqda', en: '⏳ Pending' },
     tab_application:        { uz: '📄 Arizalar', en: '📄 Applications' },
     tab_cancelled:          { uz: '❌ Rad etildi', en: '❌ Rejected' },

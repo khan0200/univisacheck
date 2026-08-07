@@ -227,13 +227,13 @@ export async function handleTextMessage(ctx: Context) {
             return;
         }
         
-        const { passport, fullName, birthday } = session.data;
+        const { passport, fullName, birthday, visaType } = session.data;
         await ctx.reply(t('check_waiting', lang), { parse_mode: 'Markdown' });
         
         try {
-            const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'E-Visa', text);
+            const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, visaType, text);
             await clearSessionState(telegramId);
-            await displayCheckResult(ctx, checkRes, passport, 'E-Visa', text, fullName, birthday, telegramId);
+            await displayCheckResult(ctx, checkRes, passport, visaType, text, fullName, birthday, telegramId);
         } catch (err: any) {
             await clearSessionState(telegramId);
             await ctx.reply(t('check_error', lang, { error: err.message }), {
@@ -626,8 +626,8 @@ export async function handleCallbackQuery(ctx: Context) {
                 `🛂 ${passport.toUpperCase()}\n` +
                 `🎂 ${birthday}\n\n` +
                 `${t('notif_visa_type', lang)} ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n` +
-                (visaType === 'E-Visa' ? `${t('notif_partner', lang)} ${checkRes.invitingCompany || t('notif_na', lang)}\n` : '') +
-                (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
+                (visaType === 'E-Visa' || visaType === 'Regional' ? `${t('notif_partner', lang)} ${checkRes.invitingCompany || t('notif_na', lang)}\n` : '') +
+                (visaType === 'E-Visa' || visaType === 'Regional' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '') +
                 `${t('notif_submitted', lang)} ${checkRes.latestDate || t('notif_na', lang)}\n` +
                 `${t('notif_status', lang)} ${emoji} ${checkRes.latestStatus.toUpperCase()}\n` +
                 ((checkRes.entryDate && checkRes.entryDate !== checkRes.latestDate) ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:'} ${checkRes.entryDate}\n` : '') +

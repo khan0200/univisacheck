@@ -268,24 +268,42 @@ function parseResult3_2(html) {
 async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embassy', applicationNo = '') {
     const cookies = await getSession();
     const isEVisa = (visaType === 'E-Visa') && applicationNo;
+    const isRegional = (visaType === 'Regional') && applicationNo;
 
-    const bodyParams = isEVisa ? {
-        pRADIOSEARCH:  'gb01', // E-Visa Individual
-        sINVITEE_SEQ:  applicationNo.toUpperCase().trim(),
-        ssINVITEE_SEQ: applicationNo.toUpperCase().trim(),
-        sPASS_NO:      passport.toUpperCase().trim(),
-        sEK_NM:        fullName.toUpperCase().trim(),
-        sFROMDATE:     birthDate,
-        sMainPopUpGB:  'main',
-    } : {
-        pRADIOSEARCH:  'gb03', // Diplomatic Mission
-        sBUSI_GB:      'PASS_NO',
-        sBUSI_GBNO:    passport.toUpperCase().trim(),
-        ssBUSI_GBNO:   passport.toUpperCase().trim(),
-        sEK_NM:        fullName.toUpperCase().trim(),
-        sFROMDATE:     birthDate,
-        sMainPopUpGB:  'main',
-    };
+    let bodyParams;
+    if (isEVisa) {
+        bodyParams = {
+            pRADIOSEARCH:  'gb01', // E-Visa Individual
+            sINVITEE_SEQ:  applicationNo.toUpperCase().trim(),
+            ssINVITEE_SEQ: applicationNo.toUpperCase().trim(),
+            sPASS_NO:      passport.toUpperCase().trim(),
+            sEK_NM:        fullName.toUpperCase().trim(),
+            sFROMDATE:     birthDate,
+            sMainPopUpGB:  'main',
+        };
+    } else if (isRegional) {
+        bodyParams = {
+            pRADIOSEARCH:  'gb02', // Visa Issuance Certificate (Regional)
+            sBUSI_GB_gb02: 'INVITEE_SEQ_gb02',
+            sPASS_NO:      passport.toUpperCase().trim(),
+            sINVITEE_SEQ:  applicationNo.toUpperCase().trim(),
+            ssINVITEE_SEQ: applicationNo.toUpperCase().trim(),
+            ssBUSI_GBNO_gb02: applicationNo.toUpperCase().trim(),
+            sEK_NM:        fullName.toUpperCase().trim(),
+            sFROMDATE:     birthDate,
+            sMainPopUpGB:  'main',
+        };
+    } else {
+        bodyParams = {
+            pRADIOSEARCH:  'gb03', // Diplomatic Mission
+            sBUSI_GB:      'PASS_NO',
+            sBUSI_GBNO:    passport.toUpperCase().trim(),
+            ssBUSI_GBNO:   passport.toUpperCase().trim(),
+            sEK_NM:        fullName.toUpperCase().trim(),
+            sFROMDATE:     birthDate,
+            sMainPopUpGB:  'main',
+        };
+    }
     
     const body = querystring.stringify(bodyParams);
     
@@ -323,7 +341,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     let resultCount = countMatch ? parseInt(countMatch[1]) : null; // null = unknown
 
     // Secondary signal: presence of status elements in the HTML
-    const hasStatusElements = isEVisa
+    const hasStatusElements = isEVisa || isRegional
         ? /id="PROC_STS_CDNM"/.test(r.body)
         : /id="PROC_STS_CDNM_1"/.test(r.body);
 
@@ -340,7 +358,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     }
 
     // Parse all records (always attempt — even if count regex returned null)
-    const records = isEVisa ? parseResult1_1(r.body) : parseResult3_2(r.body);
+    const records = (isEVisa || isRegional) ? parseResult1_1(r.body) : parseResult3_2(r.body);
 
     // If parsing also found nothing → not found
     if (records.length === 0) {

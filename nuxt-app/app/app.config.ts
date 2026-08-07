@@ -24,7 +24,8 @@ export default defineAppConfig({
       neutral: 'slate',
       success: 'success',
       warning: 'warning',
-      error: 'danger'
+      error: 'danger',
+      info: 'blue'
     },
     button: {
       slots: {

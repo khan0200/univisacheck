@@ -63,7 +63,7 @@ watch(() => props.open, (open) => {
 
 function setVisaType(value: VisaType) {
   form.visaType = value
-  if (value !== 'E-Visa') form.applicationNo = ''
+  if (value !== 'E-Visa' && value !== 'Regional') form.applicationNo = ''
 }
 
 function handlePassportInput(e: Event) {
@@ -137,7 +137,7 @@ async function handleSubmit() {
       <form class="space-y-5" @submit.prevent="handleSubmit">
         <div>
           <label class="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1.5">Visa Type</label>
-          <div class="grid grid-cols-2 gap-1 p-1 rounded-md bg-white ring-1 ring-black/[0.06]">
+          <div class="grid grid-cols-3 gap-1 p-1 rounded-md bg-white ring-1 ring-black/[0.06]">
             <button
               type="button"
               class="rounded-sm py-2.5 text-sm font-extrabold transition-colors"
@@ -153,6 +153,14 @@ async function handleSubmit() {
               @click="setVisaType('E-Visa')"
             >
               E-Visa
+            </button>
+            <button
+              type="button"
+              class="rounded-sm py-2.5 text-sm font-extrabold transition-colors"
+              :class="form.visaType === 'Regional' ? 'bg-primary text-white shadow-sm' : 'text-primary-900'"
+              @click="setVisaType('Regional')"
+            >
+              Regional
             </button>
           </div>
         </div>
@@ -197,7 +205,7 @@ async function handleSubmit() {
           />
         </UFormField>
 
-        <UFormField v-if="form.visaType === 'E-Visa'" label="Application Number">
+        <UFormField v-if="form.visaType === 'E-Visa' || form.visaType === 'Regional'" label="Application Number">
           <UInput
             :model-value="form.applicationNo"
             placeholder="AP2026123456"
