@@ -57,7 +57,7 @@ export function useVisaCheck() {
     }
   }
 
-  async function checkMany(list: Student[], concurrency = 3) {
+  async function checkMany(list: Student[], concurrency = 1) {
     let index = 0
     const changes: { student: Student; oldStatus: string; newStatus: string }[] = []
     
@@ -76,6 +76,10 @@ export function useVisaCheck() {
             }
           })
           .catch(() => {})
+        
+        if (index < list.length) {
+          await new Promise(resolve => setTimeout(resolve, 200))
+        }
       }
     }
     await Promise.all(Array.from({ length: Math.min(concurrency, list.length) }, worker))
