@@ -146,8 +146,22 @@ async function handleBatchCheck() {
   if (list.length === 0) return
   batchChecking.value = true
   try {
-    await checkMany(list)
-    toast.add({ title: `Checked ${list.length} student(s)`, color: 'primary', duration: 2500 })
+    const changes = await checkMany(list)
+    list.forEach(s => studentsStore.upsertLocal(s))
+    
+    if (changes && changes.length > 0) {
+      changes.forEach((change, i) => {
+        setTimeout(() => {
+          toast.add({
+            title: `${i + 1}) ${change.student.fullName}`,
+            description: `${displayStatusText(change.oldStatus)} >> ${displayStatusText(change.newStatus)}`,
+            color: statusToastColor(change.newStatus),
+            icon: statusToastIcon(change.newStatus),
+            duration: 5000
+          })
+        }, i * 300)
+      })
+    }
   } catch {
     toast.add({ title: 'Batch check failed. Please try again.', color: 'error', duration: 2500 })
   } finally {

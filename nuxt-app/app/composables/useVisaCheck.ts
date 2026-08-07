@@ -59,13 +59,27 @@ export function useVisaCheck() {
 
   async function checkMany(list: Student[], concurrency = 3) {
     let index = 0
+    const changes: { student: Student; oldStatus: string; newStatus: string }[] = []
+    
     async function worker() {
       while (index < list.length) {
         const student = list[index++]!
-        await checkOne(student).catch(() => {})
+        const oldStatus = student.status || 'Pending'
+        await checkOne(student)
+          .then(changed => {
+            if (changed) {
+              changes.push({
+                student,
+                oldStatus,
+                newStatus: student.status || 'Unknown'
+              })
+            }
+          })
+          .catch(() => {})
       }
     }
     await Promise.all(Array.from({ length: Math.min(concurrency, list.length) }, worker))
+    return changes
   }
 
   return { checkOne, checkMany, checkingPassports, normalizeStatusForComparison }
