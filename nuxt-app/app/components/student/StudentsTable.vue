@@ -248,12 +248,11 @@ function onRowClick(student: Student, event: MouseEvent) {
               <UIcon :name="student.visaType === 'E-Visa' ? 'i-lucide-info' : 'i-lucide-file-down'" class="size-5" />
             </button>
           </td>
-          <td class="px-4 py-3 align-top">
-            <div class="flex items-center justify-end gap-1.5">
+          <td class="p-0 align-middle w-px h-full">
+            <div class="flex items-stretch justify-end h-full min-h-[3.25rem]">
               <UiLoadingButton
-                size="sm"
                 color="primary"
-                class="text-white"
+                class="text-white justify-center rounded-none px-5"
                 :loading="checkingPassports.has(student.passport)"
                 @click.stop="emit('refresh', student)"
               >
@@ -261,10 +260,10 @@ function onRowClick(student: Student, event: MouseEvent) {
               </UiLoadingButton>
               <UButton
                 icon="i-lucide-eye"
-                size="sm"
                 color="neutral"
-                variant="ghost"
+                variant="solid"
                 square
+                class="justify-center rounded-none px-4"
                 :ui="{ leadingIcon: 'size-5' }"
                 aria-label="View details"
                 @click.stop="emit('details', student)"
