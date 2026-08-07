@@ -72,7 +72,7 @@ watch(
 <template>
   <UModal
     :open="props.open"
-    title="Bulk Delete Students"
+    title="Select to Delete"
     :ui="{ content: 'sm:max-w-xl', body: 'p-0 sm:p-0' }"
     @update:open="emit('update:open', $event)"
   >
