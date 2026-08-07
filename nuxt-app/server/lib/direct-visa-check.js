@@ -64,7 +64,7 @@ const KOREAN_STATUS_MAP = [
     { keywords: ['불허'],             status: 'REJECTED' },
     { keywords: ['허가', '발급'],     status: 'APPROVED' },
     { keywords: ['접수', '신청'],     status: 'RECEIVED' },
-    { keywords: ['심사중', '처리중'], status: 'UNDER REVIEW' },
+    { keywords: ['심사중', '처리중', '심사 중', '처리 중'], status: 'UNDER REVIEW' },
     { keywords: ['취소'],             status: 'CANCELLED' },
     { keywords: ['반려'],             status: 'RETURNED' },
     { keywords: ['보완'],             status: 'PENDING SUPPLEMENT' },

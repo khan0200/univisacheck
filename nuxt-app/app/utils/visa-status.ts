@@ -38,6 +38,7 @@ export function displayStatusText(statusValue: string | undefined | null): strin
   if (status.includes('cancel') || status.includes('reject')) return 'Cancelled'
   if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) return 'Pending'
   if (status.includes('received') || status.includes('app/')) return 'Received'
+  if (status.includes('under review') || status.includes('심사중') || status.includes('심사 중') || status.includes('처리중') || status.includes('처리 중')) return 'Under Review'
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
