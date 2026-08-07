@@ -190,11 +190,12 @@ function setFilter(filter: StatusFilter) {
           color="error"
           variant="soft"
           size="lg"
-          square
           class="h-11 shrink-0"
           title="Bulk delete"
           @click="bulkDeleteModalOpen = true"
-        />
+        >
+          Delete
+        </UButton>
 
         <UiLoadingButton
           v-if="selectedApplicationStudents.length > 0"
