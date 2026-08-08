@@ -519,8 +519,8 @@ export default defineEventHandler(async (event) => {
 
     runVisaCheckTask(db, claimedTask, event)
 
-    // D. Sleep 500ms before starting the next loop iteration (enforcing global 500ms rate limit)
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // D. Sleep 200ms before starting the next loop iteration (enforcing global 200ms rate limit)
+    await new Promise(resolve => setTimeout(resolve, 200))
   }
 
   // 4. Chain next worker execution if more tasks remain queued and eligible
