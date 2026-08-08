@@ -18,8 +18,9 @@ async function syncStudentsCount(db: Awaited<ReturnType<typeof getTursoClient>>,
             ) WHERE id = ?`,
       args: [userId, userId]
     })
-  } catch (err: any) {
-    console.error('[Students API] Failed to sync students_count:', err.message)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Students API] Failed to sync students_count:', msg)
   }
 }
 
@@ -35,25 +36,25 @@ async function fetchStudentPayload(
       args: [passport, userId]
     })
     if (result.rows.length === 0) return null
-    const r = result.rows[0] as any
+    const r = result.rows[0] as unknown as Record<string, unknown>
     return {
-      passport: r.passport,
-      fullName: r.fullName || '',
-      birthday: r.birthday || '',
-      studentId: r.studentId || '',
-      status: r.status || 'Pending',
-      applicationDate: r.applicationDate || '',
-      lastChecked: r.lastChecked || '',
-      rejectReason: r.rejectReason || '',
-      pdfUrl: r.pdfUrl || '',
-      apiResponse: r.apiResponse || '',
+      passport: String(r.passport || ''),
+      fullName: String(r.fullName || ''),
+      birthday: String(r.birthday || ''),
+      studentId: String(r.studentId || ''),
+      status: String(r.status || 'Pending'),
+      applicationDate: String(r.applicationDate || ''),
+      lastChecked: String(r.lastChecked || ''),
+      rejectReason: String(r.rejectReason || ''),
+      pdfUrl: String(r.pdfUrl || ''),
+      apiResponse: String(r.apiResponse || ''),
       batchSelected: r.batchSelected === 1,
-      batchSelectedUpdatedAt: r.batchSelectedUpdatedAt || '',
-      createdAt: r.createdAt || '',
+      batchSelectedUpdatedAt: String(r.batchSelectedUpdatedAt || ''),
+      createdAt: String(r.createdAt || ''),
       userId: Number(r.userId),
-      visaType: r.visaType || 'Embassy',
-      applicationNo: r.applicationNo || '',
-      deletedAt: r.deletedAt || null,
+      visaType: (r.visaType as StudentPayload['visaType']) || 'Embassy',
+      applicationNo: String(r.applicationNo || ''),
+      deletedAt: (r.deletedAt as string | null) || null,
       pinned: r.pinned === 1
     }
   } catch {
@@ -64,9 +65,10 @@ async function fetchStudentPayload(
 /** Publish an event after a successful DB write. Never throws. */
 async function publishEvent(userId: number, realtimeEvent: StudentRealtimeEvent) {
   try {
-    await publishRealtime(userId, realtimeEvent)
-  } catch (err: any) {
-    console.error('[Students API] Realtime publish failed:', err.message)
+    await publishRealtime(userId, realtimeEvent as unknown as Record<string, unknown> & { type: string })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Students API] Realtime publish failed:', msg)
   }
 }
 
@@ -106,13 +108,13 @@ export default defineEventHandler(async (event) => {
       })
 
       if (botResult.rows.length > 0) {
-        const row = botResult.rows[0] as any
+        const row = botResult.rows[0] as unknown as Record<string, unknown>
         return [{
-          passport: row.passport,
-          fullName: row.fullName || '',
-          birthday: row.birthday || '',
-          visaType: row.visaType || 'Embassy',
-          applicationNo: row.applicationNo || '',
+          passport: String(row.passport || ''),
+          fullName: String(row.fullName || ''),
+          birthday: String(row.birthday || ''),
+          visaType: String(row.visaType || 'Embassy'),
+          applicationNo: String(row.applicationNo || ''),
           status: null,
           applicationDate: null,
           lastChecked: null,
@@ -137,19 +139,25 @@ export default defineEventHandler(async (event) => {
           sql: 'SELECT * FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
           args: [passport.toUpperCase().trim(), userId]
         })
-        return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1, pinned: r.pinned === 1 }))
+        return result.rows.map((r) => {
+          const row = r as unknown as Record<string, unknown>
+          return { ...row, batchSelected: row.batchSelected === 1, pinned: row.pinned === 1 }
+        })
       } else {
         const result = await db.execute({
           sql: `SELECT 
                   passport, fullName, birthday, studentId, status,
-                  applicationDate, lastChecked, rejectReason, pdfUrl,
+                  applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
                   batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned
                 FROM students 
                 WHERE userId = ? AND deletedAt IS NULL 
                 ORDER BY createdAt DESC`,
           args: [userId]
         })
-        return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1, pinned: r.pinned === 1 }))
+        return result.rows.map((r) => {
+          const row = r as unknown as Record<string, unknown>
+          return { ...row, batchSelected: row.batchSelected === 1, pinned: row.pinned === 1 }
+        })
       }
     }
 
@@ -157,7 +165,7 @@ export default defineEventHandler(async (event) => {
       const passport = query.passport as string | undefined
       if (!passport) apiError(400, 'Missing passport parameter')
 
-      const passports = passport!.split(',').map((p) => p.toUpperCase().trim()).filter(Boolean)
+      const passports = passport!.split(',').map(p => p.toUpperCase().trim()).filter(Boolean)
       if (passports.length === 0) apiError(400, 'No valid passports provided')
 
       // Soft delete: mark deletedAt instead of removing the row, so the
@@ -236,7 +244,7 @@ export default defineEventHandler(async (event) => {
         args: [isRename ? originalPassport : passport, userId]
       })
       const exists = check.rows.length > 0
-      const isRevive = exists && (check.rows[0] as any).deletedAt
+      const isRevive = exists && Boolean((check.rows[0] as unknown as Record<string, unknown>).deletedAt)
 
       const fullName = body.fullName !== undefined ? body.fullName.toUpperCase().trim() : null
       const birthday = body.birthday !== undefined ? body.birthday.trim() : null
@@ -320,27 +328,90 @@ export default defineEventHandler(async (event) => {
       } else {
         // ── UPDATE ───────────────────────────────────────────────────────────
         const updateFields: string[] = []
-        const args: any[] = []
+        const args: (string | number | boolean | null)[] = []
 
         // Track which fields actually changed for the realtime event payload
-        const changedFields: Record<string, any> = {}
+        const changedFields: Record<string, unknown> = {}
 
-        if (isRename) { updateFields.push('passport = ?'); args.push(passport); changedFields.passport = passport }
-        if (isRevive) { updateFields.push('deletedAt = NULL'); changedFields.deletedAt = null }
-        if (fullName !== null) { updateFields.push('fullName = ?'); args.push(fullName); changedFields.fullName = fullName }
-        if (birthday !== null) { updateFields.push('birthday = ?'); args.push(birthday); changedFields.birthday = birthday }
-        if (studentId !== null) { updateFields.push('studentId = ?'); args.push(studentId); changedFields.studentId = studentId }
-        if (status !== null) { updateFields.push('status = ?'); args.push(status); changedFields.status = status }
-        if (applicationDate !== null) { updateFields.push('applicationDate = ?'); args.push(applicationDate); changedFields.applicationDate = applicationDate }
-        if (lastChecked !== null) { updateFields.push('lastChecked = ?'); args.push(lastChecked); changedFields.lastChecked = lastChecked }
-        if (rejectReason !== null) { updateFields.push('rejectReason = ?'); args.push(rejectReason); changedFields.rejectReason = rejectReason }
-        if (pdfUrl !== null) { updateFields.push('pdfUrl = ?'); args.push(pdfUrl); changedFields.pdfUrl = pdfUrl }
-        if (apiResponse !== null) { updateFields.push('apiResponse = ?'); args.push(apiResponse); changedFields.apiResponse = apiResponse }
-        if (batchSelected !== null) { updateFields.push('batchSelected = ?'); args.push(batchSelected); changedFields.batchSelected = batchSelected === 1 }
-        if (batchSelectedUpdatedAt !== null) { updateFields.push('batchSelectedUpdatedAt = ?'); args.push(batchSelectedUpdatedAt); changedFields.batchSelectedUpdatedAt = batchSelectedUpdatedAt }
-        if (visaType !== null) { updateFields.push('visaType = ?'); args.push(visaType); changedFields.visaType = visaType }
-        if (applicationNo !== null) { updateFields.push('applicationNo = ?'); args.push(applicationNo); changedFields.applicationNo = applicationNo }
-        if (pinned !== null) { updateFields.push('pinned = ?'); args.push(pinned); changedFields.pinned = pinned === 1 }
+        if (isRename) {
+          updateFields.push('passport = ?')
+          args.push(passport)
+          changedFields.passport = passport
+        }
+        if (isRevive) {
+          updateFields.push('deletedAt = NULL')
+          changedFields.deletedAt = null
+        }
+        if (fullName !== null) {
+          updateFields.push('fullName = ?')
+          args.push(fullName)
+          changedFields.fullName = fullName
+        }
+        if (birthday !== null) {
+          updateFields.push('birthday = ?')
+          args.push(birthday)
+          changedFields.birthday = birthday
+        }
+        if (studentId !== null) {
+          updateFields.push('studentId = ?')
+          args.push(studentId)
+          changedFields.studentId = studentId
+        }
+        if (status !== null) {
+          updateFields.push('status = ?')
+          args.push(status)
+          changedFields.status = status
+        }
+        if (applicationDate !== null) {
+          updateFields.push('applicationDate = ?')
+          args.push(applicationDate)
+          changedFields.applicationDate = applicationDate
+        }
+        if (lastChecked !== null) {
+          updateFields.push('lastChecked = ?')
+          args.push(lastChecked)
+          changedFields.lastChecked = lastChecked
+        }
+        if (rejectReason !== null) {
+          updateFields.push('rejectReason = ?')
+          args.push(rejectReason)
+          changedFields.rejectReason = rejectReason
+        }
+        if (pdfUrl !== null) {
+          updateFields.push('pdfUrl = ?')
+          args.push(pdfUrl)
+          changedFields.pdfUrl = pdfUrl
+        }
+        if (apiResponse !== null) {
+          updateFields.push('apiResponse = ?')
+          args.push(apiResponse)
+          changedFields.apiResponse = apiResponse
+        }
+        if (batchSelected !== null) {
+          updateFields.push('batchSelected = ?')
+          args.push(batchSelected)
+          changedFields.batchSelected = batchSelected === 1
+        }
+        if (batchSelectedUpdatedAt !== null) {
+          updateFields.push('batchSelectedUpdatedAt = ?')
+          args.push(batchSelectedUpdatedAt)
+          changedFields.batchSelectedUpdatedAt = batchSelectedUpdatedAt
+        }
+        if (visaType !== null) {
+          updateFields.push('visaType = ?')
+          args.push(visaType)
+          changedFields.visaType = visaType
+        }
+        if (applicationNo !== null) {
+          updateFields.push('applicationNo = ?')
+          args.push(applicationNo)
+          changedFields.applicationNo = applicationNo
+        }
+        if (pinned !== null) {
+          updateFields.push('pinned = ?')
+          args.push(pinned)
+          changedFields.pinned = pinned === 1
+        }
 
         if (updateFields.length === 0) {
           return { success: true, message: 'No fields to update' }
@@ -357,7 +428,7 @@ export default defineEventHandler(async (event) => {
         // ── Realtime: student.restored or student.updated ────────────────────
         if (isRevive) {
           // The student is coming back from soft-delete — send full object
-          const effectivePassport = isRename ? passport : (isRename ? originalPassport : passport)
+          const effectivePassport = isRename ? passport : originalPassport
           const restored = await fetchStudentPayload(db, effectivePassport, userId)
           if (restored) {
             publishEvent(userId, {
@@ -370,7 +441,6 @@ export default defineEventHandler(async (event) => {
           }
         } else {
           // Regular field update — send only changed fields (efficient)
-          const effectivePassport = isRename ? passport : passport
           publishEvent(userId, {
             type: 'student.updated',
             eventId: crypto.randomUUID(),
@@ -386,9 +456,10 @@ export default defineEventHandler(async (event) => {
     }
 
     apiError(405, 'Method not allowed')
-  } catch (err: any) {
-    if (err.statusCode) throw err
-    console.error('[Students API] Error:', err.message)
-    apiError(500, err.message)
+  } catch (err: unknown) {
+    const errorObj = err as { statusCode?: number, message?: string }
+    if (errorObj.statusCode) throw err
+    console.error('[Students API] Error:', errorObj.message || String(err))
+    apiError(500, errorObj.message || String(err))
   }
 })

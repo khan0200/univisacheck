@@ -2,6 +2,7 @@ import { checkStudentVisaStatus } from '../lib/visa'
 import { getTursoClient } from '../utils/turso'
 import { verifyToken } from '../utils/auth'
 import { apiError } from '../utils/api-error'
+import { publishRealtime } from '../utils/realtime-publisher'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
     console.log(`[Check Status] Checking visa.go.kr for passport: ${passport}, type: ${visaType}, appNo: ${applicationNo}`)
     const direct = await checkStudentVisaStatus(passport, fullName, birthDate, visaType, applicationNo)
 
-    let previousRejectionReason = direct.previousRejectionReason || ''
+    const previousRejectionReason = direct.previousRejectionReason || ''
 
     // Map to the same shape the frontend already expects
     const parsed = {
@@ -48,6 +49,16 @@ export default defineEventHandler(async (event) => {
     try {
       const db = await getTursoClient()
       const lastChecked = new Date().toISOString()
+      const apiResponseStr = JSON.stringify({
+        status: parsed.status,
+        detail: parsed.detail,
+        visaExpiry: parsed.visaExpiry || '',
+        visaKind: parsed.visaKind || '',
+        statusOfResidence: parsed.statusOfResidence || '',
+        entryDate: parsed.entryDate || '',
+        entryPurpose: parsed.entryPurpose || '',
+        invitingCompany: parsed.invitingCompany || ''
+      })
       const sql = (authUser && authUser.userId)
         ? `UPDATE students
            SET status = ?,
@@ -66,21 +77,12 @@ export default defineEventHandler(async (event) => {
                lastChecked = ?
            WHERE passport = ?`
 
-      const args: any[] = [
+      const args: (string | number)[] = [
         parsed.status || 'Pending',
         parsed.applicationDate || '',
         parsed.rejectionReason || '',
         parsed.pdfUrl || '',
-        JSON.stringify({
-          status: parsed.status,
-          detail: parsed.detail,
-          visaExpiry: parsed.visaExpiry || '',
-          visaKind: parsed.visaKind || '',
-          statusOfResidence: parsed.statusOfResidence || '',
-          entryDate: parsed.entryDate || '',
-          entryPurpose: parsed.entryPurpose || '',
-          invitingCompany: parsed.invitingCompany || ''
-        }),
+        apiResponseStr,
         lastChecked,
         passport
       ]
@@ -88,14 +90,35 @@ export default defineEventHandler(async (event) => {
         args.push(authUser.userId)
       }
       await db.execute({ sql, args })
-    } catch (dbErr: any) {
-      console.error('[Check Status DB Update] Error updating student visa status:', dbErr.message)
+
+      if (authUser && authUser.userId) {
+        publishRealtime(authUser.userId, {
+          type: 'student.updated',
+          eventId: crypto.randomUUID(),
+          updatedAt: lastChecked,
+          originClientId: 'check-status',
+          passport,
+          changes: {
+            status: parsed.status || 'Pending',
+            applicationDate: parsed.applicationDate || '',
+            rejectReason: parsed.rejectionReason || '',
+            pdfUrl: parsed.pdfUrl || '',
+            apiResponse: apiResponseStr,
+            lastChecked
+          }
+        }).catch((err: unknown) => {
+          console.error('[Check Status Realtime] Failed:', err instanceof Error ? err.message : String(err))
+        })
+      }
+    } catch (dbErr: unknown) {
+      console.error('[Check Status DB Update] Error updating student visa status:', dbErr instanceof Error ? dbErr.message : String(dbErr))
     }
 
     return parsed
-  } catch (err: any) {
-    if (err.statusCode) throw err
-    console.error('[Check Status] Error:', err.message)
-    apiError(500, err.message)
+  } catch (err: unknown) {
+    const errorObj = err as { statusCode?: number, message?: string }
+    if (errorObj.statusCode) throw err
+    console.error('[Check Status] Error:', errorObj.message || String(err))
+    apiError(500, errorObj.message || String(err))
   }
 })

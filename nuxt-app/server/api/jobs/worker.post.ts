@@ -185,6 +185,7 @@ export default defineEventHandler(async (event) => {
     let success = false
     let errorMsg = ''
     let newStatus = 'Pending'
+    let updatedChanges: Record<string, unknown> = {}
 
     try {
       // Fetch student details
@@ -206,6 +207,10 @@ export default defineEventHandler(async (event) => {
         console.log(`[Queue Worker] Skip external check: passport ${claimedTask.passport} already updated on ${student.lastChecked}`)
         success = true
         newStatus = oldStatus
+        updatedChanges = {
+          status: oldStatus,
+          lastChecked: student.lastChecked
+        }
       } else {
         // Query visa.go.kr
         const liveResult = await checkStudentVisaStatus(
@@ -247,6 +252,15 @@ export default defineEventHandler(async (event) => {
             claimedTask.userId
           ]
         })
+
+        updatedChanges = {
+          status: newStatus,
+          applicationDate: liveResult.latestDate || student.applicationDate || '',
+          lastChecked: nowIso,
+          rejectReason: liveResult.rejectionReason || '',
+          pdfUrl: liveResult.pdfUrl || '',
+          apiResponse: JSON.stringify(liveResult)
+        }
 
         // Log notification row if status changed
         if (statusChanged) {
@@ -313,17 +327,16 @@ export default defineEventHandler(async (event) => {
       })
 
       // Send realtime event for student updated
-      await publishRealtime(claimedTask.userId, {
-        type: 'student.updated',
-        eventId: crypto.randomUUID(),
-        updatedAt: new Date().toISOString(),
-        originClientId: workerId,
-        passport: claimedTask.passport,
-        changes: {
-          status: newStatus,
-          lastChecked: new Date().toISOString()
-        }
-      })
+      if (Object.keys(updatedChanges).length > 0) {
+        await publishRealtime(claimedTask.userId, {
+          type: 'student.updated',
+          eventId: crypto.randomUUID(),
+          updatedAt: new Date().toISOString(),
+          originClientId: workerId,
+          passport: claimedTask.passport,
+          changes: updatedChanges
+        })
+      }
     } else {
       // Exponential retry backoff logic (Attempts 1, 2 retried with delay; Attempt 3 fails)
       const attemptsRes = await db.execute({

@@ -2,11 +2,11 @@ import type { Student, StudentApiResponse, VisaCheckResult } from '~/types/stude
 
 /** Uzbek → English visa status translations, as returned by the check-status proxy. */
 export const STATUS_MAP: Record<string, string> = {
-  TASDIQLANGAN: 'APPROVED',
-  ISHLATILGAN: 'VISA USED',
+  'TASDIQLANGAN': 'APPROVED',
+  'ISHLATILGAN': 'VISA USED',
   'BEKOR QILINGAN': 'CANCELLED',
   'RAD ETILGAN': 'REJECTED',
-  "KO'RIB CHIQILMOQDA": 'UNDER REVIEW',
+  'KO\'RIB CHIQILMOQDA': 'UNDER REVIEW',
   'QABUL QILINGAN': 'APP/RECEIVED',
   'VIZA TAYYORLANISH BOSQICHIDA': 'UNDER REVIEW'
 }
@@ -75,7 +75,9 @@ function parseApiResponse(apiResponse: Student['apiResponse']): StudentApiRespon
  */
 export function getStatusDate(student: Student): string {
   const data = parseApiResponse(student.apiResponse)
-  return data?.entryDate || ''
+  if (!data) return ''
+  const rec = data as Record<string, unknown>
+  return String(data.entryDate || rec.entry_date || rec.givenDate || rec.statusDate || '')
 }
 
 export function getCancellationReason(student: Student): string {
@@ -85,19 +87,21 @@ export function getCancellationReason(student: Student): string {
   let reason = ''
   const data = parseApiResponse(student.apiResponse)
   if (data) {
-    reason =
-      data.response_data?.visa_data?.rejection_reason ||
-      data.response_data?.visa_data?.reject_reason ||
-      data.response_data?.visa_data?.reason ||
-      data.response_data?.rejection_reason ||
-      data.response_data?.reject_reason ||
-      data.visa_data?.rejection_reason ||
-      data.visa_data?.reject_reason ||
-      data.visa_data?.reason ||
-      data.rejection_reason ||
-      data.reject_reason ||
-      data.reason ||
-      ''
+    const vData = data.response_data?.visa_data
+    const rData = data.response_data
+    const visaD = data.visa_data
+    reason = vData?.rejection_reason
+      || vData?.reject_reason
+      || vData?.reason
+      || rData?.rejection_reason
+      || rData?.reject_reason
+      || visaD?.rejection_reason
+      || visaD?.reject_reason
+      || visaD?.reason
+      || data.rejection_reason
+      || data.reject_reason
+      || data.reason
+      || ''
   }
 
   if (!reason && student.rejectReason) {
@@ -112,21 +116,24 @@ export function getCancellationReason(student: Student): string {
  * translating Uzbek statuses and filtering out technical/error noise so only
  * genuine visa statuses reach the UI.
  */
-export function extractVisaStatus(data: any): { status: string, applicationDate: string } {
+export function extractVisaStatus(data: Record<string, unknown>): { status: string, applicationDate: string } {
   let foundStatus: string | null = null
   let applicationDate = ''
 
-  const errorIndicators = [data.error, data.response_data?.error, data.response_data?.message, data.message]
+  const resData = data.response_data as Record<string, unknown> | null | undefined
+  const visaData = data.visa_data as Record<string, unknown> | null | undefined
+
+  const errorIndicators = [data.error, resData?.error, resData?.message, data.message]
   for (const errorMsg of errorIndicators) {
     if (errorMsg && typeof errorMsg === 'string') {
       const lowerMsg = errorMsg.toLowerCase()
       if (
-        lowerMsg.includes('not found') ||
-        lowerMsg.includes('no data') ||
-        lowerMsg.includes('topilmadi') ||
-        lowerMsg.includes('mavjud emas') ||
-        lowerMsg.includes('no application') ||
-        lowerMsg.includes('no record')
+        lowerMsg.includes('not found')
+        || lowerMsg.includes('no data')
+        || lowerMsg.includes('topilmadi')
+        || lowerMsg.includes('mavjud emas')
+        || lowerMsg.includes('no application')
+        || lowerMsg.includes('no record')
       ) {
         return { status: 'Pending', applicationDate: '' }
       }
@@ -134,29 +141,31 @@ export function extractVisaStatus(data: any): { status: string, applicationDate:
   }
 
   if (
-    data.response_data === null ||
-    (data.response_data && Object.keys(data.response_data).length === 0) ||
-    (data.response_data && data.response_data.visa_data === null)
+    data.response_data === null
+    || (resData && Object.keys(resData).length === 0)
+    || (resData && resData.visa_data === null)
   ) {
     return { status: 'Pending', applicationDate: '' }
   }
 
-  if (data.response_data?.visa_data) {
-    foundStatus = data.response_data.visa_data.status
-    applicationDate = data.response_data.visa_data.application_date || ''
-  } else if (data.visa_data?.status) {
-    foundStatus = data.visa_data.status
-    applicationDate = data.visa_data.application_date || ''
-  } else if (data.response_data?.visa_status) {
-    foundStatus = data.response_data.visa_status
-  } else if (data.response_data?.status) {
-    const status = data.response_data.status
-    if (!TECHNICAL_STATUSES.includes(String(status).toUpperCase())) {
+  const innerVisaData = resData?.visa_data as Record<string, unknown> | null | undefined
+
+  if (innerVisaData) {
+    foundStatus = (innerVisaData.status as string) || null
+    applicationDate = (innerVisaData.application_date as string) || ''
+  } else if (visaData?.status) {
+    foundStatus = (visaData.status as string) || null
+    applicationDate = (visaData.application_date as string) || ''
+  } else if (resData?.visa_status) {
+    foundStatus = (resData.visa_status as string) || null
+  } else if (resData?.status) {
+    const status = String(resData.status)
+    if (!TECHNICAL_STATUSES.includes(status.toUpperCase())) {
       foundStatus = status
     }
   } else if (data.status) {
-    const status = data.status
-    const upperStatus = String(status).toUpperCase()
+    const status = String(data.status)
+    const upperStatus = status.toUpperCase()
     if (!TECHNICAL_STATUSES.includes(upperStatus) && upperStatus !== 'ERROR' && upperStatus !== 'FAILED' && upperStatus !== 'FAILURE') {
       foundStatus = status
     }
