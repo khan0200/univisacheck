@@ -6,13 +6,43 @@
  * Keeps studentsStore and activeJob state in sync by processing realtime events.
  */
 
+import type PusherClass from 'pusher-js'
 import type { Student } from '~/types/student'
 
 export type RealtimeStatus = 'connecting' | 'connected' | 'reconnecting' | 'offline'
 
+interface RealtimeConfig {
+  provider: 'pusher' | 'sse'
+  key?: string
+  cluster?: string
+}
+
+interface RealtimeEvent {
+  eventId: string
+  originClientId: string
+  student?: Student
+  passport?: string
+  changes?: Partial<Student>
+  updatedAt?: string
+  passports?: string[]
+  status?: string
+  total?: number
+  progress?: {
+    queued: number
+    processing: number
+    completed: number
+    failed: number
+    cancelled: number
+  }
+  studentId?: string
+  result?: {
+    status: string
+  }
+}
+
 // Global singletons to ensure only one connection exists per dashboard session
 let globalSource: EventSource | null = null
-let globalPusher: any | null = null
+let globalPusher: PusherClass | null = null
 let globalClientId: string | null = null
 const globalStatus = ref<RealtimeStatus>('connecting')
 let refCount = 0
@@ -55,9 +85,9 @@ export function useRealtimeSync() {
     if (globalSource || globalPusher) return
 
     // 1. Fetch Realtime config from backend
-    let config: { provider: 'pusher' | 'sse'; key?: string; cluster?: string } = { provider: 'sse' }
+    let config: RealtimeConfig = { provider: 'sse' }
     try {
-      config = await $fetch<any>('/api/realtime/config')
+      config = await $fetch<RealtimeConfig>('/api/realtime/config')
     } catch (err: any) {
       console.error('[Realtime Sync] Failed to fetch realtime config, falling back to SSE:', err.message)
     }
@@ -106,58 +136,67 @@ export function useRealtimeSync() {
         const channel = pusher.subscribe(channelName)
 
         // Bind events
-        channel.bind('student.created', (ev: any) => {
+        channel.bind('student.created', (ev: RealtimeEvent) => {
           if (!trackEventId(ev.eventId)) return
           if (ev.originClientId === clientId) return
-          studentsStore.upsertLocal(ev.student as Student)
-        })
-
-        channel.bind('student.updated', (ev: any) => {
-          if (!trackEventId(ev.eventId)) return
-          if (ev.originClientId === clientId) return
-          const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
-          if (!patched) {
-            studentsStore.loadStudents().catch(() => {})
+          if (ev.student) {
+            studentsStore.upsertLocal(ev.student)
           }
         })
 
-        channel.bind('student.deleted', (ev: any) => {
+        channel.bind('student.updated', (ev: RealtimeEvent) => {
           if (!trackEventId(ev.eventId)) return
           if (ev.originClientId === clientId) return
-          studentsStore.removeLocal(ev.passports as string[])
+          if (ev.passport && ev.changes) {
+            const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
+            if (!patched) {
+              studentsStore.loadStudents().catch(() => {})
+            }
+          }
         })
 
-        channel.bind('student.restored', (ev: any) => {
+        channel.bind('student.deleted', (ev: RealtimeEvent) => {
           if (!trackEventId(ev.eventId)) return
           if (ev.originClientId === clientId) return
-          studentsStore.upsertLocal(ev.student as Student)
+          if (ev.passports) {
+            studentsStore.removeLocal(ev.passports)
+          }
+        })
+
+        channel.bind('student.restored', (ev: RealtimeEvent) => {
+          if (!trackEventId(ev.eventId)) return
+          if (ev.originClientId === clientId) return
+          if (ev.student) {
+            studentsStore.upsertLocal(ev.student)
+          }
         })
 
         // Bind Visa Check Job events
-        channel.bind('visa_check.progress', (ev: any) => {
+        channel.bind('visa_check.progress', (ev: RealtimeEvent) => {
           console.log('[Realtime Sync] Received visa check progress via Pusher:', ev)
           if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
             studentsStore.activeJob = null
             studentsStore.checkingPassports = new Set()
             studentsStore.loadStudents().catch(() => {})
           } else {
-            studentsStore.activeJob = ev
+            studentsStore.activeJob = ev as any
           }
         })
 
-        channel.bind('visa_check.completed', (ev: any) => {
-          // Remove from checkingPassports set reactively
-          studentsStore.checkingPassports.delete(ev.studentId)
-          studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
+        channel.bind('visa_check.completed', (ev: RealtimeEvent) => {
+          if (ev.studentId && ev.result) {
+            // Remove from checkingPassports set reactively
+            studentsStore.checkingPassports.delete(ev.studentId)
+            studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
 
-          // Re-upsert individual student status locally as they complete
-          const student = studentsStore.students.find(s => s.passport === ev.studentId)
-          if (student) {
-            student.status = ev.result.status
-            student.lastChecked = new Date().toISOString()
+            // Re-upsert individual student status locally as they complete
+            const student = studentsStore.students.find(s => s.passport === ev.studentId)
+            if (student) {
+              student.status = ev.result.status
+              student.lastChecked = new Date().toISOString()
+            }
           }
         })
-
       } catch (err: any) {
         console.error('[Realtime Sync] Pusher setup failed, falling back to SSE:', err.message)
         connectSSE(clientId)
@@ -192,72 +231,93 @@ export function useRealtimeSync() {
 
     source.addEventListener('student.created', (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data)
+        const ev = JSON.parse(e.data) as RealtimeEvent
         if (!trackEventId(ev.eventId)) return
         if (ev.originClientId === clientId) return
-        studentsStore.upsertLocal(ev.student as Student)
-      } catch {}
+        if (ev.student) {
+          studentsStore.upsertLocal(ev.student)
+        }
+      } catch {
+        // Parse error ignored
+      }
     })
 
     source.addEventListener('student.updated', (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data)
+        const ev = JSON.parse(e.data) as RealtimeEvent
         if (!trackEventId(ev.eventId)) return
         if (ev.originClientId === clientId) return
-        const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
-        if (!patched) {
-          studentsStore.loadStudents().catch(() => {})
+        if (ev.passport && ev.changes) {
+          const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
+          if (!patched) {
+            studentsStore.loadStudents().catch(() => {})
+          }
         }
-      } catch {}
+      } catch {
+        // Parse error ignored
+      }
     })
 
     source.addEventListener('student.deleted', (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data)
+        const ev = JSON.parse(e.data) as RealtimeEvent
         if (!trackEventId(ev.eventId)) return
         if (ev.originClientId === clientId) return
-        studentsStore.removeLocal(ev.passports as string[])
-      } catch {}
+        if (ev.passports) {
+          studentsStore.removeLocal(ev.passports)
+        }
+      } catch {
+        // Parse error ignored
+      }
     })
 
     source.addEventListener('student.restored', (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data)
+        const ev = JSON.parse(e.data) as RealtimeEvent
         if (!trackEventId(ev.eventId)) return
         if (ev.originClientId === clientId) return
-        studentsStore.upsertLocal(ev.student as Student)
-      } catch {}
+        if (ev.student) {
+          studentsStore.upsertLocal(ev.student)
+        }
+      } catch {
+        // Parse error ignored
+      }
     })
 
     // Bind Visa Check Job events on EventSource fallback
     source.addEventListener('visa_check.progress', (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data)
+        const ev = JSON.parse(e.data) as RealtimeEvent
         console.log('[Realtime Sync] Received visa check progress via SSE:', ev)
         if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
           studentsStore.activeJob = null
           studentsStore.checkingPassports = new Set()
           studentsStore.loadStudents().catch(() => {})
         } else {
-          studentsStore.activeJob = ev
+          studentsStore.activeJob = ev as any
         }
-      } catch {}
+      } catch {
+        // Parse error ignored
+      }
     })
 
     source.addEventListener('visa_check.completed', (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data)
+        const ev = JSON.parse(e.data) as RealtimeEvent
+        if (ev.studentId && ev.result) {
+          // Remove from checkingPassports set reactively
+          studentsStore.checkingPassports.delete(ev.studentId)
+          studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
 
-        // Remove from checkingPassports set reactively
-        studentsStore.checkingPassports.delete(ev.studentId)
-        studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
-
-        const student = studentsStore.students.find(s => s.passport === ev.studentId)
-        if (student) {
-          student.status = ev.result.status
-          student.lastChecked = new Date().toISOString()
+          const student = studentsStore.students.find(s => s.passport === ev.studentId)
+          if (student) {
+            student.status = ev.result.status
+            student.lastChecked = new Date().toISOString()
+          }
         }
-      } catch {}
+      } catch {
+        // Parse error ignored
+      }
     })
 
     source.onerror = () => {
