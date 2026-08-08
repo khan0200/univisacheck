@@ -13,6 +13,12 @@ import {
   CREATE_SESSIONS_TABLE,
   CREATE_MANUAL_REFRESHES_TABLE,
   CREATE_CABINET_SUBSCRIBERS_TABLE,
+  CREATE_JOBS_TABLE,
+  CREATE_TASKS_TABLE,
+  CREATE_TASKS_STATUS_INDEX,
+  CREATE_TASKS_PASSPORT_INDEX,
+  CREATE_TASKS_JOBID_INDEX,
+  CREATE_VISA_SESSIONS_TABLE,
   USER_COLUMNS,
   STUDENT_COLUMNS
 } from '../database/schema'
@@ -25,6 +31,12 @@ export async function initDb() {
     await db.execute(CREATE_NOTIFICATIONS_TABLE)
     await db.execute(CREATE_SESSIONS_TABLE)
     await db.execute(CREATE_MANUAL_REFRESHES_TABLE)
+    await db.execute(CREATE_JOBS_TABLE)
+    await db.execute(CREATE_TASKS_TABLE)
+    await db.execute(CREATE_TASKS_STATUS_INDEX)
+    await db.execute(CREATE_TASKS_PASSPORT_INDEX)
+    await db.execute(CREATE_TASKS_JOBID_INDEX)
+    await db.execute(CREATE_VISA_SESSIONS_TABLE)
 
     // 2. Add columns to users table
     const userColsInfo = await db.execute('PRAGMA table_info(users)')

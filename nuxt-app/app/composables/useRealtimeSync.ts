@@ -1,55 +1,37 @@
 /**
  * app/composables/useRealtimeSync.ts
  *
- * Opens a Server-Sent Events connection to /api/realtime and keeps the
- * studentsStore in sync by applying incoming events surgically.
- *
- * Connection lifecycle:
- *   1. Mount: open EventSource → receive `connected` event
- *   2. Events arrive → patch store without full refetch
- *   3. Disconnect: show indicator → reconnect with exponential backoff
- *   4. After reconnect: refetch students to fill any missed gap
- *   5. Unmount: close EventSource, clear timers
- *
- * Security:
- *   The JWT is sent as a `token` query param (EventSource does not support
- *   custom headers). The server verifies it identically to the Authorization header.
- *   The clientId is a UUID generated once per mount — used to skip own events.
- *
- * Deduplication:
- *   A rolling Set of the last 100 eventIds ensures idempotency even if the
- *   server sends a duplicate (e.g. on reconnect overlap).
- *
- * Race conditions:
- *   studentsStore.patchStudent() compares `updatedAt` timestamps and skips
- *   older events, so concurrent edits from two browsers resolve correctly.
+ * Distributed realtime synchronization composable.
+ * Connects to Pusher if available, or falls back to standard SSE.
+ * Keeps studentsStore and activeJob state in sync by processing realtime events.
  */
 
 import type { Student } from '~/types/student'
 
 export type RealtimeStatus = 'connecting' | 'connected' | 'reconnecting' | 'offline'
 
-// Singleton state — shared across all component instances so only one
-// EventSource connection exists per dashboard session.
+// Global singletons to ensure only one connection exists per dashboard session
 let globalSource: EventSource | null = null
+let globalPusher: any | null = null
 let globalClientId: string | null = null
 const globalStatus = ref<RealtimeStatus>('connecting')
 let refCount = 0
+
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectAttempts = 0
 const MAX_RECONNECT_ATTEMPTS = 10
 const RECONNECT_BASE_MS = 1_000
 const RECONNECT_MAX_MS = 30_000
 
-// Rolling dedup set — last 100 eventIds
+// Rolling dedup set for idempotency
 const seenEventIds = new Set<string>()
 const EVENT_ID_HISTORY = 100
 
 function trackEventId(id: string): boolean {
+  if (!id) return true
   if (seenEventIds.has(id)) return false
   seenEventIds.add(id)
   if (seenEventIds.size > EVENT_ID_HISTORY) {
-    // Delete the oldest entry
     seenEventIds.delete(seenEventIds.values().next().value!)
   }
   return true
@@ -67,13 +49,128 @@ export function useRealtimeSync() {
     return globalClientId
   }
 
-  function connect() {
+  async function connect() {
     if (!import.meta.client) return
     if (!authStore.token) return
-    if (globalSource && globalSource.readyState !== EventSource.CLOSED) return
+    if (globalSource || globalPusher) return
+
+    // 1. Fetch Realtime config from backend
+    let config: { provider: 'pusher' | 'sse'; key?: string; cluster?: string } = { provider: 'sse' }
+    try {
+      config = await $fetch<any>('/api/realtime/config')
+    } catch (err: any) {
+      console.error('[Realtime Sync] Failed to fetch realtime config, falling back to SSE:', err.message)
+    }
 
     const clientId = getClientId()
-    const token = encodeURIComponent(authStore.token)
+
+    if (config.provider === 'pusher' && config.key && config.cluster) {
+      // ─── PUSHER CONNECTION ───
+      console.log('[Realtime Sync] Initializing distributed Pusher connection...')
+      globalStatus.value = reconnectAttempts > 0 ? 'reconnecting' : 'connecting'
+
+      try {
+        const { default: Pusher } = await import('pusher-js')
+        const pusher = new Pusher(config.key, {
+          cluster: config.cluster,
+          authEndpoint: '/api/realtime/auth',
+          auth: {
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          }
+        })
+        globalPusher = pusher
+
+        pusher.connection.bind('state_change', (states: { current: string }) => {
+          console.log(`[Pusher Connection] State changed: ${states.current}`)
+          if (states.current === 'connected') {
+            // FIX PROBLEM 3: Check if we were reconnecting before resetting
+            const wasReconnecting = reconnectAttempts > 0
+            reconnectAttempts = 0
+            globalStatus.value = 'connected'
+
+            if (wasReconnecting) {
+              console.log('[Realtime Sync] Pusher reconnected! Reconciling state...')
+              studentsStore.loadStudents().catch(() => {})
+            }
+          } else if (states.current === 'connecting') {
+            globalStatus.value = reconnectAttempts > 0 ? 'reconnecting' : 'connecting'
+          } else if (states.current === 'unavailable' || states.current === 'failed') {
+            globalStatus.value = 'offline'
+          }
+        })
+
+        // Subscribe to private channel scoped for this user
+        const channelName = `private-user-${authStore.user?.id}`
+        const channel = pusher.subscribe(channelName)
+
+        // Bind events
+        channel.bind('student.created', (ev: any) => {
+          if (!trackEventId(ev.eventId)) return
+          if (ev.originClientId === clientId) return
+          studentsStore.upsertLocal(ev.student as Student)
+        })
+
+        channel.bind('student.updated', (ev: any) => {
+          if (!trackEventId(ev.eventId)) return
+          if (ev.originClientId === clientId) return
+          const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
+          if (!patched) {
+            studentsStore.loadStudents().catch(() => {})
+          }
+        })
+
+        channel.bind('student.deleted', (ev: any) => {
+          if (!trackEventId(ev.eventId)) return
+          if (ev.originClientId === clientId) return
+          studentsStore.removeLocal(ev.passports as string[])
+        })
+
+        channel.bind('student.restored', (ev: any) => {
+          if (!trackEventId(ev.eventId)) return
+          if (ev.originClientId === clientId) return
+          studentsStore.upsertLocal(ev.student as Student)
+        })
+
+        // Bind Visa Check Job events
+        channel.bind('visa_check.progress', (ev: any) => {
+          console.log('[Realtime Sync] Received visa check progress via Pusher:', ev)
+          if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
+            studentsStore.activeJob = null
+            studentsStore.checkingPassports = new Set()
+            studentsStore.loadStudents().catch(() => {})
+          } else {
+            studentsStore.activeJob = ev
+          }
+        })
+
+        channel.bind('visa_check.completed', (ev: any) => {
+          // Remove from checkingPassports set reactively
+          studentsStore.checkingPassports.delete(ev.studentId)
+          studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
+
+          // Re-upsert individual student status locally as they complete
+          const student = studentsStore.students.find(s => s.passport === ev.studentId)
+          if (student) {
+            student.status = ev.result.status
+            student.lastChecked = new Date().toISOString()
+          }
+        })
+
+      } catch (err: any) {
+        console.error('[Realtime Sync] Pusher setup failed, falling back to SSE:', err.message)
+        connectSSE(clientId)
+      }
+    } else {
+      // ─── SSE CONNECTION (FALLBACK) ───
+      connectSSE(clientId)
+    }
+  }
+
+  function connectSSE(clientId: string) {
+    console.log('[Realtime Sync] Initializing fallback SSE connection...')
+    const token = encodeURIComponent(authStore.token || '')
     const url = `/api/realtime?token=${token}&clientId=${encodeURIComponent(clientId)}`
 
     globalStatus.value = reconnectAttempts > 0 ? 'reconnecting' : 'connecting'
@@ -82,11 +179,13 @@ export function useRealtimeSync() {
     globalSource = source
 
     source.addEventListener('connected', () => {
-      globalStatus.value = 'connected'
+      // FIX PROBLEM 3: Check if we were reconnecting before resetting
+      const wasReconnecting = reconnectAttempts > 0
       reconnectAttempts = 0
+      globalStatus.value = 'connected'
 
-      // After reconnect (not initial connect), refetch to catch any missed events
-      if (reconnectAttempts > 0) {
+      if (wasReconnecting) {
+        console.log('[Realtime Sync] SSE reconnected! Reconciling state...')
         studentsStore.loadStudents().catch(() => {})
       }
     })
@@ -95,11 +194,8 @@ export function useRealtimeSync() {
       try {
         const ev = JSON.parse(e.data)
         if (!trackEventId(ev.eventId)) return
-        // Skip own events — we already applied optimistically
         if (ev.originClientId === clientId) return
-
-        const student = ev.student as Student
-        studentsStore.upsertLocal(student)
+        studentsStore.upsertLocal(ev.student as Student)
       } catch {}
     })
 
@@ -108,12 +204,8 @@ export function useRealtimeSync() {
         const ev = JSON.parse(e.data)
         if (!trackEventId(ev.eventId)) return
         if (ev.originClientId === clientId) return
-
         const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
-        // If student not in local list yet (e.g. just loaded), upsert after a small
-        // refetch — but only if the field changes are significant (not just lastChecked)
         if (!patched) {
-          // We can't upsert without a full student object; schedule a light refresh
           studentsStore.loadStudents().catch(() => {})
         }
       } catch {}
@@ -124,7 +216,6 @@ export function useRealtimeSync() {
         const ev = JSON.parse(e.data)
         if (!trackEventId(ev.eventId)) return
         if (ev.originClientId === clientId) return
-
         studentsStore.removeLocal(ev.passports as string[])
       } catch {}
     })
@@ -134,9 +225,38 @@ export function useRealtimeSync() {
         const ev = JSON.parse(e.data)
         if (!trackEventId(ev.eventId)) return
         if (ev.originClientId === clientId) return
+        studentsStore.upsertLocal(ev.student as Student)
+      } catch {}
+    })
 
-        const student = ev.student as Student
-        studentsStore.upsertLocal(student)
+    // Bind Visa Check Job events on EventSource fallback
+    source.addEventListener('visa_check.progress', (e: MessageEvent) => {
+      try {
+        const ev = JSON.parse(e.data)
+        console.log('[Realtime Sync] Received visa check progress via SSE:', ev)
+        if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
+          studentsStore.activeJob = null
+          studentsStore.checkingPassports = new Set()
+          studentsStore.loadStudents().catch(() => {})
+        } else {
+          studentsStore.activeJob = ev
+        }
+      } catch {}
+    })
+
+    source.addEventListener('visa_check.completed', (e: MessageEvent) => {
+      try {
+        const ev = JSON.parse(e.data)
+
+        // Remove from checkingPassports set reactively
+        studentsStore.checkingPassports.delete(ev.studentId)
+        studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
+
+        const student = studentsStore.students.find(s => s.passport === ev.studentId)
+        if (student) {
+          student.status = ev.result.status
+          student.lastChecked = new Date().toISOString()
+        }
       } catch {}
     })
 
@@ -151,7 +271,7 @@ export function useRealtimeSync() {
           RECONNECT_MAX_MS
         )
         reconnectAttempts++
-        reconnectTimer = setTimeout(connect, delay)
+        reconnectTimer = setTimeout(() => connect(), delay)
       }
     }
   }
@@ -164,6 +284,10 @@ export function useRealtimeSync() {
     if (globalSource) {
       globalSource.close()
       globalSource = null
+    }
+    if (globalPusher) {
+      globalPusher.disconnect()
+      globalPusher = null
     }
     globalStatus.value = 'connecting'
     reconnectAttempts = 0
@@ -186,11 +310,6 @@ export function useRealtimeSync() {
   return { status, clientId: getClientId }
 }
 
-/**
- * Returns the current clientId to attach to mutation requests as X-Client-Id header.
- * Call this from useApiFetch or services so the server knows which client originated
- * a mutation (and that client can skip the echo event).
- */
 export function getRealtimeClientId(): string {
   if (!globalClientId) globalClientId = crypto.randomUUID()
   return globalClientId

@@ -9,6 +9,23 @@ export const useStudentsStore = defineStore('students', () => {
   const visaTypeFilter = ref<VisaTypeFilter>('all')
   const searchQuery = ref('')
 
+  interface JobProgress {
+    jobId: string
+    status: string
+    total: number
+    createdAt: string
+    progress: {
+      queued: number
+      processing: number
+      completed: number
+      failed: number
+      cancelled: number
+    }
+  }
+
+  const activeJob = ref<JobProgress | null>(null)
+  const checkingPassports = ref<Set<string>>(new Set())
+
   const counts = computed(() => {
     const result: Record<StatusFilter, number> = { pending: 0, application: 0, cancelled: 0, approved: 0 }
     for (const student of matchingSearch.value) {
@@ -78,10 +95,21 @@ export const useStudentsStore = defineStore('students', () => {
 
   const { list: listStudents } = useStudentsService()
 
+  async function loadActiveJob() {
+    try {
+      const { apiFetch } = useApiFetch()
+      const job = await apiFetch<any>('/api/jobs/active')
+      activeJob.value = job
+    } catch (err: any) {
+      console.error('[Students Store] Failed to load active job:', err.message)
+    }
+  }
+
   async function loadStudents() {
     isLoading.value = true
     try {
       students.value = await listStudents()
+      await loadActiveJob()
     } finally {
       isLoading.value = false
     }
@@ -152,6 +180,9 @@ export const useStudentsStore = defineStore('students', () => {
     setVisaTypeFilter,
     upsertLocal,
     removeLocal,
-    patchStudent
+    patchStudent,
+    activeJob,
+    loadActiveJob,
+    checkingPassports
   }
 })

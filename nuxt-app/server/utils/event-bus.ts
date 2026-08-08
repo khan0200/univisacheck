@@ -12,7 +12,7 @@
 
 import type { StudentRealtimeEvent } from './realtime-types'
 
-type SSEWriter = (event: StudentRealtimeEvent) => void
+type SSEWriter = (event: any) => void
 
 // Map: userId → Set of writer functions (one per active SSE connection)
 const connections = new Map<number, Set<SSEWriter>>()
@@ -21,7 +21,7 @@ const connections = new Map<number, Set<SSEWriter>>()
  * Publish an event to all active SSE connections for `userId`.
  * Safe to call even if no connections exist yet.
  */
-function publish(userId: number, event: StudentRealtimeEvent): void {
+function publish(userId: number, event: any): void {
   const writers = connections.get(userId)
   if (!writers || writers.size === 0) return
   for (const write of writers) {

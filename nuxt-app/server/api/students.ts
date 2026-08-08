@@ -1,7 +1,7 @@
 import { getTursoClient } from '../utils/turso'
 import { verifyToken } from '../utils/auth'
 import { apiError } from '../utils/api-error'
-import { EventBus } from '../utils/event-bus'
+import { publishRealtime } from '../utils/realtime-publisher'
 import type { StudentPayload, StudentRealtimeEvent } from '../utils/realtime-types'
 
 // Keeps users.students_count in step with how many active students the
@@ -62,11 +62,11 @@ async function fetchStudentPayload(
 }
 
 /** Publish an event after a successful DB write. Never throws. */
-function publishEvent(userId: number, realtimeEvent: StudentRealtimeEvent) {
+async function publishEvent(userId: number, realtimeEvent: StudentRealtimeEvent) {
   try {
-    EventBus.publish(userId, realtimeEvent)
+    await publishRealtime(userId, realtimeEvent)
   } catch (err: any) {
-    console.error('[Students API] EventBus publish failed:', err.message)
+    console.error('[Students API] Realtime publish failed:', err.message)
   }
 }
 

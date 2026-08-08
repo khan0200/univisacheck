@@ -1,92 +1,77 @@
-import type { Student } from '~/types/student'
-import { applyVisaCheckResult, normalizeStatusForComparison } from '~/utils/visa-status'
-
 /**
- * Checks live visa status for one student, persists the result, and fires a
- * Telegram notification only when the status bucket actually changed —
- * mirrors the legacy app.js checkVisaStatus()/sendTelegramNotification() pair.
+ * app/composables/useVisaCheck.ts
+ *
+ * Rewritten to use the persistent backend job queue.
+ * Initiates visa checks by creating jobs and tracking active job progress.
  */
+
+import type { Student } from '~/types/student'
+import { normalizeStatusForComparison } from '~/utils/visa-status'
+
 export function useVisaCheck() {
-  const { checkStatus, updateFields, notifyTelegram } = useStudentsService()
-  const checkingPassports = ref(new Set<string>())
+  const { apiFetch } = useApiFetch()
+  const studentsStore = useStudentsStore()
+  const checkingPassports = computed(() => studentsStore.checkingPassports)
 
-  async function checkOne(student: Student): Promise<boolean> {
-    checkingPassports.value.add(student.passport)
+  // Creates a job for the specified passports and updates studentsStore.activeJob
+  async function createVisaCheckJob(passports: string[]): Promise<any> {
     try {
-      const result = await checkStatus(student)
-      const { changed, oldStatus, newStatus } = applyVisaCheckResult(student, result)
-
-      await updateFields({
-        passport: student.passport,
-        fullName: student.fullName,
-        birthday: student.birthday,
-        status: student.status,
-        applicationDate: student.applicationDate,
-        rejectReason: student.rejectReason,
-        pdfUrl: student.pdfUrl,
-        apiResponse: JSON.stringify(student.apiResponse),
-        lastChecked: student.lastChecked,
-        visaType: student.visaType || 'Embassy',
-        applicationNo: student.applicationNo || ''
+      const response = await apiFetch<any>('/api/jobs', {
+        method: 'POST',
+        body: { passports }
       })
 
-      if (changed) {
-        const apiResponse = typeof student.apiResponse === 'object' ? student.apiResponse : null
-        await notifyTelegram({
-          fullName: student.fullName || '',
-          passport: student.passport || '',
-          studentId: student.studentId || '',
-          visaType: student.visaType || 'Embassy',
-          applicationNo: student.applicationNo || '',
-          birthday: student.birthday || '',
-          oldStatus,
-          newStatus,
-          applicationDate: student.applicationDate || '',
-          rejectionReason: student.rejectReason || '',
-          pdfUrl: student.pdfUrl || '',
-          previousRejectionReason: apiResponse?.previousRejectionReason || '',
-          invitingCompany: apiResponse?.invitingCompany || '',
-          entryDate: apiResponse?.entryDate || '',
-          changedAt: new Date().toISOString()
-        }).catch(() => {})
+      studentsStore.activeJob = {
+        jobId: response.jobId,
+        status: response.status,
+        total: response.total,
+        createdAt: new Date().toISOString(),
+        progress: {
+          queued: response.total,
+          processing: 0,
+          completed: 0,
+          failed: 0,
+          cancelled: 0
+        }
       }
 
-      return changed
-    } finally {
-      checkingPassports.value.delete(student.passport)
+      // Add all passports of the new job to the checkingPassports loading set
+      for (const passport of passports) {
+        studentsStore.checkingPassports.add(passport)
+      }
+      studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
+
+      return response
+    } catch (err: any) {
+      console.error('[Visa Check Queue] Failed to create job:', err.message)
+      throw err
     }
   }
 
-  async function checkMany(list: Student[]) {
-    const changes: { student: Student, oldStatus: string, newStatus: string }[] = []
-    const promises: Promise<void>[] = []
-
-    for (let i = 0; i < list.length; i++) {
-      const student = list[i]!
-      const oldStatus = student.status || 'Pending'
-
-      const p = checkOne(student)
-        .then((changed) => {
-          if (changed) {
-            changes.push({
-              student,
-              oldStatus,
-              newStatus: student.status || 'Unknown'
-            })
-          }
-        })
-        .catch(() => {})
-
-      promises.push(p)
-
-      if (i < list.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 500))
-      }
+  // Cancel job
+  async function cancelJob(jobId: string): Promise<void> {
+    try {
+      await apiFetch<any>('/api/jobs/cancel', {
+        method: 'POST',
+        body: { jobId }
+      })
+      studentsStore.activeJob = null
+      studentsStore.checkingPassports = new Set()
+    } catch (err: any) {
+      console.error('[Visa Check Queue] Failed to cancel job:', err.message)
+      throw err
     }
-
-    await Promise.all(promises)
-    return changes
   }
 
-  return { checkOne, checkMany, checkingPassports, normalizeStatusForComparison }
+  // Keep checkOne and checkMany interfaces but redirect them to use the queue
+  async function checkOne(student: Student): Promise<void> {
+    await createVisaCheckJob([student.passport])
+  }
+
+  async function checkMany(students: Student[]): Promise<void> {
+    const passports = students.map(s => s.passport)
+    await createVisaCheckJob(passports)
+  }
+
+  return { checkOne, checkMany, createVisaCheckJob, cancelJob, checkingPassports, normalizeStatusForComparison }
 }

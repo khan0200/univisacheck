@@ -81,3 +81,55 @@ export const STUDENT_COLUMNS: DbColumn[] = [
     { name: 'application_date', type: 'TEXT' },
     { name: 'last_checked', type: 'TEXT' }
 ];
+
+export const CREATE_JOBS_TABLE = `
+CREATE TABLE IF NOT EXISTS visa_check_jobs (
+    id TEXT PRIMARY KEY,
+    userId INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    createdAt TEXT DEFAULT (datetime('now')),
+    updatedAt TEXT DEFAULT (datetime('now'))
+);
+`;
+
+export const CREATE_TASKS_TABLE = `
+CREATE TABLE IF NOT EXISTS visa_check_tasks (
+    id TEXT PRIMARY KEY,
+    jobId TEXT NOT NULL,
+    userId INTEGER NOT NULL,
+    passport TEXT NOT NULL,
+    status TEXT NOT NULL,
+    attempts INTEGER DEFAULT 0,
+    lockedAt TEXT,
+    lockedBy TEXT,
+    startedAt TEXT,
+    completedAt TEXT,
+    error TEXT,
+    createdAt TEXT DEFAULT (datetime('now')),
+    updatedAt TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY(jobId) REFERENCES visa_check_jobs(id) ON DELETE CASCADE
+);
+`;
+
+export const CREATE_TASKS_STATUS_INDEX = `
+CREATE INDEX IF NOT EXISTS idx_visa_tasks_status ON visa_check_tasks(status);
+`;
+
+export const CREATE_TASKS_PASSPORT_INDEX = `
+CREATE INDEX IF NOT EXISTS idx_visa_tasks_passport ON visa_check_tasks(passport);
+`;
+
+export const CREATE_TASKS_JOBID_INDEX = `
+CREATE INDEX IF NOT EXISTS idx_visa_tasks_jobId ON visa_check_tasks(jobId);
+`;
+
+export const CREATE_VISA_SESSIONS_TABLE = `
+CREATE TABLE IF NOT EXISTS visa_sessions (
+    key TEXT PRIMARY KEY,
+    cookies TEXT,
+    fetchedAt INTEGER
+);
+`;
+
+

@@ -6,7 +6,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const studentsStore = useStudentsStore()
 const { removeMany, remove: removeStudent, downloadPdfUrl, setBatchSelected, togglePin } = useStudentsService()
-const { checkOne, checkMany, checkingPassports } = useVisaCheck()
+const { checkOne, checkMany, cancelJob, checkingPassports } = useVisaCheck()
 const toast = useToast()
 
 // Client-only: the students list requires the JWT from localStorage, which
@@ -73,23 +73,17 @@ function statusToastIcon(status: string): string {
 }
 
 async function handleRefresh(student: Student) {
-  const oldStatus = student.status || 'Pending'
   try {
-    const changed = await checkOne(student)
-    studentsStore.upsertLocal(student)
-    const newStatus = student.status || 'Unknown'
-
-    if (changed) {
-      toast.add({
-        title: `${student.fullName}`,
-        description: `${displayStatusText(oldStatus)} → ${displayStatusText(newStatus)}`,
-        color: statusToastColor(newStatus),
-        icon: statusToastIcon(newStatus),
-        duration: 2500
-      })
-    }
+    await checkOne(student)
+    toast.add({
+      title: 'Check Queued',
+      description: `Checking visa status for ${student.fullName} has been added to the queue.`,
+      color: 'primary',
+      icon: 'i-lucide-clock',
+      duration: 2500
+    })
   } catch {
-    toast.add({ title: 'Error checking visa status.', color: 'error', icon: 'i-lucide-alert-triangle', duration: 2500 })
+    toast.add({ title: 'Failed to queue visa check.', color: 'error', icon: 'i-lucide-alert-triangle', duration: 2500 })
   }
 }
 
@@ -148,22 +142,14 @@ async function handleBatchCheck() {
   if (list.length === 0) return
   batchChecking.value = true
   try {
-    const changes = await checkMany(list)
-    list.forEach(s => studentsStore.upsertLocal(s))
-    
-    if (changes && changes.length > 0) {
-      changes.forEach((change, i) => {
-        setTimeout(() => {
-          toast.add({
-            title: `${i + 1}) ${change.student.fullName}`,
-            description: `${displayStatusText(change.oldStatus)} >> ${displayStatusText(change.newStatus)}`,
-            color: statusToastColor(change.newStatus),
-            icon: statusToastIcon(change.newStatus),
-            duration: 5000
-          })
-        }, i * 300)
-      })
-    }
+    await checkMany(list)
+    toast.add({
+      title: 'Batch Check Queued',
+      description: `Queued ${list.length} student check(s). Progress will update in real-time.`,
+      color: 'primary',
+      icon: 'i-lucide-clock',
+      duration: 3000
+    })
   } catch {
     toast.add({ title: 'Batch check failed. Please try again.', color: 'error', duration: 2500 })
   } finally {
@@ -228,6 +214,44 @@ function setFilter(filter: StatusFilter) {
         <StudentStatusTabs :model-value="studentsStore.currentFilter" :counts="studentsStore.counts" @update:model-value="setFilter" />
       </div>
     </div>
+
+    <!-- Job Queue Progress Indicator -->
+    <ClientOnly>
+      <div
+        v-if="studentsStore.activeJob"
+        class="bg-primary-900/5 dark:bg-white/5 border border-primary-900/10 dark:border-white/10 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
+        <div class="flex items-center gap-3">
+          <UIcon name="i-lucide-loader-2" class="animate-spin size-5 text-primary-600 dark:text-primary-400 shrink-0" />
+          <div>
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white">
+              Checking visa statuses...
+            </h4>
+            <p class="text-xs text-[var(--color-text-secondary)] dark:text-neutral-400 mt-0.5">
+              {{ studentsStore.activeJob.progress.completed + studentsStore.activeJob.progress.failed }}/{{ studentsStore.activeJob.total }} students checked (concurrency controlled)
+            </p>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="flex-1 max-w-md bg-neutral-200 dark:bg-white/10 h-2.5 rounded-full overflow-hidden">
+          <div
+            class="bg-primary-600 dark:bg-primary-400 h-full rounded-full transition-all duration-300"
+            :style="{ width: `${((studentsStore.activeJob.progress.completed + studentsStore.activeJob.progress.failed) / studentsStore.activeJob.total) * 100}%` }"
+          />
+        </div>
+
+        <UButton
+          color="neutral"
+          variant="subtle"
+          size="sm"
+          icon="i-lucide-x"
+          @click="cancelJob(studentsStore.activeJob.jobId)"
+        >
+          Cancel
+        </UButton>
+      </div>
+    </ClientOnly>
 
     <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
       <ClientOnly>

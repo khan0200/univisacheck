@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
   })
 
   // ── 5. Register EventBus writer ──────────────────────────────────────────
-  const writer = (realtimeEvent: StudentRealtimeEvent) => {
+  const writer = (realtimeEvent: any) => {
     sendSSE(realtimeEvent.type, realtimeEvent)
   }
 
