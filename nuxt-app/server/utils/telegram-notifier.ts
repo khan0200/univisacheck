@@ -124,8 +124,13 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
 
   const db = await getTursoClient()
 
+  interface SubscriberRow {
+    telegram_id: number
+    lang: string
+  }
+
   // 1. Look up Telegram subscribers
-  let subscribers: { telegram_id: number; lang: string }[] = []
+  let subscribers: SubscriberRow[]
   try {
     const subsResult = await db.execute({
       sql: `SELECT cs.telegram_id, COALESCE(cs.lang, 'uz') as lang
