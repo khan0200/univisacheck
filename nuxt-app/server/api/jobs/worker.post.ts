@@ -31,6 +31,7 @@ interface WorkerStudent {
   studentId?: string
   student_id?: string
   applicationDate?: string
+  lastChecked?: string
 }
 
 // Normalize status matching utils/visa-status.ts
@@ -92,7 +93,7 @@ export default defineEventHandler(async (event) => {
   // 3. Process loop (up to 40 seconds to prevent Vercel execution timeouts)
   let tasksProcessed = 0
   while (Date.now() - workerStartTime < 40000) {
-    let claimedTask: WorkerTask | null = null
+    let claimedTask: WorkerTask | undefined
 
     // Atomically claim the next task using a Turso write transaction
     const tx = await db.transaction('write')
@@ -139,7 +140,7 @@ export default defineEventHandler(async (event) => {
         break // No queued tasks available to claim
       }
 
-      const task = nextTaskRes.rows[0] as any
+      const task = nextTaskRes.rows[0] as unknown as Record<string, unknown>
       claimedTask = {
         id: String(task.id),
         passport: String(task.passport),
@@ -270,8 +271,9 @@ export default defineEventHandler(async (event) => {
             invitingCompany: liveResult.invitingCompany || '',
             entryDate: liveResult.entryDate || '',
             pdfUrl: liveResult.pdfUrl || ''
-          }).catch((tErr: any) => {
-            console.error('[Queue Worker Telegram Notifier] Error:', tErr.message)
+          }).catch((tErr) => {
+            const errorText = tErr instanceof Error ? tErr.message : String(tErr)
+            console.error('[Queue Worker Telegram Notifier] Error:', errorText)
           })
         }
 
@@ -369,7 +371,7 @@ export default defineEventHandler(async (event) => {
       jobId: claimedTask.jobId,
       total,
       status: jobStatus,
-      progress: counts as any
+      progress: counts as unknown as { queued: number, processing: number, completed: number, failed: number, cancelled: number }
     })
 
     await publishRealtime(claimedTask.userId, {
