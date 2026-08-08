@@ -302,7 +302,7 @@ function getContextMenuItems(student: Student) {
               <UButton
                 icon="i-lucide-eye"
                 color="neutral"
-                variant="solid"
+                variant="ghost"
                 square
                 class="justify-center rounded-none px-4 h-full py-2"
                 :ui="{ leadingIcon: 'size-5' }"
