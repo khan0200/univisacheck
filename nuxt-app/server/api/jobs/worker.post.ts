@@ -279,15 +279,16 @@ export default defineEventHandler(async (event) => {
         }
 
         // ── Visa processing started notification ──────────────────────────
-        // Trigger only on real UNDER REVIEW results with a known applicationDate.
+        // Trigger on APPROVED results with a known applicationDate.
         // Fire-and-forget: does NOT block the visa check completion.
-        const isUnderReview = normalizeStatus(newStatus) === 'under review'
+        const isApproved = normalizeStatus(newStatus) === 'approved'
         const appDate = liveResult.latestDate || student.applicationDate || ''
-        if (isUnderReview && appDate) {
+        if (isApproved && appDate) {
+          const visaCategory = liveResult.statusOfResidence || student.visaType || student.visa_type || 'Noma\'lum'
           tryCreateProcessingNotification(
             db,
             appDate,
-            student.visaType || student.visa_type || 'Embassy',
+            visaCategory,
             claimedTask.userId,
             claimedTask.passport
           ).catch((tErr) => {
