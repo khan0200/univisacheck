@@ -25,6 +25,17 @@ watch(() => props.open, (open) => {
 
 const hasMasters = computed(() => Boolean(props.university?.englishTrackMasters?.length || props.university?.koreanTrackMasters?.length))
 
+const parseMajor = (majorStr: string) => {
+  if (!majorStr) return { name: '', detail: '' }
+  const lastOpenParen = majorStr.lastIndexOf('(')
+  if (lastOpenParen !== -1 && majorStr.endsWith(')')) {
+    const name = majorStr.substring(0, lastOpenParen).trim()
+    const detail = majorStr.substring(lastOpenParen + 1, majorStr.length - 1).trim()
+    return { name, detail }
+  }
+  return { name: majorStr, detail: '' }
+}
+
 const bankChecklist = computed(() => {
   const u = props.university
   if (!u) return []
@@ -145,33 +156,249 @@ const bankChecklist = computed(() => {
             </div>
           </div>
 
-          <div v-else-if="tab === 'majors'" class="space-y-5">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-2">Bakalavr — Ingliz tilida</p>
-              <div class="flex flex-wrap gap-1.5">
-                <UBadge v-for="m in props.university.englishTrackMajors" :key="m" color="neutral" variant="solid">{{ m }}</UBadge>
-              </div>
-            </div>
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-2">Bakalavr — Koreys tilida</p>
-              <div class="flex flex-wrap gap-1.5">
-                <UBadge v-for="m in props.university.koreanTrackMajors" :key="m" color="neutral" variant="solid">{{ m }}</UBadge>
-              </div>
-            </div>
+          <div v-else-if="tab === 'majors'" class="space-y-8">
             <template v-if="hasMasters">
-              <div v-if="props.university.englishTrackMasters?.length">
-                <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-2">Magistratura — Ingliz tilida</p>
-                <div class="flex flex-wrap gap-1.5">
-                  <UBadge v-for="m in props.university.englishTrackMasters" :key="m" color="primary" variant="solid">{{ m }}</UBadge>
+              <!-- BACHELOR SECTION -->
+              <div v-if="props.university.englishTrackMajors?.length || props.university.koreanTrackMajors?.length" class="space-y-4">
+                <div class="flex items-center gap-2 pb-2 border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                  <div class="flex items-center justify-center size-8 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
+                    <UIcon name="i-lucide-graduation-cap" class="size-5" />
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-[var(--color-text-primary)] dark:text-white uppercase tracking-wider">Bachelor (Bakalavriat)</h3>
+                    <p class="text-[10.5px] text-[var(--color-text-secondary)]">Bakalavr bosqichi uchun mavjud yo'nalishlar</p>
+                  </div>
+                </div>
+
+                <div class="space-y-5">
+                  <!-- English Track Bachelors -->
+                  <div v-if="props.university.englishTrackMajors?.length" class="space-y-2.5">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                      <span class="w-1.5 h-3 bg-blue-500 rounded-full"></span>
+                      ENGLISH TRACK
+                    </p>
+                    <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
+                      <table class="w-full text-left border-collapse">
+                        <thead>
+                          <tr class="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Yo'nalish nomi (Major)</th>
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] w-[40%]">Talab / Izoh</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.04]">
+                          <tr v-for="m in props.university.englishTrackMajors" :key="m" class="hover:bg-neutral-50/30 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                            <td class="px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ parseMajor(m).name }}</td>
+                            <td class="px-4 py-2.5 text-sm">
+                              <span v-if="parseMajor(m).detail" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200/50 dark:border-neutral-700/50">
+                                {{ parseMajor(m).detail }}
+                              </span>
+                              <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- Korean Track Bachelors -->
+                  <div v-if="props.university.koreanTrackMajors?.length" class="space-y-2.5">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                      <span class="w-1.5 h-3 bg-amber-500 rounded-full"></span>
+                      KOREAN TRACK
+                    </p>
+                    <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
+                      <table class="w-full text-left border-collapse">
+                        <thead>
+                          <tr class="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Yo'nalish nomi (Major)</th>
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] w-[40%]">Talab / Izoh</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.04]">
+                          <tr v-for="m in props.university.koreanTrackMajors" :key="m" class="hover:bg-neutral-50/30 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                            <td class="px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ parseMajor(m).name }}</td>
+                            <td class="px-4 py-2.5 text-sm">
+                              <span v-if="parseMajor(m).detail" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200/50 dark:border-neutral-700/50">
+                                {{ parseMajor(m).detail }}
+                              </span>
+                              <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div v-if="props.university.koreanTrackMasters?.length">
-                <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-2">Magistratura — Koreys tilida</p>
-                <div class="flex flex-wrap gap-1.5">
-                  <UBadge v-for="m in props.university.koreanTrackMasters" :key="m" color="primary" variant="solid">{{ m }}</UBadge>
+
+              <!-- MASTER SECTION -->
+              <div v-if="props.university.englishTrackMasters?.length || props.university.koreanTrackMasters?.length" class="space-y-4">
+                <div class="flex items-center gap-2 pb-2 border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                  <div class="flex items-center justify-center size-8 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
+                    <UIcon name="i-lucide-award" class="size-5" />
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-[var(--color-text-primary)] dark:text-white uppercase tracking-wider">Master (Magistratura)</h3>
+                    <p class="text-[10.5px] text-[var(--color-text-secondary)]">Magistr va doktorantura bosqichlari uchun mavjud yo'nalishlar</p>
+                  </div>
+                </div>
+
+                <div class="space-y-5">
+                  <!-- English Track Masters -->
+                  <div v-if="props.university.englishTrackMasters?.length" class="space-y-2.5">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                      <span class="w-1.5 h-3 bg-blue-500 rounded-full"></span>
+                      ENGLISH TRACK
+                    </p>
+                    <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
+                      <table class="w-full text-left border-collapse">
+                        <thead>
+                          <tr class="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Yo'nalish nomi (Major)</th>
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] w-[40%]">Talab / Izoh</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.04]">
+                          <tr v-for="m in props.university.englishTrackMasters" :key="m" class="hover:bg-neutral-50/30 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                            <td class="px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ parseMajor(m).name }}</td>
+                            <td class="px-4 py-2.5 text-sm">
+                              <span v-if="parseMajor(m).detail" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200/50 dark:border-neutral-700/50">
+                                {{ parseMajor(m).detail }}
+                              </span>
+                              <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- Korean Track Masters -->
+                  <div v-if="props.university.koreanTrackMasters?.length" class="space-y-2.5">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                      <span class="w-1.5 h-3 bg-amber-500 rounded-full"></span>
+                      KOREAN TRACK
+                    </p>
+                    <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
+                      <table class="w-full text-left border-collapse">
+                        <thead>
+                          <tr class="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Yo'nalish nomi (Major)</th>
+                            <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] w-[40%]">Talab / Izoh</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.04]">
+                          <tr v-for="m in props.university.koreanTrackMasters" :key="m" class="hover:bg-neutral-50/30 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                            <td class="px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ parseMajor(m).name }}</td>
+                            <td class="px-4 py-2.5 text-sm">
+                              <span v-if="parseMajor(m).detail" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200/50 dark:border-neutral-700/50">
+                                {{ parseMajor(m).detail }}
+                              </span>
+                              <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
             </template>
+
+            <template v-else>
+              <!-- Show without Bachelor/Master headings if hasMasters is false -->
+              <!-- English Track -->
+              <div v-if="props.university.englishTrackMajors?.length" class="space-y-2.5">
+                <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                  <span class="w-1.5 h-3 bg-blue-500 rounded-full"></span>
+                  ENGLISH TRACK
+                </p>
+                <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                        <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Yo'nalish nomi (Major)</th>
+                        <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] w-[40%]">Talab / Izoh</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.04]">
+                      <tr v-for="m in props.university.englishTrackMajors" :key="m" class="hover:bg-neutral-50/30 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                        <td class="px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ parseMajor(m).name }}</td>
+                        <td class="px-4 py-2.5 text-sm">
+                          <span v-if="parseMajor(m).detail" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200/50 dark:border-neutral-700/50">
+                            {{ parseMajor(m).detail }}
+                          </span>
+                          <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Korean Track -->
+              <div v-if="props.university.koreanTrackMajors?.length" class="space-y-2.5">
+                <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                  <span class="w-1.5 h-3 bg-amber-500 rounded-full"></span>
+                  KOREAN TRACK
+                </p>
+                <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                        <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Yo'nalish nomi (Major)</th>
+                        <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] w-[40%]">Talab / Izoh</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.04]">
+                      <tr v-for="m in props.university.koreanTrackMajors" :key="m" class="hover:bg-neutral-50/30 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                        <td class="px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ parseMajor(m).name }}</td>
+                        <td class="px-4 py-2.5 text-sm">
+                          <span v-if="parseMajor(m).detail" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200/50 dark:border-neutral-700/50">
+                            {{ parseMajor(m).detail }}
+                          </span>
+                          <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Legacy flat majors list -->
+              <div v-if="props.university.majors?.length && !props.university.englishTrackMajors?.length && !props.university.koreanTrackMajors?.length" class="space-y-2.5">
+                <p class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                  <span class="w-1.5 h-3 bg-neutral-500 rounded-full"></span>
+                  YO'NALISHLAR (MAJORS)
+                </p>
+                <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-[var(--color-border)] dark:border-white/[0.08]">
+                        <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Yo'nalish nomi (Major)</th>
+                        <th class="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] w-[40%]">Talab / Izoh</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.04]">
+                      <tr v-for="m in props.university.majors" :key="m" class="hover:bg-neutral-50/30 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                        <td class="px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ parseMajor(m).name }}</td>
+                        <td class="px-4 py-2.5 text-sm">
+                          <span v-if="parseMajor(m).detail" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200/50 dark:border-neutral-700/50">
+                            {{ parseMajor(m).detail }}
+                          </span>
+                          <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </template>
+
+            <!-- Fallback if there are absolutely no majors in any list -->
+            <div v-if="!props.university.englishTrackMajors?.length && !props.university.koreanTrackMajors?.length && !props.university.englishTrackMasters?.length && !props.university.koreanTrackMasters?.length && !props.university.majors?.length" class="text-center py-6 text-[var(--color-text-secondary)]">
+              Yo'nalishlar haqida ma'lumot yo'q.
+            </div>
           </div>
 
           <div v-else class="space-y-5">
