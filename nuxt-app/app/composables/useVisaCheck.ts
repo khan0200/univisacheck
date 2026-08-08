@@ -57,16 +57,16 @@ export function useVisaCheck() {
     }
   }
 
-  async function checkMany(list: Student[], concurrency = 1) {
+  async function checkMany(list: Student[]) {
     const changes: { student: Student; oldStatus: string; newStatus: string }[] = []
     const promises: Promise<void>[] = []
-    
+
     for (let i = 0; i < list.length; i++) {
       const student = list[i]!
       const oldStatus = student.status || 'Pending'
-      
+
       const p = checkOne(student)
-        .then(changed => {
+        .then((changed) => {
           if (changed) {
             changes.push({
               student,
@@ -76,14 +76,14 @@ export function useVisaCheck() {
           }
         })
         .catch(() => {})
-        
+
       promises.push(p)
-      
+
       if (i < list.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
-    
+
     await Promise.all(promises)
     return changes
   }
