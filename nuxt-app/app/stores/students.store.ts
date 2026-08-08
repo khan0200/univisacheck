@@ -109,6 +109,35 @@ export const useStudentsStore = defineStore('students', () => {
     students.value = students.value.filter((s) => !set.has(s.passport))
   }
 
+  /**
+   * Surgically apply `changes` to the student identified by `passport`.
+   * Used by useRealtimeSync to patch only the fields that changed, without
+   * replacing the whole object or re-fetching the entire list.
+   *
+   * Returns true if the student was found and updated, false otherwise.
+   * If the incoming `updatedAt` is older than a previously-applied event
+   * for this student (race-condition), the patch is skipped.
+   */
+  function patchStudent(passport: string, changes: Partial<Student>, updatedAt?: string): boolean {
+    const index = students.value.findIndex((s) => s.passport === passport)
+    if (index === -1) return false
+
+    // Race condition guard: skip if this event is older than what we already have
+    if (updatedAt && students.value[index]!._realtimeUpdatedAt) {
+      if (updatedAt < students.value[index]!._realtimeUpdatedAt!) return false
+    }
+
+    // Apply changes field-by-field so Vue tracks only the mutated keys
+    const target = students.value[index]!
+    for (const key of Object.keys(changes) as (keyof Student)[]) {
+      (target as any)[key] = (changes as any)[key]
+    }
+    if (updatedAt) {
+      (target as any)._realtimeUpdatedAt = updatedAt
+    }
+    return true
+  }
+
   return {
     students,
     isLoading,
@@ -122,6 +151,7 @@ export const useStudentsStore = defineStore('students', () => {
     setFilter,
     setVisaTypeFilter,
     upsertLocal,
-    removeLocal
+    removeLocal,
+    patchStudent
   }
 })

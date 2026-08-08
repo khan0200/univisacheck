@@ -54,14 +54,16 @@ export default defineNuxtConfig({
     '/leads': { ssr: false }
   },
 
-  // Vercel function config — the AI assistant route chains OpenAI/Gemini
-  // calls (intent analysis, dynamic context lookups, the main completion,
-  // optional lead extraction) and can exceed Vercel's default ~10s Hobby
-  // timeout; the legacy app set maxDuration: 60 for this same reason.
+  // Vercel function config
+  // - /api/ai-assistant: chains multiple AI calls, can exceed the default ~10s timeout
+  // - /api/realtime: SSE long-lived connection; maxDuration limits how long the
+  //   Vercel function stays open. The client auto-reconnects, so 60s is fine on
+  //   Hobby. Upgrade to 300 on Pro for fewer reconnect cycles.
   nitro: {
     vercel: {
       functions: {
-        '/api/ai-assistant': { maxDuration: 60 }
+        '/api/ai-assistant': { maxDuration: 60 },
+        '/api/realtime': { maxDuration: 60 }
       }
     }
   },

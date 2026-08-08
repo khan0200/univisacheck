@@ -1,6 +1,8 @@
 import { getTursoClient } from '../utils/turso'
 import { verifyToken } from '../utils/auth'
 import { apiError } from '../utils/api-error'
+import { EventBus } from '../utils/event-bus'
+import type { StudentPayload, StudentRealtimeEvent } from '../utils/realtime-types'
 
 // Keeps users.students_count in step with how many active students the
 // cabinet holds. Recomputed from the students table rather than
@@ -21,10 +23,61 @@ async function syncStudentsCount(db: Awaited<ReturnType<typeof getTursoClient>>,
   }
 }
 
+/** Fetch a single student row by passport + userId and return as StudentPayload. */
+async function fetchStudentPayload(
+  db: Awaited<ReturnType<typeof getTursoClient>>,
+  passport: string,
+  userId: number
+): Promise<StudentPayload | null> {
+  try {
+    const result = await db.execute({
+      sql: 'SELECT * FROM students WHERE passport = ? AND userId = ?',
+      args: [passport, userId]
+    })
+    if (result.rows.length === 0) return null
+    const r = result.rows[0] as any
+    return {
+      passport: r.passport,
+      fullName: r.fullName || '',
+      birthday: r.birthday || '',
+      studentId: r.studentId || '',
+      status: r.status || 'Pending',
+      applicationDate: r.applicationDate || '',
+      lastChecked: r.lastChecked || '',
+      rejectReason: r.rejectReason || '',
+      pdfUrl: r.pdfUrl || '',
+      apiResponse: r.apiResponse || '',
+      batchSelected: r.batchSelected === 1,
+      batchSelectedUpdatedAt: r.batchSelectedUpdatedAt || '',
+      createdAt: r.createdAt || '',
+      userId: Number(r.userId),
+      visaType: r.visaType || 'Embassy',
+      applicationNo: r.applicationNo || '',
+      deletedAt: r.deletedAt || null,
+      pinned: r.pinned === 1
+    }
+  } catch {
+    return null
+  }
+}
+
+/** Publish an event after a successful DB write. Never throws. */
+function publishEvent(userId: number, realtimeEvent: StudentRealtimeEvent) {
+  try {
+    EventBus.publish(userId, realtimeEvent)
+  } catch (err: any) {
+    console.error('[Students API] EventBus publish failed:', err.message)
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const db = await getTursoClient()
   const method = event.method
   const query = getQuery(event)
+
+  // Read the originClientId header that the frontend attaches to every
+  // mutation request (used by the client to skip its own events).
+  const originClientId = (getHeader(event, 'x-client-id') || 'unknown') as string
 
   try {
     // ── Public: GET by passport (for student self-check page) ──────────────
@@ -105,10 +158,20 @@ export default defineEventHandler(async (event) => {
       // student disappears from this user's dashboard but their data is
       // still there to autofill from if the same passport is re-added later.
       const placeholders = passports.map(() => '?').join(', ')
+      const deletedAt = new Date().toISOString()
       const sql = `UPDATE students SET deletedAt = ? WHERE passport IN (${placeholders}) AND userId = ?`
-      const args = [new Date().toISOString(), ...passports, userId]
+      const args = [deletedAt, ...passports, userId]
       await db.execute({ sql, args })
       await syncStudentsCount(db, userId)
+
+      // ── Realtime: student.deleted ────────────────────────────────────────
+      publishEvent(userId, {
+        type: 'student.deleted',
+        eventId: crypto.randomUUID(),
+        updatedAt: deletedAt,
+        originClientId,
+        passports
+      })
 
       return { success: true }
     }
@@ -200,7 +263,10 @@ export default defineEventHandler(async (event) => {
         batchSelectedUpdatedAt = new Date().toISOString()
       }
 
+      const eventTimestamp = new Date().toISOString()
+
       if (!exists) {
+        // ── INSERT ───────────────────────────────────────────────────────────
         const sql = `
                     INSERT INTO students (
                         passport, fullName, birthday, studentId, status,
@@ -230,28 +296,45 @@ export default defineEventHandler(async (event) => {
           ]
         })
         await syncStudentsCount(db, userId)
+
+        // ── Realtime: student.created ────────────────────────────────────────
+        const created = await fetchStudentPayload(db, passport, userId)
+        if (created) {
+          publishEvent(userId, {
+            type: 'student.created',
+            eventId: crypto.randomUUID(),
+            updatedAt: eventTimestamp,
+            originClientId,
+            student: created
+          })
+        }
+
         setResponseStatus(event, 201)
         return { success: true, message: 'Student created successfully' }
       } else {
+        // ── UPDATE ───────────────────────────────────────────────────────────
         const updateFields: string[] = []
         const args: any[] = []
 
-        if (isRename) { updateFields.push('passport = ?'); args.push(passport) }
-        if (isRevive) { updateFields.push('deletedAt = NULL') }
-        if (fullName !== null) { updateFields.push('fullName = ?'); args.push(fullName) }
-        if (birthday !== null) { updateFields.push('birthday = ?'); args.push(birthday) }
-        if (studentId !== null) { updateFields.push('studentId = ?'); args.push(studentId) }
-        if (status !== null) { updateFields.push('status = ?'); args.push(status) }
-        if (applicationDate !== null) { updateFields.push('applicationDate = ?'); args.push(applicationDate) }
-        if (lastChecked !== null) { updateFields.push('lastChecked = ?'); args.push(lastChecked) }
-        if (rejectReason !== null) { updateFields.push('rejectReason = ?'); args.push(rejectReason) }
-        if (pdfUrl !== null) { updateFields.push('pdfUrl = ?'); args.push(pdfUrl) }
-        if (apiResponse !== null) { updateFields.push('apiResponse = ?'); args.push(apiResponse) }
-        if (batchSelected !== null) { updateFields.push('batchSelected = ?'); args.push(batchSelected) }
-        if (batchSelectedUpdatedAt !== null) { updateFields.push('batchSelectedUpdatedAt = ?'); args.push(batchSelectedUpdatedAt) }
-        if (visaType !== null) { updateFields.push('visaType = ?'); args.push(visaType) }
-        if (applicationNo !== null) { updateFields.push('applicationNo = ?'); args.push(applicationNo) }
-        if (pinned !== null) { updateFields.push('pinned = ?'); args.push(pinned) }
+        // Track which fields actually changed for the realtime event payload
+        const changedFields: Record<string, any> = {}
+
+        if (isRename) { updateFields.push('passport = ?'); args.push(passport); changedFields.passport = passport }
+        if (isRevive) { updateFields.push('deletedAt = NULL'); changedFields.deletedAt = null }
+        if (fullName !== null) { updateFields.push('fullName = ?'); args.push(fullName); changedFields.fullName = fullName }
+        if (birthday !== null) { updateFields.push('birthday = ?'); args.push(birthday); changedFields.birthday = birthday }
+        if (studentId !== null) { updateFields.push('studentId = ?'); args.push(studentId); changedFields.studentId = studentId }
+        if (status !== null) { updateFields.push('status = ?'); args.push(status); changedFields.status = status }
+        if (applicationDate !== null) { updateFields.push('applicationDate = ?'); args.push(applicationDate); changedFields.applicationDate = applicationDate }
+        if (lastChecked !== null) { updateFields.push('lastChecked = ?'); args.push(lastChecked); changedFields.lastChecked = lastChecked }
+        if (rejectReason !== null) { updateFields.push('rejectReason = ?'); args.push(rejectReason); changedFields.rejectReason = rejectReason }
+        if (pdfUrl !== null) { updateFields.push('pdfUrl = ?'); args.push(pdfUrl); changedFields.pdfUrl = pdfUrl }
+        if (apiResponse !== null) { updateFields.push('apiResponse = ?'); args.push(apiResponse); changedFields.apiResponse = apiResponse }
+        if (batchSelected !== null) { updateFields.push('batchSelected = ?'); args.push(batchSelected); changedFields.batchSelected = batchSelected === 1 }
+        if (batchSelectedUpdatedAt !== null) { updateFields.push('batchSelectedUpdatedAt = ?'); args.push(batchSelectedUpdatedAt); changedFields.batchSelectedUpdatedAt = batchSelectedUpdatedAt }
+        if (visaType !== null) { updateFields.push('visaType = ?'); args.push(visaType); changedFields.visaType = visaType }
+        if (applicationNo !== null) { updateFields.push('applicationNo = ?'); args.push(applicationNo); changedFields.applicationNo = applicationNo }
+        if (pinned !== null) { updateFields.push('pinned = ?'); args.push(pinned); changedFields.pinned = pinned === 1 }
 
         if (updateFields.length === 0) {
           return { success: true, message: 'No fields to update' }
@@ -260,9 +343,38 @@ export default defineEventHandler(async (event) => {
         args.push(isRename ? originalPassport : passport, userId)
         const sql = `UPDATE students SET ${updateFields.join(', ')} WHERE passport = ? AND userId = ?`
         await db.execute({ sql, args })
+
         // Ordinary edits leave the count alone; a revive clears
         // deletedAt and puts the student back in the cabinet.
         if (isRevive) await syncStudentsCount(db, userId)
+
+        // ── Realtime: student.restored or student.updated ────────────────────
+        if (isRevive) {
+          // The student is coming back from soft-delete — send full object
+          const effectivePassport = isRename ? passport : (isRename ? originalPassport : passport)
+          const restored = await fetchStudentPayload(db, effectivePassport, userId)
+          if (restored) {
+            publishEvent(userId, {
+              type: 'student.restored',
+              eventId: crypto.randomUUID(),
+              updatedAt: eventTimestamp,
+              originClientId,
+              student: restored
+            })
+          }
+        } else {
+          // Regular field update — send only changed fields (efficient)
+          const effectivePassport = isRename ? passport : passport
+          publishEvent(userId, {
+            type: 'student.updated',
+            eventId: crypto.randomUUID(),
+            updatedAt: eventTimestamp,
+            originClientId,
+            passport: isRename ? originalPassport : passport,
+            changes: changedFields
+          })
+        }
+
         return { success: true, message: 'Student updated successfully' }
       }
     }

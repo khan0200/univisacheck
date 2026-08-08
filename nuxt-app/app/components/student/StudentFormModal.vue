@@ -120,6 +120,38 @@ async function handleSubmit() {
     }
 
     await save(payload)
+
+    // Immediately reflect the change in the originating browser's local store.
+    // Other browsers will receive the change via the SSE realtime channel.
+    // For edits, patch the existing student; for new students, add to top of list.
+    if (isEdit.value) {
+      const existing = studentsStore.students.find(
+        (s) => s.passport === (originalPassport.value || passport)
+      )
+      if (existing) {
+        studentsStore.upsertLocal({
+          ...existing,
+          passport,
+          fullName,
+          birthday,
+          studentId: form.studentId.trim(),
+          visaType: form.visaType,
+          applicationNo: form.applicationNo.trim().toUpperCase()
+        })
+      }
+    } else {
+      studentsStore.upsertLocal({
+        passport,
+        fullName,
+        birthday,
+        studentId: form.studentId.trim(),
+        visaType: form.visaType,
+        applicationNo: form.applicationNo.trim().toUpperCase(),
+        status: 'Pending',
+        lastChecked: payload.lastChecked
+      })
+    }
+
     toast.add({ title: isEdit.value ? 'Student updated' : 'Student added', color: 'primary', duration: 2500 })
     emit('saved')
     emit('update:open', false)

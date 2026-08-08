@@ -24,7 +24,6 @@ const toast = useToast()
 // swapping to the real content after mount.
 useAsyncData('students', () => studentsStore.loadStudents(), { server: false })
 const pending = computed(() => studentsStore.isLoading)
-const refresh = () => studentsStore.loadStudents()
 
 const formModalOpen = ref(false)
 const editingStudent = ref<Student | null>(null)
@@ -193,9 +192,10 @@ function setFilter(filter: StatusFilter) {
 
 <template>
   <div class="space-y-5 min-w-0">
-    <div class="flex flex-col lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center gap-3 min-w-0">
-      <div class="flex flex-wrap lg:flex-nowrap items-center gap-3 w-full lg:w-auto justify-self-start">
-        <UButton icon="i-lucide-plus" color="primary" size="lg" class="h-11 justify-center grow lg:grow-0" @click="openAddModal">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
+      <!-- Action buttons — full width row on mobile -->
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <UButton icon="i-lucide-plus" color="primary" size="lg" class="h-11 justify-center flex-1 sm:flex-none" @click="openAddModal">
           Add Student
         </UButton>
         <UButton
@@ -204,7 +204,7 @@ function setFilter(filter: StatusFilter) {
           color="error"
           variant="soft"
           size="lg"
-          class="h-11 shrink-0"
+          class="h-11 justify-center flex-1 sm:flex-none"
           title="Bulk delete"
           @click="bulkDeleteModalOpen = true"
         >
@@ -215,7 +215,7 @@ function setFilter(filter: StatusFilter) {
           v-if="selectedApplicationStudents.length > 0"
           color="primary"
           size="lg"
-          class="h-11 justify-center"
+          class="h-11 justify-center flex-1 sm:flex-none"
           :loading="batchChecking"
           @click="handleBatchCheck"
         >
@@ -223,15 +223,8 @@ function setFilter(filter: StatusFilter) {
         </UiLoadingButton>
       </div>
 
-      <div class="shrink-0 justify-self-start lg:justify-self-center">
-        <StudentVisaTypeFilterTabs
-          :model-value="studentsStore.visaTypeFilter"
-          :counts="studentsStore.visaTypeCounts"
-          @update:model-value="studentsStore.setVisaTypeFilter"
-        />
-      </div>
-
-      <div class="shrink-0 justify-self-start lg:justify-self-end">
+      <!-- Status tabs — full width on mobile (already grid-cols-4 w-full inside) -->
+      <div class="w-full sm:w-auto shrink-0">
         <StudentStatusTabs :model-value="studentsStore.currentFilter" :counts="studentsStore.counts" @update:model-value="setFilter" />
       </div>
     </div>
@@ -269,7 +262,6 @@ function setFilter(filter: StatusFilter) {
     <StudentFormModal
       v-model:open="formModalOpen"
       :editing-student="editingStudent"
-      @saved="refresh"
     />
     <StudentDetailsModal
       v-model:open="detailsModalOpen"

@@ -51,6 +51,8 @@ export interface Student {
   applicationNo?: string
   deletedAt?: string | null
   pinned?: boolean
+  /** Internal: tracks the updatedAt of the last applied realtime event for ordering/dedup. */
+  _realtimeUpdatedAt?: string
 }
 
 export interface StudentFormInput {

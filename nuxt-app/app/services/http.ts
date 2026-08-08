@@ -8,6 +8,9 @@
  * login/signup themselves return 401 for wrong credentials with no token
  * attached, which must surface as an inline form error, not a session-expiry
  * redirect loop back to the same page.
+ *
+ * Also attaches X-Client-Id to every mutation request so the SSE endpoint
+ * can echo it back and the originating browser can skip its own event.
  */
 export function useApiFetch() {
   const config = useRuntimeConfig()
@@ -18,6 +21,19 @@ export function useApiFetch() {
     const hadToken = Boolean(authStore.token)
     if (hadToken) {
       headers.set('Authorization', `Bearer ${authStore.token}`)
+    }
+
+    // Attach the realtime client ID to all mutation requests so the server
+    // can include it in the broadcasted event. The originating browser uses
+    // this to skip its own events (already applied optimistically).
+    const method = (options.method || 'GET').toUpperCase()
+    if (method !== 'GET' && import.meta.client) {
+      try {
+        const { getRealtimeClientId } = await import('~/composables/useRealtimeSync')
+        headers.set('X-Client-Id', getRealtimeClientId())
+      } catch {
+        // composable not yet loaded — safe to skip
+      }
     }
 
     try {
