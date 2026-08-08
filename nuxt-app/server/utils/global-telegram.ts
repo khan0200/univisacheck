@@ -49,9 +49,7 @@ function buildTelegramMessage(payload: GlobalTelegramPayload, lang: string): str
   const dateStr = formatDateUz(payload.applicationDate)
   const cleanedTypes = payload.visaTypes.map(t => cleanVisaTypeCode(t)).filter(Boolean)
   const isEn = lang === 'en'
-  const typeLabel = isEn
-    ? (cleanedTypes.length > 1 ? 'Visa types' : 'Visa type')
-    : (cleanedTypes.length > 1 ? 'Viza turlari' : 'Viza turi')
+  const typeLabel = isEn ? 'Visa type' : 'Viza turi'
   const typeValue = cleanedTypes.join(', ')
 
   return [

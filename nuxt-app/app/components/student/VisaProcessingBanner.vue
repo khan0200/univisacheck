@@ -20,7 +20,7 @@
       <span
         v-if="visaTypesLabel"
         class="vpn-banner__badge shrink-0"
-        :title="`Viza turlari: ${activeNotification.visaTypes.join(', ')}`"
+        :title="`Viza turi: ${activeNotification.visaTypes.join(', ')}`"
       >
         {{ visaTypesLabel }}
       </span>
