@@ -10,10 +10,27 @@ import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
 import { sendTelegramNotification } from '../../utils/telegram-notifier'
 
-// Helper to determine if status is application status (matching utils/visa-status.ts)
-function isApplicationStatus(status: string): boolean {
-  const s = String(status || '').toLowerCase()
-  return s.includes('received') || s.includes('under review') || s.includes('pending')
+interface WorkerTask {
+  id: string
+  passport: string
+  userId: number
+  jobId: string
+  createdAt: string
+}
+
+interface WorkerStudent {
+  status?: string
+  fullName?: string
+  fullname?: string
+  birthday?: string
+  visaType?: string
+  visa_type?: string
+  applicationNo?: string
+  application_no?: string
+  telegram_user_id?: number | null
+  studentId?: string
+  student_id?: string
+  applicationDate?: string
 }
 
 // Normalize status matching utils/visa-status.ts
@@ -42,31 +59,31 @@ export default defineEventHandler(async (event) => {
   // 1. Recover stale tasks (locked > 5 minutes)
   try {
     const recoveredRes = await db.execute({
-      sql: `SELECT id, attempts, jobId FROM visa_check_tasks
+      sql: `SELECT id, attempts FROM visa_check_tasks
             WHERE status = 'processing' AND lockedAt < datetime('now', '-5 minutes')`
     })
 
     for (const row of recoveredRes.rows) {
       const taskId = String(row.id)
       const attempts = Number(row.attempts)
-      const jobId = String(row.jobId)
 
       if (attempts >= 3) {
         console.log(`[Queue Worker] Failing task ${taskId} (attempts = ${attempts}) due to expired lease.`)
         await db.execute({
-          sql: "UPDATE visa_check_tasks SET status = 'failed', error = 'Lease expired too many times', updatedAt = datetime('now') WHERE id = ?",
+          sql: 'UPDATE visa_check_tasks SET status = \'failed\', error = \'Lease expired too many times\', updatedAt = datetime(\'now\') WHERE id = ?',
           args: [taskId]
         })
       } else {
         console.log(`[Queue Worker] Re-queueing stale task ${taskId} (attempts = ${attempts}).`)
         await db.execute({
-          sql: "UPDATE visa_check_tasks SET status = 'queued', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime('now') WHERE id = ?",
+          sql: 'UPDATE visa_check_tasks SET status = \'queued\', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime(\'now\') WHERE id = ?',
           args: [taskId]
         })
       }
     }
-  } catch (err: any) {
-    console.error('[Queue Worker] Error recovering stale tasks:', err.message)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Queue Worker] Error recovering stale tasks:', msg)
   }
 
   // 2. Load max concurrency limit
@@ -75,7 +92,7 @@ export default defineEventHandler(async (event) => {
   // 3. Process loop (up to 40 seconds to prevent Vercel execution timeouts)
   let tasksProcessed = 0
   while (Date.now() - workerStartTime < 40000) {
-    let claimedTask: any = null
+    let claimedTask: WorkerTask | null = null
 
     // Atomically claim the next task using a Turso write transaction
     const tx = await db.transaction('write')
@@ -141,14 +158,19 @@ export default defineEventHandler(async (event) => {
 
       // Update overall job status if it was queued
       await tx.execute({
-        sql: "UPDATE visa_check_jobs SET status = 'processing', updatedAt = datetime('now') WHERE id = ? AND status = 'queued'",
+        sql: 'UPDATE visa_check_jobs SET status = \'processing\', updatedAt = datetime(\'now\') WHERE id = ? AND status = \'queued\'',
         args: [claimedTask.jobId]
       })
 
       await tx.commit()
-    } catch (err: any) {
-      try { await tx.rollback(); } catch {}
-      console.error('[Queue Worker] Claim transaction failed:', err.message)
+    } catch (err) {
+      try {
+        await tx.rollback()
+      } catch {
+        // Rollback failed/ignored
+      }
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[Queue Worker] Claim transaction failed:', msg)
       break
     }
 
@@ -158,10 +180,8 @@ export default defineEventHandler(async (event) => {
     console.log(`[Queue Worker] Claimed task ${claimedTask.id} for passport ${claimedTask.passport}`)
     tasksProcessed++
 
-    let oldStatus = 'Pending'
     let success = false
     let errorMsg = ''
-    let statusChanged = false
     let newStatus = 'Pending'
 
     try {
@@ -175,8 +195,8 @@ export default defineEventHandler(async (event) => {
         throw new Error('Student record no longer exists or was deleted.')
       }
 
-      const student = studentRes.rows[0] as any
-      oldStatus = student.status || 'Pending'
+      const student = studentRes.rows[0] as unknown as WorkerStudent
+      const oldStatus = student.status || 'Pending'
 
       // DUPLICATE/RECENT CHECK OPTIMIZATION
       // If the student has already been checked after this task was queued, skip the external check.
@@ -196,7 +216,7 @@ export default defineEventHandler(async (event) => {
 
         const nowIso = new Date().toISOString()
         newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
-        statusChanged = !isSameStatus(oldStatus, newStatus)
+        const statusChanged = !isSameStatus(oldStatus, newStatus)
 
         // Consolidate updates into ONE single database write
         await db.execute({
@@ -250,22 +270,23 @@ export default defineEventHandler(async (event) => {
             invitingCompany: liveResult.invitingCompany || '',
             entryDate: liveResult.entryDate || '',
             pdfUrl: liveResult.pdfUrl || ''
-          }).catch((tErr) => {
+          }).catch((tErr: any) => {
             console.error('[Queue Worker Telegram Notifier] Error:', tErr.message)
           })
         }
 
         success = true
       }
-    } catch (err: any) {
-      console.error(`[Queue Worker] Task ${claimedTask.id} failed:`, err.message)
-      errorMsg = err.message
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`[Queue Worker] Task ${claimedTask.id} failed:`, msg)
+      errorMsg = msg
     }
 
     // 4. Update task state
     if (success) {
       await db.execute({
-        sql: "UPDATE visa_check_tasks SET status = 'completed', completedAt = datetime('now'), error = NULL, updatedAt = datetime('now') WHERE id = ?",
+        sql: 'UPDATE visa_check_tasks SET status = \'completed\', completedAt = datetime(\'now\'), error = NULL, updatedAt = datetime(\'now\') WHERE id = ?',
         args: [claimedTask.id]
       })
 
@@ -300,7 +321,7 @@ export default defineEventHandler(async (event) => {
         })
       } else {
         await db.execute({
-          sql: "UPDATE visa_check_tasks SET status = 'failed', error = ?, completedAt = datetime('now'), updatedAt = datetime('now') WHERE id = ?",
+          sql: 'UPDATE visa_check_tasks SET status = \'failed\', error = ?, completedAt = datetime(\'now\'), updatedAt = datetime(\'now\') WHERE id = ?',
           args: [errorMsg || 'Failed after max retries', claimedTask.id]
         })
       }
@@ -337,7 +358,7 @@ export default defineEventHandler(async (event) => {
     if (isJobDone) {
       jobStatus = counts.completed === total ? 'completed' : (counts.cancelled || 0) > 0 ? 'cancelled' : 'failed'
       await db.execute({
-        sql: "UPDATE visa_check_jobs SET status = ?, updatedAt = datetime('now') WHERE id = ?",
+        sql: 'UPDATE visa_check_jobs SET status = ?, updatedAt = datetime(\'now\') WHERE id = ?',
         args: [jobStatus, claimedTask.jobId]
       })
     }
@@ -348,7 +369,7 @@ export default defineEventHandler(async (event) => {
       jobId: claimedTask.jobId,
       total,
       status: jobStatus,
-      progress: counts
+      progress: counts as any
     })
 
     await publishRealtime(claimedTask.userId, {
@@ -378,10 +399,13 @@ export default defineEventHandler(async (event) => {
       $fetch(workerUrl, {
         method: 'POST',
         timeout: 1000
-      }).catch(() => {})
+      }).catch(() => {
+        // Ignored chain failure
+      })
     }
-  } catch (err: any) {
-    console.error('[Queue Worker] Chaining check failed:', err.message)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Queue Worker] Chaining check failed:', msg)
   }
 
   console.log(`[Queue Worker] Execution completed for worker: ${workerId}. Tasks processed: ${tasksProcessed}`)

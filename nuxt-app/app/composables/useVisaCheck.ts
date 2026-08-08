@@ -8,15 +8,25 @@
 import type { Student } from '~/types/student'
 import { normalizeStatusForComparison } from '~/utils/visa-status'
 
+interface JobCreationResponse {
+  jobId: string
+  status: string
+  total: number
+}
+
+interface JobCancelResponse {
+  success: boolean
+}
+
 export function useVisaCheck() {
   const { apiFetch } = useApiFetch()
   const studentsStore = useStudentsStore()
   const checkingPassports = computed(() => studentsStore.checkingPassports)
 
   // Creates a job for the specified passports and updates studentsStore.activeJob
-  async function createVisaCheckJob(passports: string[]): Promise<any> {
+  async function createVisaCheckJob(passports: string[]): Promise<JobCreationResponse> {
     try {
-      const response = await apiFetch<any>('/api/jobs', {
+      const response = await apiFetch<JobCreationResponse>('/api/jobs', {
         method: 'POST',
         body: { passports }
       })
@@ -42,8 +52,9 @@ export function useVisaCheck() {
       studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
 
       return response
-    } catch (err: any) {
-      console.error('[Visa Check Queue] Failed to create job:', err.message)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[Visa Check Queue] Failed to create job:', msg)
       throw err
     }
   }
@@ -51,14 +62,15 @@ export function useVisaCheck() {
   // Cancel job
   async function cancelJob(jobId: string): Promise<void> {
     try {
-      await apiFetch<any>('/api/jobs/cancel', {
+      await apiFetch<JobCancelResponse>('/api/jobs/cancel', {
         method: 'POST',
         body: { jobId }
       })
       studentsStore.activeJob = null
       studentsStore.checkingPassports = new Set()
-    } catch (err: any) {
-      console.error('[Visa Check Queue] Failed to cancel job:', err.message)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[Visa Check Queue] Failed to cancel job:', msg)
       throw err
     }
   }

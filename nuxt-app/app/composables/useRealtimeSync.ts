@@ -88,8 +88,9 @@ export function useRealtimeSync() {
     let config: RealtimeConfig = { provider: 'sse' }
     try {
       config = await $fetch<RealtimeConfig>('/api/realtime/config')
-    } catch (err: any) {
-      console.error('[Realtime Sync] Failed to fetch realtime config, falling back to SSE:', err.message)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[Realtime Sync] Failed to fetch realtime config, falling back to SSE:', msg)
     }
 
     const clientId = getClientId()
@@ -179,7 +180,7 @@ export function useRealtimeSync() {
             studentsStore.checkingPassports = new Set()
             studentsStore.loadStudents().catch(() => {})
           } else {
-            studentsStore.activeJob = ev as any
+            studentsStore.activeJob = ev as unknown as typeof studentsStore.activeJob
           }
         })
 
@@ -197,8 +198,9 @@ export function useRealtimeSync() {
             }
           }
         })
-      } catch (err: any) {
-        console.error('[Realtime Sync] Pusher setup failed, falling back to SSE:', err.message)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        console.error('[Realtime Sync] Pusher setup failed, falling back to SSE:', msg)
         connectSSE(clientId)
       }
     } else {
@@ -294,7 +296,7 @@ export function useRealtimeSync() {
           studentsStore.checkingPassports = new Set()
           studentsStore.loadStudents().catch(() => {})
         } else {
-          studentsStore.activeJob = ev as any
+          studentsStore.activeJob = ev as unknown as typeof studentsStore.activeJob
         }
       } catch {
         // Parse error ignored
