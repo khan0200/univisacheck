@@ -58,7 +58,7 @@ export function useVisaCheck() {
   }
 
   async function checkMany(list: Student[]) {
-    const changes: { student: Student; oldStatus: string; newStatus: string }[] = []
+    const changes: { student: Student, oldStatus: string, newStatus: string }[] = []
     const promises: Promise<void>[] = []
 
     for (let i = 0; i < list.length; i++) {
