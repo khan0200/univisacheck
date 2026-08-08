@@ -26,9 +26,15 @@ export const useStudentsStore = defineStore('students', () => {
   const activeJob = ref<JobProgress | null>(null)
   const checkingPassports = ref<Set<string>>(new Set())
 
+  // Helper to precompute search index
+  function addSearchNormalized(s: Student) {
+    s._searchNormalized = `${s.fullName || ''} ${s.passport || ''} ${s.studentId || ''} ${s.visaType || ''} ${s.applicationNo || ''}`.toLowerCase()
+  }
+
   const counts = computed(() => {
     const result: Record<StatusFilter, number> = { pending: 0, application: 0, cancelled: 0, approved: 0 }
-    for (const student of matchingSearch.value) {
+    const list = matchingSearch.value
+    for (const student of list) {
       result[bucketForStatus(student.status)]++
     }
     return result
@@ -36,16 +42,14 @@ export const useStudentsStore = defineStore('students', () => {
 
   const visaTypeCounts = computed(() => {
     const query = searchQuery.value.toLowerCase().trim()
-    const result: Record<VisaTypeFilter, number> = { all: 0, Embassy: 0, 'E-Visa': 0, Regional: 0 }
-    for (const s of students.value) {
+    const result: Record<VisaTypeFilter, number> = { 'all': 0, 'Embassy': 0, 'E-Visa': 0, 'Regional': 0 }
+    const list = students.value
+    for (const s of list) {
       if (query) {
-        const matchesQuery =
-          (s.fullName || '').toLowerCase().includes(query) ||
-          (s.passport || '').toLowerCase().includes(query) ||
-          (s.studentId || '').toLowerCase().includes(query) ||
-          (s.visaType || '').toLowerCase().includes(query) ||
-          (s.applicationNo || '').toLowerCase().includes(query)
-        if (!matchesQuery) continue
+        if (!s._searchNormalized) {
+          addSearchNormalized(s)
+        }
+        if (!s._searchNormalized!.includes(query)) continue
       }
       result.all++
       const type = s.visaType || 'Embassy'
@@ -58,35 +62,36 @@ export const useStudentsStore = defineStore('students', () => {
 
   const matchingSearch = computed(() => {
     const query = searchQuery.value.toLowerCase().trim()
-    return students.value.filter((s) => {
+    const filterType = visaTypeFilter.value
+    const hasTypeFilter = filterType !== 'all'
+    const list = students.value
+
+    return list.filter((s) => {
       const type = s.visaType || 'Embassy'
-      if (visaTypeFilter.value !== 'all' && type !== visaTypeFilter.value) return false
+      if (hasTypeFilter && type !== filterType) return false
       if (!query) return true
-      return (
-        (s.fullName || '').toLowerCase().includes(query) ||
-        (s.passport || '').toLowerCase().includes(query) ||
-        (s.studentId || '').toLowerCase().includes(query) ||
-        (s.visaType || '').toLowerCase().includes(query) ||
-        (s.applicationNo || '').toLowerCase().includes(query)
-      )
+      if (!s._searchNormalized) {
+        addSearchNormalized(s)
+      }
+      return s._searchNormalized!.includes(query)
     })
   })
 
   const filteredStudents = computed(() => {
-    const filtered = matchingSearch.value.filter((s) => bucketForStatus(s.status) === currentFilter.value)
+    const filterVal = currentFilter.value
+    const filtered = matchingSearch.value.filter(s => bucketForStatus(s.status) === filterVal)
+
     return [...filtered].sort((a, b) => {
-      // If we are in the application tab, Under Review always comes first
-      if (currentFilter.value === 'application') {
+      if (filterVal === 'application') {
         const isUnderReviewA = displayStatusText(a.status) === 'Under Review'
         const isUnderReviewB = displayStatusText(b.status) === 'Under Review'
         if (isUnderReviewA && !isUnderReviewB) return -1
         if (!isUnderReviewA && isUnderReviewB) return 1
       }
 
-      // Pinned students come next
       if (a.pinned && !b.pinned) return -1
       if (!a.pinned && b.pinned) return 1
-      
+
       const dateA = a.applicationDate || '9999-99-99'
       const dateB = b.applicationDate || '9999-99-99'
       return dateA > dateB ? 1 : dateA < dateB ? -1 : 0
@@ -94,31 +99,45 @@ export const useStudentsStore = defineStore('students', () => {
   })
 
   const { list: listStudents } = useStudentsService()
+  let activeLoadPromise: Promise<Student[]> | null = null
 
   async function loadActiveJob() {
     try {
       const { apiFetch } = useApiFetch()
-      const job = await apiFetch<any>('/api/jobs/active')
+      const job = await apiFetch<JobProgress | null>('/api/jobs/active')
       activeJob.value = job
-    } catch (err: any) {
-      console.error('[Students Store] Failed to load active job:', err.message)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[Students Store] Failed to load active job:', msg)
     }
   }
 
   async function loadStudents() {
+    if (activeLoadPromise) {
+      await activeLoadPromise
+      return
+    }
     isLoading.value = true
     try {
-      students.value = await listStudents()
+      activeLoadPromise = listStudents()
+      const list = await activeLoadPromise
+      for (const s of list) {
+        addSearchNormalized(s)
+      }
+      students.value = list
       await loadActiveJob()
     } finally {
       isLoading.value = false
+      activeLoadPromise = null
     }
   }
 
   function setFilter(filter: StatusFilter) {
     currentFilter.value = filter
     for (const s of students.value) {
-      if (bucketForStatus(s.status) !== 'application') s.batchSelected = false
+      if (s.batchSelected && bucketForStatus(s.status) !== 'application') {
+        s.batchSelected = false
+      }
     }
   }
 
@@ -127,42 +146,36 @@ export const useStudentsStore = defineStore('students', () => {
   }
 
   function upsertLocal(student: Student) {
-    const index = students.value.findIndex((s) => s.passport === student.passport)
+    addSearchNormalized(student)
+    const index = students.value.findIndex(s => s.passport === student.passport)
     if (index !== -1) students.value[index] = student
     else students.value.push(student)
   }
 
   function removeLocal(passports: string[]) {
     const set = new Set(passports)
-    students.value = students.value.filter((s) => !set.has(s.passport))
+    students.value = students.value.filter(s => !set.has(s.passport))
   }
 
-  /**
-   * Surgically apply `changes` to the student identified by `passport`.
-   * Used by useRealtimeSync to patch only the fields that changed, without
-   * replacing the whole object or re-fetching the entire list.
-   *
-   * Returns true if the student was found and updated, false otherwise.
-   * If the incoming `updatedAt` is older than a previously-applied event
-   * for this student (race-condition), the patch is skipped.
-   */
   function patchStudent(passport: string, changes: Partial<Student>, updatedAt?: string): boolean {
-    const index = students.value.findIndex((s) => s.passport === passport)
+    const index = students.value.findIndex(s => s.passport === passport)
     if (index === -1) return false
 
-    // Race condition guard: skip if this event is older than what we already have
     if (updatedAt && students.value[index]!._realtimeUpdatedAt) {
       if (updatedAt < students.value[index]!._realtimeUpdatedAt!) return false
     }
 
-    // Apply changes field-by-field so Vue tracks only the mutated keys
     const target = students.value[index]!
     for (const key of Object.keys(changes) as (keyof Student)[]) {
-      (target as any)[key] = (changes as any)[key]
+      const val = changes[key]
+      if (val !== undefined) {
+        (target as Record<string, unknown>)[key as string] = val
+      }
     }
     if (updatedAt) {
-      (target as any)._realtimeUpdatedAt = updatedAt
+      target._realtimeUpdatedAt = updatedAt
     }
+    addSearchNormalized(target)
     return true
   }
 

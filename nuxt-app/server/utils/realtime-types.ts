@@ -59,8 +59,18 @@ export interface StudentRestoredEvent extends BaseEvent {
   student: StudentPayload
 }
 
-export type StudentRealtimeEvent =
-  | StudentCreatedEvent
-  | StudentUpdatedEvent
-  | StudentDeletedEvent
-  | StudentRestoredEvent
+export interface VisaProcessingStartedEvent {
+  type: 'visa_processing_started'
+  notificationId: number
+  applicationDate: string
+  visaTypes: string[]
+  message: string
+  createdAt: string
+}
+
+export type StudentRealtimeEvent
+  = | StudentCreatedEvent
+    | StudentUpdatedEvent
+    | StudentDeletedEvent
+    | StudentRestoredEvent
+    | VisaProcessingStartedEvent

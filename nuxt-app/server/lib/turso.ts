@@ -19,6 +19,9 @@ import {
   CREATE_TASKS_PASSPORT_INDEX,
   CREATE_TASKS_JOBID_INDEX,
   CREATE_VISA_SESSIONS_TABLE,
+  CREATE_VISA_PROCESSING_NOTIFICATIONS_TABLE,
+  CREATE_VPN_DATE_INDEX,
+  CREATE_TELEGRAM_NOTIFICATION_MESSAGES_TABLE,
   USER_COLUMNS,
   STUDENT_COLUMNS
 } from '../database/schema'
@@ -37,10 +40,13 @@ export async function initDb() {
     await db.execute(CREATE_TASKS_PASSPORT_INDEX)
     await db.execute(CREATE_TASKS_JOBID_INDEX)
     await db.execute(CREATE_VISA_SESSIONS_TABLE)
+    await db.execute(CREATE_VISA_PROCESSING_NOTIFICATIONS_TABLE)
+    await db.execute(CREATE_VPN_DATE_INDEX)
+    await db.execute(CREATE_TELEGRAM_NOTIFICATION_MESSAGES_TABLE)
 
     // 2. Add columns to users table
     const userColsInfo = await db.execute('PRAGMA table_info(users)')
-    const existingUserCols = userColsInfo.rows.map((r: any) => String(r.name).toLowerCase())
+    const existingUserCols = userColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
     for (const col of USER_COLUMNS) {
       if (!existingUserCols.includes(col.name.toLowerCase())) {
         console.log(`[Turso] Altering users: adding column ${col.name} (${col.type})`)
@@ -50,7 +56,7 @@ export async function initDb() {
 
     // 3. Add columns to students table
     const studentColsInfo = await db.execute('PRAGMA table_info(students)')
-    const existingStudentCols = studentColsInfo.rows.map((r: any) => String(r.name).toLowerCase())
+    const existingStudentCols = studentColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
     for (const col of STUDENT_COLUMNS) {
       if (!existingStudentCols.includes(col.name.toLowerCase())) {
         console.log(`[Turso] Altering students: adding column ${col.name} (${col.type})`)
@@ -63,7 +69,7 @@ export async function initDb() {
 
     // 5. Add lang column to cabinet_subscribers (language preference per subscriber)
     const csColsInfo = await db.execute('PRAGMA table_info(cabinet_subscribers)')
-    const existingCsCols = csColsInfo.rows.map((r: any) => String(r.name).toLowerCase())
+    const existingCsCols = csColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
     if (!existingCsCols.includes('lang')) {
       console.log('[Turso] Altering cabinet_subscribers: adding column lang TEXT DEFAULT \'uz\'')
       await db.execute('ALTER TABLE cabinet_subscribers ADD COLUMN lang TEXT DEFAULT \'uz\'')
@@ -73,8 +79,9 @@ export async function initDb() {
     await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')
 
     console.log('[Turso] Database schema and migrations completed successfully.')
-  } catch (err: any) {
-    console.error('[Turso] Database initialization error:', err.message)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Turso] Database initialization error:', msg)
     throw err
   }
 }

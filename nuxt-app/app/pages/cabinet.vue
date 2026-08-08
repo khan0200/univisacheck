@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Student, StatusFilter } from '~/types/student'
-import { isApplicationStatus, displayStatusText, bucketForStatus } from '~/utils/visa-status'
+import { isApplicationStatus } from '~/utils/visa-status'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -40,9 +40,22 @@ function openEditModal(student: Student) {
   formModalOpen.value = true
 }
 
-function openDetails(student: Student) {
+async function openDetails(student: Student) {
   detailsStudent.value = student
   detailsModalOpen.value = true
+
+  try {
+    const { apiFetch } = useApiFetch()
+    const rows = await apiFetch<Student[]>(`/api/students?passport=${encodeURIComponent(student.passport)}`)
+    const fullStudent = rows?.[0]
+    if (fullStudent && detailsStudent.value?.passport === student.passport) {
+      detailsStudent.value.apiResponse = fullStudent.apiResponse
+      studentsStore.patchStudent(student.passport, { apiResponse: fullStudent.apiResponse })
+    }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Cabinet] Failed to lazy-load student details:', msg)
+  }
 }
 
 async function handleDelete(student: Student) {
@@ -55,21 +68,6 @@ async function handleDelete(student: Student) {
   } catch {
     toast.add({ title: 'Failed to delete student.', color: 'error', icon: 'i-lucide-alert-circle', duration: 2500 })
   }
-}
-
-function statusToastColor(status: string): 'primary' | 'secondary' | 'error' {
-  const bucket = bucketForStatus(status)
-  if (bucket === 'approved') return 'primary' // Dark Green
-  if (bucket === 'cancelled') return 'error'   // Red
-  return 'secondary' // Gold for received, under review, pending
-}
-
-function statusToastIcon(status: string): string {
-  const bucket = bucketForStatus(status)
-  if (bucket === 'approved') return 'i-lucide-check-circle-2'
-  if (bucket === 'cancelled') return 'i-lucide-x-circle'
-  if (bucket === 'application') return 'i-lucide-clock'
-  return 'i-lucide-info'
 }
 
 async function handleRefresh(student: Student) {
@@ -130,7 +128,7 @@ async function handleTogglePin(student: Student) {
 
 const selectedApplicationStudents = computed(() =>
   studentsStore.currentFilter === 'application'
-    ? studentsStore.filteredStudents.filter((s) => s.batchSelected && isApplicationStatus(s.status))
+    ? studentsStore.filteredStudents.filter(s => s.batchSelected && isApplicationStatus(s.status))
     : []
 )
 
@@ -181,7 +179,13 @@ function setFilter(filter: StatusFilter) {
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
       <!-- Action buttons — full width row on mobile -->
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <UButton icon="i-lucide-plus" color="primary" size="lg" class="h-11 justify-center flex-1 sm:flex-none" @click="openAddModal">
+        <UButton
+          icon="i-lucide-plus"
+          color="primary"
+          size="lg"
+          class="h-11 justify-center flex-1 sm:flex-none"
+          @click="openAddModal"
+        >
           Add Student
         </UButton>
         <UButton
@@ -209,9 +213,16 @@ function setFilter(filter: StatusFilter) {
         </UiLoadingButton>
       </div>
 
+      <!-- Single-line announcement inside cabinet toolbar -->
+      <StudentVisaProcessingBanner />
+
       <!-- Status tabs — full width on mobile (already grid-cols-4 w-full inside) -->
       <div class="w-full sm:w-auto shrink-0">
-        <StudentStatusTabs :model-value="studentsStore.currentFilter" :counts="studentsStore.counts" @update:model-value="setFilter" />
+        <StudentStatusTabs
+          :model-value="studentsStore.currentFilter"
+          :counts="studentsStore.counts"
+          @update:model-value="setFilter"
+        />
       </div>
     </div>
 
@@ -222,7 +233,10 @@ function setFilter(filter: StatusFilter) {
         class="bg-primary-900/5 dark:bg-white/5 border border-primary-900/10 dark:border-white/10 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div class="flex items-center gap-3">
-          <UIcon name="i-lucide-loader-2" class="animate-spin size-5 text-primary-600 dark:text-primary-400 shrink-0" />
+          <UIcon
+            name="i-lucide-loader-2"
+            class="animate-spin size-5 text-primary-600 dark:text-primary-400 shrink-0"
+          />
           <div>
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white">
               Checking visa statuses...

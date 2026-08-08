@@ -9,6 +9,7 @@ import { getTursoClient } from '../../utils/turso'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
 import { sendTelegramNotification } from '../../utils/telegram-notifier'
+import { tryCreateProcessingNotification } from '../../utils/processing-notifier'
 
 interface WorkerTask {
   id: string
@@ -274,6 +275,24 @@ export default defineEventHandler(async (event) => {
           }).catch((tErr) => {
             const errorText = tErr instanceof Error ? tErr.message : String(tErr)
             console.error('[Queue Worker Telegram Notifier] Error:', errorText)
+          })
+        }
+
+        // ── Visa processing started notification ──────────────────────────
+        // Trigger only on real UNDER REVIEW results with a known applicationDate.
+        // Fire-and-forget: does NOT block the visa check completion.
+        const isUnderReview = normalizeStatus(newStatus) === 'under review'
+        const appDate = liveResult.latestDate || student.applicationDate || ''
+        if (isUnderReview && appDate) {
+          tryCreateProcessingNotification(
+            db,
+            appDate,
+            student.visaType || student.visa_type || 'Embassy',
+            claimedTask.userId,
+            claimedTask.passport
+          ).catch((tErr) => {
+            const errText = tErr instanceof Error ? tErr.message : String(tErr)
+            console.error('[Queue Worker ProcessingNotifier] Error:', errText)
           })
         }
 

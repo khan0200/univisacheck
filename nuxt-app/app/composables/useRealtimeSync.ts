@@ -38,6 +38,12 @@ interface RealtimeEvent {
   result?: {
     status: string
   }
+  // visa_processing_started fields
+  notificationId?: number
+  applicationDate?: string
+  visaTypes?: string[]
+  message?: string
+  createdAt?: string
 }
 
 // Global singletons to ensure only one connection exists per dashboard session
@@ -198,6 +204,17 @@ export function useRealtimeSync() {
             }
           }
         })
+
+        // Bind global visa_processing_started event
+        channel.bind('visa_processing_started', (ev: RealtimeEvent) => {
+          useProcessingNotifications().add({
+            applicationDate: ev.applicationDate,
+            notificationId: ev.notificationId,
+            visaTypes: ev.visaTypes,
+            message: ev.message,
+            createdAt: ev.createdAt
+          })
+        })
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         console.error('[Realtime Sync] Pusher setup failed, falling back to SSE:', msg)
@@ -317,6 +334,16 @@ export function useRealtimeSync() {
             student.lastChecked = new Date().toISOString()
           }
         }
+      } catch {
+        // Parse error ignored
+      }
+    })
+
+    // Bind global visa_processing_started event
+    source.addEventListener('visa_processing_started', (e: MessageEvent) => {
+      try {
+        const ev = JSON.parse(e.data)
+        useProcessingNotifications().add(ev)
       } catch {
         // Parse error ignored
       }

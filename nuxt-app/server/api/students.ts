@@ -140,7 +140,13 @@ export default defineEventHandler(async (event) => {
         return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1, pinned: r.pinned === 1 }))
       } else {
         const result = await db.execute({
-          sql: 'SELECT * FROM students WHERE userId = ? AND deletedAt IS NULL ORDER BY createdAt DESC',
+          sql: `SELECT 
+                  passport, fullName, birthday, studentId, status,
+                  applicationDate, lastChecked, rejectReason, pdfUrl,
+                  batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned
+                FROM students 
+                WHERE userId = ? AND deletedAt IS NULL 
+                ORDER BY createdAt DESC`,
           args: [userId]
         })
         return result.rows.map((r: any) => ({ ...r, batchSelected: r.batchSelected === 1, pinned: r.pinned === 1 }))

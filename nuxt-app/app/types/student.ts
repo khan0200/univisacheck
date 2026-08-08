@@ -53,6 +53,8 @@ export interface Student {
   pinned?: boolean
   /** Internal: tracks the updatedAt of the last applied realtime event for ordering/dedup. */
   _realtimeUpdatedAt?: string
+  /** Internal: cached lowercase search string to prevent string allocation during render. */
+  _searchNormalized?: string
 }
 
 export interface StudentFormInput {
