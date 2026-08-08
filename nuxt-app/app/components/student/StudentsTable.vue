@@ -8,7 +8,7 @@ import { formatCancellationReason, getCancellationReason, getStatusDate } from '
 const props = defineProps<{
   students: Student[]
   currentFilter: string
-  checkingPassports: Set<string>
+  checkingPassports: Map<string, 'queued' | 'processing'>
 }>()
 
 const emit = defineEmits<{
@@ -232,9 +232,22 @@ watch([() => props.students, () => props.currentFilter], () => {
             <span v-if="showStatusDateColumn">Status date: {{ getStatusDate(student) || '--' }}</span>
             <span
               v-else-if="checkingPassports.has(student.passport)"
-              class="inline-flex items-center gap-1"
+              class="inline-flex items-center gap-1.5 text-xs"
             >
-              <span class="h-3 w-16 rounded-full bg-neutral-200/70 dark:bg-white/10 animate-pulse" />
+              <template v-if="checkingPassports.get(student.passport) === 'processing'">
+                <UIcon
+                  name="i-lucide-loader-2"
+                  class="animate-spin size-3.5 text-primary-600 dark:text-primary-400 shrink-0"
+                />
+                <span class="text-primary-600 dark:text-primary-400 font-medium">Checking...</span>
+              </template>
+              <template v-else>
+                <UIcon
+                  name="i-lucide-clock"
+                  class="size-3.5 text-neutral-500 dark:text-neutral-400 shrink-0"
+                />
+                <span class="text-neutral-500 dark:text-neutral-400">Queued</span>
+              </template>
             </span>
             <span v-else>Checked: {{ formatTimestampCompact(student.lastChecked) }}</span>
           </div>
@@ -433,9 +446,22 @@ watch([() => props.students, () => props.currentFilter], () => {
               >
                 <span
                   v-if="checkingPassports.has(student.passport)"
-                  class="inline-flex items-center gap-1"
+                  class="inline-flex items-center gap-1.5 text-xs"
                 >
-                  <span class="h-3 w-16 rounded-full bg-neutral-200/70 dark:bg-white/10 animate-pulse" />
+                  <template v-if="checkingPassports.get(student.passport) === 'processing'">
+                    <UIcon
+                      name="i-lucide-loader-2"
+                      class="animate-spin size-3.5 text-primary-600 dark:text-primary-400 shrink-0"
+                    />
+                    <span class="text-primary-600 dark:text-primary-400 font-medium">Checking...</span>
+                  </template>
+                  <template v-else>
+                    <UIcon
+                      name="i-lucide-clock"
+                      class="size-3.5 text-neutral-500 dark:text-neutral-400 shrink-0"
+                    />
+                    <span class="text-neutral-500 dark:text-neutral-400">Queued</span>
+                  </template>
                 </span>
                 <span v-else>{{ formatTimestampCompact(student.lastChecked) }}</span>
               </td>

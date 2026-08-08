@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     sql: `SELECT passport FROM students WHERE userId = ? AND deletedAt IS NULL AND passport IN (${placeholders})`,
     args: [userId, ...passports]
   })
-  const ownedPassports = ownedRes.rows.map((r: any) => String(r.passport))
+  const ownedPassports = ownedRes.rows.map((r: Record<string, unknown>) => String(r.passport))
 
   if (ownedPassports.length === 0) {
     apiError(403, 'Forbidden: You do not own any of the requested student records.')
@@ -45,11 +45,12 @@ export default defineEventHandler(async (event) => {
   const jobId = crypto.randomUUID()
   const now = new Date().toISOString()
 
-  // 5. Insert Job and Tasks inside a transaction
-  const tx = await db.transaction('write')
+  // 5. Insert Job and Tasks inside a batch transaction
   try {
+    const statements: { sql: string, args: (string | number | null)[] }[] = []
+
     // Insert Job
-    await tx.execute({
+    statements.push({
       sql: `INSERT INTO visa_check_jobs (id, userId, total, status, createdAt, updatedAt)
             VALUES (?, ?, ?, 'queued', ?, ?)`,
       args: [jobId, userId, ownedPassports.length, now, now]
@@ -58,36 +59,34 @@ export default defineEventHandler(async (event) => {
     // Insert Tasks
     for (const passport of ownedPassports) {
       const taskId = crypto.randomUUID()
-      await tx.execute({
+      statements.push({
         sql: `INSERT INTO visa_check_tasks (id, jobId, userId, passport, status, attempts, createdAt, updatedAt)
               VALUES (?, ?, ?, ?, 'queued', 0, ?, ?)`,
         args: [taskId, jobId, userId, passport, now, now]
       })
     }
 
-    await tx.commit()
-  } catch (err: any) {
-    await tx.rollback()
-    console.error('[Jobs API] Failed to create job:', err.message)
+    await db.batch(statements, 'write')
+  } catch (err: unknown) {
+    console.error('[Jobs API] Failed to create job batch:', err instanceof Error ? err.message : String(err))
     apiError(500, 'Failed to create job queue.')
   }
 
-  // 6. Trigger worker asynchronously (fire and forget)
-  // Call /api/jobs/worker using fetch. We don't await the promise to keep it non-blocking,
-  // and we set a short timeout or just ignore the result.
-  const runtimeConfig = useRuntimeConfig()
+  // 6. Trigger worker asynchronously (using H3 event.waitUntil to ensure execution)
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   const host = event.node.req.headers.host || 'localhost:3100'
   const workerUrl = `${protocol}://${host}/api/jobs/worker`
 
   console.log(`[Jobs API] Triggering worker at: ${workerUrl}`)
-  $fetch(workerUrl, {
-    method: 'POST',
-    timeout: 1000 // Short timeout to let the request detach
-  }).catch((err) => {
-    // Ignore fetch errors since the worker executes in the background
-    console.log('[Jobs API] Worker trigger request dispatched.')
+  const triggerPromise = $fetch(workerUrl, {
+    method: 'POST'
+  }).then(() => {
+    console.log('[Jobs API] Worker trigger request completed.')
+  }).catch((err: unknown) => {
+    console.error('[Jobs API] Worker trigger request failed:', err instanceof Error ? err.message : String(err))
   })
+
+  event.waitUntil(triggerPromise)
 
   // 7. Return job info
   return {

@@ -132,6 +132,15 @@ CREATE TABLE IF NOT EXISTS visa_sessions (
 );
 `
 
+export const CREATE_SCHEDULER_LOCK_TABLE = `
+CREATE TABLE IF NOT EXISTS visa_scheduler_lock (
+    id TEXT PRIMARY KEY,
+    locked_at INTEGER NOT NULL,
+    locked_by TEXT NOT NULL
+);
+`
+
+
 export const CREATE_VISA_PROCESSING_NOTIFICATIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_processing_notifications (
     id                    INTEGER PRIMARY KEY AUTOINCREMENT,

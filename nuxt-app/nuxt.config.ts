@@ -8,6 +8,10 @@ export default defineNuxtConfig({
     '@vueuse/nuxt'
   ],
 
+  imports: {
+    dirs: ['services']
+  },
+
   devtools: {
     enabled: true
   },
@@ -38,10 +42,6 @@ export default defineNuxtConfig({
     storage: 'sessionStorage'
   },
 
-  imports: {
-    dirs: ['services']
-  },
-
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || ''
@@ -63,7 +63,8 @@ export default defineNuxtConfig({
     vercel: {
       functions: {
         '/api/ai-assistant': { maxDuration: 60 },
-        '/api/realtime': { maxDuration: 60 }
+        '/api/realtime': { maxDuration: 60 },
+        '/api/jobs/worker': { maxDuration: 60 }
       }
     }
   },

@@ -179,12 +179,18 @@ export function useRealtimeSync() {
         })
 
         // Bind Visa Check Job events
+        channel.bind('visa_check.started', (ev: RealtimeEvent) => {
+          if (ev.studentId) {
+            studentsStore.checkingPassports.set(ev.studentId, 'processing')
+            studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+          }
+        })
+
         channel.bind('visa_check.progress', (ev: RealtimeEvent) => {
           console.log('[Realtime Sync] Received visa check progress via Pusher:', ev)
           if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
             studentsStore.activeJob = null
-            studentsStore.checkingPassports = new Set()
-            studentsStore.loadStudents().catch(() => {})
+            studentsStore.checkingPassports = new Map()
           } else {
             studentsStore.activeJob = ev as unknown as typeof studentsStore.activeJob
           }
@@ -194,7 +200,7 @@ export function useRealtimeSync() {
           if (ev.studentId && ev.result) {
             // Remove from checkingPassports set reactively
             studentsStore.checkingPassports.delete(ev.studentId)
-            studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
+            studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
             // Re-upsert individual student status locally as they complete
             const student = studentsStore.students.find(s => s.passport === ev.studentId)
@@ -304,14 +310,25 @@ export function useRealtimeSync() {
     })
 
     // Bind Visa Check Job events on EventSource fallback
+    source.addEventListener('visa_check.started', (e: MessageEvent) => {
+      try {
+        const ev = JSON.parse(e.data) as RealtimeEvent
+        if (ev.studentId) {
+          studentsStore.checkingPassports.set(ev.studentId, 'processing')
+          studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+        }
+      } catch {
+        // Parse error ignored
+      }
+    })
+
     source.addEventListener('visa_check.progress', (e: MessageEvent) => {
       try {
         const ev = JSON.parse(e.data) as RealtimeEvent
         console.log('[Realtime Sync] Received visa check progress via SSE:', ev)
         if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
           studentsStore.activeJob = null
-          studentsStore.checkingPassports = new Set()
-          studentsStore.loadStudents().catch(() => {})
+          studentsStore.checkingPassports = new Map()
         } else {
           studentsStore.activeJob = ev as unknown as typeof studentsStore.activeJob
         }
@@ -326,7 +343,7 @@ export function useRealtimeSync() {
         if (ev.studentId && ev.result) {
           // Remove from checkingPassports set reactively
           studentsStore.checkingPassports.delete(ev.studentId)
-          studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
+          studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
           const student = studentsStore.students.find(s => s.passport === ev.studentId)
           if (student) {

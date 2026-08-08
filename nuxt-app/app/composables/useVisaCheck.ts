@@ -47,9 +47,9 @@ export function useVisaCheck() {
 
       // Add all passports of the new job to the checkingPassports loading set
       for (const passport of passports) {
-        studentsStore.checkingPassports.add(passport)
+        studentsStore.checkingPassports.set(passport, 'queued')
       }
-      studentsStore.checkingPassports = new Set(studentsStore.checkingPassports)
+      studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
       return response
     } catch (err) {
@@ -67,7 +67,7 @@ export function useVisaCheck() {
         body: { jobId }
       })
       studentsStore.activeJob = null
-      studentsStore.checkingPassports = new Set()
+      studentsStore.checkingPassports = new Map()
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('[Visa Check Queue] Failed to cancel job:', msg)

@@ -1,10 +1,14 @@
 /**
  * server/api/jobs/worker.post.ts
  *
- * Serverless-compatible queue worker.
- * Processes tasks with global concurrency controls, fair scheduling, and retry recovery.
+ * Optimized Serverless-compatible queue worker.
+ * Establishes a global scheduler lock, claims tasks atomically,
+ * dispatches check status requests every 500ms asynchronously (non-blocking),
+ * and handles database writes, Telegram, and realtime updates per student.
  */
 
+import type { Client } from '@libsql/client'
+import type { H3Event } from 'h3'
 import { getTursoClient } from '../../utils/turso'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
@@ -51,12 +55,337 @@ function isSameStatus(status1: string, status2: string): boolean {
   return normalizeStatus(status1) === normalizeStatus(status2)
 }
 
+// Helper: Try to acquire scheduler lock
+async function acquireSchedulerLock(db: Client, workerId: string): Promise<boolean> {
+  const now = Date.now()
+  const expiryTime = now - 5000 // 5 seconds expiry
+
+  // Try to update an expired lock or a lock held by nobody
+  const res = await db.execute({
+    sql: `UPDATE visa_scheduler_lock 
+          SET locked_by = ?, locked_at = ? 
+          WHERE id = 'global' AND (locked_by = '' OR locked_at < ?)`,
+    args: [workerId, now, expiryTime]
+  })
+
+  if (res.rowsAffected > 0) {
+    return true
+  }
+
+  // If the row doesn't exist yet, try to insert it (handling conflict)
+  try {
+    const insertRes = await db.execute({
+      sql: `INSERT OR IGNORE INTO visa_scheduler_lock (id, locked_by, locked_at)
+            VALUES ('global', ?, ?)`,
+      args: [workerId, now]
+    })
+    if (insertRes.rowsAffected && insertRes.rowsAffected > 0) {
+      return true
+    }
+  } catch {
+    // Ignore insertion error, try update again
+  }
+
+  const res2 = await db.execute({
+    sql: `UPDATE visa_scheduler_lock 
+          SET locked_by = ?, locked_at = ? 
+          WHERE id = 'global' AND (locked_by = '' OR locked_at < ?)`,
+    args: [workerId, now, expiryTime]
+  })
+  return res2.rowsAffected > 0
+}
+
+// Helper: Renew scheduler lock
+async function renewSchedulerLock(db: Client, workerId: string): Promise<boolean> {
+  const now = Date.now()
+  const res = await db.execute({
+    sql: `UPDATE visa_scheduler_lock SET locked_at = ? WHERE id = 'global' AND locked_by = ?`,
+    args: [now, workerId]
+  })
+  return res.rowsAffected > 0
+}
+
+// Helper: Release scheduler lock
+async function releaseSchedulerLock(db: Client, workerId: string) {
+  try {
+    await db.execute({
+      sql: `UPDATE visa_scheduler_lock SET locked_by = '', locked_at = 0 WHERE id = 'global' AND locked_by = ?`,
+      args: [workerId]
+    })
+  } catch (err) {
+    console.error(`[Lock] Failed to release lock:`, err)
+  }
+}
+
+// Helper: Database execute with retry for resilience
+async function executeWithRetry(
+  db: Client,
+  stmt: { sql: string, args?: (string | number | boolean | null)[] },
+  retries = 3,
+  delay = 100
+): Promise<import('@libsql/client').ResultSet> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await db.execute(stmt)
+    } catch (err: unknown) {
+      if (i === retries - 1) throw err
+      console.warn(`[DB Retry] SQL execution failed, retrying in ${delay}ms... Error:`, err instanceof Error ? err.message : String(err))
+      await new Promise(resolve => setTimeout(resolve, delay))
+      delay *= 2
+    }
+  }
+  throw new Error('Retries failed')
+}
+
+// Async runner to perform scraping, DB writes, Telegram notification, and progress updates
+async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Event) {
+  const runnerId = `runner-${claimedTask.id}`
+  console.log(`[Task Runner] Starting task ${claimedTask.id} for passport ${claimedTask.passport}`)
+
+  let success = false
+  let errorMsg = ''
+  let newStatus = 'Pending'
+  let updatedChanges: Record<string, unknown> = {}
+
+  const taskPromise = (async () => {
+    try {
+      // 1. Fetch student details with retry
+      const studentRes = await executeWithRetry(db, {
+        sql: 'SELECT * FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+        args: [claimedTask.passport, claimedTask.userId]
+      })
+
+      if (studentRes.rows.length === 0) {
+        throw new Error('Student record no longer exists or was deleted.')
+      }
+
+      const student = studentRes.rows[0] as unknown as WorkerStudent
+      const oldStatus = student.status || 'Pending'
+
+      // DUPLICATE/RECENT CHECK OPTIMIZATION
+      if (student.lastChecked && student.lastChecked >= claimedTask.createdAt) {
+        console.log(`[Task Runner] Skip external check: passport ${claimedTask.passport} already updated on ${student.lastChecked}`)
+        success = true
+        newStatus = oldStatus
+        updatedChanges = {
+          status: oldStatus,
+          lastChecked: student.lastChecked
+        }
+      } else {
+        // Query visa.go.kr (external HTTP call, not retried in database loop)
+        const liveResult = await checkStudentVisaStatus(
+          claimedTask.passport,
+          student.fullName || student.fullname || '',
+          student.birthday || '',
+          student.visaType || student.visa_type || 'Embassy',
+          student.applicationNo || student.application_no || ''
+        )
+
+        const nowIso = new Date().toISOString()
+        newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
+        const statusChanged = !isSameStatus(oldStatus, newStatus)
+
+        // Consolidate updates into ONE single database write with retry
+        const appDate = liveResult.latestDate || student.applicationDate || ''
+        await executeWithRetry(db, {
+          sql: `
+            UPDATE students
+            SET status = ?,
+                applicationDate = ?,
+                application_date = ?,
+                lastChecked = ?,
+                last_checked = ?,
+                rejectReason = ?,
+                pdfUrl = ?,
+                apiResponse = ?
+            WHERE passport = ? AND userId = ? AND deletedAt IS NULL
+          `,
+          args: [
+            newStatus,
+            appDate,
+            appDate,
+            nowIso,
+            nowIso,
+            liveResult.rejectionReason || '',
+            liveResult.pdfUrl || '',
+            JSON.stringify(liveResult),
+            claimedTask.passport,
+            claimedTask.userId
+          ]
+        })
+
+        updatedChanges = {
+          status: newStatus,
+          applicationDate: appDate,
+          lastChecked: nowIso,
+          rejectReason: liveResult.rejectionReason || '',
+          pdfUrl: liveResult.pdfUrl || '',
+          apiResponse: JSON.stringify(liveResult)
+        }
+
+        // Log notification row if status changed
+        if (statusChanged) {
+          await executeWithRetry(db, {
+            sql: `INSERT INTO notifications (telegram_user_id, student_id, old_status, new_status, created_at)
+                  VALUES (?, ?, ?, ?, datetime('now'))`,
+            args: [student.telegram_user_id || null, claimedTask.passport, oldStatus, newStatus]
+          })
+
+          // Trigger Telegram notification asynchronously (non-blocking)
+          sendTelegramNotification(claimedTask.userId, {
+            fullName: student.fullName || student.fullname || '',
+            passport: claimedTask.passport,
+            studentId: student.studentId || student.student_id || '',
+            visaType: student.visaType || student.visa_type || 'Embassy',
+            applicationNo: student.applicationNo || student.application_no || '',
+            birthday: student.birthday || '',
+            oldStatus,
+            newStatus,
+            applicationDate: appDate,
+            rejectionReason: liveResult.rejectionReason || '',
+            previousRejectionReason: liveResult.previousRejectionReason || '',
+            invitingCompany: liveResult.invitingCompany || '',
+            entryDate: liveResult.entryDate || '',
+            pdfUrl: liveResult.pdfUrl || ''
+          }).catch((tErr) => {
+            const errorText = tErr instanceof Error ? tErr.message : String(tErr)
+            console.error('[Task Runner Telegram Notifier] Error:', errorText)
+          })
+        }
+
+        // Trigger on UNDER_REVIEW results with a known applicationDate.
+        const isUnderReview = normalizeStatus(newStatus) === 'under review'
+        if (isUnderReview && appDate) {
+          const visaCategory = liveResult.statusOfResidence || student.visaType || student.visa_type || 'Noma\'lum'
+          tryCreateProcessingNotification(
+            db,
+            appDate,
+            visaCategory,
+            claimedTask.userId,
+            claimedTask.passport
+          ).catch((tErr) => {
+            const errText = tErr instanceof Error ? tErr.message : String(tErr)
+            console.error('[Task Runner ProcessingNotifier] Error:', errText)
+          })
+        }
+
+        success = true
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`[Task Runner] Task ${claimedTask.id} execution failed:`, msg)
+      errorMsg = msg
+    }
+
+    // 4. Update task state
+    try {
+      if (success) {
+        await executeWithRetry(db, {
+          sql: 'UPDATE visa_check_tasks SET status = \'completed\', completedAt = datetime(\'now\'), error = NULL, updatedAt = datetime(\'now\') WHERE id = ?',
+          args: [claimedTask.id]
+        })
+
+        // Send realtime event for student updated
+        if (Object.keys(updatedChanges).length > 0) {
+          await publishRealtime(claimedTask.userId, {
+            type: 'student.updated',
+            eventId: crypto.randomUUID(),
+            updatedAt: new Date().toISOString(),
+            originClientId: runnerId,
+            passport: claimedTask.passport,
+            changes: updatedChanges
+          })
+        }
+      } else {
+        // Retry logic with backoff
+        const attemptsRes = await executeWithRetry(db, {
+          sql: 'SELECT attempts FROM visa_check_tasks WHERE id = ?',
+          args: [claimedTask.id]
+        })
+        const attempts = attemptsRes.rows[0] ? Number(attemptsRes.rows[0].attempts) : 1
+
+        if (attempts < 3) {
+          const delaySeconds = 30 * Math.pow(2, attempts - 1) // 30s, 60s
+          console.log(`[Task Runner] Task ${claimedTask.id} backing off for ${delaySeconds}s...`)
+          await executeWithRetry(db, {
+            sql: `UPDATE visa_check_tasks
+                  SET status = 'queued', lockedAt = datetime('now', '+' + ? + ' seconds'), lockedBy = NULL, updatedAt = datetime('now')
+                  WHERE id = ?`,
+            args: [delaySeconds, claimedTask.id]
+          })
+        } else {
+          await executeWithRetry(db, {
+            sql: 'UPDATE visa_check_tasks SET status = \'failed\', error = ?, completedAt = datetime(\'now\'), updatedAt = datetime(\'now\') WHERE id = ?',
+            args: [errorMsg || 'Failed after max retries', claimedTask.id]
+          })
+        }
+      }
+
+      // Update overall job status and trigger progress events
+      const jobStatsRes = await executeWithRetry(db, {
+        sql: `SELECT status, COUNT(*) as count FROM visa_check_tasks WHERE jobId = ? GROUP BY status`,
+        args: [claimedTask.jobId]
+      })
+
+      const counts: Record<string, number> = {
+        queued: 0,
+        processing: 0,
+        completed: 0,
+        failed: 0,
+        cancelled: 0
+      }
+      for (const row of jobStatsRes.rows) {
+        counts[String(row.status)] = Number(row.count)
+      }
+
+      const totalRes = await executeWithRetry(db, {
+        sql: 'SELECT total FROM visa_check_jobs WHERE id = ?',
+        args: [claimedTask.jobId]
+      })
+      const total = totalRes.rows[0] ? Number(totalRes.rows[0].total) : 0
+
+      const isJobDone = counts.queued === 0 && counts.processing === 0
+      let jobStatus = 'processing'
+
+      if (isJobDone) {
+        jobStatus = counts.completed === total ? 'completed' : (counts.cancelled || 0) > 0 ? 'cancelled' : 'failed'
+        await executeWithRetry(db, {
+          sql: 'UPDATE visa_check_jobs SET status = ?, updatedAt = datetime(\'now\') WHERE id = ?',
+          args: [jobStatus, claimedTask.jobId]
+        })
+      }
+
+      // Publish progress and completed task events
+      await publishRealtime(claimedTask.userId, {
+        type: 'visa_check.progress',
+        jobId: claimedTask.jobId,
+        total,
+        status: jobStatus,
+        progress: counts
+      })
+
+      await publishRealtime(claimedTask.userId, {
+        type: 'visa_check.completed',
+        jobId: claimedTask.jobId,
+        studentId: claimedTask.passport,
+        result: {
+          status: newStatus
+        }
+      })
+    } catch (err) {
+      console.error(`[Task Runner] Error in task finalization:`, err)
+    }
+  })()
+
+  event.waitUntil(taskPromise)
+}
+
 export default defineEventHandler(async (event) => {
   const db = await getTursoClient()
   const workerId = `worker-${crypto.randomUUID()}`
   const workerStartTime = Date.now()
 
-  console.log(`[Queue Worker] Started execution: ${workerId}`)
+  console.log(`[Queue Worker] Attempting start: ${workerId}`)
 
   // 1. Recover stale tasks (locked > 5 minutes)
   try {
@@ -70,7 +399,7 @@ export default defineEventHandler(async (event) => {
       const attempts = Number(row.attempts)
 
       if (attempts >= 3) {
-        console.log(`[Queue Worker] Failing task ${taskId} (attempts = ${attempts}) due to expired lease.`)
+        console.log(`[Queue Worker] Failing stale task ${taskId} (attempts = ${attempts}).`)
         await db.execute({
           sql: 'UPDATE visa_check_tasks SET status = \'failed\', error = \'Lease expired too many times\', updatedAt = datetime(\'now\') WHERE id = ?',
           args: [taskId]
@@ -84,37 +413,34 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[Queue Worker] Error recovering stale tasks:', msg)
+    console.error('[Queue Worker] Error recovering stale tasks:', err)
   }
 
-  // 2. Load max concurrency limit
-  const VISA_CHECK_MAX_CONCURRENCY = Number(process.env.VISA_CHECK_MAX_CONCURRENCY || '3')
+  // 2. Acquire global scheduler lock
+  const acquired = await acquireSchedulerLock(db, workerId)
+  if (!acquired) {
+    console.log(`[Queue Worker] Global dispatcher lock held by another instance. Exiting: ${workerId}`)
+    return { success: true, reason: 'lock_held' }
+  }
 
-  // 3. Process loop (up to 40 seconds to prevent Vercel execution timeouts)
-  let tasksProcessed = 0
-  while (Date.now() - workerStartTime < 40000) {
+  console.log(`[Queue Worker] Dispatcher lock acquired. Starting dispatch loop. Owner: ${workerId}`)
+
+  // 3. Process loop (runs up to 45 seconds to stay safe from Vercel function timeout)
+  let tasksDispatched = 0
+
+  while (Date.now() - workerStartTime < 45000) {
+    // A. Renew lock
+    const hasLock = await renewSchedulerLock(db, workerId)
+    if (!hasLock) {
+      console.log(`[Queue Worker] Lost scheduler lock. Exiting loop. Owner: ${workerId}`)
+      break
+    }
+
+    // B. Claim next task atomically using a write transaction
     let claimedTask: WorkerTask | undefined
-
-    // Atomically claim the next task using a Turso write transaction
     const tx = await db.transaction('write')
     try {
-      // Check active count
-      const activeRes = await tx.execute({
-        sql: `SELECT COUNT(*) as activeCount FROM visa_check_tasks
-              WHERE status = 'processing' AND lockedAt > datetime('now', '-5 minutes')`
-      })
-      const activeCount = Number(activeRes.rows[0]?.activeCount ?? 0)
-
-      if (activeCount >= VISA_CHECK_MAX_CONCURRENCY) {
-        console.log(`[Queue Worker] Concurrency limit (${VISA_CHECK_MAX_CONCURRENCY}) reached. Active processing: ${activeCount}`)
-        await tx.commit()
-        break
-      }
-
-      // Claim next task using fair scheduling
-      // Select the user with the lowest number of active tasks who has queued tasks,
-      // and pick their oldest queued task. Exclude student passports already being processed.
+      // Select next task using fair scheduling
       const nextTaskRes = await tx.execute({
         sql: `
           SELECT t.id, t.passport, t.userId, t.jobId, t.createdAt
@@ -136,288 +462,68 @@ export default defineEventHandler(async (event) => {
         `
       })
 
-      if (nextTaskRes.rows.length === 0) {
-        await tx.commit()
-        break // No queued tasks available to claim
+      if (nextTaskRes.rows.length > 0) {
+        const task = nextTaskRes.rows[0] as unknown as Record<string, unknown>
+        claimedTask = {
+          id: String(task.id),
+          passport: String(task.passport),
+          userId: Number(task.userId),
+          jobId: String(task.jobId),
+          createdAt: String(task.createdAt)
+        }
+
+        // Lock task
+        await tx.execute({
+          sql: `UPDATE visa_check_tasks
+                SET status = 'processing', lockedAt = datetime('now'), lockedBy = ?, startedAt = datetime('now'), attempts = attempts + 1
+                WHERE id = ?`,
+          args: [workerId, claimedTask.id]
+        })
+
+        // Update overall job status if it was queued
+        await tx.execute({
+          sql: 'UPDATE visa_check_jobs SET status = \'processing\', updatedAt = datetime(\'now\') WHERE id = ? AND status = \'queued\'',
+          args: [claimedTask.jobId]
+        })
       }
-
-      const task = nextTaskRes.rows[0] as unknown as Record<string, unknown>
-      claimedTask = {
-        id: String(task.id),
-        passport: String(task.passport),
-        userId: Number(task.userId),
-        jobId: String(task.jobId),
-        createdAt: String(task.createdAt)
-      }
-
-      // Lock task
-      await tx.execute({
-        sql: `UPDATE visa_check_tasks
-              SET status = 'processing', lockedAt = datetime('now'), lockedBy = ?, startedAt = datetime('now'), attempts = attempts + 1
-              WHERE id = ?`,
-        args: [workerId, claimedTask.id]
-      })
-
-      // Update overall job status if it was queued
-      await tx.execute({
-        sql: 'UPDATE visa_check_jobs SET status = \'processing\', updatedAt = datetime(\'now\') WHERE id = ? AND status = \'queued\'',
-        args: [claimedTask.jobId]
-      })
 
       await tx.commit()
     } catch (err) {
       try {
         await tx.rollback()
       } catch {
-        // Rollback failed/ignored
+        // Rollback ignored
       }
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error('[Queue Worker] Claim transaction failed:', msg)
+      console.error('[Queue Worker] Claim transaction failed:', err)
       break
     }
 
-    if (!claimedTask) break
-
-    // Process claimed task
-    console.log(`[Queue Worker] Claimed task ${claimedTask.id} for passport ${claimedTask.passport}`)
-    tasksProcessed++
-
-    let success = false
-    let errorMsg = ''
-    let newStatus = 'Pending'
-    let updatedChanges: Record<string, unknown> = {}
-
-    try {
-      // Fetch student details
-      const studentRes = await db.execute({
-        sql: 'SELECT * FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
-        args: [claimedTask.passport, claimedTask.userId]
-      })
-
-      if (studentRes.rows.length === 0) {
-        throw new Error('Student record no longer exists or was deleted.')
-      }
-
-      const student = studentRes.rows[0] as unknown as WorkerStudent
-      const oldStatus = student.status || 'Pending'
-
-      // DUPLICATE/RECENT CHECK OPTIMIZATION
-      // If the student has already been checked after this task was queued, skip the external check.
-      if (student.lastChecked && student.lastChecked >= claimedTask.createdAt) {
-        console.log(`[Queue Worker] Skip external check: passport ${claimedTask.passport} already updated on ${student.lastChecked}`)
-        success = true
-        newStatus = oldStatus
-        updatedChanges = {
-          status: oldStatus,
-          lastChecked: student.lastChecked
-        }
-      } else {
-        // Query visa.go.kr
-        const liveResult = await checkStudentVisaStatus(
-          claimedTask.passport,
-          student.fullName || student.fullname || '',
-          student.birthday || '',
-          student.visaType || student.visa_type || 'Embassy',
-          student.applicationNo || student.application_no || ''
-        )
-
-        const nowIso = new Date().toISOString()
-        newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
-        const statusChanged = !isSameStatus(oldStatus, newStatus)
-
-        // Consolidate updates into ONE single database write
-        await db.execute({
-          sql: `
-            UPDATE students
-            SET status = ?,
-                applicationDate = ?,
-                application_date = ?,
-                lastChecked = ?,
-                last_checked = ?,
-                rejectReason = ?,
-                pdfUrl = ?,
-                apiResponse = ?
-            WHERE passport = ? AND userId = ? AND deletedAt IS NULL
-          `,
-          args: [
-            newStatus,
-            liveResult.latestDate || student.applicationDate || '',
-            liveResult.latestDate || student.applicationDate || '',
-            nowIso,
-            nowIso,
-            liveResult.rejectionReason || '',
-            liveResult.pdfUrl || '',
-            JSON.stringify(liveResult),
-            claimedTask.passport,
-            claimedTask.userId
-          ]
-        })
-
-        updatedChanges = {
-          status: newStatus,
-          applicationDate: liveResult.latestDate || student.applicationDate || '',
-          lastChecked: nowIso,
-          rejectReason: liveResult.rejectionReason || '',
-          pdfUrl: liveResult.pdfUrl || '',
-          apiResponse: JSON.stringify(liveResult)
-        }
-
-        // Log notification row if status changed
-        if (statusChanged) {
-          await db.execute({
-            sql: `INSERT INTO notifications (telegram_user_id, student_id, old_status, new_status, created_at)
-                  VALUES (?, ?, ?, ?, datetime('now'))`,
-            args: [student.telegram_user_id || null, claimedTask.passport, oldStatus, newStatus]
-          })
-
-          // Trigger Telegram notification asynchronously (non-blocking)
-          sendTelegramNotification(claimedTask.userId, {
-            fullName: student.fullName || student.fullname || '',
-            passport: claimedTask.passport,
-            studentId: student.studentId || student.student_id || '',
-            visaType: student.visaType || student.visa_type || 'Embassy',
-            applicationNo: student.applicationNo || student.application_no || '',
-            birthday: student.birthday || '',
-            oldStatus,
-            newStatus,
-            applicationDate: liveResult.latestDate || student.applicationDate || '',
-            rejectionReason: liveResult.rejectionReason || '',
-            previousRejectionReason: liveResult.previousRejectionReason || '',
-            invitingCompany: liveResult.invitingCompany || '',
-            entryDate: liveResult.entryDate || '',
-            pdfUrl: liveResult.pdfUrl || ''
-          }).catch((tErr) => {
-            const errorText = tErr instanceof Error ? tErr.message : String(tErr)
-            console.error('[Queue Worker Telegram Notifier] Error:', errorText)
-          })
-        }
-
-        // ── Visa processing started notification ──────────────────────────
-        // Trigger on APPROVED results with a known applicationDate.
-        // Fire-and-forget: does NOT block the visa check completion.
-        const isApproved = normalizeStatus(newStatus) === 'approved'
-        const appDate = liveResult.latestDate || student.applicationDate || ''
-        if (isApproved && appDate) {
-          const visaCategory = liveResult.statusOfResidence || student.visaType || student.visa_type || 'Noma\'lum'
-          tryCreateProcessingNotification(
-            db,
-            appDate,
-            visaCategory,
-            claimedTask.userId,
-            claimedTask.passport
-          ).catch((tErr) => {
-            const errText = tErr instanceof Error ? tErr.message : String(tErr)
-            console.error('[Queue Worker ProcessingNotifier] Error:', errText)
-          })
-        }
-
-        success = true
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error(`[Queue Worker] Task ${claimedTask.id} failed:`, msg)
-      errorMsg = msg
+    if (!claimedTask) {
+      console.log(`[Queue Worker] No queued tasks available. Releasing lock and exiting loop. Owner: ${workerId}`)
+      await releaseSchedulerLock(db, workerId)
+      break
     }
 
-    // 4. Update task state
-    if (success) {
-      await db.execute({
-        sql: 'UPDATE visa_check_tasks SET status = \'completed\', completedAt = datetime(\'now\'), error = NULL, updatedAt = datetime(\'now\') WHERE id = ?',
-        args: [claimedTask.id]
-      })
+    // C. Dispatch task asynchronously (non-blocking!)
+    tasksDispatched++
 
-      // Send realtime event for student updated
-      if (Object.keys(updatedChanges).length > 0) {
-        await publishRealtime(claimedTask.userId, {
-          type: 'student.updated',
-          eventId: crypto.randomUUID(),
-          updatedAt: new Date().toISOString(),
-          originClientId: workerId,
-          passport: claimedTask.passport,
-          changes: updatedChanges
-        })
-      }
-    } else {
-      // Exponential retry backoff logic (Attempts 1, 2 retried with delay; Attempt 3 fails)
-      const attemptsRes = await db.execute({
-        sql: 'SELECT attempts FROM visa_check_tasks WHERE id = ?',
-        args: [claimedTask.id]
-      })
-      const attempts = attemptsRes.rows[0] ? Number(attemptsRes.rows[0].attempts) : 1
-
-      if (attempts < 3) {
-        const delaySeconds = 30 * Math.pow(2, attempts - 1) // 30s, 60s
-        console.log(`[Queue Worker] Task ${claimedTask.id} backing off for ${delaySeconds}s...`)
-        await db.execute({
-          sql: `UPDATE visa_check_tasks
-                SET status = 'queued', lockedAt = datetime('now', '+' + ? + ' seconds'), lockedBy = NULL, updatedAt = datetime('now')
-                WHERE id = ?`,
-          args: [delaySeconds, claimedTask.id]
-        })
-      } else {
-        await db.execute({
-          sql: 'UPDATE visa_check_tasks SET status = \'failed\', error = ?, completedAt = datetime(\'now\'), updatedAt = datetime(\'now\') WHERE id = ?',
-          args: [errorMsg || 'Failed after max retries', claimedTask.id]
-        })
-      }
-    }
-
-    // 5. Update overall job status and trigger progress events
-    // Count tasks for this job
-    const jobStatsRes = await db.execute({
-      sql: `SELECT status, COUNT(*) as count FROM visa_check_tasks
-            WHERE jobId = ? GROUP BY status`,
-      args: [claimedTask.jobId]
-    })
-
-    const counts: Record<string, number> = {
-      queued: 0,
-      processing: 0,
-      completed: 0,
-      failed: 0,
-      cancelled: 0
-    }
-    for (const row of jobStatsRes.rows) {
-      counts[String(row.status)] = Number(row.count)
-    }
-
-    const totalRes = await db.execute({
-      sql: 'SELECT total FROM visa_check_jobs WHERE id = ?',
-      args: [claimedTask.jobId]
-    })
-    const total = totalRes.rows[0] ? Number(totalRes.rows[0].total) : 0
-
-    const isJobDone = counts.queued === 0 && counts.processing === 0
-    let jobStatus = 'processing'
-
-    if (isJobDone) {
-      jobStatus = counts.completed === total ? 'completed' : (counts.cancelled || 0) > 0 ? 'cancelled' : 'failed'
-      await db.execute({
-        sql: 'UPDATE visa_check_jobs SET status = ?, updatedAt = datetime(\'now\') WHERE id = ?',
-        args: [jobStatus, claimedTask.jobId]
-      })
-    }
-
-    // Publish progress and completed task events to the user
+    // First, publish a realtime event to indicate that the check has started for this student
+    // This allows the frontend to change the student row status to 'processing'
     await publishRealtime(claimedTask.userId, {
-      type: 'visa_check.progress',
+      type: 'visa_check.started',
       jobId: claimedTask.jobId,
-      total,
-      status: jobStatus,
-      progress: counts as unknown as { queued: number, processing: number, completed: number, failed: number, cancelled: number }
+      studentId: claimedTask.passport
+    }).catch((err) => {
+      console.error('[Queue Worker] Failed to publish visa_check.started event:', err)
     })
 
-    await publishRealtime(claimedTask.userId, {
-      type: 'visa_check.completed',
-      jobId: claimedTask.jobId,
-      studentId: claimedTask.passport,
-      result: {
-        status: newStatus
-      }
-    })
+    runVisaCheckTask(db, claimedTask, event)
+
+    // D. Sleep 500ms before starting the next loop iteration (enforcing global 500ms rate limit)
+    await new Promise(resolve => setTimeout(resolve, 500))
   }
 
-  // 6. Chain worker execution if more tasks remain queued and eligible
+  // 4. Chain next worker execution if more tasks remain queued and eligible
   try {
     const queuedCountRes = await db.execute({
       sql: `SELECT COUNT(*) as queuedCount FROM visa_check_tasks
@@ -426,23 +532,28 @@ export default defineEventHandler(async (event) => {
     const queuedCount = Number(queuedCountRes.rows[0]?.queuedCount ?? 0)
 
     if (queuedCount > 0) {
+      // If we are exiting because of the 45s loop timeout, we must release the lock so the chained worker can acquire it
+      if (Date.now() - workerStartTime >= 45000) {
+        console.log(`[Queue Worker] 45s execution limit reached. Releasing lock for handoff.`)
+        await releaseSchedulerLock(db, workerId)
+      }
+
       const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
       const host = event.node.req.headers.host || 'localhost:3100'
       const workerUrl = `${protocol}://${host}/api/jobs/worker`
 
       console.log(`[Queue Worker] Chaining next worker execution. Queued count: ${queuedCount}`)
-      $fetch(workerUrl, {
-        method: 'POST',
-        timeout: 1000
-      }).catch(() => {
-        // Ignored chain failure
+      const triggerPromise = $fetch(workerUrl, {
+        method: 'POST'
+      }).catch((err: unknown) => {
+        console.error('[Queue Worker] Chained trigger failed:', err instanceof Error ? err.message : String(err))
       })
+      event.waitUntil(triggerPromise)
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[Queue Worker] Chaining check failed:', msg)
+    console.error('[Queue Worker] Chaining check failed:', err)
   }
 
-  console.log(`[Queue Worker] Execution completed for worker: ${workerId}. Tasks processed: ${tasksProcessed}`)
-  return { success: true, tasksProcessed }
+  console.log(`[Queue Worker] Completed execution for worker: ${workerId}. Tasks dispatched: ${tasksDispatched}`)
+  return { success: true, tasksDispatched }
 })

@@ -24,7 +24,7 @@ export const useStudentsStore = defineStore('students', () => {
   }
 
   const activeJob = ref<JobProgress | null>(null)
-  const checkingPassports = ref<Set<string>>(new Set())
+  const checkingPassports = ref<Map<string, 'queued' | 'processing'>>(new Map())
 
   // Helper to precompute search index
   function addSearchNormalized(s: Student) {
@@ -104,8 +104,17 @@ export const useStudentsStore = defineStore('students', () => {
   async function loadActiveJob() {
     try {
       const { apiFetch } = useApiFetch()
-      const job = await apiFetch<JobProgress | null>('/api/jobs/active')
+      const job = await apiFetch<(JobProgress & { tasks?: { passport: string, status: string }[] }) | null>('/api/jobs/active')
       activeJob.value = job
+      if (job && job.tasks) {
+        checkingPassports.value = new Map(
+          job.tasks
+            .filter(t => t.status === 'queued' || t.status === 'processing')
+            .map(t => [t.passport, t.status as 'queued' | 'processing'])
+        )
+      } else {
+        checkingPassports.value = new Map()
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('[Students Store] Failed to load active job:', msg)
