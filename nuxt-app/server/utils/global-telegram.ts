@@ -35,18 +35,24 @@ function formatDateUz(isoDate: string): string {
   return `${parseInt(day, 10)}-${monthName}`
 }
 
+function cleanVisaTypeCode(raw: string): string {
+  if (!raw) return ''
+  const str = String(raw).trim()
+  const match = str.match(/([A-Z]-\d+(?:-\d+)?)/i)
+  if (match && match[1]) {
+    return match[1].toUpperCase()
+  }
+  return str
+}
+
 function buildTelegramMessage(payload: GlobalTelegramPayload, lang: string): string {
   const dateStr = formatDateUz(payload.applicationDate)
-  const typeLabel = payload.visaTypes.length > 1 ? 'Viza turlari' : 'Viza turi'
-  const typeValue = payload.visaTypes.join(', ')
-
-  if (lang === 'en') {
-    return [
-      `Elchixona ${dateStr} kuni hujjat topshirganlarga viza berishni boshladi.`,
-      '',
-      `${typeLabel}: ${typeValue}`
-    ].join('\n')
-  }
+  const cleanedTypes = payload.visaTypes.map(t => cleanVisaTypeCode(t)).filter(Boolean)
+  const isEn = lang === 'en'
+  const typeLabel = isEn
+    ? (cleanedTypes.length > 1 ? 'Visa types' : 'Visa type')
+    : (cleanedTypes.length > 1 ? 'Viza turlari' : 'Viza turi')
+  const typeValue = cleanedTypes.join(', ')
 
   return [
     `Elchixona ${dateStr} kuni hujjat topshirganlarga viza berishni boshladi.`,

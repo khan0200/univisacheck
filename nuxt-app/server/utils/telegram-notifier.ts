@@ -87,11 +87,22 @@ function formatLastChecked(dateString: string, lang = 'uz'): string {
   }
 }
 
+function cleanVisaTypeCode(raw: string): string {
+  if (!raw) return ''
+  const str = String(raw).trim()
+  const match = str.match(/([A-Z]-\d+(?:-\d+)?)/i)
+  if (match && match[1]) {
+    return match[1].toUpperCase()
+  }
+  return str
+}
+
 export interface TelegramNotificationPayload {
   fullName: string
   passport: string
   studentId?: string
   visaType: string
+  statusOfResidence?: string
   applicationNo?: string
   birthday: string
   oldStatus: string
@@ -175,6 +186,18 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   const previousRejectionReason = escapeTelegramText(rawPrevRej)
   const invitingCompany = escapeTelegramText(rawCompany)
 
+  const rawResidence = cleanVisaTypeCode(payload.statusOfResidence || '')
+  const rawTypeClean = cleanVisaTypeCode(rawVisaType || '')
+
+  let displayVisaType = 'Embassy'
+  if (rawResidence) {
+    displayVisaType = rawResidence
+  } else if (rawTypeClean && !['EMBASSY', 'E-VISA', 'REGIONAL'].includes(rawTypeClean.toUpperCase())) {
+    displayVisaType = rawTypeClean
+  } else if (rawVisaType) {
+    displayVisaType = rawVisaType
+  }
+
   const emoji = getStatusEmojiFormatted(newStatus)
   const isApproved = ['approved', 'visa used', 'issued'].some((s) => newStatus.toLowerCase().includes(s))
   const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa'
@@ -201,7 +224,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
       `👤 ${fullName.toUpperCase()}`,
       `🛂 ${passport.toUpperCase()}`,
       `🎂 ${birthday}`, '',
-      `${labels.visaLbl} ${visaType === 'E-Visa' ? 'E-Visa' : visaType === 'Regional' ? 'Regional' : 'Embassy'}`,
+      `${labels.visaLbl} ${displayVisaType}`,
       ...((visaType === 'E-Visa' || visaType === 'Regional') && invitingCompany ? [`${labels.partner} ${invitingCompany}`] : []),
       ...((visaType === 'E-Visa' || visaType === 'Regional') && applicationNo ? [`${labels.appNo} ${applicationNo}`] : []),
       `${labels.submitted} ${applicationDate || 'N/A'}`,
