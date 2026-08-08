@@ -132,10 +132,14 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
             FROM cabinet_subscribers cs WHERE cs.cabinet_id = ?`,
       args: [userId]
     })
-    subscribers = (subsResult.rows as any[]).filter((r) => r.telegram_id)
-  } catch (err: any) {
-    console.error('[Telegram Notifier] DB lookup error:', err.message)
-    return { ok: false, error: err.message }
+    subscribers = (subsResult.rows as Record<string, unknown>[]).filter(r => r.telegram_id).map(r => ({
+      telegram_id: Number(r.telegram_id),
+      lang: String(r.lang || 'uz')
+    }))
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Telegram Notifier] DB lookup error:', msg)
+    return { ok: false, error: msg }
   }
 
   if (subscribers.length === 0) {
@@ -151,9 +155,10 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     if (studentResult.rows.length === 0) {
       return { ok: true, skipped: 'Student not in cabinet' }
     }
-  } catch (err: any) {
-    console.error('[Telegram Notifier] DB verify error:', err.message)
-    return { ok: false, error: err.message }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Telegram Notifier] DB verify error:', msg)
+    return { ok: false, error: msg }
   }
 
   const {
@@ -199,7 +204,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   }
 
   const emoji = getStatusEmojiFormatted(newStatus)
-  const isApproved = ['approved', 'visa used', 'issued'].some((s) => newStatus.toLowerCase().includes(s))
+  const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s))
   const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa'
   const nowIso = new Date().toISOString()
 
@@ -267,11 +272,11 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
           reply_markup,
           disable_web_page_preview: true
         })
-      }).then((r) => r.json())
+      }).then(r => r.json())
     })
   )
 
-  const failed = results.filter((r) => r.status === 'rejected' || (r.status === 'fulfilled' && !(r as any).value?.ok))
+  const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !(r.value as { ok?: boolean })?.ok))
   if (failed.length > 0) {
     console.error('[Telegram Notifier] Some sends failed:', failed.length)
   }
