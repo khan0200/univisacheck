@@ -80,7 +80,7 @@ export function useVisaCheck() {
       promises.push(p)
       
       if (i < list.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
     
