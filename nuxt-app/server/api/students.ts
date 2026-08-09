@@ -59,6 +59,7 @@ async function fetchStudentPayload(
       tariff: r.tariff ? String(r.tariff) : undefined,
       university: r.university ? String(r.university) : undefined,
       coordinator: r.coordinator ? String(r.coordinator) : undefined,
+      b2b: r.b2b ? String(r.b2b) : undefined,
       check_source: r.check_source ? String(r.check_source) : 'manual',
       checkSource: r.checkSource ? String(r.checkSource) : (r.check_source ? String(r.check_source) : 'manual')
     }
@@ -277,6 +278,7 @@ export default defineEventHandler(async (event) => {
       const tariff = body.tariff !== undefined ? body.tariff : null
       const university = body.university !== undefined ? body.university : null
       const coordinator = body.coordinator !== undefined ? body.coordinator : null
+      const b2b = body.b2b !== undefined ? body.b2b : null
 
       let batchSelected: number | null = null
       if (body.batchSelected !== undefined) {
@@ -307,8 +309,8 @@ export default defineEventHandler(async (event) => {
                         passport, fullName, birthday, studentId, status,
                         applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
                         batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                        tariff, university, coordinator
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?)
+                        tariff, university, coordinator, b2b
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?)
                 `
         await db.execute({
           sql,
@@ -331,7 +333,8 @@ export default defineEventHandler(async (event) => {
             pinned !== null ? pinned : 0,
             tariff || '',
             university || '',
-            coordinator || ''
+            coordinator || '',
+            b2b || ''
           ]
         })
         await syncStudentsCount(db, userId)
@@ -451,6 +454,11 @@ export default defineEventHandler(async (event) => {
           updateFields.push('coordinator = ?')
           args.push(coordinator)
           changedFields.coordinator = coordinator
+        }
+        if (b2b !== null) {
+          updateFields.push('b2b = ?')
+          args.push(b2b)
+          changedFields.b2b = b2b
         }
 
         if (updateFields.length === 0) {
