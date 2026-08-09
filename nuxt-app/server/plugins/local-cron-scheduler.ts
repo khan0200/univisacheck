@@ -8,6 +8,24 @@
 
 import { getTursoClient } from '../utils/turso'
 
+/** Calculate calendar days elapsed since applicationDate (YYYY-MM-DD). */
+function getDaysSinceApplication(appDateStr: string): number {
+  if (!appDateStr) return 0
+  const match = appDateStr.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match || !match[1] || !match[2] || !match[3]) return 0
+  const year = parseInt(match[1], 10)
+  const month = parseInt(match[2], 10) - 1
+  const day = parseInt(match[3], 10)
+
+  const appDate = new Date(year, month, day)
+  const today = new Date()
+  appDate.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0)
+
+  const diffMs = today.getTime() - appDate.getTime()
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24))
+}
+
 /** Calculate minutes elapsed since lastChecked timestamp. */
 function getMinutesSinceLastChecked(lastCheckedStr: string): number {
   if (!lastCheckedStr) return Infinity
@@ -17,7 +35,7 @@ function getMinutesSinceLastChecked(lastCheckedStr: string): number {
   return Math.floor(diffMs / (1000 * 60))
 }
 
-/** 10-Minute Auto Check: Priority for selected in-progress students */
+/** 10-Minute Auto Check: Priority for selected students matching rules */
 async function runLocal10MinAutoCheck() {
   try {
     const db = await getTursoClient()
@@ -34,18 +52,31 @@ async function runLocal10MinAutoCheck() {
     })
 
     const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
+      const appDate = String(row.applicationDate || '')
       const lastChecked = String(row.lastChecked || '')
+      const statusRaw = String(row.status || '').toLowerCase()
+
+      const daysSinceApplied = getDaysSinceApplication(appDate)
       const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
 
       if (minutesSinceChecked < 3) {
         return false
       }
 
-      return true
+      const isUnderReviewOrSupplement =
+        statusRaw.includes('under review') ||
+        statusRaw.includes('supplement') ||
+        statusRaw.includes('topshirilgan') ||
+        statusRaw.includes('ko\'rib chiqilmoqda') ||
+        statusRaw.includes('asking')
+
+      const isApplied10DaysOrMore = Boolean(appDate) && daysSinceApplied >= 10
+
+      return isUnderReviewOrSupplement || isApplied10DaysOrMore
     })
 
     if (eligibleRows.length === 0) {
-      console.log('[Local Scheduler] 10-Min Auto-Check: No selected students to check.')
+      console.log('[Local Scheduler] 10-Min Auto-Check: No selected students match rules.')
       return
     }
 
@@ -115,7 +146,6 @@ async function runLocal6HourAutoCheck() {
       const lastChecked = String(row.lastChecked || '')
       const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
 
-      // Cooldown rule: skip if checked less than 10 minutes ago
       if (minutesSinceChecked < 10) {
         return false
       }
@@ -124,7 +154,7 @@ async function runLocal6HourAutoCheck() {
     })
 
     if (eligibleRows.length === 0) {
-      console.log('[Local Scheduler] 6-Hour Auto-Check: All students were checked within the last 10 minutes. Skipped.')
+      console.log('[Local Scheduler] 6-Hour Auto-Check: All students checked within last 10 mins. Skipped.')
       return
     }
 
@@ -182,19 +212,16 @@ export default defineNitroPlugin(() => {
 
   console.log('[Local Scheduler] Initializing local 10-minute and 6-hour auto-check schedulers for localhost...')
 
-  // Calculate ms remaining to next 10-minute boundary
   const now = new Date()
   const minutes = now.getMinutes()
   const seconds = now.getSeconds()
   const msInCycle = ((minutes % 10) * 60 + seconds) * 1000 + now.getMilliseconds()
   const initialDelay10m = 600000 - msInCycle
 
-  // Start 10-minute interval
   setTimeout(() => {
     runLocal10MinAutoCheck()
     setInterval(runLocal10MinAutoCheck, 10 * 60 * 1000)
   }, Math.max(1000, initialDelay10m))
 
-  // Start 6-hour interval (every 6 hours)
   setInterval(runLocal6HourAutoCheck, 6 * 60 * 60 * 1000)
 })
