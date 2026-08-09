@@ -27,7 +27,45 @@ const form = reactive<StudentFormInput>({
   birthday: '',
   studentId: '',
   visaType: 'Embassy',
-  applicationNo: ''
+  applicationNo: '',
+  tariff: '',
+  university: '',
+  coordinator: ''
+})
+
+const tariffsList = ref<{ name: string }[]>([])
+const universitiesList = ref<{ name: string }[]>([])
+const coordinatorsList = ref<{ name: string }[]>([])
+const { apiFetch } = useApiFetch()
+
+async function loadOptions() {
+  try {
+    const [t, u, c] = await Promise.all([
+      apiFetch<{ name: string }[]>('/api/settings/tariffs'),
+      apiFetch<{ name: string }[]>('/api/settings/universities'),
+      apiFetch<{ name: string }[]>('/api/settings/coordinators')
+    ])
+    tariffsList.value = t || []
+    universitiesList.value = u || []
+    coordinatorsList.value = c || []
+  } catch (err) {
+    console.error('Failed to load dropdown options in form modal:', err)
+  }
+}
+
+const tariffOptions = computed(() => {
+  const list = tariffsList.value.map(t => ({ value: t.name, label: t.name }))
+  return [{ value: '', label: 'None' }, ...list]
+})
+
+const universityOptions = computed(() => {
+  const list = universitiesList.value.map(u => ({ value: u.name, label: u.name }))
+  return [{ value: '', label: 'None' }, ...list]
+})
+
+const coordinatorOptions = computed(() => {
+  const list = coordinatorsList.value.map(c => ({ value: c.name, label: c.name }))
+  return [{ value: '', label: 'None' }, ...list]
 })
 
 function resetForm() {
@@ -37,6 +75,9 @@ function resetForm() {
   form.studentId = ''
   form.visaType = 'Embassy'
   form.applicationNo = ''
+  form.tariff = ''
+  form.university = ''
+  form.coordinator = ''
   originalPassport.value = ''
   errorMessage.value = ''
   resetLookup()
@@ -47,6 +88,7 @@ watch(() => props.open, (open) => {
     resetForm()
     return
   }
+  loadOptions()
   if (props.editingStudent) {
     const s = props.editingStudent
     form.fullName = s.fullName
@@ -55,6 +97,9 @@ watch(() => props.open, (open) => {
     form.studentId = s.studentId || ''
     form.visaType = s.visaType || 'Embassy'
     form.applicationNo = s.applicationNo || ''
+    form.tariff = s.tariff || ''
+    form.university = s.university || ''
+    form.coordinator = s.coordinator || ''
     originalPassport.value = s.passport
   } else {
     resetForm()
@@ -110,7 +155,10 @@ async function handleSubmit() {
       studentId: form.studentId.trim(),
       visaType: form.visaType,
       applicationNo: form.applicationNo.trim().toUpperCase(),
-      lastChecked: new Date().toISOString()
+      lastChecked: new Date().toISOString(),
+      tariff: form.tariff,
+      university: form.university,
+      coordinator: form.coordinator
     }
     if (isEdit.value && originalPassport.value && originalPassport.value !== passport) {
       payload.originalPassport = originalPassport.value
@@ -136,7 +184,10 @@ async function handleSubmit() {
           birthday,
           studentId: form.studentId.trim(),
           visaType: form.visaType,
-          applicationNo: form.applicationNo.trim().toUpperCase()
+          applicationNo: form.applicationNo.trim().toUpperCase(),
+          tariff: form.tariff,
+          university: form.university,
+          coordinator: form.coordinator
         })
       }
     } else {
@@ -148,7 +199,10 @@ async function handleSubmit() {
         visaType: form.visaType,
         applicationNo: form.applicationNo.trim().toUpperCase(),
         status: 'Pending',
-        lastChecked: payload.lastChecked
+        lastChecked: payload.lastChecked,
+        tariff: form.tariff,
+        university: form.university,
+        coordinator: form.coordinator
       })
     }
 
@@ -245,6 +299,39 @@ async function handleSubmit() {
             @input="handleUppercase('applicationNo', $event)"
           />
         </UFormField>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <UFormField label="Tariff">
+            <USelect
+              v-model="form.tariff"
+              :items="tariffOptions"
+              value-key="value"
+              label-key="label"
+              class="w-full"
+              placeholder="Choose Tariff"
+            />
+          </UFormField>
+          <UFormField label="University">
+            <USelect
+              v-model="form.university"
+              :items="universityOptions"
+              value-key="value"
+              label-key="label"
+              class="w-full"
+              placeholder="Choose University"
+            />
+          </UFormField>
+          <UFormField label="Coordinator">
+            <USelect
+              v-model="form.coordinator"
+              :items="coordinatorOptions"
+              value-key="value"
+              label-key="label"
+              class="w-full"
+              placeholder="Choose Coordinator"
+            />
+          </UFormField>
+        </div>
 
         <UFormField label="Student ID">
           <UInput

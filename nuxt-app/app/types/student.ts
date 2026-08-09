@@ -51,6 +51,9 @@ export interface Student {
   applicationNo?: string
   deletedAt?: string | null
   pinned?: boolean
+  tariff?: string
+  university?: string
+  coordinator?: string
   /** Internal: tracks the updatedAt of the last applied realtime event for ordering/dedup. */
   _realtimeUpdatedAt?: string
   /** Internal: cached lowercase search string to prevent string allocation during render. */
@@ -65,6 +68,9 @@ export interface StudentFormInput {
   visaType: VisaType
   applicationNo: string
   originalPassport?: string
+  tariff?: string
+  university?: string
+  coordinator?: string
 }
 
 export interface VisaCheckResult {

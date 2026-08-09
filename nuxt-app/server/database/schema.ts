@@ -79,7 +79,10 @@ export const STUDENT_COLUMNS: DbColumn[] = [
   { name: 'fullname', type: 'TEXT' },
   { name: 'visa_type', type: 'TEXT' },
   { name: 'application_date', type: 'TEXT' },
-  { name: 'last_checked', type: 'TEXT' }
+  { name: 'last_checked', type: 'TEXT' },
+  { name: 'tariff', type: 'TEXT' },
+  { name: 'university', type: 'TEXT' },
+  { name: 'coordinator', type: 'TEXT' }
 ]
 
 export const CREATE_JOBS_TABLE = `

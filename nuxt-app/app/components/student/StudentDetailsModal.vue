@@ -41,6 +41,81 @@ function handleDelete() {
 function handleDownloadPdf() {
   if (props.student) emit('download-pdf', props.student)
 }
+
+// ── Dropdown selection logic ──────────────────────────────────────────────────
+const { apiFetch } = useApiFetch()
+const studentsStore = useStudentsStore()
+const toast = useToast()
+
+const tariffsList = ref<{ name: string }[]>([])
+const universitiesList = ref<{ name: string }[]>([])
+const coordinatorsList = ref<{ name: string }[]>([])
+
+const selectedTariff = ref(props.student?.tariff || '')
+const selectedUniversity = ref(props.student?.university || '')
+const selectedCoordinator = ref(props.student?.coordinator || '')
+
+async function loadOptions() {
+  try {
+    const [t, u, c] = await Promise.all([
+      apiFetch<{ name: string }[]>('/api/settings/tariffs'),
+      apiFetch<{ name: string }[]>('/api/settings/universities'),
+      apiFetch<{ name: string }[]>('/api/settings/coordinators')
+    ])
+    tariffsList.value = t || []
+    universitiesList.value = u || []
+    coordinatorsList.value = c || []
+  } catch (err) {
+    console.error('Failed to load dropdown options in details modal:', err)
+  }
+}
+
+watch(() => props.open, (open) => {
+  if (open) {
+    loadOptions()
+    selectedTariff.value = props.student?.tariff || ''
+    selectedUniversity.value = props.student?.university || ''
+    selectedCoordinator.value = props.student?.coordinator || ''
+  }
+})
+
+watch(() => props.student, (newStudent) => {
+  selectedTariff.value = newStudent?.tariff || ''
+  selectedUniversity.value = newStudent?.university || ''
+  selectedCoordinator.value = newStudent?.coordinator || ''
+}, { deep: true })
+
+const tariffOptions = computed(() => {
+  const list = tariffsList.value.map(t => ({ value: t.name, label: t.name }))
+  return [{ value: '', label: 'None' }, ...list]
+})
+
+const universityOptions = computed(() => {
+  const list = universitiesList.value.map(u => ({ value: u.name, label: u.name }))
+  return [{ value: '', label: 'None' }, ...list]
+})
+
+const coordinatorOptions = computed(() => {
+  const list = coordinatorsList.value.map(c => ({ value: c.name, label: c.name }))
+  return [{ value: '', label: 'None' }, ...list]
+})
+
+async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', value: string) {
+  if (!props.student) return
+  try {
+    await apiFetch('/api/students', {
+      method: 'PATCH',
+      body: {
+        passport: props.student.passport,
+        [fieldName]: value
+      }
+    })
+    studentsStore.patchStudent(props.student.passport, { [fieldName]: value })
+    toast.add({ title: `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} updated!`, color: 'success' })
+  } catch (err: unknown) {
+    toast.add({ title: apiErrorMessage(err, `Failed to update ${fieldName}`), color: 'error' })
+  }
+}
 </script>
 
 <template>
@@ -96,6 +171,49 @@ function handleDownloadPdf() {
           <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3" :class="{ 'col-span-2': props.student.visaType !== 'E-Visa' && !statusDate }">
             <p class="text-xs text-[var(--color-text-secondary)] mb-1">Last Checked</p>
             <p class="text-sm font-medium">{{ formatTimestamp(props.student.lastChecked) }}</p>
+          </div>
+        </div>
+
+        <!-- Selection Dropdowns (Tariff, University, Coordinator) -->
+        <div class="border-t border-[var(--color-border)] dark:border-white/[0.08] pt-4.5 space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">Management</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">Tariff</label>
+              <USelect
+                v-model="selectedTariff"
+                :items="tariffOptions"
+                value-key="value"
+                label-key="label"
+                class="w-full"
+                placeholder="Choose Tariff"
+                @update:model-value="saveField('tariff', $event)"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">University</label>
+              <USelect
+                v-model="selectedUniversity"
+                :items="universityOptions"
+                value-key="value"
+                label-key="label"
+                class="w-full"
+                placeholder="Choose University"
+                @update:model-value="saveField('university', $event)"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">Coordinator</label>
+              <USelect
+                v-model="selectedCoordinator"
+                :items="coordinatorOptions"
+                value-key="value"
+                label-key="label"
+                class="w-full"
+                placeholder="Choose Coordinator"
+                @update:model-value="saveField('coordinator', $event)"
+              />
+            </div>
           </div>
         </div>
 

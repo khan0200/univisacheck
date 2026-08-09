@@ -55,7 +55,10 @@ async function fetchStudentPayload(
       visaType: (r.visaType as StudentPayload['visaType']) || 'Embassy',
       applicationNo: String(r.applicationNo || ''),
       deletedAt: (r.deletedAt as string | null) || null,
-      pinned: r.pinned === 1
+      pinned: r.pinned === 1,
+      tariff: r.tariff ? String(r.tariff) : undefined,
+      university: r.university ? String(r.university) : undefined,
+      coordinator: r.coordinator ? String(r.coordinator) : undefined
     }
   } catch {
     return null
@@ -148,7 +151,8 @@ export default defineEventHandler(async (event) => {
           sql: `SELECT 
                   passport, fullName, birthday, studentId, status,
                   applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
-                  batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned
+                  batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
+                  tariff, university, coordinator
                 FROM students 
                 WHERE userId = ? AND deletedAt IS NULL 
                 ORDER BY createdAt DESC`,
@@ -256,6 +260,9 @@ export default defineEventHandler(async (event) => {
       const apiResponse = body.apiResponse !== undefined ? (typeof body.apiResponse === 'object' ? JSON.stringify(body.apiResponse) : body.apiResponse) : null
       const visaType = body.visaType !== undefined ? body.visaType.trim() : null
       const applicationNo = body.applicationNo !== undefined ? body.applicationNo.trim() : null
+      const tariff = body.tariff !== undefined ? body.tariff : null
+      const university = body.university !== undefined ? body.university : null
+      const coordinator = body.coordinator !== undefined ? body.coordinator : null
 
       let batchSelected: number | null = null
       if (body.batchSelected !== undefined) {
@@ -285,8 +292,9 @@ export default defineEventHandler(async (event) => {
                     INSERT INTO students (
                         passport, fullName, birthday, studentId, status,
                         applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
-                        batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?)
+                        batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
+                        tariff, university, coordinator
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?)
                 `
         await db.execute({
           sql,
@@ -306,7 +314,10 @@ export default defineEventHandler(async (event) => {
             userId,
             visaType || 'Embassy',
             applicationNo || '',
-            pinned !== null ? pinned : 0
+            pinned !== null ? pinned : 0,
+            tariff || '',
+            university || '',
+            coordinator || ''
           ]
         })
         await syncStudentsCount(db, userId)
@@ -411,6 +422,21 @@ export default defineEventHandler(async (event) => {
           updateFields.push('pinned = ?')
           args.push(pinned)
           changedFields.pinned = pinned === 1
+        }
+        if (tariff !== null) {
+          updateFields.push('tariff = ?')
+          args.push(tariff)
+          changedFields.tariff = tariff
+        }
+        if (university !== null) {
+          updateFields.push('university = ?')
+          args.push(university)
+          changedFields.university = university
+        }
+        if (coordinator !== null) {
+          updateFields.push('coordinator = ?')
+          args.push(coordinator)
+          changedFields.coordinator = coordinator
         }
 
         if (updateFields.length === 0) {

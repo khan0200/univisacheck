@@ -24,6 +24,9 @@ export interface StudentPayload {
   applicationNo?: string
   deletedAt?: string | null
   pinned?: boolean
+  tariff?: string
+  university?: string
+  coordinator?: string
 }
 
 export interface BaseEvent {
