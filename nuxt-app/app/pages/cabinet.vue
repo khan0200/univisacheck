@@ -58,13 +58,23 @@ async function openDetails(student: Student) {
   }
 }
 
-async function handleDelete(student: Student) {
-  if (!confirm(`Are you sure you want to delete ${student.fullName}?`)) return
+const showDeleteConfirm = ref(false)
+const studentToDelete = ref<Student | null>(null)
+
+function promptDelete(student: Student) {
+  studentToDelete.value = student
+  showDeleteConfirm.value = true
+}
+
+async function confirmDeleteStudent() {
+  if (!studentToDelete.value) return
+  const student = studentToDelete.value
   try {
     await removeStudent(student.passport)
     studentsStore.removeLocal([student.passport])
     if (detailsStudent.value?.passport === student.passport) detailsModalOpen.value = false
     toast.add({ title: 'Student deleted', color: 'primary', icon: 'i-lucide-trash-2', duration: 2500 })
+    showDeleteConfirm.value = false
   } catch {
     toast.add({ title: 'Failed to delete student.', color: 'error', icon: 'i-lucide-alert-circle', duration: 2500 })
   }
@@ -230,7 +240,7 @@ function setFilter(filter: StatusFilter) {
           :checking-passports="checkingPassports"
           @edit="openEditModal"
           @details="openDetails"
-          @delete="handleDelete"
+          @delete="promptDelete"
           @refresh="handleRefresh"
           @download-pdf="handleDownloadPdf"
           @toggle-select="handleToggleSelect"
@@ -253,7 +263,7 @@ function setFilter(filter: StatusFilter) {
       :student="detailsStudent"
       :checking="detailsStudent ? checkingPassports.has(detailsStudent.passport) : false"
       @edit="openEditModal"
-      @delete="handleDelete"
+      @delete="promptDelete"
       @refresh="handleRefresh"
       @download-pdf="handleDownloadPdf"
     />
@@ -263,5 +273,37 @@ function setFilter(filter: StatusFilter) {
       :students="studentsStore.filteredStudents"
       @delete="handleModalBulkDelete"
     />
+
+    <!-- Delete Confirm Modal -->
+    <UModal
+      :open="showDeleteConfirm"
+      title="Delete Student?"
+      @update:open="showDeleteConfirm = $event"
+    >
+      <template #body>
+        <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+          Are you sure you want to delete
+          <strong class="text-[var(--color-text-primary)] dark:text-white">{{ studentToDelete?.fullName }}</strong>?
+          This action cannot be undone.
+        </p>
+      </template>
+      <template #footer>
+        <div class="flex items-center justify-end gap-2 w-full">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            @click="showDeleteConfirm = false"
+          >
+            Cancel
+          </UButton>
+          <UButton
+            color="error"
+            @click="confirmDeleteStudent"
+          >
+            Delete
+          </UButton>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
