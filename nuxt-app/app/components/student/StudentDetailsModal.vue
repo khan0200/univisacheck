@@ -254,7 +254,7 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                 University
               </label>
-              <USelect
+              <USelectMenu
                 v-model="selectedUniversity"
                 :items="universityOptions"
                 value-key="value"

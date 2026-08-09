@@ -362,7 +362,7 @@ async function handleSubmit() {
             />
           </UFormField>
           <UFormField label="University">
-            <USelect
+            <USelectMenu
               v-model="form.university"
               :items="universityOptions"
               value-key="value"
