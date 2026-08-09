@@ -69,7 +69,10 @@ const navItems: { key: Section, label: string, icon: string }[] = [
               : 'text-[var(--color-text-secondary)] hover:bg-neutral-100 dark:hover:bg-white/[0.06] hover:text-[var(--color-text-primary)] dark:hover:text-white'"
             @click="setSection(item.key)"
           >
-            <UIcon :name="item.icon" class="size-4 shrink-0" />
+            <UIcon
+              :name="item.icon"
+              class="size-4 shrink-0"
+            />
             {{ item.label }}
           </button>
         </nav>
@@ -88,7 +91,10 @@ const navItems: { key: Section, label: string, icon: string }[] = [
               : 'bg-neutral-100 dark:bg-white/[0.06] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] dark:hover:text-white'"
             @click="setSection(item.key)"
           >
-            <UIcon :name="item.icon" class="size-3.5 shrink-0" />
+            <UIcon
+              :name="item.icon"
+              class="size-3.5 shrink-0"
+            />
             {{ item.label }}
           </button>
         </div>

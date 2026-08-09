@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  saved: []
+  'saved': []
 }>()
 
 const toast = useToast()
@@ -135,12 +135,18 @@ async function handleSubmit() {
   const birthday = form.birthday.trim()
 
   const passportError = validatePassport(passport)
-  if (passportError) { errorMessage.value = passportError; return }
+  if (passportError) {
+    errorMessage.value = passportError
+    return
+  }
 
   const birthdayError = validateBirthday(birthday)
-  if (birthdayError) { errorMessage.value = birthdayError; return }
+  if (birthdayError) {
+    errorMessage.value = birthdayError
+    return
+  }
 
-  const duplicate = studentsStore.students.find((s) => s.passport === passport && s.passport !== originalPassport.value)
+  const duplicate = studentsStore.students.find(s => s.passport === passport && s.passport !== originalPassport.value)
   if (duplicate) {
     errorMessage.value = `Student with passport ${passport} already exists`
     return
@@ -174,7 +180,7 @@ async function handleSubmit() {
     // For edits, patch the existing student; for new students, add to top of list.
     if (isEdit.value) {
       const existing = studentsStore.students.find(
-        (s) => s.passport === (originalPassport.value || passport)
+        s => s.passport === (originalPassport.value || passport)
       )
       if (existing) {
         studentsStore.upsertLocal({
@@ -209,7 +215,7 @@ async function handleSubmit() {
     toast.add({ title: isEdit.value ? 'Student updated' : 'Student added', color: 'primary', duration: 2500 })
     emit('saved')
     emit('update:open', false)
-  } catch (e: any) {
+  } catch (e: unknown) {
     errorMessage.value = apiErrorMessage(e, 'Failed to save student. Please try again.')
   } finally {
     submitting.value = false
@@ -218,11 +224,20 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <UModal :open="props.open" :title="isEdit ? 'Edit Student' : 'Add New Student'" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="props.open"
+    :title="isEdit ? 'Edit Student' : 'Add New Student'"
+    @update:open="emit('update:open', $event)"
+  >
     <template #body>
-      <form class="space-y-5" @submit.prevent="handleSubmit">
+      <form
+        class="space-y-5"
+        @submit.prevent="handleSubmit"
+      >
         <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1.5">Visa Type</label>
+          <label class="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1.5">
+            Visa Type
+          </label>
           <div class="grid grid-cols-3 gap-1 p-1 rounded-md bg-white ring-1 ring-black/[0.06]">
             <button
               type="button"
@@ -259,14 +274,35 @@ async function handleSubmit() {
             class="w-full"
             @input="handlePassportInput"
           />
-          <p v-if="lookupStatus === 'checking'" class="text-xs text-[var(--color-text-secondary)] mt-1 flex items-center gap-1">
-            <UIcon name="i-lucide-refresh-cw" class="size-3 animate-spin" /> Checking…
+          <p
+            v-if="lookupStatus === 'checking'"
+            class="text-xs text-[var(--color-text-secondary)] mt-1 flex items-center gap-1"
+          >
+            <UIcon
+              name="i-lucide-refresh-cw"
+              class="size-3 animate-spin"
+            />
+            Checking…
           </p>
-          <p v-else-if="lookupStatus === 'duplicate'" class="text-xs text-warning-600 mt-1 flex items-center gap-1">
-            <UIcon name="i-lucide-triangle-alert" class="size-3" /> This student is already in your database.
+          <p
+            v-else-if="lookupStatus === 'duplicate'"
+            class="text-xs text-warning-600 mt-1 flex items-center gap-1"
+          >
+            <UIcon
+              name="i-lucide-triangle-alert"
+              class="size-3"
+            />
+            This student is already in your database.
           </p>
-          <p v-else-if="lookupStatus === 'found'" class="text-xs text-primary-700 dark:text-secondary-300 mt-1 flex items-center gap-1">
-            <UIcon name="i-lucide-info" class="size-3" /> Found in our records — name & birthday autofilled.
+          <p
+            v-else-if="lookupStatus === 'found'"
+            class="text-xs text-primary-700 dark:text-secondary-300 mt-1 flex items-center gap-1"
+          >
+            <UIcon
+              name="i-lucide-info"
+              class="size-3"
+            />
+            Found in our records — name & birthday autofilled.
           </p>
         </UFormField>
 
@@ -280,7 +316,10 @@ async function handleSubmit() {
           />
         </UFormField>
 
-        <UFormField label="Birthday" hint="Format: YYYY-MM-DD">
+        <UFormField
+          label="Birthday"
+          hint="Format: YYYY-MM-DD"
+        >
           <UInput
             :model-value="form.birthday"
             placeholder="YYYY-MM-DD"
@@ -291,7 +330,10 @@ async function handleSubmit() {
           />
         </UFormField>
 
-        <UFormField v-if="form.visaType === 'E-Visa' || form.visaType === 'Regional'" label="Application Number">
+        <UFormField
+          v-if="form.visaType === 'E-Visa' || form.visaType === 'Regional'"
+          label="Application Number"
+        >
           <UInput
             :model-value="form.applicationNo"
             placeholder="AP2026123456"
@@ -342,9 +384,20 @@ async function handleSubmit() {
           />
         </UFormField>
 
-        <UAlert v-if="errorMessage" color="error" variant="soft" :title="errorMessage" />
+        <UAlert
+          v-if="errorMessage"
+          color="error"
+          variant="soft"
+          :title="errorMessage"
+        />
 
-        <UiLoadingButton type="submit" block size="lg" :loading="submitting" color="primary">
+        <UiLoadingButton
+          type="submit"
+          block
+          size="lg"
+          :loading="submitting"
+          color="primary"
+        >
           {{ isEdit ? 'Update Student' : 'Save Student' }}
         </UiLoadingButton>
       </form>

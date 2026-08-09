@@ -143,7 +143,6 @@ CREATE TABLE IF NOT EXISTS visa_scheduler_lock (
 );
 `
 
-
 export const CREATE_VISA_PROCESSING_NOTIFICATIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_processing_notifications (
     id                    INTEGER PRIMARY KEY AUTOINCREMENT,

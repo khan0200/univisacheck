@@ -10,9 +10,9 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  edit: [student: Student]
-  delete: [student: Student]
-  refresh: [student: Student]
+  'edit': [student: Student]
+  'delete': [student: Student]
+  'refresh': [student: Student]
   'download-pdf': [student: Student]
 }>()
 
@@ -119,16 +119,25 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
 </script>
 
 <template>
-  <UModal :open="props.open" title="Student Details" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="props.open"
+    title="Student Details"
+    @update:open="emit('update:open', $event)"
+  >
     <template #body>
-      <div v-if="props.student" class="space-y-5">
+      <div
+        v-if="props.student"
+        class="space-y-5"
+      >
         <button
           type="button"
           class="w-full text-left group/name cursor-pointer"
           @click="copyValue(props.student.fullName, 'modal-fullname')"
         >
           <span class="flex items-center gap-1.5">
-            <h3 class="font-semibold text-[var(--color-text-primary)] dark:text-white truncate">{{ props.student.fullName }}</h3>
+            <h3 class="font-semibold text-[var(--color-text-primary)] dark:text-white truncate">
+              {{ props.student.fullName }}
+            </h3>
             <UIcon
               :name="isCopied('modal-fullname') ? 'i-lucide-check' : 'i-lucide-copy'"
               class="size-3.5 shrink-0"
@@ -147,8 +156,12 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
           @click="copyValue(props.student.passport, 'modal-passport')"
         >
           <div class="min-w-0">
-            <p class="text-[10.5px] font-semibold uppercase tracking-wide text-primary-700 dark:text-secondary-300">Passport Number</p>
-            <p class="text-base font-bold tracking-wide text-primary-950 dark:text-white truncate">{{ props.student.passport }}</p>
+            <p class="text-[10.5px] font-semibold uppercase tracking-wide text-primary-700 dark:text-secondary-300">
+              Passport Number
+            </p>
+            <p class="text-base font-bold tracking-wide text-primary-950 dark:text-white truncate">
+              {{ props.student.passport }}
+            </p>
           </div>
           <UIcon
             :name="isCopied('modal-passport') ? 'i-lucide-check' : 'i-lucide-copy'"
@@ -158,25 +171,52 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
         </button>
 
         <div class="grid grid-cols-2 gap-3">
-          <StudentDetailCopyCell label="Student ID" :value="props.student.studentId" copy-id="modal-studentid" />
-          <StudentDetailCopyCell label="Birthdate" :value="props.student.birthday" copy-id="modal-birthday" bold />
-          <StudentDetailCopyCell label="Application Date" :value="props.student.applicationDate" copy-id="modal-appdate" />
+          <StudentDetailCopyCell
+            label="Student ID"
+            :value="props.student.studentId"
+            copy-id="modal-studentid"
+          />
+          <StudentDetailCopyCell
+            label="Birthdate"
+            :value="props.student.birthday"
+            copy-id="modal-birthday"
+            bold
+          />
+          <StudentDetailCopyCell
+            label="Application Date"
+            :value="props.student.applicationDate"
+            copy-id="modal-appdate"
+          />
           <StudentDetailCopyCell
             v-if="props.student.visaType === 'E-Visa'"
             label="Application Number"
             :value="props.student.applicationNo"
             copy-id="modal-appno"
           />
-          <StudentDetailCopyCell v-if="statusDate" label="Status Date" :value="statusDate" copy-id="modal-statusdate" />
-          <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3" :class="{ 'col-span-2': props.student.visaType !== 'E-Visa' && !statusDate }">
-            <p class="text-xs text-[var(--color-text-secondary)] mb-1">Last Checked</p>
-            <p class="text-sm font-medium">{{ formatTimestamp(props.student.lastChecked) }}</p>
+          <StudentDetailCopyCell
+            v-if="statusDate"
+            label="Status Date"
+            :value="statusDate"
+            copy-id="modal-statusdate"
+          />
+          <div
+            class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3"
+            :class="{ 'col-span-2': props.student.visaType !== 'E-Visa' && !statusDate }"
+          >
+            <p class="text-xs text-[var(--color-text-secondary)] mb-1">
+              Last Checked
+            </p>
+            <p class="text-sm font-medium">
+              {{ formatTimestamp(props.student.lastChecked) }}
+            </p>
           </div>
         </div>
 
         <!-- Selection Dropdowns (Tariff, University, Coordinator) -->
         <div class="border-t border-[var(--color-border)] dark:border-white/[0.08] pt-4.5 space-y-4">
-          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">Management</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+            Management
+          </p>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">Tariff</label>
@@ -217,13 +257,24 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
           </div>
         </div>
 
-        <div v-if="reason" class="flex items-start gap-2.5 rounded-xl bg-danger-50 dark:bg-danger-950/30 border border-danger-200 dark:border-danger-900 p-3">
-          <UIcon name="i-lucide-triangle-alert" class="size-4 text-danger-600 shrink-0 mt-0.5" />
-          <p class="text-xs text-danger-700 dark:text-danger-300 leading-relaxed">{{ reason }}</p>
+        <div
+          v-if="reason"
+          class="flex items-start gap-2.5 rounded-xl bg-danger-50 dark:bg-danger-950/30 border border-danger-200 dark:border-danger-900 p-3"
+        >
+          <UIcon
+            name="i-lucide-triangle-alert"
+            class="size-4 text-danger-600 shrink-0 mt-0.5"
+          />
+          <p class="text-xs text-danger-700 dark:text-danger-300 leading-relaxed">
+            {{ reason }}
+          </p>
         </div>
       </div>
     </template>
-    <template v-if="props.student" #footer>
+    <template
+      v-if="props.student"
+      #footer
+    >
       <div class="grid grid-cols-3 w-full gap-2">
         <UButton
           icon="i-lucide-trash-2"
