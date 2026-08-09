@@ -16,7 +16,7 @@ const label = computed(() => {
 
 const dotClass = computed(() => {
   switch (props.status) {
-    case 'connected': return 'bg-emerald-500 animate-pulse'
+    case 'connected': return 'bg-emerald-500'
     case 'reconnecting': return 'bg-amber-400 animate-pulse'
     case 'offline': return 'bg-red-500'
     default: return 'bg-neutral-400 animate-pulse'
@@ -31,6 +31,14 @@ const dotClass = computed(() => {
     aria-live="polite"
   >
     <span
+      v-if="status === 'connected'"
+      class="relative flex size-1.5 shrink-0"
+    >
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+      <span class="relative inline-flex rounded-full size-1.5 bg-emerald-500" />
+    </span>
+    <span
+      v-else
       class="size-1.5 rounded-full shrink-0 transition-colors duration-300"
       :class="dotClass"
     />
