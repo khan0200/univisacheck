@@ -30,7 +30,10 @@ const dotClass = computed(() => {
     :title="`Realtime sync: ${label}`"
     aria-live="polite"
   >
-    <span class="size-1.5 rounded-full shrink-0 transition-colors duration-300" :class="dotClass" />
+    <span
+      class="size-1.5 rounded-full shrink-0 transition-colors duration-300"
+      :class="dotClass"
+    />
     <span class="hidden sm:inline text-[var(--color-text-secondary)] dark:text-white/50 transition-colors duration-300">
       {{ label }}
     </span>

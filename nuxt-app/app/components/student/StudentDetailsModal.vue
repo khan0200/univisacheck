@@ -50,25 +50,24 @@ const toast = useToast()
 const tariffsList = ref<{ name: string }[]>([])
 const universitiesList = ref<{ name: string }[]>([])
 const coordinatorsList = ref<{ name: string }[]>([])
+const b2bList = ref<{ name: string }[]>([])
 
-const selectedTariff = ref(props.student?.tariff || 'none')
-const selectedUniversity = ref(props.student?.university || 'none')
-const selectedCoordinator = ref(props.student?.coordinator || 'none')
-
-const editingTariff = ref(false)
-const editingUniversity = ref(false)
-const editingCoordinator = ref(false)
+const showEditFieldModal = ref(false)
+const editingFieldName = ref<'tariff' | 'university' | 'coordinator' | 'b2b' | null>(null)
+const editingFieldValue = ref('none')
 
 async function loadOptions() {
   try {
-    const [t, u, c] = await Promise.all([
+    const [t, u, c, b] = await Promise.all([
       apiFetch<{ name: string }[]>('/api/settings/tariffs'),
       apiFetch<{ name: string }[]>('/api/settings/universities'),
-      apiFetch<{ name: string }[]>('/api/settings/coordinators')
+      apiFetch<{ name: string }[]>('/api/settings/coordinators'),
+      apiFetch<{ name: string }[]>('/api/settings/b2b')
     ])
     tariffsList.value = t || []
     universitiesList.value = u || []
     coordinatorsList.value = c || []
+    b2bList.value = b || []
   } catch (err) {
     console.error('Failed to load dropdown options in details modal:', err)
   }
@@ -77,20 +76,26 @@ async function loadOptions() {
 watch(() => props.open, (open) => {
   if (open) {
     loadOptions()
-    selectedTariff.value = props.student?.tariff || 'none'
-    selectedUniversity.value = props.student?.university || 'none'
-    selectedCoordinator.value = props.student?.coordinator || 'none'
   }
-  editingTariff.value = false
-  editingUniversity.value = false
-  editingCoordinator.value = false
+  showEditFieldModal.value = false
 })
 
-watch(() => props.student, (newStudent) => {
-  selectedTariff.value = newStudent?.tariff || 'none'
-  selectedUniversity.value = newStudent?.university || 'none'
-  selectedCoordinator.value = newStudent?.coordinator || 'none'
-}, { deep: true })
+function openEditField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b2b') {
+  editingFieldName.value = fieldName
+  if (fieldName === 'tariff') editingFieldValue.value = props.student?.tariff || 'none'
+  else if (fieldName === 'university') editingFieldValue.value = props.student?.university || 'none'
+  else if (fieldName === 'coordinator') editingFieldValue.value = props.student?.coordinator || 'none'
+  else if (fieldName === 'b2b') editingFieldValue.value = props.student?.b2b || 'none'
+  showEditFieldModal.value = true
+}
+
+const editingFieldOptions = computed(() => {
+  if (editingFieldName.value === 'tariff') return tariffOptions.value
+  if (editingFieldName.value === 'university') return universityOptions.value
+  if (editingFieldName.value === 'coordinator') return coordinatorOptions.value
+  if (editingFieldName.value === 'b2b') return b2bOptions.value
+  return []
+})
 
 const tariffOptions = computed(() => {
   const uniqueNames = [...new Set(tariffsList.value.map(t => t.name))]
@@ -110,7 +115,13 @@ const coordinatorOptions = computed(() => {
   return [{ value: 'none', label: 'None' }, ...list]
 })
 
-async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', value: string) {
+const b2bOptions = computed(() => {
+  const uniqueNames = [...new Set(b2bList.value.map(b => b.name))]
+  const list = uniqueNames.map(name => ({ value: name, label: name }))
+  return [{ value: 'none', label: 'None' }, ...list]
+})
+
+async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b2b', value: string) {
   if (!props.student) return
   const apiValue = value === 'none' ? '' : value
   try {
@@ -123,24 +134,9 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
     })
     studentsStore.patchStudent(props.student.passport, { [fieldName]: apiValue })
     toast.add({ title: `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} updated!`, color: 'success' })
-    if (fieldName === 'tariff') editingTariff.value = false
-    if (fieldName === 'university') editingUniversity.value = false
-    if (fieldName === 'coordinator') editingCoordinator.value = false
+    showEditFieldModal.value = false
   } catch (err: unknown) {
     toast.add({ title: apiErrorMessage(err, `Failed to update ${fieldName}`), color: 'error' })
-  }
-}
-
-function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
-  if (fieldName === 'tariff') {
-    selectedTariff.value = props.student?.tariff || 'none'
-    editingTariff.value = false
-  } else if (fieldName === 'university') {
-    selectedUniversity.value = props.student?.university || 'none'
-    editingUniversity.value = false
-  } else if (fieldName === 'coordinator') {
-    selectedCoordinator.value = props.student?.coordinator || 'none'
-    editingCoordinator.value = false
   }
 }
 </script>
@@ -267,10 +263,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                 Tariff
               </label>
-              <div
-                v-if="!editingTariff"
-                class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]"
-              >
+              <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]">
                 <span class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white truncate pr-2">
                   {{ props.student?.tariff || 'None' }}
                 </span>
@@ -281,7 +274,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                     color="neutral"
                     size="sm"
                     aria-label="Edit Tariff"
-                    @click="editingTariff = true"
+                    @click="openEditField('tariff')"
                   />
                   <UButton
                     v-if="props.student?.tariff"
@@ -294,37 +287,6 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   />
                 </div>
               </div>
-              <div
-                v-else
-                class="flex items-center gap-2"
-              >
-                <USelect
-                  v-model="selectedTariff"
-                  :items="tariffOptions"
-                  value-key="value"
-                  label-key="label"
-                  class="flex-1 min-w-0"
-                  placeholder="Choose Tariff"
-                />
-                <UButton
-                  icon="i-lucide-check"
-                  variant="ghost"
-                  color="success"
-                  size="sm"
-                  class="shrink-0"
-                  aria-label="Save Tariff"
-                  @click="saveField('tariff', selectedTariff)"
-                />
-                <UButton
-                  icon="i-lucide-x"
-                  variant="ghost"
-                  color="neutral"
-                  size="sm"
-                  class="shrink-0"
-                  aria-label="Cancel editing"
-                  @click="cancelEdit('tariff')"
-                />
-              </div>
             </div>
 
             <!-- University Field -->
@@ -332,10 +294,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                 University
               </label>
-              <div
-                v-if="!editingUniversity"
-                class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]"
-              >
+              <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]">
                 <span class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white truncate pr-2">
                   {{ props.student?.university || 'None' }}
                 </span>
@@ -346,7 +305,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                     color="neutral"
                     size="sm"
                     aria-label="Edit University"
-                    @click="editingUniversity = true"
+                    @click="openEditField('university')"
                   />
                   <UButton
                     v-if="props.student?.university"
@@ -359,37 +318,6 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   />
                 </div>
               </div>
-              <div
-                v-else
-                class="flex items-center gap-2"
-              >
-                <USelectMenu
-                  v-model="selectedUniversity"
-                  :items="universityOptions"
-                  value-key="value"
-                  label-key="label"
-                  class="flex-1 min-w-0"
-                  placeholder="Choose University"
-                />
-                <UButton
-                  icon="i-lucide-check"
-                  variant="ghost"
-                  color="success"
-                  size="sm"
-                  class="shrink-0"
-                  aria-label="Save University"
-                  @click="saveField('university', selectedUniversity)"
-                />
-                <UButton
-                  icon="i-lucide-x"
-                  variant="ghost"
-                  color="neutral"
-                  size="sm"
-                  class="shrink-0"
-                  aria-label="Cancel editing"
-                  @click="cancelEdit('university')"
-                />
-              </div>
             </div>
 
             <!-- Coordinator Field -->
@@ -397,10 +325,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                 Coordinator
               </label>
-              <div
-                v-if="!editingCoordinator"
-                class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]"
-              >
+              <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]">
                 <span class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white truncate pr-2">
                   {{ props.student?.coordinator || 'None' }}
                 </span>
@@ -411,7 +336,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                     color="neutral"
                     size="sm"
                     aria-label="Edit Coordinator"
-                    @click="editingCoordinator = true"
+                    @click="openEditField('coordinator')"
                   />
                   <UButton
                     v-if="props.student?.coordinator"
@@ -424,36 +349,36 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   />
                 </div>
               </div>
-              <div
-                v-else
-                class="flex items-center gap-2"
-              >
-                <USelect
-                  v-model="selectedCoordinator"
-                  :items="coordinatorOptions"
-                  value-key="value"
-                  label-key="label"
-                  class="flex-1 min-w-0"
-                  placeholder="Choose Coordinator"
-                />
-                <UButton
-                  icon="i-lucide-check"
-                  variant="ghost"
-                  color="success"
-                  size="sm"
-                  class="shrink-0"
-                  aria-label="Save Coordinator"
-                  @click="saveField('coordinator', selectedCoordinator)"
-                />
-                <UButton
-                  icon="i-lucide-x"
-                  variant="ghost"
-                  color="neutral"
-                  size="sm"
-                  class="shrink-0"
-                  aria-label="Cancel editing"
-                  @click="cancelEdit('coordinator')"
-                />
+            </div>
+
+            <!-- B2B Field -->
+            <div>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                B2B Partner
+              </label>
+              <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]">
+                <span class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white truncate pr-2">
+                  {{ props.student?.b2b || 'None' }}
+                </span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <UButton
+                    icon="i-lucide-pencil"
+                    variant="ghost"
+                    color="neutral"
+                    size="sm"
+                    aria-label="Edit B2B"
+                    @click="openEditField('b2b')"
+                  />
+                  <UButton
+                    v-if="props.student?.b2b"
+                    icon="i-lucide-trash-2"
+                    variant="ghost"
+                    color="error"
+                    size="sm"
+                    aria-label="Clear B2B"
+                    @click="saveField('b2b', 'none')"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -504,6 +429,46 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
           Check
         </UiLoadingButton>
       </div>
+    </template>
+  </UModal>
+
+  <!-- Edit Field Modal -->
+  <UModal
+    v-model:open="showEditFieldModal"
+    :title="`Edit ${editingFieldName ? (editingFieldName === 'b2b' ? 'B2B Partner' : editingFieldName.charAt(0).toUpperCase() + editingFieldName.slice(1)) : ''}`"
+  >
+    <template #body>
+      <form
+        class="space-y-4"
+        @submit.prevent="saveField(editingFieldName!, editingFieldValue)"
+      >
+        <UFormField :label="editingFieldName ? (editingFieldName === 'b2b' ? 'B2B Partner' : editingFieldName.charAt(0).toUpperCase() + editingFieldName.slice(1)) : ''">
+          <USelectMenu
+            v-model="editingFieldValue"
+            :items="editingFieldOptions"
+            value-key="value"
+            label-key="label"
+            class="w-full"
+            placeholder="Choose option"
+          />
+        </UFormField>
+
+        <div class="flex gap-2 justify-end pt-1">
+          <UButton
+            variant="ghost"
+            color="neutral"
+            @click="showEditFieldModal = false"
+          >
+            Cancel
+          </UButton>
+          <UButton
+            type="submit"
+            color="primary"
+          >
+            Save
+          </UButton>
+        </div>
+      </form>
     </template>
   </UModal>
 </template>

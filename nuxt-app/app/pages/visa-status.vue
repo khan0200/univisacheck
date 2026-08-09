@@ -131,12 +131,25 @@ async function handleSearch() {
   <div>
     <nav class="sticky top-0 z-30 h-15 glass border-b border-[var(--color-border)] dark:border-white/[0.08]">
       <div class="max-w-md mx-auto h-full flex items-center justify-between px-6">
-        <NuxtLink to="/" class="flex items-center gap-2">
-          <img src="/logo.png" alt="SalomKorea" class="h-8 w-8 rounded-md object-contain">
+        <NuxtLink
+          to="/"
+          class="flex items-center gap-2"
+        >
+          <img
+            src="/logo.png"
+            alt="SalomKorea"
+            class="h-8 w-8 rounded-md object-contain"
+          >
           <span class="font-bold text-[15px] tracking-tight text-[var(--color-text-primary)] dark:text-white">Salom<span class="text-primary-600">Korea</span></span>
         </NuxtLink>
-        <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] dark:hover:text-white px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-white/5 transition-colors">
-          <UIcon name="i-lucide-arrow-left" class="size-3.5" />
+        <NuxtLink
+          to="/"
+          class="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] dark:hover:text-white px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-white/5 transition-colors"
+        >
+          <UIcon
+            name="i-lucide-arrow-left"
+            class="size-3.5"
+          />
           Home
         </NuxtLink>
       </div>
@@ -149,7 +162,10 @@ async function handleSearch() {
         </h1>
       </header>
 
-      <UCard class="w-full max-w-md" :ui="{ body: 'p-7' }">
+      <UCard
+        class="w-full max-w-md"
+        :ui="{ body: 'p-7' }"
+      >
         <div class="grid grid-cols-3 gap-1 p-1 rounded-md bg-primary-50 dark:bg-white/5 mb-6">
           <button
             type="button"
@@ -177,7 +193,10 @@ async function handleSearch() {
           </button>
         </div>
 
-        <form class="space-y-4" @submit.prevent="handleSearch">
+        <form
+          class="space-y-4"
+          @submit.prevent="handleSearch"
+        >
           <UFormField label="Passport Number">
             <UInput
               :model-value="form.passport"
@@ -194,7 +213,10 @@ async function handleSearch() {
           </UFormField>
 
           <UFormField label="Full Name (as in passport)">
-            <div v-if="autofillLoading && !userEdited.name" class="h-11 rounded-lg bg-neutral-200/70 dark:bg-white/10 animate-pulse" />
+            <div
+              v-if="autofillLoading && !userEdited.name"
+              class="h-11 rounded-lg bg-neutral-200/70 dark:bg-white/10 animate-pulse"
+            />
             <UInput
               v-else
               :model-value="form.name"
@@ -211,7 +233,10 @@ async function handleSearch() {
           </UFormField>
 
           <UFormField label="Date of Birth">
-            <div v-if="autofillLoading && !userEdited.dob" class="h-11 rounded-lg bg-neutral-200/70 dark:bg-white/10 animate-pulse" />
+            <div
+              v-if="autofillLoading && !userEdited.dob"
+              class="h-11 rounded-lg bg-neutral-200/70 dark:bg-white/10 animate-pulse"
+            />
             <UInput
               v-else
               :model-value="form.dob"
@@ -227,7 +252,10 @@ async function handleSearch() {
             />
           </UFormField>
 
-          <UFormField v-if="visaType === 'E-Visa' || visaType === 'Regional'" label="Application Number">
+          <UFormField
+            v-if="visaType === 'E-Visa' || visaType === 'Regional'"
+            label="Application Number"
+          >
             <UInput
               :model-value="form.appNo"
               placeholder="AP2026123456"
@@ -242,11 +270,23 @@ async function handleSearch() {
             />
           </UFormField>
 
-          <UiLoadingButton type="submit" block size="lg" color="primary" class="mt-1" :loading="submitting">
+          <UiLoadingButton
+            type="submit"
+            block
+            size="lg"
+            color="primary"
+            class="mt-1"
+            :loading="submitting"
+          >
             Check Status
           </UiLoadingButton>
 
-          <UAlert v-if="errorMessage" color="error" variant="soft" :title="errorMessage" />
+          <UAlert
+            v-if="errorMessage"
+            color="error"
+            variant="soft"
+            :title="errorMessage"
+          />
         </form>
       </UCard>
 
@@ -254,7 +294,10 @@ async function handleSearch() {
         <VisaTelegramBanner />
       </div>
 
-      <div v-if="resultState !== 'idle'" class="w-full max-w-md mt-4">
+      <div
+        v-if="resultState !== 'idle'"
+        class="w-full max-w-md mt-4"
+      >
         <VisaResultSkeleton v-if="resultState === 'loading'" />
         <VisaNotFoundCard v-else-if="resultState === 'not-found'" />
         <VisaResultCard
@@ -267,7 +310,10 @@ async function handleSearch() {
       </div>
 
       <footer class="mt-10 text-center text-[13px] text-[var(--color-text-secondary)]">
-        <NuxtLink to="/" class="border-b border-[var(--color-border)] hover:text-[var(--color-text-primary)] dark:hover:text-white transition-colors">
+        <NuxtLink
+          to="/"
+          class="border-b border-[var(--color-border)] hover:text-[var(--color-text-primary)] dark:hover:text-white transition-colors"
+        >
           ← Back to Home
         </NuxtLink>
       </footer>

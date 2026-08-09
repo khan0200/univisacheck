@@ -19,7 +19,7 @@ export function printChecklist(title: string, subtitle: string, sections: Checkl
 
   const sectionsHtml = sections
     .map(
-      (section) => `
+      section => `
         <h2>${escapeHtml(section.title)}</h2>
         <table>
           <thead><tr><th style="width:36px">T/r</th><th>Hujjat nomi</th><th>Izoh</th></tr></thead>

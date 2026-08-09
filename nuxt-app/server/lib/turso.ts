@@ -26,6 +26,7 @@ import {
   CREATE_SETTINGS_UNIVERSITIES_TABLE,
   CREATE_SETTINGS_TARIFFS_TABLE,
   CREATE_SETTINGS_COORDINATORS_TABLE,
+  CREATE_SETTINGS_B2B_TABLE,
   USER_COLUMNS,
   STUDENT_COLUMNS
 } from '../database/schema'
@@ -54,6 +55,7 @@ export async function initDb() {
     await db.execute(CREATE_SETTINGS_UNIVERSITIES_TABLE)
     await db.execute(CREATE_SETTINGS_TARIFFS_TABLE)
     await db.execute(CREATE_SETTINGS_COORDINATORS_TABLE)
+    await db.execute(CREATE_SETTINGS_B2B_TABLE)
 
     // 2. Add columns to users table
     const userColsInfo = await db.execute('PRAGMA table_info(users)')
@@ -88,6 +90,10 @@ export async function initDb() {
 
     // 6. Create unique index for telegram_id to enforce uniqueness in SQLite
     await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')
+
+    // 7. Deduplicate settings_universities to prepare for making it global
+    console.log('[Turso] Deduplicating settings_universities table...')
+    await db.execute('DELETE FROM settings_universities WHERE id NOT IN (SELECT min(id) FROM settings_universities GROUP BY name)')
 
     console.log('[Turso] Database schema and migrations completed successfully.')
   } catch (err: unknown) {

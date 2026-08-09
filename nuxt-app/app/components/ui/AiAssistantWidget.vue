@@ -46,23 +46,44 @@ watch(isOpen, async (open) => {
       >
         <div class="flex items-center justify-between px-4 py-3 bg-primary-900 text-white shrink-0">
           <div class="flex items-center gap-2.5">
-            <div class="flex items-center justify-center size-9 rounded-full bg-white/10 text-lg">🎓</div>
+            <div class="flex items-center justify-center size-9 rounded-full bg-white/10 text-lg">
+              🎓
+            </div>
             <div class="flex flex-col leading-tight">
               <span class="font-semibold text-sm">SalomKorea AI</span>
               <span class="text-[11px] text-white/70">Maslahatchi · Online</span>
             </div>
           </div>
           <div class="flex items-center gap-1">
-            <button type="button" class="flex items-center justify-center size-7 rounded-lg hover:bg-white/10 transition-colors" aria-label="Kengaytirish" @click="toggleExpanded">
-              <UIcon :name="isExpanded ? 'i-lucide-minimize-2' : 'i-lucide-maximize-2'" class="size-4" />
+            <button
+              type="button"
+              class="flex items-center justify-center size-7 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="Kengaytirish"
+              @click="toggleExpanded"
+            >
+              <UIcon
+                :name="isExpanded ? 'i-lucide-minimize-2' : 'i-lucide-maximize-2'"
+                class="size-4"
+              />
             </button>
-            <button type="button" class="flex items-center justify-center size-7 rounded-lg hover:bg-white/10 transition-colors" aria-label="Yopish" @click="toggleOpen">
-              <UIcon name="i-lucide-x" class="size-4.5" />
+            <button
+              type="button"
+              class="flex items-center justify-center size-7 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="Yopish"
+              @click="toggleOpen"
+            >
+              <UIcon
+                name="i-lucide-x"
+                class="size-4.5"
+              />
             </button>
           </div>
         </div>
 
-        <div ref="messagesEl" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[var(--color-bg)] dark:bg-[var(--color-bg-dark)]">
+        <div
+          ref="messagesEl"
+          class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[var(--color-bg)] dark:bg-[var(--color-bg-dark)]"
+        >
           <div
             v-for="(msg, idx) in messages"
             :key="idx"
@@ -76,20 +97,34 @@ watch(isOpen, async (open) => {
                 : 'bg-white dark:bg-white/5 text-[var(--color-text-primary)] dark:text-white border border-[var(--color-border)] dark:border-white/[0.08] rounded-bl-md'"
             >
               <span v-if="msg.role === 'user'">{{ msg.content }}</span>
-              <div v-else v-html="formatMarkdown(msg.content)" />
+              <div
+                v-else
+                v-html="formatMarkdown(msg.content)"
+              />
             </div>
           </div>
 
-          <div v-if="isWaiting" class="flex justify-start">
+          <div
+            v-if="isWaiting"
+            class="flex justify-start"
+          >
             <div class="rounded-2xl rounded-bl-md px-4 py-3 bg-white dark:bg-white/5 border border-[var(--color-border)] dark:border-white/[0.08]">
               <div class="flex items-center gap-1">
-                <span v-for="i in 3" :key="i" class="size-1.5 rounded-full bg-[var(--color-text-secondary)] animate-bounce" :style="{ animationDelay: `${i * 0.12}s` }" />
+                <span
+                  v-for="i in 3"
+                  :key="i"
+                  class="size-1.5 rounded-full bg-[var(--color-text-secondary)] animate-bounce"
+                  :style="{ animationDelay: `${i * 0.12}s` }"
+                />
               </div>
             </div>
           </div>
         </div>
 
-        <div v-if="showSuggestions" class="flex flex-wrap gap-1.5 px-4 py-2.5 border-t border-[var(--color-border)] dark:border-white/[0.08] shrink-0">
+        <div
+          v-if="showSuggestions"
+          class="flex flex-wrap gap-1.5 px-4 py-2.5 border-t border-[var(--color-border)] dark:border-white/[0.08] shrink-0"
+        >
           <button
             v-for="s in AI_SUGGESTIONS"
             :key="s.query"
@@ -118,7 +153,10 @@ watch(isOpen, async (open) => {
             aria-label="Yuborish"
             @click="handleSend"
           >
-            <UIcon name="i-lucide-send" class="size-4" />
+            <UIcon
+              name="i-lucide-send"
+              class="size-4"
+            />
           </button>
         </div>
         <p class="px-4 pb-2.5 text-[10.5px] text-[var(--color-text-secondary)] shrink-0">
@@ -133,7 +171,10 @@ watch(isOpen, async (open) => {
       aria-label="Suhbatni boshlash"
       @click="toggleOpen"
     >
-      <UIcon :name="isOpen ? 'i-lucide-chevron-down' : 'i-lucide-message-circle'" class="size-6" />
+      <UIcon
+        :name="isOpen ? 'i-lucide-chevron-down' : 'i-lucide-message-circle'"
+        class="size-6"
+      />
     </button>
   </div>
 </template>

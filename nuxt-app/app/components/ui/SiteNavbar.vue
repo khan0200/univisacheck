@@ -40,13 +40,23 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
     :class="scrolled ? 'glass shadow-sm' : 'bg-transparent'"
   >
     <div class="max-w-7xl mx-auto h-full flex items-center justify-between px-3 sm:px-4">
-      <NuxtLink to="/" class="flex items-center gap-2">
-        <img src="/logo.png" alt="SalomKorea" class="h-9 w-9 rounded-lg object-contain">
+      <NuxtLink
+        to="/"
+        class="flex items-center gap-2"
+      >
+        <img
+          src="/logo.png"
+          alt="SalomKorea"
+          class="h-9 w-9 rounded-lg object-contain"
+        >
         <span class="font-bold text-[15px] tracking-tight text-[var(--color-text-primary)] dark:text-white">Salom<span class="text-primary-600 dark:text-secondary-300">Korea</span></span>
       </NuxtLink>
 
       <ul class="hidden md:flex items-center gap-1">
-        <li v-for="link in navLinks" :key="link.to">
+        <li
+          v-for="link in navLinks"
+          :key="link.to"
+        >
           <a
             :href="link.to"
             class="px-3.5 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] dark:hover:text-white hover:bg-primary-50 dark:hover:bg-white/5 transition-colors"
@@ -57,10 +67,22 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
       </ul>
 
       <div class="flex items-center gap-2">
-        <UButton to="/auth" color="primary" size="md" class="hidden sm:inline-flex" :ui="{ base: 'px-3.5 py-2' }" trailing-icon="i-lucide-arrow-right">
+        <UButton
+          to="/auth"
+          color="primary"
+          size="md"
+          class="hidden sm:inline-flex"
+          :ui="{ base: 'px-3.5 py-2' }"
+          trailing-icon="i-lucide-arrow-right"
+        >
           Kabinet
         </UButton>
-        <UButton to="/auth" color="primary" size="sm" class="sm:hidden">
+        <UButton
+          to="/auth"
+          color="primary"
+          size="sm"
+          class="sm:hidden"
+        >
           Kabinet
         </UButton>
         <button
@@ -70,7 +92,10 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
           aria-label="Menyu"
           @click="mobileMenuOpen = !mobileMenuOpen"
         >
-          <UIcon :name="mobileMenuOpen ? 'i-lucide-x' : 'i-lucide-menu'" class="size-6" />
+          <UIcon
+            :name="mobileMenuOpen ? 'i-lucide-x' : 'i-lucide-menu'"
+            class="size-6"
+          />
         </button>
       </div>
     </div>
@@ -90,7 +115,10 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
         aria-modal="true"
       >
         <ul class="flex-1 flex flex-col p-6 gap-1">
-          <li v-for="link in navLinks" :key="link.to">
+          <li
+            v-for="link in navLinks"
+            :key="link.to"
+          >
             <a
               :href="link.to"
               class="block px-4 py-3.5 rounded-xl text-base font-medium text-[var(--color-text-primary)] dark:text-white hover:bg-primary-50 dark:hover:bg-white/5 transition-colors"
@@ -101,7 +129,14 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
           </li>
         </ul>
         <div class="p-6 border-t border-[var(--color-border)] dark:border-white/[0.08]">
-          <UButton to="/auth" block color="primary" size="lg" trailing-icon="i-lucide-arrow-right" @click="closeMobileMenu">
+          <UButton
+            to="/auth"
+            block
+            color="primary"
+            size="lg"
+            trailing-icon="i-lucide-arrow-right"
+            @click="closeMobileMenu"
+          >
             Kabinet
           </UButton>
         </div>

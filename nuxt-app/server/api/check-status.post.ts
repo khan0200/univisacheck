@@ -128,11 +128,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const updatedStudent = updatedStudentRes.rows[0] as unknown as Record<string, unknown>
-    let apiResponse: Record<string, any> = {}
+    let apiResponse: Record<string, unknown> = {}
     try {
       apiResponse = typeof updatedStudent.apiResponse === 'string'
         ? JSON.parse(updatedStudent.apiResponse || '{}')
-        : (updatedStudent.apiResponse as Record<string, any>) || {}
+        : (updatedStudent.apiResponse as Record<string, unknown>) || {}
     } catch {
       apiResponse = {}
     }

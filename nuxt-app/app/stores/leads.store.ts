@@ -35,7 +35,7 @@ export const useLeadsStore = defineStore('leads', () => {
     let rows = leads.value.filter((l) => {
       if (activeFilter.value !== 'all' && l.status !== activeFilter.value) return false
       if (!q) return true
-      return [l.full_name, l.phone, l.university_name].some((v) => (v || '').toLowerCase().includes(q))
+      return [l.full_name, l.phone, l.university_name].some(v => (v || '').toLowerCase().includes(q))
     })
 
     rows = [...rows].sort((a, b) => {

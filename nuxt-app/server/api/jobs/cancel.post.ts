@@ -48,13 +48,13 @@ export default defineEventHandler(async (event) => {
   try {
     // Update Job Status
     await tx.execute({
-      sql: "UPDATE visa_check_jobs SET status = 'cancelled', updatedAt = datetime('now') WHERE id = ?",
+      sql: 'UPDATE visa_check_jobs SET status = \'cancelled\', updatedAt = datetime(\'now\') WHERE id = ?',
       args: [jobId]
     })
 
     // Update Queued Tasks to Cancelled
     await tx.execute({
-      sql: "UPDATE visa_check_tasks SET status = 'cancelled', updatedAt = datetime('now') WHERE jobId = ? AND status = 'queued'",
+      sql: 'UPDATE visa_check_tasks SET status = \'cancelled\', updatedAt = datetime(\'now\') WHERE jobId = ? AND status = \'queued\'',
       args: [jobId]
     })
 

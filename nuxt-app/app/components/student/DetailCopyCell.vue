@@ -24,7 +24,9 @@ function handleClick() {
     @click="handleClick"
   >
     <div class="flex items-center justify-between gap-2 mb-1">
-      <p class="text-xs text-[var(--color-text-secondary)]">{{ label }}</p>
+      <p class="text-xs text-[var(--color-text-secondary)]">
+        {{ label }}
+      </p>
       <UIcon
         v-if="canCopy"
         :name="isCopied(copyId) ? 'i-lucide-check' : 'i-lucide-copy'"
@@ -32,7 +34,10 @@ function handleClick() {
         :class="isCopied(copyId) ? 'text-success-500' : 'text-[var(--color-text-secondary)]'"
       />
     </div>
-    <div class="text-sm text-[var(--color-text-primary)] dark:text-white" :class="bold ? 'font-bold' : 'font-medium'">
+    <div
+      class="text-sm text-[var(--color-text-primary)] dark:text-white"
+      :class="bold ? 'font-bold' : 'font-medium'"
+    >
       <slot>{{ displayText }}</slot>
     </div>
   </button>

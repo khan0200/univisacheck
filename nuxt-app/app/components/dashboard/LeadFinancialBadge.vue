@@ -14,5 +14,10 @@ const colorMap = {
 </script>
 
 <template>
-  <UBadge :color="colorMap[status.cls]" variant="solid">{{ status.label }}</UBadge>
+  <UBadge
+    :color="colorMap[status.cls]"
+    variant="solid"
+  >
+    {{ status.label }}
+  </UBadge>
 </template>

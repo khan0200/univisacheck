@@ -14,7 +14,7 @@ interface CosmeticEntry {
 }
 
 const cosmeticByName = new Map<string, CosmeticEntry>(
-  Object.values(cosmeticData as Record<string, CosmeticEntry & { name: string }>).map((u) => [u.name, u])
+  Object.values(cosmeticData as Record<string, CosmeticEntry & { name: string }>).map(u => [u.name, u])
 )
 
 interface UniversityRow {
@@ -73,13 +73,13 @@ export default defineEventHandler(async () => {
 
   return (universitiesResult.rows as unknown as UniversityRow[]).map((row) => {
     const majors = majorsByUniversity.get(row.id) || []
-    const scholarships = (scholarshipsByUniversity.get(row.id) || []).map((s) => ({ cert: s.cert, percent: s.percent }))
+    const scholarships = (scholarshipsByUniversity.get(row.id) || []).map(s => ({ cert: s.cert, percent: s.percent }))
     const cosmetic = cosmeticByName.get(row.name) || {}
 
-    const englishTrackMajors = majors.filter((m) => m.track === 'english').map((m) => m.name)
-    const koreanTrackMajors = majors.filter((m) => m.track === 'korean').map((m) => m.name)
-    const englishTrackMasters = majors.filter((m) => m.track === 'english_master').map((m) => m.name)
-    const koreanTrackMasters = majors.filter((m) => m.track === 'korean_master').map((m) => m.name)
+    const englishTrackMajors = majors.filter(m => m.track === 'english').map(m => m.name)
+    const koreanTrackMajors = majors.filter(m => m.track === 'korean').map(m => m.name)
+    const englishTrackMasters = majors.filter(m => m.track === 'english_master').map(m => m.name)
+    const koreanTrackMasters = majors.filter(m => m.track === 'korean_master').map(m => m.name)
 
     return {
       name: row.name,

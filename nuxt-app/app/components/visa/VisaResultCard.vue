@@ -88,7 +88,10 @@ const downloadUrl = computed(() =>
         class="flex items-center justify-center size-13 rounded-full mx-auto mb-3.5 border"
         :class="colorMap[statusConfig.cls]"
       >
-        <UIcon :name="iconMap[statusConfig.icon]" class="size-6" />
+        <UIcon
+          :name="iconMap[statusConfig.icon]"
+          class="size-6"
+        />
       </div>
       <span
         class="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm mb-2"
@@ -108,7 +111,9 @@ const downloadUrl = computed(() =>
         class="bg-white dark:bg-[var(--color-card-dark)] px-5 py-3.5 group/cell relative"
         :class="{ 'col-span-2': cells.length % 2 === 1 && cell === cells[cells.length - 1] }"
       >
-        <p class="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1">{{ cell.label }}</p>
+        <p class="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1">
+          {{ cell.label }}
+        </p>
         <div class="flex items-center gap-1.5">
           <span class="text-[13.5px] font-semibold text-[var(--color-text-primary)] dark:text-white break-words">{{ cell.value }}</span>
           <button
@@ -118,26 +123,51 @@ const downloadUrl = computed(() =>
             aria-label="Copy passport number"
             @click="copyValue(cell.value, 'result-passport')"
           >
-            <UIcon :name="isCopied('result-passport') ? 'i-lucide-check' : 'i-lucide-clipboard'" class="size-3" />
+            <UIcon
+              :name="isCopied('result-passport') ? 'i-lucide-check' : 'i-lucide-clipboard'"
+              class="size-3"
+            />
           </button>
         </div>
       </div>
     </div>
 
-    <div v-if="props.result.rejectionReason" class="px-5 py-3.5 bg-danger-50 dark:bg-danger-950/30 border-t border-danger-200 dark:border-danger-900 flex gap-2.5">
-      <UIcon name="i-lucide-circle-x" class="size-4 text-danger-600 shrink-0 mt-0.5" />
+    <div
+      v-if="props.result.rejectionReason"
+      class="px-5 py-3.5 bg-danger-50 dark:bg-danger-950/30 border-t border-danger-200 dark:border-danger-900 flex gap-2.5"
+    >
+      <UIcon
+        name="i-lucide-circle-x"
+        class="size-4 text-danger-600 shrink-0 mt-0.5"
+      />
       <p class="text-[13.5px] text-danger-800 dark:text-danger-300 leading-relaxed">
         <strong>Reason:</strong> {{ props.result.rejectionReason }}
       </p>
     </div>
 
-    <div v-if="props.cached" class="px-5 py-2.5 bg-warning-50 dark:bg-warning-950/30 border-t border-warning-200 dark:border-warning-900 flex items-center gap-1.5 text-[12.5px] font-medium text-warning-700 dark:text-warning-400">
-      <UIcon name="i-lucide-clock" class="size-3.5 shrink-0" />
+    <div
+      v-if="props.cached"
+      class="px-5 py-2.5 bg-warning-50 dark:bg-warning-950/30 border-t border-warning-200 dark:border-warning-900 flex items-center gap-1.5 text-[12.5px] font-medium text-warning-700 dark:text-warning-400"
+    >
+      <UIcon
+        name="i-lucide-clock"
+        class="size-3.5 shrink-0"
+      />
       <span>Showing last known status{{ props.result.lastChecked ? ` from ${formatRelativeTime(props.result.lastChecked)}` : '' }}. Live lookup unavailable.</span>
     </div>
 
-    <div v-if="showDownload" class="px-5 py-4 border-t border-[var(--color-border)] dark:border-white/[0.08]">
-      <UButton :to="downloadUrl" target="_blank" block color="neutral" variant="outline" icon="i-lucide-download">
+    <div
+      v-if="showDownload"
+      class="px-5 py-4 border-t border-[var(--color-border)] dark:border-white/[0.08]"
+    >
+      <UButton
+        :to="downloadUrl"
+        target="_blank"
+        block
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-download"
+      >
         Download Certificate PDF
       </UButton>
     </div>

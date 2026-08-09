@@ -26,10 +26,7 @@ export default defineEventHandler(async (event) => {
   const userId = authUser!.userId
 
   if (event.method === 'GET') {
-    let res = await db.execute({
-      sql: 'SELECT * FROM settings_universities WHERE userId = ? ORDER BY name',
-      args: [userId]
-    })
+    let res = await db.execute('SELECT * FROM settings_universities ORDER BY name')
 
     if (res.rows.length === 0) {
       const allInitial = Array.from(new Set([
@@ -42,19 +39,17 @@ export default defineEventHandler(async (event) => {
       ])).sort()
 
       const now = new Date().toISOString()
+      const systemUserId = 0
       const statements = allInitial.map(name => ({
         sql: 'INSERT INTO settings_universities (userId, name, location, notes, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)',
-        args: [userId, name, '', '', now, now]
+        args: [systemUserId, name, '', '', now, now]
       }))
 
       if (statements.length > 0) {
         await db.batch(statements)
       }
 
-      res = await db.execute({
-        sql: 'SELECT * FROM settings_universities WHERE userId = ? ORDER BY name',
-        args: [userId]
-      })
+      res = await db.execute('SELECT * FROM settings_universities ORDER BY name')
     }
 
     return res.rows
@@ -82,8 +77,8 @@ export default defineEventHandler(async (event) => {
       if (!name?.trim()) apiError(400, 'University name is required.')
       const now = new Date().toISOString()
       await db.execute({
-        sql: 'UPDATE settings_universities SET name = ?, location = ?, notes = ?, updatedAt = ? WHERE id = ? AND userId = ?',
-        args: [name.trim(), location?.trim() || '', notes?.trim() || '', now, id, userId]
+        sql: 'UPDATE settings_universities SET name = ?, location = ?, notes = ?, updatedAt = ? WHERE id = ?',
+        args: [name.trim(), location?.trim() || '', notes?.trim() || '', now, id]
       })
       return { success: true }
     }
@@ -92,8 +87,8 @@ export default defineEventHandler(async (event) => {
       const { id } = body
       if (!id) apiError(400, 'ID is required.')
       await db.execute({
-        sql: 'DELETE FROM settings_universities WHERE id = ? AND userId = ?',
-        args: [id, userId]
+        sql: 'DELETE FROM settings_universities WHERE id = ?',
+        args: [id]
       })
       return { success: true }
     }

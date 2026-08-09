@@ -47,7 +47,7 @@ async function handleRefresh() {
 function handleExport() {
   const rows = leadsStore.filteredLeads
   if (rows.length === 0) {
-    toast.add({ title: "Eksport qilish uchun ma'lumot yo'q", color: 'warning' })
+    toast.add({ title: 'Eksport qilish uchun ma\'lumot yo\'q', color: 'warning' })
     return
   }
   exportLeadsCsv(rows)
@@ -77,14 +77,37 @@ function openDelete(lead: Lead) {
 </script>
 
 <template>
-  <DashboardLeadsGate v-if="!unlocked" @unlocked="handleUnlocked" />
+  <DashboardLeadsGate
+    v-if="!unlocked"
+    @unlocked="handleUnlocked"
+  />
 
-  <div v-else class="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-5">
+  <div
+    v-else
+    class="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-5"
+  >
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-[var(--color-text-primary)] dark:text-white">Leads Dashboard</h1>
+      <h1 class="text-xl font-semibold text-[var(--color-text-primary)] dark:text-white">
+        Leads Dashboard
+      </h1>
       <div class="flex items-center gap-2">
-        <UButton icon="i-lucide-refresh-cw" color="neutral" variant="ghost" square :loading="refreshing" aria-label="Refresh" @click="handleRefresh" />
-        <UButton icon="i-lucide-download" color="neutral" variant="outline" @click="handleExport">Export CSV</UButton>
+        <UButton
+          icon="i-lucide-refresh-cw"
+          color="neutral"
+          variant="ghost"
+          square
+          :loading="refreshing"
+          aria-label="Refresh"
+          @click="handleRefresh"
+        />
+        <UButton
+          icon="i-lucide-download"
+          color="neutral"
+          variant="outline"
+          @click="handleExport"
+        >
+          Export CSV
+        </UButton>
       </div>
     </div>
 
@@ -101,7 +124,10 @@ function openDelete(lead: Lead) {
     </div>
 
     <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
-      <UiTableSkeleton v-if="leadsStore.isLoading" :cols="8" />
+      <UiTableSkeleton
+        v-if="leadsStore.isLoading"
+        :cols="8"
+      />
       <UiEmptyState
         v-else-if="leadsStore.filteredLeads.length === 0"
         icon="i-lucide-inbox"
@@ -116,7 +142,10 @@ function openDelete(lead: Lead) {
       />
     </UCard>
 
-    <div v-if="leadsStore.totalPages > 1" class="flex items-center justify-between">
+    <div
+      v-if="leadsStore.totalPages > 1"
+      class="flex items-center justify-between"
+    >
       <p class="text-xs text-[var(--color-text-secondary)]">
         {{ (leadsStore.currentPage - 1) * leadsStore.PAGE_SIZE + 1 }}–{{ Math.min(leadsStore.currentPage * leadsStore.PAGE_SIZE, leadsStore.filteredLeads.length) }} / {{ leadsStore.filteredLeads.length }}
       </p>
@@ -127,8 +156,17 @@ function openDelete(lead: Lead) {
       />
     </div>
 
-    <DashboardLeadDetailsModal v-model:open="detailsModalOpen" :lead="detailsLead" />
-    <DashboardLeadEditModal v-model:open="editModalOpen" :lead="editLead" />
-    <DashboardLeadDeleteModal v-model:open="deleteModalOpen" :lead="deleteLeadTarget" />
+    <DashboardLeadDetailsModal
+      v-model:open="detailsModalOpen"
+      :lead="detailsLead"
+    />
+    <DashboardLeadEditModal
+      v-model:open="editModalOpen"
+      :lead="editLead"
+    />
+    <DashboardLeadDeleteModal
+      v-model:open="deleteModalOpen"
+      :lead="deleteLeadTarget"
+    />
   </div>
 </template>

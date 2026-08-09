@@ -13,7 +13,7 @@ const sections = computed<DetailSection[]>(() => {
   if (!l) return []
   return [
     {
-      title: "Asosiy ma'lumot",
+      title: 'Asosiy ma\'lumot',
       rows: [
         { label: 'Telefon', value: `+${l.phone}` },
         { label: 'Yosh', value: l.age },
@@ -42,15 +42,15 @@ const sections = computed<DetailSection[]>(() => {
       ]
     },
     {
-      title: "Qo'shimcha moliyaviy ma'lumot",
+      title: 'Qo\'shimcha moliyaviy ma\'lumot',
       rows: [
         { label: 'Biznes', value: l.business_info },
-        { label: "O'zini o'zi band qilish", value: yn(l.self_employed_status) },
+        { label: 'O\'zini o\'zi band qilish', value: yn(l.self_employed_status) },
         { label: 'Buva-buvi pensiyasi', value: yn(l.grandparents_pension) },
         { label: 'Vaqtincha bank depoziti', value: yn(l.temp_bank_deposit_availability) },
         { label: 'Homiy mavjudmi', value: yn(l.sponsor_availability) },
         { label: 'Vafot etgan ota-ona', value: l.parent_deceased_status },
-        { label: "Ota-ona daromadi (erkin matn)", value: l.parent_income_info, fullSpan: true }
+        { label: 'Ota-ona daromadi (erkin matn)', value: l.parent_income_info, fullSpan: true }
       ]
     },
     {
@@ -65,11 +65,23 @@ const sections = computed<DetailSection[]>(() => {
 </script>
 
 <template>
-  <UModal :open="props.open" :title="props.lead?.full_name || `Talaba #${props.lead?.id}`" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="props.open"
+    :title="props.lead?.full_name || `Talaba #${props.lead?.id}`"
+    @update:open="emit('update:open', $event)"
+  >
     <template #body>
-      <div v-if="props.lead" class="space-y-6">
-        <div v-for="section in sections" :key="section.title">
-          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-2.5">{{ section.title }}</p>
+      <div
+        v-if="props.lead"
+        class="space-y-6"
+      >
+        <div
+          v-for="section in sections"
+          :key="section.title"
+        >
+          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-2.5">
+            {{ section.title }}
+          </p>
           <div class="grid grid-cols-2 gap-3">
             <div
               v-for="row in section.rows"
@@ -77,7 +89,9 @@ const sections = computed<DetailSection[]>(() => {
               class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3"
               :class="{ 'col-span-2': row.fullSpan }"
             >
-              <p class="text-[11px] text-[var(--color-text-secondary)] mb-1">{{ row.label }}</p>
+              <p class="text-[11px] text-[var(--color-text-secondary)] mb-1">
+                {{ row.label }}
+              </p>
               <p
                 class="text-sm font-medium"
                 :class="row.value ? 'text-[var(--color-text-primary)] dark:text-white' : 'text-[var(--color-text-secondary)]'"

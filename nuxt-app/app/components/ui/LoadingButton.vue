@@ -16,9 +16,21 @@ const props = defineProps<{ loading?: boolean, disabled?: boolean, icon?: string
 </script>
 
 <template>
-  <UButton v-bind="$attrs" :icon="icon" :loading="false" :disabled="disabled || loading" class="relative">
-    <template v-if="icon" #leading="{ ui }">
-      <UIcon :name="icon" :class="[ui.leadingIcon({}), { 'opacity-0': loading }]" />
+  <UButton
+    v-bind="$attrs"
+    :icon="icon"
+    :loading="false"
+    :disabled="disabled || loading"
+    class="relative"
+  >
+    <template
+      v-if="icon"
+      #leading="{ ui }"
+    >
+      <UIcon
+        :name="icon"
+        :class="[ui.leadingIcon({}), { 'opacity-0': loading }]"
+      />
     </template>
     <span :class="{ 'opacity-0': loading }"><slot /></span>
 
@@ -26,7 +38,10 @@ const props = defineProps<{ loading?: boolean, disabled?: boolean, icon?: string
       v-if="loading"
       class="absolute inset-0 flex items-center justify-center"
     >
-      <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
+      <UIcon
+        name="i-lucide-loader-circle"
+        class="size-4 animate-spin"
+      />
     </span>
   </UButton>
 </template>

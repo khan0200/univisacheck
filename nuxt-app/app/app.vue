@@ -9,7 +9,7 @@ useHead({
 })
 
 useSeoMeta({
-  titleTemplate: (title) => (title ? `${title} — SalomKorea` : 'SalomKorea — Visa & Education Application'),
+  titleTemplate: title => (title ? `${title} — SalomKorea` : 'SalomKorea — Visa & Education Application'),
   ogSiteName: 'SalomKorea',
   ogImage: '/logo.png'
 })

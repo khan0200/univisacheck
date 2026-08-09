@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
     if (!openaiKey && !geminiKey) {
       return {
-        response: "⚠️ **API Key Missing**: Please set `OPENAI_API_KEY` or `GEMINI_API_KEY` to enable the AI Admission Assistant."
+        response: '⚠️ **API Key Missing**: Please set `OPENAI_API_KEY` or `GEMINI_API_KEY` to enable the AI Admission Assistant.'
       }
     }
 
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     if (message.startsWith('/login ')) {
       const token = message.split(' ')[1]
       if (await isAdminToken(token)) {
-        return { response: "✅ **Admin tizimga kirdi!** Endi `/savol`, `/javob` buyruqlaridan foydalanishingiz mumkin." }
+        return { response: '✅ **Admin tizimga kirdi!** Endi `/savol`, `/javob` buyruqlaridan foydalanishingiz mumkin.' }
       }
     }
 
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 
     if (isAdmin) {
       if (message.startsWith('/savol ')) {
-        return { response: "✅ **Savol qabul qilindi.** Endi iltimos, javobni `/javob <matn>` shaklida yuboring." }
+        return { response: '✅ **Savol qabul qilindi.** Endi iltimos, javobni `/javob <matn>` shaklida yuboring.' }
       } else if (message.startsWith('/javob ')) {
         let lastSavol = null
         for (let i = history.length - 1; i >= 0; i--) {
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
         }
 
         if (!lastSavol) {
-          return { response: "❌ Xatolik: Oldingi `/savol` topilmadi." }
+          return { response: '❌ Xatolik: Oldingi `/savol` topilmadi.' }
         }
 
         const answer = message.replace('/javob ', '').trim()
@@ -81,8 +81,8 @@ export default defineEventHandler(async (event) => {
     // it must stay locked onto the interview until finished, regardless
     // of what else the student asks. Detected before intent analysis so
     // the mode-lock instruction can be woven into the system prompt.
-    const isVisaCalcFlow = /viza (imkoniyat|kalkulyator)/i.test(message) ||
-      history.some((msg) => /viza (imkoniyat|kalkulyator)/i.test(msg.content || ''))
+    const isVisaCalcFlow = /viza (imkoniyat|kalkulyator)/i.test(message)
+      || history.some(msg => /viza (imkoniyat|kalkulyator)/i.test(msg.content || ''))
 
     // 1. Analyze Intent — skipped inside an active Visa Calculator flow,
     // since the intent is already locked and this would otherwise be a
@@ -150,7 +150,7 @@ export default defineEventHandler(async (event) => {
 
     // Fetch college-level (전문학사) institutions for "TOPIK N bilan qaysi
     // kollejga topshirsa bo'ladi" style questions.
-    const fullConversationText = [...history.map((m) => m.content || ''), message].join(' ')
+    const fullConversationText = [...history.map(m => m.content || ''), message].join(' ')
     const wantsCollegeList = /\bkoll?ej|college|전문학사/i.test(fullConversationText)
     if (wantsCollegeList) {
       const topikMatch = fullConversationText.match(/topik\s*(\d)/i)
@@ -165,10 +165,12 @@ export default defineEventHandler(async (event) => {
     // Fetch KMS Knowledge base content
     const kmsRecords = await KnowledgeRetriever.retrieve(analysis.intent, analysis.keywords, message)
     if (kmsRecords && kmsRecords.length > 0) {
-      dynamicContext += `\n== BAZADAGI QO'SHIMCHA MA'LUMOTLAR ==\n` + kmsRecords.map((r) => `Savol: ${r.question}\nJavob: ${r.answer}`).join('\n\n') + `\n== BAZA TUGADI ==\n`
+      dynamicContext += `\n== BAZADAGI QO'SHIMCHA MA'LUMOTLAR ==\n` + kmsRecords.map(r => `Savol: ${r.question}\nJavob: ${r.answer}`).join('\n\n') + `\n== BAZA TUGADI ==\n`
     }
 
-    const visaCalcModeBlock = !isVisaCalcFlow ? '' : `
+    const visaCalcModeBlock = !isVisaCalcFlow
+      ? ''
+      : `
 ════════════════════════════════════════
 == VIZA CALCULATOR REJIMI FAOL (v1.0) — ENG YUQORI USTUVORLIK, BOSHQA HAMMA QOIDADAN USTUN ==
 ════════════════════════════════════════
@@ -389,7 +391,7 @@ AI: "Mening bazamdagi ma'lumotlarga ko'ra Turizm yo'nalishida quyidagi universit
     if (openaiKey) {
       const messages = [
         { role: 'system', content: systemPrompt },
-        ...history.map((msg) => ({
+        ...history.map(msg => ({
           role: msg.role === 'assistant' ? 'assistant' : 'user',
           content: msg.content
         })),
@@ -399,7 +401,7 @@ AI: "Mening bazamdagi ma'lumotlarga ko'ra Turizm yo'nalishida quyidagi universit
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${openaiKey}`,
+          'Authorization': `Bearer ${openaiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -414,7 +416,7 @@ AI: "Mening bazamdagi ma'lumotlarga ko'ra Turizm yo'nalishida quyidagi universit
 
       aiText = data?.choices?.[0]?.message?.content
     } else {
-      const contents = history.map((msg) => ({
+      const contents = history.map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }]
       }))
@@ -447,8 +449,8 @@ AI: "Mening bazamdagi ma'lumotlarga ko'ra Turizm yo'nalishida quyidagi universit
     // (not in parallel) so the extractor can see this turn's own
     // AI-stated estimate/comment, not just the student's message.
     const historyWithReply = [...history, { role: 'user', content: message }, { role: 'assistant', content: aiText }]
-    const phoneCandidate = [historyWithReply.map((m) => m.content || '').join(' ')]
-      .map((text) => (text.match(PHONE_PATTERN) || [])[0])[0]
+    const phoneCandidate = [historyWithReply.map(m => m.content || '').join(' ')]
+      .map(text => (text.match(PHONE_PATTERN) || [])[0])[0]
 
     const shouldCaptureLead = isVisaCalcFlow && !!phoneCandidate
 

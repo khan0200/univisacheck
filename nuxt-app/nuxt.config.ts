@@ -16,24 +16,6 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  fonts: {
-    families: [
-      { name: 'Plus Jakarta Sans', provider: 'google', weights: [400, 500, 600, 700] },
-      { name: 'Pretendard', provider: 'fontsource', weights: [400, 500, 600, 700] }
-    ]
-  },
-
-  icon: {
-    provider: 'server',
-    serverBundle: {
-      collections: ['lucide']
-    },
-    clientBundle: {
-      scan: true,
-      includeCustomCollections: true
-    }
-  },
-
   css: ['~/assets/css/main.css'],
 
   colorMode: {
@@ -56,6 +38,8 @@ export default defineNuxtConfig({
     '/settings': { ssr: false }
   },
 
+  compatibilityDate: '2026-06-30',
+
   // Vercel function config
   // - /api/ai-assistant: chains multiple AI calls, can exceed the default ~10s timeout
   // - /api/realtime: SSE long-lived connection; maxDuration limits how long the
@@ -71,14 +55,30 @@ export default defineNuxtConfig({
     }
   },
 
-  compatibilityDate: '2026-06-30',
-
   eslint: {
     config: {
       stylistic: {
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  fonts: {
+    families: [
+      { name: 'Plus Jakarta Sans', provider: 'google', weights: [400, 500, 600, 700] },
+      { name: 'Pretendard', provider: 'fontsource', weights: [400, 500, 600, 700] }
+    ]
+  },
+
+  icon: {
+    provider: 'server',
+    serverBundle: {
+      collections: ['lucide']
+    },
+    clientBundle: {
+      scan: true,
+      includeCustomCollections: true
     }
   }
 })

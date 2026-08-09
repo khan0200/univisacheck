@@ -1,27 +1,27 @@
-const { loadLocalConfig } = require('../local-config');
+const { loadLocalConfig } = require('../local-config')
 
 async function getOpenAiKey() {
-    const config = await loadLocalConfig();
-    return process.env.OPENAI_API_KEY || config.OPENAI_API_KEY;
+  const config = await loadLocalConfig()
+  return process.env.OPENAI_API_KEY || config.OPENAI_API_KEY
 }
 
 class VisaCalcLeadExtractor {
-    // Extracts from a bounded recent window (last few messages) plus
-    // whatever is already saved for this student, instead of resending the
-    // entire conversation every turn -- keeps cost flat as the interview
-    // grows instead of scaling with total conversation length (O(N^2) fix).
-    // `existingLead` is the DB row already known for this phone (or null for
-    // a brand-new lead). `recentMessages` is a short window of the latest
-    // turns (should include the AI's own current-turn reply, which is where
-    // the visa-percentage estimate lives).
-    async extract(existingLead, recentMessages) {
-        const transcript = recentMessages
-            .map(m => `${m.role === 'assistant' ? 'Assistant' : 'Student'}: ${m.content}`)
-            .join('\n');
+  // Extracts from a bounded recent window (last few messages) plus
+  // whatever is already saved for this student, instead of resending the
+  // entire conversation every turn -- keeps cost flat as the interview
+  // grows instead of scaling with total conversation length (O(N^2) fix).
+  // `existingLead` is the DB row already known for this phone (or null for
+  // a brand-new lead). `recentMessages` is a short window of the latest
+  // turns (should include the AI's own current-turn reply, which is where
+  // the visa-percentage estimate lives).
+  async extract(existingLead, recentMessages) {
+    const transcript = recentMessages
+      .map(m => `${m.role === 'assistant' ? 'Assistant' : 'Student'}: ${m.content}`)
+      .join('\n')
 
-        const knownJson = JSON.stringify(existingLead || {});
+    const knownJson = JSON.stringify(existingLead || {})
 
-        const systemPrompt = `You extract D-2 (bachelor) student-visa calculator interview data from a Korean-university-visa AI assistant's chat with a prospective student.
+    const systemPrompt = `You extract D-2 (bachelor) student-visa calculator interview data from a Korean-university-visa AI assistant's chat with a prospective student.
 
 You are given:
 1. "ALREADY KNOWN" -- fields already saved for this student from earlier turns (may be empty/null).
@@ -60,37 +60,37 @@ Return ONLY a JSON object with these fields (use null for anything never mention
   "parent_income_info": "string or null (a short free-text summary of anything the student said about parents' income/job/business/property, in the language the student used -- kept for backward compatibility)"
 }
 
-Only use information the student or assistant actually stated. Never invent or guess values.`;
+Only use information the student or assistant actually stated. Never invent or guess values.`
 
-        const userContent = `RECENT MESSAGES:\n${transcript}`;
+    const userContent = `RECENT MESSAGES:\n${transcript}`
 
-        try {
-            const OPENAI_API_KEY = await getOpenAiKey();
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userContent }
-                    ],
-                    response_format: { type: 'json_object' },
-                    temperature: 0
-                })
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data?.error?.message || `OpenAI API returned HTTP ${response.status}`);
+    try {
+      const OPENAI_API_KEY = await getOpenAiKey()
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userContent }
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0
+        })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data?.error?.message || `OpenAI API returned HTTP ${response.status}`)
 
-            return JSON.parse(data.choices[0].message.content);
-        } catch (error) {
-            console.error('VisaCalcLeadExtractor Error:', error.message);
-            return null;
-        }
+      return JSON.parse(data.choices[0].message.content)
+    } catch (error) {
+      console.error('VisaCalcLeadExtractor Error:', error.message)
+      return null
     }
+  }
 }
 
-module.exports = new VisaCalcLeadExtractor();
+module.exports = new VisaCalcLeadExtractor()

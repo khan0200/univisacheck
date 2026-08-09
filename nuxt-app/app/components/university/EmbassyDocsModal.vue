@@ -15,15 +15,20 @@ function handleDownload() {
     'Elchixona hujjatlari (D2-D4 vizasi)',
     `${label} — Elchixonaga topshirish uchun talab qilinadigan hujjatlar ro'yxati.`,
     [
-      { title: 'TALABA HUJJATLARI', docs: activeDocs.value.student.map((name) => ({ name })) },
-      { title: 'OTA-ONA HUJJATLARI', docs: activeDocs.value.parent.map((name) => ({ name })) }
+      { title: 'TALABA HUJJATLARI', docs: activeDocs.value.student.map(name => ({ name })) },
+      { title: 'OTA-ONA HUJJATLARI', docs: activeDocs.value.parent.map(name => ({ name })) }
     ]
   )
 }
 </script>
 
 <template>
-  <UModal :open="props.open" title="Elchixona hujjatlari (D2-D4 vizasi)" :ui="{ content: 'sm:max-w-2xl' }" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="props.open"
+    title="Elchixona hujjatlari (D2-D4 vizasi)"
+    :ui="{ content: 'sm:max-w-2xl' }"
+    @update:open="emit('update:open', $event)"
+  >
     <template #body>
       <p class="text-sm text-[var(--color-text-secondary)] mb-4">
         Elchixonaga topshirish uchun viza turlari bo'yicha talab qilinadigan hujjatlar ro'yxati.
@@ -51,7 +56,10 @@ function handleDownload() {
       <div class="max-h-[28rem] overflow-y-auto space-y-5 pr-1">
         <div>
           <h4 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary-700 dark:text-secondary-300 mb-2.5">
-            <UIcon name="i-lucide-user" class="size-3.5" />
+            <UIcon
+              name="i-lucide-user"
+              class="size-3.5"
+            />
             Talaba hujjatlari
           </h4>
           <ul class="grid sm:grid-cols-2 gap-2.5">
@@ -70,7 +78,10 @@ function handleDownload() {
 
         <div>
           <h4 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-success-700 dark:text-success-400 mb-2.5">
-            <UIcon name="i-lucide-users" class="size-3.5" />
+            <UIcon
+              name="i-lucide-users"
+              class="size-3.5"
+            />
             Ota-ona hujjatlari
           </h4>
           <ul class="grid sm:grid-cols-2 gap-2.5">
@@ -90,8 +101,20 @@ function handleDownload() {
     </template>
     <template #footer>
       <div class="flex justify-end gap-2 w-full">
-        <UButton color="neutral" variant="ghost" @click="emit('update:open', false)">Yopish</UButton>
-        <UButton color="primary" icon="i-lucide-download" @click="handleDownload">PDF Checklist yuklab olish</UButton>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          @click="emit('update:open', false)"
+        >
+          Yopish
+        </UButton>
+        <UButton
+          color="primary"
+          icon="i-lucide-download"
+          @click="handleDownload"
+        >
+          PDF Checklist yuklab olish
+        </UButton>
       </div>
     </template>
   </UModal>

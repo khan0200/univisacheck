@@ -1,18 +1,18 @@
 import type { StatusConfig } from '~/types/visa-check'
 
 export const STATUS_CONFIG: Record<string, StatusConfig> = {
-  APPROVED: { cls: 'approved', icon: 'check', label: 'Approved' },
+  'APPROVED': { cls: 'approved', icon: 'check', label: 'Approved' },
   'VISA USED': { cls: 'used', icon: 'pass', label: 'Visa Used' },
   'UNDER REVIEW': { cls: 'review', icon: 'search', label: 'Under Review' },
   'APP/RECEIVED': { cls: 'received', icon: 'inbox', label: 'App. Received' },
-  RECEIVED: { cls: 'received', icon: 'inbox', label: 'Received' },
-  REJECTED: { cls: 'rejected', icon: 'x', label: 'Rejected' },
-  CANCELLED: { cls: 'cancelled', icon: 'x', label: 'Cancelled' },
-  RETURNED: { cls: 'cancelled', icon: 'x', label: 'Returned' },
+  'RECEIVED': { cls: 'received', icon: 'inbox', label: 'Received' },
+  'REJECTED': { cls: 'rejected', icon: 'x', label: 'Rejected' },
+  'CANCELLED': { cls: 'cancelled', icon: 'x', label: 'Cancelled' },
+  'RETURNED': { cls: 'cancelled', icon: 'x', label: 'Returned' },
   'PENDING SUPPLEMENT': { cls: 'pending', icon: 'clock', label: 'Supplement Needed' },
-  EXPIRED: { cls: 'rejected', icon: 'clock', label: 'Expired' },
-  UNKNOWN: { cls: 'pending', icon: 'clock', label: 'Unknown' },
-  Pending: { cls: 'pending', icon: 'clock', label: 'Pending' }
+  'EXPIRED': { cls: 'rejected', icon: 'clock', label: 'Expired' },
+  'UNKNOWN': { cls: 'pending', icon: 'clock', label: 'Unknown' },
+  'Pending': { cls: 'pending', icon: 'clock', label: 'Pending' }
 }
 
 /** Statuses considered "real" enough to synthesize a cached result when the live check reports not-found. */

@@ -21,32 +21,57 @@ const programBadges = computed(() => programBadgesFor(props.university))
         loading="lazy"
         @error="imgError = true"
       >
-      <div v-else class="w-full h-full flex items-center justify-center">
-        <UIcon name="i-lucide-landmark" class="size-10 text-neutral-300 dark:text-white/20" />
+      <div
+        v-else
+        class="w-full h-full flex items-center justify-center"
+      >
+        <UIcon
+          name="i-lucide-landmark"
+          class="size-10 text-neutral-300 dark:text-white/20"
+        />
       </div>
       <span class="absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-black/55 text-white text-[10.5px] font-medium backdrop-blur-sm">
-        <UIcon name="i-lucide-map-pin" class="size-3" />
+        <UIcon
+          name="i-lucide-map-pin"
+          class="size-3"
+        />
         {{ university.location }}
       </span>
       <span
         class="absolute top-2.5 right-2.5 flex items-center justify-center size-8 rounded-full text-white shadow"
         :style="{ backgroundColor: university.brandColor }"
       >
-        <UIcon name="i-lucide-shield-check" class="size-4" />
+        <UIcon
+          name="i-lucide-shield-check"
+          class="size-4"
+        />
       </span>
     </div>
 
     <div class="flex-1 flex flex-col p-4">
-      <h3 class="font-semibold text-sm text-[var(--color-text-primary)] dark:text-white leading-snug">{{ university.name }}</h3>
-      <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">{{ university.koreanName }}</p>
+      <h3 class="font-semibold text-sm text-[var(--color-text-primary)] dark:text-white leading-snug">
+        {{ university.name }}
+      </h3>
+      <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">
+        {{ university.koreanName }}
+      </p>
 
       <div class="grid grid-cols-2 gap-2 mt-3">
         <div class="flex items-center gap-1.5">
-          <UIcon name="i-lucide-star" class="size-3.5 text-secondary-500 shrink-0" />
-          <span class="text-[11px] text-[var(--color-text-secondary)] truncate" :title="university.qsRank">{{ university.qsRank }}</span>
+          <UIcon
+            name="i-lucide-star"
+            class="size-3.5 text-secondary-500 shrink-0"
+          />
+          <span
+            class="text-[11px] text-[var(--color-text-secondary)] truncate"
+            :title="university.qsRank"
+          >{{ university.qsRank }}</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <UIcon name="i-lucide-building-2" class="size-3.5 text-primary-500 shrink-0" />
+          <UIcon
+            name="i-lucide-building-2"
+            class="size-3.5 text-primary-500 shrink-0"
+          />
           <span class="text-[11px] text-[var(--color-text-secondary)]">{{ university.founded }}</span>
         </div>
       </div>
@@ -67,7 +92,10 @@ const programBadges = computed(() => programBadgesFor(props.university))
         @click="emit('open', university)"
       >
         Batafsil ma'lumot
-        <UIcon name="i-lucide-arrow-right" class="size-3.5" />
+        <UIcon
+          name="i-lucide-arrow-right"
+          class="size-3.5"
+        />
       </button>
     </div>
   </div>

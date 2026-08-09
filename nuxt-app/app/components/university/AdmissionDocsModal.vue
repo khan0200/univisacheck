@@ -8,22 +8,34 @@ const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 function handleDownload() {
   printChecklist(
     'Universitetga topshirish hujjatlari',
-    "Hujjat topshirish va qabul qilinish uchun zarur bo'lgan asosiy hujjatlar ro'yxati.",
-    [{ title: 'Hujjatlar', docs: ADMISSION_DOCS.map((name) => ({ name })) }]
+    'Hujjat topshirish va qabul qilinish uchun zarur bo\'lgan asosiy hujjatlar ro\'yxati.',
+    [{ title: 'Hujjatlar', docs: ADMISSION_DOCS.map(name => ({ name })) }]
   )
 }
 </script>
 
 <template>
-  <UModal :open="props.open" title="Universitetga topshirish hujjatlari" :ui="{ content: 'sm:max-w-xl' }" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="props.open"
+    title="Universitetga topshirish hujjatlari"
+    :ui="{ content: 'sm:max-w-xl' }"
+    @update:open="emit('update:open', $event)"
+  >
     <template #body>
       <div class="flex items-start gap-3 mb-5 p-3.5 rounded-xl bg-primary-50 dark:bg-white/5">
         <div class="flex items-center justify-center size-9 rounded-lg bg-primary-900 text-secondary-300 shrink-0">
-          <UIcon name="i-lucide-graduation-cap" class="size-4.5" />
+          <UIcon
+            name="i-lucide-graduation-cap"
+            class="size-4.5"
+          />
         </div>
         <div>
-          <p class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white">{{ ADMISSION_DOCS.length }} ta hujjat kerak</p>
-          <p class="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">Hujjat topshirish va qabul qilinish uchun zarur bo'lgan asosiy hujjatlar ro'yxati.</p>
+          <p class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white">
+            {{ ADMISSION_DOCS.length }} ta hujjat kerak
+          </p>
+          <p class="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+            Hujjat topshirish va qabul qilinish uchun zarur bo'lgan asosiy hujjatlar ro'yxati.
+          </p>
         </div>
       </div>
 
@@ -42,8 +54,20 @@ function handleDownload() {
     </template>
     <template #footer>
       <div class="flex justify-end gap-2 w-full">
-        <UButton color="neutral" variant="ghost" @click="emit('update:open', false)">Yopish</UButton>
-        <UButton color="primary" icon="i-lucide-download" @click="handleDownload">PDF Checklist yuklab olish</UButton>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          @click="emit('update:open', false)"
+        >
+          Yopish
+        </UButton>
+        <UButton
+          color="primary"
+          icon="i-lucide-download"
+          @click="handleDownload"
+        >
+          PDF Checklist yuklab olish
+        </UButton>
       </div>
     </template>
   </UModal>

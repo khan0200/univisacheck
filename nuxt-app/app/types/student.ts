@@ -54,6 +54,7 @@ export interface Student {
   tariff?: string
   university?: string
   coordinator?: string
+  b2b?: string
   /** Internal: tracks the updatedAt of the last applied realtime event for ordering/dedup. */
   _realtimeUpdatedAt?: string
   /** Internal: cached lowercase search string to prevent string allocation during render. */
@@ -71,6 +72,7 @@ export interface StudentFormInput {
   tariff?: string
   university?: string
   coordinator?: string
+  b2b?: string
 }
 
 export interface VisaCheckResult {

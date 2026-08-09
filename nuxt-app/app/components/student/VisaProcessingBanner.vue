@@ -34,7 +34,10 @@
         aria-label="Yopish"
         @click="dismiss()"
       >
-        <span v-if="activeNotification?.isDismissing" class="text-[0.75rem] font-mono font-semibold px-0.5">
+        <span
+          v-if="activeNotification?.isDismissing"
+          class="text-[0.75rem] font-mono font-semibold px-0.5"
+        >
           {{ activeNotification.countdown }}s
         </span>
         <span v-else>×</span>

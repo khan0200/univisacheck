@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Lead } from '~/types/lead'
-import { formatLeadDate, yn } from '~/utils/lead-format'
-import { LEAD_STATUS_OPTIONS } from '~/utils/lead-format'
+import { formatLeadDate, yn, LEAD_STATUS_OPTIONS } from '~/utils/lead-format'
 
 const emit = defineEmits<{
   details: [lead: Lead]
@@ -66,31 +65,64 @@ function incomeLabel(lead: Lead, side: 'father' | 'mother') {
           >
             <span class="inline-flex items-center gap-1">
               {{ col.label }}
-              <UIcon v-if="col.sortable" :name="sortIcon(col.field)" class="size-3.5" />
+              <UIcon
+                v-if="col.sortable"
+                :name="sortIcon(col.field)"
+                class="size-3.5"
+              />
             </span>
           </th>
         </tr>
       </thead>
       <tbody class="divide-y divide-neutral-200 dark:divide-white/10">
-        <tr v-for="lead in leadsStore.pageRows" :key="lead.id" class="hover:bg-primary-50/60 dark:hover:bg-white/[0.03] transition-colors">
+        <tr
+          v-for="lead in leadsStore.pageRows"
+          :key="lead.id"
+          class="hover:bg-primary-50/60 dark:hover:bg-white/[0.03] transition-colors"
+        >
           <td class="px-4 py-3 align-top">
             <p class="font-medium text-[var(--color-text-primary)] dark:text-white">
               {{ lead.full_name || '—' }}
-              <span v-if="lead.age" class="text-[var(--color-text-secondary)] font-normal">({{ lead.age }} yosh)</span>
+              <span
+                v-if="lead.age"
+                class="text-[var(--color-text-secondary)] font-normal"
+              >({{ lead.age }} yosh)</span>
             </p>
-            <a :href="`tel:+${lead.phone}`" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-700">+{{ lead.phone }}</a>
+            <a
+              :href="`tel:+${lead.phone}`"
+              class="text-xs text-[var(--color-text-secondary)] hover:text-primary-700"
+            >+{{ lead.phone }}</a>
           </td>
           <td class="px-4 py-3 align-top">
             <span v-if="lead.language_certificate">{{ lead.language_certificate }}</span>
-            <span v-else-if="lead.planned_language_certificate" class="text-[var(--color-text-secondary)]">Reja: {{ lead.planned_language_certificate }}</span>
-            <span v-else class="text-[var(--color-text-secondary)]">—</span>
+            <span
+              v-else-if="lead.planned_language_certificate"
+              class="text-[var(--color-text-secondary)]"
+            >Reja: {{ lead.planned_language_certificate }}</span>
+            <span
+              v-else
+              class="text-[var(--color-text-secondary)]"
+            >—</span>
           </td>
-          <td class="px-4 py-3 align-top">{{ incomeLabel(lead, 'father') || '—' }}</td>
-          <td class="px-4 py-3 align-top">{{ incomeLabel(lead, 'mother') || '—' }}</td>
-          <td class="px-4 py-3 align-top"><DashboardLeadFinancialBadge :lead="lead" /></td>
-          <td class="px-4 py-3 align-top">{{ lead.estimated_visa_approval_percentage || '—' }}</td>
+          <td class="px-4 py-3 align-top">
+            {{ incomeLabel(lead, 'father') || '—' }}
+          </td>
+          <td class="px-4 py-3 align-top">
+            {{ incomeLabel(lead, 'mother') || '—' }}
+          </td>
+          <td class="px-4 py-3 align-top">
+            <DashboardLeadFinancialBadge :lead="lead" />
+          </td>
+          <td class="px-4 py-3 align-top">
+            {{ lead.estimated_visa_approval_percentage || '—' }}
+          </td>
           <td class="px-4 py-3 align-top max-w-[220px]">
-            <p class="truncate text-[var(--color-text-secondary)]" :title="lead.ai_generated_comment">{{ lead.ai_generated_comment || '—' }}</p>
+            <p
+              class="truncate text-[var(--color-text-secondary)]"
+              :title="lead.ai_generated_comment"
+            >
+              {{ lead.ai_generated_comment || '—' }}
+            </p>
           </td>
           <td class="px-4 py-3 align-top">
             <USelect
@@ -102,12 +134,37 @@ function incomeLabel(lead: Lead, side: 'father' | 'mother') {
               @update:model-value="handleStatusChange(lead, $event as Lead['status'])"
             />
           </td>
-          <td class="px-4 py-3 align-top whitespace-nowrap text-[var(--color-text-secondary)] text-xs">{{ formatLeadDate(lead.created_at) }}</td>
+          <td class="px-4 py-3 align-top whitespace-nowrap text-[var(--color-text-secondary)] text-xs">
+            {{ formatLeadDate(lead.created_at) }}
+          </td>
           <td class="px-4 py-3 align-top">
             <div class="flex items-center justify-end gap-1">
-              <UButton size="xs" color="neutral" variant="soft" @click="emit('details', lead)">Batafsil</UButton>
-              <UButton icon="i-lucide-pencil" size="xs" color="neutral" variant="ghost" square aria-label="Tahrirlash" @click="emit('edit', lead)" />
-              <UButton icon="i-lucide-trash-2" size="xs" color="error" variant="ghost" square aria-label="O'chirish" @click="emit('delete', lead)" />
+              <UButton
+                size="xs"
+                color="neutral"
+                variant="soft"
+                @click="emit('details', lead)"
+              >
+                Batafsil
+              </UButton>
+              <UButton
+                icon="i-lucide-pencil"
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                square
+                aria-label="Tahrirlash"
+                @click="emit('edit', lead)"
+              />
+              <UButton
+                icon="i-lucide-trash-2"
+                size="xs"
+                color="error"
+                variant="ghost"
+                square
+                aria-label="O'chirish"
+                @click="emit('delete', lead)"
+              />
             </div>
           </td>
         </tr>

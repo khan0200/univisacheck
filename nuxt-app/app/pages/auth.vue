@@ -86,20 +86,37 @@ async function handleSignup() {
     <div class="auth-hero">
       <div class="auth-hero-overlay" />
       <div class="auth-hero-content">
-        <img src="/logo.png" alt="SalomKorea" class="auth-hero-logo">
-        <h2 class="auth-hero-title">SalomKorea</h2>
-        <p class="auth-hero-subtitle">Your trusted partner for Korean visa consulting & education services</p>
+        <img
+          src="/logo.png"
+          alt="SalomKorea"
+          class="auth-hero-logo"
+        >
+        <h2 class="auth-hero-title">
+          SalomKorea
+        </h2>
+        <p class="auth-hero-subtitle">
+          Your trusted partner for Korean visa consulting & education services
+        </p>
         <div class="auth-hero-features">
           <div class="auth-hero-feature">
-            <UIcon name="i-lucide-shield-check" class="size-5 text-emerald-300" />
+            <UIcon
+              name="i-lucide-shield-check"
+              class="size-5 text-emerald-300"
+            />
             <span>Real-time visa tracking</span>
           </div>
           <div class="auth-hero-feature">
-            <UIcon name="i-lucide-landmark" class="size-5 text-emerald-300" />
+            <UIcon
+              name="i-lucide-landmark"
+              class="size-5 text-emerald-300"
+            />
             <span>Embassy visa tracking</span>
           </div>
           <div class="auth-hero-feature">
-            <UIcon name="i-lucide-globe" class="size-5 text-emerald-300" />
+            <UIcon
+              name="i-lucide-globe"
+              class="size-5 text-emerald-300"
+            />
             <span>E-Visa tracking</span>
           </div>
         </div>
@@ -111,14 +128,24 @@ async function handleSignup() {
       <div class="auth-form-wrapper">
         <!-- Mobile-only logo -->
         <div class="auth-mobile-header">
-          <img src="/logo.png" alt="SalomKorea" class="h-11 w-11 rounded-xl object-contain">
-          <h1 class="text-lg font-bold text-[var(--color-text-primary)] dark:text-white tracking-tight">SalomKorea</h1>
+          <img
+            src="/logo.png"
+            alt="SalomKorea"
+            class="h-11 w-11 rounded-xl object-contain"
+          >
+          <h1 class="text-lg font-bold text-[var(--color-text-primary)] dark:text-white tracking-tight">
+            SalomKorea
+          </h1>
         </div>
 
         <!-- Heading -->
         <div class="auth-heading">
-          <h1 class="auth-title">{{ tab === 'login' ? 'Welcome back' : 'Get started' }}</h1>
-          <p class="auth-description">{{ tab === 'login' ? 'Sign in to your consultant cabinet' : 'Create your consultant account' }}</p>
+          <h1 class="auth-title">
+            {{ tab === 'login' ? 'Welcome back' : 'Get started' }}
+          </h1>
+          <p class="auth-description">
+            {{ tab === 'login' ? 'Sign in to your consultant cabinet' : 'Create your consultant account' }}
+          </p>
         </div>
 
         <!-- Tab switcher -->
@@ -129,7 +156,10 @@ async function handleSignup() {
             :class="tab === 'login' ? 'auth-tab-active' : 'auth-tab-inactive'"
             @click="tab = 'login'"
           >
-            <UIcon name="i-lucide-log-in" class="size-4" />
+            <UIcon
+              name="i-lucide-log-in"
+              class="size-4"
+            />
             Sign in
           </button>
           <button
@@ -138,13 +168,20 @@ async function handleSignup() {
             :class="tab === 'signup' ? 'auth-tab-active' : 'auth-tab-inactive'"
             @click="tab = 'signup'"
           >
-            <UIcon name="i-lucide-user-plus" class="size-4" />
+            <UIcon
+              name="i-lucide-user-plus"
+              class="size-4"
+            />
             Create account
           </button>
         </div>
 
         <!-- Login form -->
-        <form v-if="tab === 'login'" class="auth-form" @submit.prevent="handleLogin">
+        <form
+          v-if="tab === 'login'"
+          class="auth-form"
+          @submit.prevent="handleLogin"
+        >
           <UFormField label="Email or Consulting Name">
             <UInput
               v-model="loginForm.identifier"
@@ -173,21 +210,42 @@ async function handleSignup() {
                   :aria-label="showLoginPassword ? 'Hide password' : 'Show password'"
                   @click="showLoginPassword = !showLoginPassword"
                 >
-                  <UIcon :name="showLoginPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="size-5" />
+                  <UIcon
+                    :name="showLoginPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                    class="size-5"
+                  />
                 </button>
               </template>
             </UInput>
           </UFormField>
 
-          <UAlert v-if="loginError" color="error" variant="soft" :title="loginError" icon="i-lucide-alert-circle" class="auth-alert" />
+          <UAlert
+            v-if="loginError"
+            color="error"
+            variant="soft"
+            :title="loginError"
+            icon="i-lucide-alert-circle"
+            class="auth-alert"
+          />
 
-          <UiLoadingButton type="submit" block size="xl" :loading="loginLoading" color="primary" class="auth-submit-btn">
+          <UiLoadingButton
+            type="submit"
+            block
+            size="xl"
+            :loading="loginLoading"
+            color="primary"
+            class="auth-submit-btn"
+          >
             Sign in
           </UiLoadingButton>
         </form>
 
         <!-- Signup form -->
-        <form v-else class="auth-form" @submit.prevent="handleSignup">
+        <form
+          v-else
+          class="auth-form"
+          @submit.prevent="handleSignup"
+        >
           <UFormField label="Consulting name">
             <UInput
               v-model="signupForm.username"
@@ -225,13 +283,24 @@ async function handleSignup() {
                   :aria-label="showSignupPassword ? 'Hide password' : 'Show password'"
                   @click="showSignupPassword = !showSignupPassword"
                 >
-                  <UIcon :name="showSignupPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="size-5" />
+                  <UIcon
+                    :name="showSignupPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                    class="size-5"
+                  />
                 </button>
               </template>
             </UInput>
-            <div v-if="signupForm.password" class="mt-2.5 flex items-center gap-2.5">
+            <div
+              v-if="signupForm.password"
+              class="mt-2.5 flex items-center gap-2.5"
+            >
               <div class="flex-1 flex gap-1">
-                <span v-for="i in 3" :key="i" class="h-1.5 flex-1 rounded-full bg-neutral-200 dark:bg-white/10 transition-colors duration-300" :class="{ [pwColor]: i <= pwScore || (pwScore === 0 && i === 1) }" />
+                <span
+                  v-for="i in 3"
+                  :key="i"
+                  class="h-1.5 flex-1 rounded-full bg-neutral-200 dark:bg-white/10 transition-colors duration-300"
+                  :class="{ [pwColor]: i <= pwScore || (pwScore === 0 && i === 1) }"
+                />
               </div>
               <span class="text-xs font-semibold text-[var(--color-text-secondary)]">{{ pwLabel }}</span>
             </div>
@@ -253,16 +322,40 @@ async function handleSignup() {
                   :aria-label="showSignupConfirm ? 'Hide password' : 'Show password'"
                   @click="showSignupConfirm = !showSignupConfirm"
                 >
-                  <UIcon :name="showSignupConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="size-5" />
+                  <UIcon
+                    :name="showSignupConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                    class="size-5"
+                  />
                 </button>
               </template>
             </UInput>
           </UFormField>
 
-          <UAlert v-if="signupError" color="error" variant="soft" :title="signupError" icon="i-lucide-alert-circle" class="auth-alert" />
-          <UAlert v-if="signupSuccess" color="success" variant="soft" title="Account created! Redirecting…" icon="i-lucide-check-circle" class="auth-alert" />
+          <UAlert
+            v-if="signupError"
+            color="error"
+            variant="soft"
+            :title="signupError"
+            icon="i-lucide-alert-circle"
+            class="auth-alert"
+          />
+          <UAlert
+            v-if="signupSuccess"
+            color="success"
+            variant="soft"
+            title="Account created! Redirecting…"
+            icon="i-lucide-check-circle"
+            class="auth-alert"
+          />
 
-          <UiLoadingButton type="submit" block size="xl" :loading="signupLoading" color="primary" class="auth-submit-btn">
+          <UiLoadingButton
+            type="submit"
+            block
+            size="xl"
+            :loading="signupLoading"
+            color="primary"
+            class="auth-submit-btn"
+          >
             Create account
           </UiLoadingButton>
         </form>

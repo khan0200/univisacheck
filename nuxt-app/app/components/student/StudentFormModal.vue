@@ -35,42 +35,8 @@ const form = reactive<StudentFormInput>({
   applicationNo: '',
   tariff: 'none',
   university: 'none',
-  coordinator: 'none'
-})
-
-const tariffsList = ref<{ name: string }[]>([])
-const universitiesList = ref<{ name: string }[]>([])
-const coordinatorsList = ref<{ name: string }[]>([])
-const { apiFetch } = useApiFetch()
-
-async function loadOptions() {
-  try {
-    const [t, u, c] = await Promise.all([
-      apiFetch<{ name: string }[]>('/api/settings/tariffs'),
-      apiFetch<{ name: string }[]>('/api/settings/universities'),
-      apiFetch<{ name: string }[]>('/api/settings/coordinators')
-    ])
-    tariffsList.value = t || []
-    universitiesList.value = u || []
-    coordinatorsList.value = c || []
-  } catch (err) {
-    console.error('Failed to load dropdown options in form modal:', err)
-  }
-}
-
-const tariffOptions = computed(() => {
-  const list = tariffsList.value.map(t => ({ value: t.name, label: t.name }))
-  return [{ value: 'none', label: 'None' }, ...list]
-})
-
-const universityOptions = computed(() => {
-  const list = universitiesList.value.map(u => ({ value: u.name, label: u.name }))
-  return [{ value: 'none', label: 'None' }, ...list]
-})
-
-const coordinatorOptions = computed(() => {
-  const list = coordinatorsList.value.map(c => ({ value: c.name, label: c.name }))
-  return [{ value: 'none', label: 'None' }, ...list]
+  coordinator: 'none',
+  b2b: 'none'
 })
 
 function resetForm() {
@@ -83,6 +49,7 @@ function resetForm() {
   form.tariff = 'none'
   form.university = 'none'
   form.coordinator = 'none'
+  form.b2b = 'none'
   originalPassport.value = ''
   errorMessage.value = ''
   resetLookup()
@@ -93,7 +60,6 @@ watch(() => props.open, (open) => {
     resetForm()
     return
   }
-  loadOptions()
   if (props.editingStudent) {
     const s = props.editingStudent
     form.fullName = s.fullName
@@ -105,6 +71,7 @@ watch(() => props.open, (open) => {
     form.tariff = s.tariff || 'none'
     form.university = s.university || 'none'
     form.coordinator = s.coordinator || 'none'
+    form.b2b = s.b2b || 'none'
     originalPassport.value = s.passport
   } else {
     resetForm()
@@ -169,7 +136,8 @@ async function handleSubmit() {
       lastChecked: new Date().toISOString(),
       tariff: form.tariff === 'none' ? '' : form.tariff,
       university: form.university === 'none' ? '' : form.university,
-      coordinator: form.coordinator === 'none' ? '' : form.coordinator
+      coordinator: form.coordinator === 'none' ? '' : form.coordinator,
+      b2b: form.b2b === 'none' ? '' : form.b2b
     }
     if (isEdit.value && originalPassport.value && originalPassport.value !== passport) {
       payload.originalPassport = originalPassport.value
@@ -198,7 +166,8 @@ async function handleSubmit() {
           applicationNo: form.applicationNo.trim().toUpperCase(),
           tariff: form.tariff === 'none' ? '' : form.tariff,
           university: form.university === 'none' ? '' : form.university,
-          coordinator: form.coordinator === 'none' ? '' : form.coordinator
+          coordinator: form.coordinator === 'none' ? '' : form.coordinator,
+          b2b: form.b2b === 'none' ? '' : form.b2b
         })
       }
     } else {
@@ -213,7 +182,8 @@ async function handleSubmit() {
         lastChecked: payload.lastChecked,
         tariff: form.tariff === 'none' ? '' : form.tariff,
         university: form.university === 'none' ? '' : form.university,
-        coordinator: form.coordinator === 'none' ? '' : form.coordinator
+        coordinator: form.coordinator === 'none' ? '' : form.coordinator,
+        b2b: form.b2b === 'none' ? '' : form.b2b
       })
     }
 
@@ -347,41 +317,7 @@ async function handleSubmit() {
           />
         </UFormField>
 
-        <div
-          v-if="isEdit"
-          class="grid grid-cols-1 sm:grid-cols-3 gap-3"
-        >
-          <UFormField label="Tariff">
-            <USelect
-              v-model="form.tariff"
-              :items="tariffOptions"
-              value-key="value"
-              label-key="label"
-              class="w-full"
-              placeholder="Choose Tariff"
-            />
-          </UFormField>
-          <UFormField label="University">
-            <USelectMenu
-              v-model="form.university"
-              :items="universityOptions"
-              value-key="value"
-              label-key="label"
-              class="w-full"
-              placeholder="Choose University"
-            />
-          </UFormField>
-          <UFormField label="Coordinator">
-            <USelect
-              v-model="form.coordinator"
-              :items="coordinatorOptions"
-              value-key="value"
-              label-key="label"
-              class="w-full"
-              placeholder="Choose Coordinator"
-            />
-          </UFormField>
-        </div>
+
 
         <UFormField label="Student ID">
           <UInput

@@ -82,7 +82,8 @@ export const STUDENT_COLUMNS: DbColumn[] = [
   { name: 'last_checked', type: 'TEXT' },
   { name: 'tariff', type: 'TEXT' },
   { name: 'university', type: 'TEXT' },
-  { name: 'coordinator', type: 'TEXT' }
+  { name: 'coordinator', type: 'TEXT' },
+  { name: 'b2b', type: 'TEXT' }
 ]
 
 export const CREATE_JOBS_TABLE = `
@@ -210,6 +211,16 @@ CREATE TABLE IF NOT EXISTS settings_coordinators (
     contact   TEXT DEFAULT '',
     email     TEXT DEFAULT '',
     notes     TEXT DEFAULT '',
+    createdAt TEXT DEFAULT (datetime('now')),
+    updatedAt TEXT DEFAULT (datetime('now'))
+);
+`
+
+export const CREATE_SETTINGS_B2B_TABLE = `
+CREATE TABLE IF NOT EXISTS settings_b2b (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId    INTEGER NOT NULL,
+    name      TEXT NOT NULL,
     createdAt TEXT DEFAULT (datetime('now')),
     updatedAt TEXT DEFAULT (datetime('now'))
 );

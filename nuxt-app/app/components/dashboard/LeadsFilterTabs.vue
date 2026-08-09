@@ -8,8 +8,8 @@ const tabs: { value: LeadStatus | 'all', label: string }[] = [
   { value: 'NEW', label: 'Yangi' },
   { value: 'IN_PROGRESS', label: 'Jarayonda' },
   { value: 'COMPLETED', label: 'Tugallangan' },
-  { value: 'CONTACTED', label: "Bog'lanilgan" },
-  { value: 'ENROLLED', label: "Ro'yxatga olingan" },
+  { value: 'CONTACTED', label: 'Bog\'lanilgan' },
+  { value: 'ENROLLED', label: 'Ro\'yxatga olingan' },
   { value: 'CANCELLED', label: 'Bekor qilingan' }
 ]
 </script>

@@ -69,7 +69,7 @@ const COLLEGE_UNIVERSITIES = new Set([
   'Kunjang University',
   'Dongwon Institute of Science and Technology',
   'Seoyeong University',
-  "Kyungin Women's University",
+  'Kyungin Women\'s University',
   'Chosun College of Science & Technology',
   'Induk University',
   'Seojeong University'
@@ -85,7 +85,7 @@ const REGIONAL_UNIVERSITIES = new Set([
 const EXCLUDED_UNIVERSITIES = new Set([
   'Dankook University',
   'Dongguk University (Seoul)',
-  "Duksung Women's University",
+  'Duksung Women\'s University',
   'Hongik University',
   'Jeju National University',
   'Konyang University',
@@ -94,8 +94,8 @@ const EXCLUDED_UNIVERSITIES = new Set([
   'Pusan National University',
   'Seokyeong University',
   'Seoul Theological University',
-  "Seoul Women's University",
-  "Sookmyung Women's University",
+  'Seoul Women\'s University',
+  'Sookmyung Women\'s University',
   'Sungkyul University',
   'Sunmoon University',
   'Ulsan College',
@@ -171,7 +171,7 @@ export function useUniversities() {
   const { data, pending, error, refresh } = useAsyncData('universities', () => $fetch<University[]>('/api/universities'), {
     default: () => [] as University[]
   })
-  const universities = computed(() => (data.value || []).filter((u) => !EXCLUDED_UNIVERSITIES.has(u.name)))
+  const universities = computed(() => (data.value || []).filter(u => !EXCLUDED_UNIVERSITIES.has(u.name)))
 
   const searchQuery = ref('')
   const locationFilter = ref('all')
@@ -179,7 +179,7 @@ export function useUniversities() {
   const sortByRank = ref(false)
 
   const locations = computed(() => {
-    const set = new Set(universities.value.map((u) => u.location))
+    const set = new Set(universities.value.map(u => u.location))
     return ['all', ...[...set].sort()]
   })
 
@@ -200,10 +200,10 @@ export function useUniversities() {
 
       if (!q) return true
       return (
-        u.name.toLowerCase().includes(q) ||
-        u.koreanName.toLowerCase().includes(q) ||
-        u.location.toLowerCase().includes(q) ||
-        u.majors.some((m) => m.toLowerCase().includes(q))
+        u.name.toLowerCase().includes(q)
+        || u.koreanName.toLowerCase().includes(q)
+        || u.location.toLowerCase().includes(q)
+        || u.majors.some(m => m.toLowerCase().includes(q))
       )
     })
 

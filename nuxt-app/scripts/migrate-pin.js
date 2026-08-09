@@ -37,7 +37,7 @@ async function migrate() {
   }
 
   const db = createClient({ url, authToken })
-  
+
   try {
     console.log('Adding pinned column to students table...')
     await db.execute('ALTER TABLE students ADD COLUMN pinned INTEGER DEFAULT 0;')
@@ -51,7 +51,7 @@ async function migrate() {
       process.exit(1)
     }
   }
-  
+
   process.exit(0)
 }
 

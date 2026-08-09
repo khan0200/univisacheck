@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ 'update:modelValue': [value: VisaTypeFilter] }>()
 
-const options: { value: VisaTypeFilter; label: string; icon?: string }[] = [
+const options: { value: VisaTypeFilter, label: string, icon?: string }[] = [
   { value: 'all', label: 'All', icon: 'i-lucide-layers' },
   { value: 'Embassy', label: 'Embassy', icon: 'i-lucide-building-2' },
   { value: 'E-Visa', label: 'E-Visa', icon: 'i-lucide-file-text' },
@@ -28,7 +28,11 @@ const options: { value: VisaTypeFilter; label: string; icon?: string }[] = [
         : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-white/5'"
       @click="emit('update:modelValue', opt.value)"
     >
-      <UIcon v-if="opt.icon" :name="opt.icon" class="hidden sm:block size-3.5 shrink-0 opacity-70" />
+      <UIcon
+        v-if="opt.icon"
+        :name="opt.icon"
+        class="hidden sm:block size-3.5 shrink-0 opacity-70"
+      />
       <span>{{ opt.label }}</span>
       <span
         class="text-[10px] sm:text-[11px] font-semibold rounded px-1 sm:px-1.5 py-0.5 min-w-[1.1rem] sm:min-w-[1.25rem] text-center transition-colors"

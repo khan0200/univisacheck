@@ -78,21 +78,21 @@ function badgeFor(name: string, fallback: string): string {
 const visibleBlocks = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   return BLOCKS
-    .filter((block) => activeFilter.value === block.category)
-    .map((block) => ({
+    .filter(block => activeFilter.value === block.category)
+    .map(block => ({
       ...block,
       rows: block.names
-        .filter((name) => !q || name.toLowerCase().includes(q))
+        .filter(name => !q || name.toLowerCase().includes(q))
         .map((name, i) => ({ index: i + 1, name, badge: badgeFor(name, block.fallbackBadge) }))
     }))
-    .filter((block) => block.rows.length > 0)
+    .filter(block => block.rows.length > 0)
 })
 
 const visibleKCorePrograms = computed(() => {
   if (activeFilter.value !== 'k-core') return []
   const q = searchQuery.value.trim().toLowerCase()
   return K_CORE_PROGRAMS
-    .filter((p) => !q || p.university.toLowerCase().includes(q) || p.major.toLowerCase().includes(q) || p.region.toLowerCase().includes(q))
+    .filter(p => !q || p.university.toLowerCase().includes(q) || p.major.toLowerCase().includes(q) || p.region.toLowerCase().includes(q))
     .map((p, i) => ({ index: i + 1, ...p }))
 })
 
@@ -135,11 +135,21 @@ const totalShown = computed(() =>
       </div>
     </div>
 
-    <div v-if="visibleBlocks.length === 0 && visibleKCorePrograms.length === 0" class="rounded-xl bg-white dark:bg-[var(--color-card-dark)] border border-[var(--color-border)] dark:border-white/[0.08] p-8">
-      <UiEmptyState icon="i-lucide-search" title="No universities found" description="Try adjusting your search or filter." />
+    <div
+      v-if="visibleBlocks.length === 0 && visibleKCorePrograms.length === 0"
+      class="rounded-xl bg-white dark:bg-[var(--color-card-dark)] border border-[var(--color-border)] dark:border-white/[0.08] p-8"
+    >
+      <UiEmptyState
+        icon="i-lucide-search"
+        title="No universities found"
+        description="Try adjusting your search or filter."
+      />
     </div>
 
-    <div v-else class="space-y-8">
+    <div
+      v-else
+      class="space-y-8"
+    >
       <div v-if="visibleKCorePrograms.length > 0">
         <h3 class="flex items-center gap-2.5 text-base font-bold text-[var(--color-text-primary)] dark:text-white mb-3">
           <span class="w-1 h-5 rounded-full bg-teal-600" />
@@ -147,7 +157,10 @@ const totalShown = computed(() =>
         </h3>
 
         <div class="flex items-start gap-3 mb-4 p-3.5 rounded-xl bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-900">
-          <UIcon name="i-lucide-badge-check" class="size-4.5 text-teal-700 dark:text-teal-400 shrink-0 mt-0.5" />
+          <UIcon
+            name="i-lucide-badge-check"
+            class="size-4.5 text-teal-700 dark:text-teal-400 shrink-0 mt-0.5"
+          />
           <p class="text-sm text-teal-900 dark:text-teal-200 leading-relaxed flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <span class="font-semibold">No KDB bank statement, no parent income document required</span>
             <span>for these Development-type Technical Departments — applies to applicants with</span>
@@ -160,21 +173,40 @@ const totalShown = computed(() =>
             <table class="w-full text-sm">
               <thead class="bg-primary-50/60 dark:bg-white/5">
                 <tr class="text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-                  <th class="px-4 py-2.5 w-10">#</th>
-                  <th class="px-4 py-2.5">Region</th>
-                  <th class="px-4 py-2.5">University</th>
-                  <th class="px-4 py-2.5">Major</th>
-                  <th class="px-4 py-2.5">Language</th>
+                  <th class="px-4 py-2.5 w-10">
+                    #
+                  </th>
+                  <th class="px-4 py-2.5">
+                    Region
+                  </th>
+                  <th class="px-4 py-2.5">
+                    University
+                  </th>
+                  <th class="px-4 py-2.5">
+                    Major
+                  </th>
+                  <th class="px-4 py-2.5">
+                    Language
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.06]">
-                <tr v-for="row in visibleKCorePrograms" :key="row.index">
-                  <td class="px-4 py-3 text-[var(--color-text-secondary)]">{{ row.index }}</td>
+                <tr
+                  v-for="row in visibleKCorePrograms"
+                  :key="row.index"
+                >
+                  <td class="px-4 py-3 text-[var(--color-text-secondary)]">
+                    {{ row.index }}
+                  </td>
                   <td class="px-4 py-3">
                     <span class="text-[10.5px] font-bold px-2 py-1 rounded-sm bg-teal-600 text-white whitespace-nowrap">{{ row.region }}</span>
                   </td>
-                  <td class="px-4 py-3 font-medium text-[var(--color-text-primary)] dark:text-white">{{ row.university }}</td>
-                  <td class="px-4 py-3 text-[var(--color-text-secondary)]">{{ row.major }}</td>
+                  <td class="px-4 py-3 font-medium text-[var(--color-text-primary)] dark:text-white">
+                    {{ row.university }}
+                  </td>
+                  <td class="px-4 py-3 text-[var(--color-text-secondary)]">
+                    {{ row.major }}
+                  </td>
                   <td class="px-4 py-3">
                     <span class="text-[10.5px] font-bold px-2 py-1 rounded-sm bg-primary-50 text-primary-800 dark:bg-white/10 dark:text-white whitespace-nowrap">TOPIK 3+</span>
                   </td>
@@ -185,7 +217,10 @@ const totalShown = computed(() =>
         </div>
       </div>
 
-      <div v-for="block in visibleBlocks" :key="block.category">
+      <div
+        v-for="block in visibleBlocks"
+        :key="block.category"
+      >
         <h3 class="flex items-center gap-2.5 text-base font-bold text-[var(--color-text-primary)] dark:text-white mb-3">
           <span :class="['w-1 h-5 rounded-full', block.headerBarClass]" />
           {{ block.title }} ({{ block.rows.length }})

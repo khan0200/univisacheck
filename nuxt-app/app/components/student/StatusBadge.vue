@@ -14,8 +14,15 @@ const icon = computed(() => {
 </script>
 
 <template>
-  <UBadge :color="statusBadgeColor(props.status)" variant="solid" class="gap-1">
-    <UIcon :name="icon" class="size-3.5" />
+  <UBadge
+    :color="statusBadgeColor(props.status)"
+    variant="solid"
+    class="gap-1"
+  >
+    <UIcon
+      :name="icon"
+      class="size-3.5"
+    />
     {{ displayStatusText(props.status) }}
   </UBadge>
 </template>

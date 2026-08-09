@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     return null
   }
 
-  const job = jobRes.rows[0] as unknown as Record<string, any>
+  const job = jobRes.rows[0] as unknown as Record<string, unknown>
   const jobId = String(job.id)
 
   // 3. Count status of tasks within this job
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     sql: `SELECT passport, status FROM visa_check_tasks WHERE jobId = ?`,
     args: [jobId]
   })
-  const tasksList = detailTasksRes.rows.map((row: Record<string, any>) => ({
+  const tasksList = detailTasksRes.rows.map((row: Record<string, unknown>) => ({
     passport: String(row.passport),
     status: String(row.status)
   }))

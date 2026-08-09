@@ -28,7 +28,7 @@ const profileMenuItems = computed(() => [
 ])
 
 // ── Visa-type filter dropdown ────────────────────────────────────────────────
-const visaFilterOptions: { value: VisaTypeFilter; label: string }[] = [
+const visaFilterOptions: { value: VisaTypeFilter, label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'Embassy', label: 'Embassy' },
   { value: 'E-Visa', label: 'E-Visa' },
@@ -36,11 +36,11 @@ const visaFilterOptions: { value: VisaTypeFilter; label: string }[] = [
 ]
 
 const selectedFilterLabel = computed(() =>
-  visaFilterOptions.find((o) => o.value === studentsStore.visaTypeFilter)?.label ?? 'All'
+  visaFilterOptions.find(o => o.value === studentsStore.visaTypeFilter)?.label ?? 'All'
 )
 
 const visaFilterMenuItems = computed(() =>
-  [visaFilterOptions.map((opt) => ({
+  [visaFilterOptions.map(opt => ({
     label: opt.label,
     icon: studentsStore.visaTypeFilter === opt.value ? 'i-lucide-check' : '',
     slot: `visa-${opt.value}` as string,
@@ -60,19 +60,28 @@ const visaFilterMenuItems = computed(() =>
     Desktop (≥sm): single-row with logo | search+filter | controls
   -->
   <header class="shrink-0 sticky top-0 z-30 border-b border-[var(--color-border)] dark:border-white/[0.08] glass">
-
     <!-- ── Mobile: Row 1 — Logo + controls ──────────────────────────── -->
     <div class="flex items-center justify-between gap-2 px-4 h-14 sm:hidden">
       <!-- Logo -->
-      <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
-        <img src="/logo.png" alt="SalomKorea" class="h-8 w-8 rounded-lg object-contain">
+      <NuxtLink
+        to="/"
+        class="flex items-center gap-2 shrink-0"
+      >
+        <img
+          src="/logo.png"
+          alt="SalomKorea"
+          class="h-8 w-8 rounded-lg object-contain"
+        >
         <span class="font-semibold text-[15px] tracking-tight text-primary-900 dark:text-white">SalomKorea</span>
       </NuxtLink>
 
       <!-- Right controls -->
       <div class="flex items-center gap-1.5 shrink-0">
         <ClientOnly>
-          <DashboardRealtimeIndicator v-if="props.realtimeStatus" :status="props.realtimeStatus" />
+          <DashboardRealtimeIndicator
+            v-if="props.realtimeStatus"
+            :status="props.realtimeStatus"
+          />
         </ClientOnly>
 
         <UButton
@@ -123,7 +132,10 @@ const visaFilterMenuItems = computed(() =>
             <span class="text-[11px] font-semibold tabular-nums px-1 py-0.5 rounded bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 leading-none">
               {{ studentsStore.visaTypeCounts[studentsStore.visaTypeFilter] ?? 0 }}
             </span>
-            <UIcon name="i-lucide-chevron-down" class="size-3 text-[var(--color-text-secondary)] shrink-0" />
+            <UIcon
+              name="i-lucide-chevron-down"
+              class="size-3 text-[var(--color-text-secondary)] shrink-0"
+            />
           </button>
 
           <template
@@ -145,8 +157,15 @@ const visaFilterMenuItems = computed(() =>
     <!-- ── Desktop (≥sm): single-row ────────────────────────────────── -->
     <div class="hidden sm:grid sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-3 sm:px-6 sm:h-16">
       <!-- Logo -->
-      <NuxtLink to="/" class="flex items-center gap-2.5 shrink-0 justify-self-start">
-        <img src="/logo.png" alt="SalomKorea" class="h-8 w-8 rounded-lg object-contain">
+      <NuxtLink
+        to="/"
+        class="flex items-center gap-2.5 shrink-0 justify-self-start"
+      >
+        <img
+          src="/logo.png"
+          alt="SalomKorea"
+          class="h-8 w-8 rounded-lg object-contain"
+        >
         <span class="hidden md:inline font-semibold text-[15px] tracking-tight text-primary-900 dark:text-white">SalomKorea</span>
       </NuxtLink>
 
@@ -172,7 +191,10 @@ const visaFilterMenuItems = computed(() =>
               <span class="text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded-md bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 leading-none">
                 {{ studentsStore.visaTypeCounts[studentsStore.visaTypeFilter] ?? 0 }}
               </span>
-              <UIcon name="i-lucide-chevron-down" class="size-3.5 text-[var(--color-text-secondary)] shrink-0" />
+              <UIcon
+                name="i-lucide-chevron-down"
+                class="size-3.5 text-[var(--color-text-secondary)] shrink-0"
+              />
             </button>
 
             <template
@@ -196,7 +218,10 @@ const visaFilterMenuItems = computed(() =>
         <slot name="actions" />
 
         <ClientOnly>
-          <DashboardRealtimeIndicator v-if="props.realtimeStatus" :status="props.realtimeStatus" />
+          <DashboardRealtimeIndicator
+            v-if="props.realtimeStatus"
+            :status="props.realtimeStatus"
+          />
         </ClientOnly>
 
         <UButton
@@ -218,7 +243,10 @@ const visaFilterMenuItems = computed(() =>
                 {{ initials }}
               </span>
               <span class="hidden md:inline text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ displayName }}</span>
-              <UIcon name="i-lucide-chevron-down" class="hidden md:inline size-4 text-[var(--color-text-secondary)]" />
+              <UIcon
+                name="i-lucide-chevron-down"
+                class="hidden md:inline size-4 text-[var(--color-text-secondary)]"
+              />
             </button>
           </UDropdownMenu>
           <template #fallback>

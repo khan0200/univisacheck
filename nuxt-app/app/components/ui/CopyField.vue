@@ -22,8 +22,14 @@ const canCopy = computed(() => displayText.value !== '--')
       :aria-label="label"
       @click.stop="copyValue(props.value, props.copyId)"
     >
-      <span v-if="isCopied(props.copyId)" class="text-[10px] font-bold">Copied!</span>
-      <UIcon :name="isCopied(props.copyId) ? 'i-lucide-check' : 'i-lucide-clipboard'" class="size-3.5" />
+      <span
+        v-if="isCopied(props.copyId)"
+        class="text-[10px] font-bold"
+      >Copied!</span>
+      <UIcon
+        :name="isCopied(props.copyId) ? 'i-lucide-check' : 'i-lucide-clipboard'"
+        class="size-3.5"
+      />
     </button>
   </span>
 </template>

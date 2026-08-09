@@ -71,7 +71,11 @@ async function savePassword() {
 </script>
 
 <template>
-  <UModal :open="props.open" title="Profile Settings" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="props.open"
+    title="Profile Settings"
+    @update:open="emit('update:open', $event)"
+  >
     <template #body>
       <div class="grid grid-cols-2 gap-1 p-1 rounded-md bg-primary-50 dark:bg-white/5 mb-5">
         <button
@@ -92,23 +96,72 @@ async function savePassword() {
         </button>
       </div>
 
-      <form v-if="tab === 'general'" class="space-y-4" @submit.prevent="saveGeneral">
+      <form
+        v-if="tab === 'general'"
+        class="space-y-4"
+        @submit.prevent="saveGeneral"
+      >
         <UFormField label="Consulting Name">
-          <UInput v-model="username" placeholder="Enter consulting name" required class="w-full" />
+          <UInput
+            v-model="username"
+            placeholder="Enter consulting name"
+            required
+            class="w-full"
+          />
         </UFormField>
-        <UAlert v-if="generalError" color="error" variant="soft" :title="generalError" />
-        <UiLoadingButton type="submit" block :loading="generalSaving" color="primary">Save Changes</UiLoadingButton>
+        <UAlert
+          v-if="generalError"
+          color="error"
+          variant="soft"
+          :title="generalError"
+        />
+        <UiLoadingButton
+          type="submit"
+          block
+          :loading="generalSaving"
+          color="primary"
+        >
+          Save Changes
+        </UiLoadingButton>
       </form>
 
-      <form v-else class="space-y-4" @submit.prevent="savePassword">
+      <form
+        v-else
+        class="space-y-4"
+        @submit.prevent="savePassword"
+      >
         <UFormField label="New Password">
-          <UInput v-model="newPassword" type="password" placeholder="Minimum 6 characters" required class="w-full" />
+          <UInput
+            v-model="newPassword"
+            type="password"
+            placeholder="Minimum 6 characters"
+            required
+            class="w-full"
+          />
         </UFormField>
         <UFormField label="Confirm New Password">
-          <UInput v-model="confirmPassword" type="password" placeholder="••••••••" required class="w-full" />
+          <UInput
+            v-model="confirmPassword"
+            type="password"
+            placeholder="••••••••"
+            required
+            class="w-full"
+          />
         </UFormField>
-        <UAlert v-if="passwordError" color="error" variant="soft" :title="passwordError" />
-        <UiLoadingButton type="submit" block :loading="passwordSaving" color="primary">Change Password</UiLoadingButton>
+        <UAlert
+          v-if="passwordError"
+          color="error"
+          variant="soft"
+          :title="passwordError"
+        />
+        <UiLoadingButton
+          type="submit"
+          block
+          :loading="passwordSaving"
+          color="primary"
+        >
+          Change Password
+        </UiLoadingButton>
       </form>
     </template>
   </UModal>

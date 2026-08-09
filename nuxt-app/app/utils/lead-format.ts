@@ -2,7 +2,7 @@ import type { Lead } from '~/types/lead'
 
 export const YES_NO_LABEL: Record<string, string> = {
   yes: 'Ha',
-  no: "Yo'q",
+  no: 'Yo\'q',
   deceased: 'Vafot etgan',
   not_sure: 'Bilmayman'
 }
@@ -30,17 +30,17 @@ export function financialStatus(l: Lead): FinancialStatus {
   const motherOk = l.mother_official_income === 'yes'
   const hasAsset = l.father_house === 'yes' || l.father_vehicle === 'yes' || l.mother_house === 'yes' || l.mother_vehicle === 'yes'
   if (fatherOk && motherOk && hasAsset) return { cls: 'strong', label: 'Kuchli' }
-  if (fatherOk || motherOk) return { cls: 'medium', label: "O'rtacha" }
+  if (fatherOk || motherOk) return { cls: 'medium', label: 'O\'rtacha' }
   if (l.father_official_income || l.mother_official_income) return { cls: 'weak', label: 'Zaif' }
-  return { cls: 'unknown', label: "Noma'lum" }
+  return { cls: 'unknown', label: 'Noma\'lum' }
 }
 
 export const LEAD_STATUS_OPTIONS: { value: Lead['status'], label: string }[] = [
   { value: 'NEW', label: 'Yangi' },
   { value: 'IN_PROGRESS', label: 'Jarayonda' },
   { value: 'COMPLETED', label: 'Tugallangan' },
-  { value: 'CONTACTED', label: "Bog'lanilgan" },
-  { value: 'ENROLLED', label: "Ro'yxatga olingan" },
+  { value: 'CONTACTED', label: 'Bog\'lanilgan' },
+  { value: 'ENROLLED', label: 'Ro\'yxatga olingan' },
   { value: 'CANCELLED', label: 'Bekor qilingan' }
 ]
 
@@ -79,7 +79,7 @@ function escapeCsv(value: unknown): string {
 }
 
 export function exportLeadsCsv(rows: Lead[]): void {
-  const lines = [CSV_COLUMNS.map((c) => c[1]).join(',')]
+  const lines = [CSV_COLUMNS.map(c => c[1]).join(',')]
   for (const lead of rows) {
     lines.push(CSV_COLUMNS.map(([key]) => escapeCsv(lead[key])).join(','))
   }

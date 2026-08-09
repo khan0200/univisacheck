@@ -16,7 +16,7 @@ export function useStudentsService() {
     return apiFetch<Student[]>(`${STUDENTS_URL}?passport=${encodeURIComponent(passport)}&public=true`)
   }
 
-  function save(payload: StudentFormInput & { status?: string; lastChecked?: string }) {
+  function save(payload: StudentFormInput & { status?: string, lastChecked?: string }) {
     return apiFetch<Student>(STUDENTS_URL, {
       method: 'POST',
       body: payload

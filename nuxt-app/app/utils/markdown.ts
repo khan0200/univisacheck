@@ -23,12 +23,12 @@ export function formatMarkdown(text: string | undefined | null): string {
     const line = rawLine.trim()
     if (line.startsWith('|') && line.endsWith('|')) {
       if (line.includes('---')) continue
-      const cells = line.split('|').map((c) => c.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
+      const cells = line.split('|').map(c => c.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
       if (!inTable) {
         inTable = true
-        tableHtml = `<table><thead><tr>${cells.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>`
+        tableHtml = `<table><thead><tr>${cells.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`
       } else {
-        tableHtml += `<tr>${cells.map((c) => `<td>${c}</td>`).join('')}</tr>`
+        tableHtml += `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`
       }
     } else {
       if (inTable) {

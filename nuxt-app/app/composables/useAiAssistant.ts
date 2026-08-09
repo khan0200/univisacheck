@@ -1,13 +1,13 @@
 import type { ChatMessage } from '~/types/ai-assistant'
 
-const WELCOME_MESSAGE = "Salom! Men Janubiy Koreya bo'yicha SalomKorea AI maslahatchisiman. 🇰🇷\n\nKoreyada o'qish, universitet tanlash, viza olish tartibi (D-2/D-4), grantlar va zarur hujjatlar bo'yicha savollaringizga javob bera olaman."
+const WELCOME_MESSAGE = 'Salom! Men Janubiy Koreya bo\'yicha SalomKorea AI maslahatchisiman. 🇰🇷\n\nKoreyada o\'qish, universitet tanlash, viza olish tartibi (D-2/D-4), grantlar va zarur hujjatlar bo\'yicha savollaringizga javob bera olaman.'
 
 export const AI_SUGGESTIONS = [
   { label: '🧮 Viza Kalkulyator', query: 'Viza imkoniyat kalkulyatori boshlash' },
-  { label: '🥇 1% Universitetlar', query: "Qaysi universitetlar 1% yengillashtirilgan?" },
-  { label: '📊 IELTS 5.5 Grantlar', query: "IELTS 5.5 bilan qanday grantlar bor?" },
-  { label: '🛂 Viza Hujjatlari', query: "Viza olish uchun qanday hujjatlar kerak?" },
-  { label: '💰 Bankshot nima?', query: "Bankshot va KDB bank ma'lumotnomasi nima?" }
+  { label: '🥇 1% Universitetlar', query: 'Qaysi universitetlar 1% yengillashtirilgan?' },
+  { label: '📊 IELTS 5.5 Grantlar', query: 'IELTS 5.5 bilan qanday grantlar bor?' },
+  { label: '🛂 Viza Hujjatlari', query: 'Viza olish uchun qanday hujjatlar kerak?' },
+  { label: '💰 Bankshot nima?', query: 'Bankshot va KDB bank ma\'lumotnomasi nima?' }
 ]
 
 /** Chat widget state/orchestration — shared singleton so the floating widget persists across page navigations. */
@@ -49,10 +49,10 @@ export function useAiAssistant() {
       } else if (data.response) {
         messages.value.push({ role: 'assistant', content: data.response })
       } else {
-        messages.value.push({ role: 'assistant', content: "Siz yuborgan so'rov bo'yicha javob olinmadi." })
+        messages.value.push({ role: 'assistant', content: 'Siz yuborgan so\'rov bo\'yicha javob olinmadi.' })
       }
     } catch (e: any) {
-      const displayMsg = e?.data?.error || e?.message || "Kechirasiz, tarmoq xatoligi sababli javob olish imkoni bo'lmadi."
+      const displayMsg = e?.data?.error || e?.message || 'Kechirasiz, tarmoq xatoligi sababli javob olish imkoni bo\'lmadi.'
       messages.value.push({ role: 'assistant', content: `❌ Xatolik: ${displayMsg}` })
     } finally {
       isWaiting.value = false

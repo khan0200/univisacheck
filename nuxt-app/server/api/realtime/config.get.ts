@@ -7,10 +7,10 @@
 
 export default defineEventHandler((event) => {
   const isPusherEnabled = Boolean(
-    process.env.PUSHER_APP_ID &&
-    process.env.PUSHER_KEY &&
-    process.env.PUSHER_SECRET &&
-    process.env.PUSHER_CLUSTER
+    process.env.PUSHER_APP_ID
+    && process.env.PUSHER_KEY
+    && process.env.PUSHER_SECRET
+    && process.env.PUSHER_CLUSTER
   )
 
   if (isPusherEnabled) {

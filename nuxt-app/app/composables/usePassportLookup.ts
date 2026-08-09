@@ -23,7 +23,7 @@ export function usePassportLookup() {
   }
 
   async function runLookup(passport: string, onAutofill: (fullName?: string, birthday?: string) => void) {
-    const ownDuplicate = studentsStore.students.find((s) => s.passport === passport)
+    const ownDuplicate = studentsStore.students.find(s => s.passport === passport)
     if (ownDuplicate) {
       lastChecked = passport
       status.value = 'duplicate'

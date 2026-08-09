@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  delete: [passports: string[]]
+  'delete': [passports: string[]]
 }>()
 
 const searchQuery = ref('')
@@ -18,24 +18,24 @@ const filteredStudents = computed(() => {
   if (!searchQuery.value) return props.students
   const query = searchQuery.value.toLowerCase()
   return props.students.filter(
-    (s) =>
-      s.fullName.toLowerCase().includes(query) ||
-      s.passport.toLowerCase().includes(query) ||
-      (s.applicationNo && s.applicationNo.toLowerCase().includes(query)) ||
-      (s.studentId && s.studentId.toLowerCase().includes(query))
+    s =>
+      s.fullName.toLowerCase().includes(query)
+      || s.passport.toLowerCase().includes(query)
+      || (s.applicationNo && s.applicationNo.toLowerCase().includes(query))
+      || (s.studentId && s.studentId.toLowerCase().includes(query))
   )
 })
 
 const isAllSelected = computed(() => {
-  return filteredStudents.value.length > 0 && 
-         filteredStudents.value.every((s) => selectedPassports.value.has(s.passport))
+  return filteredStudents.value.length > 0
+    && filteredStudents.value.every(s => selectedPassports.value.has(s.passport))
 })
 
 function toggleAll() {
   if (isAllSelected.value) {
-    filteredStudents.value.forEach((s) => selectedPassports.value.delete(s.passport))
+    filteredStudents.value.forEach(s => selectedPassports.value.delete(s.passport))
   } else {
-    filteredStudents.value.forEach((s) => selectedPassports.value.add(s.passport))
+    filteredStudents.value.forEach(s => selectedPassports.value.add(s.passport))
   }
 }
 
@@ -87,10 +87,16 @@ watch(
         />
       </div>
 
-      <div v-if="filteredStudents.length === 0" class="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+      <div
+        v-if="filteredStudents.length === 0"
+        class="p-6 text-center text-sm text-gray-500 dark:text-gray-400"
+      >
         No students found.
       </div>
-      <div v-else class="divide-y divide-gray-200 dark:divide-white/10 max-h-[60vh] overflow-y-auto">
+      <div
+        v-else
+        class="divide-y divide-gray-200 dark:divide-white/10 max-h-[60vh] overflow-y-auto"
+      >
         <div class="px-4 py-2 bg-gray-50 dark:bg-white/5 flex items-center justify-between sticky top-0 z-10">
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -98,7 +104,7 @@ watch(
               class="size-4 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 cursor-pointer"
               :checked="isAllSelected"
               @change="toggleAll"
-            />
+            >
             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Select All</span>
           </label>
           <span class="text-xs text-gray-500">{{ selectedPassports.size }} selected</span>
@@ -116,7 +122,7 @@ watch(
               :checked="selectedPassports.has(student.passport)"
               @change="toggleStudent(student.passport, ($event.target as HTMLInputElement).checked)"
               @click.stop
-            />
+            >
             <div class="min-w-0">
               <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {{ student.fullName }}
@@ -133,7 +139,11 @@ watch(
 
     <template #footer>
       <div class="flex justify-end gap-3 w-full">
-        <UButton color="neutral" variant="ghost" @click="close">
+        <UButton
+          color="neutral"
+          variant="ghost"
+          @click="close"
+        >
           Cancel
         </UButton>
         <UButton
