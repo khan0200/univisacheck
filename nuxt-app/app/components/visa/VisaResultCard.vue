@@ -67,7 +67,8 @@ const cells = computed(() => {
 
 const showDownload = computed(() => {
   const statusUpper = (props.result.status || '').toUpperCase()
-  return Boolean(props.result.pdfUrl) || statusUpper === 'APPROVED' || statusUpper === 'VISA USED'
+  const isApproved = statusUpper.includes('APPROVED') || statusUpper.includes('VISA USED') || statusUpper.includes('ISSUED')
+  return isApproved && Boolean(props.result.pdfUrl)
 })
 
 const downloadUrl = computed(() =>
