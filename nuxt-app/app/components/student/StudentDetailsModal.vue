@@ -55,6 +55,10 @@ const selectedTariff = ref(props.student?.tariff || 'none')
 const selectedUniversity = ref(props.student?.university || 'none')
 const selectedCoordinator = ref(props.student?.coordinator || 'none')
 
+const editingTariff = ref(false)
+const editingUniversity = ref(false)
+const editingCoordinator = ref(false)
+
 async function loadOptions() {
   try {
     const [t, u, c] = await Promise.all([
@@ -77,6 +81,9 @@ watch(() => props.open, (open) => {
     selectedUniversity.value = props.student?.university || 'none'
     selectedCoordinator.value = props.student?.coordinator || 'none'
   }
+  editingTariff.value = false
+  editingUniversity.value = false
+  editingCoordinator.value = false
 })
 
 watch(() => props.student, (newStudent) => {
@@ -113,6 +120,9 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
     })
     studentsStore.patchStudent(props.student.passport, { [fieldName]: apiValue })
     toast.add({ title: `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} updated!`, color: 'success' })
+    if (fieldName === 'tariff') editingTariff.value = false
+    if (fieldName === 'university') editingUniversity.value = false
+    if (fieldName === 'coordinator') editingCoordinator.value = false
   } catch (err: unknown) {
     toast.add({ title: apiErrorMessage(err, `Failed to update ${fieldName}`), color: 'error' })
   }
@@ -236,47 +246,172 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
             Management
           </p>
           <div class="space-y-4">
+            <!-- Tariff Field -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                 Tariff
               </label>
-              <USelect
-                v-model="selectedTariff"
-                :items="tariffOptions"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-                placeholder="Choose Tariff"
-                @update:model-value="saveField('tariff', $event)"
-              />
+              <div
+                v-if="!editingTariff"
+                class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]"
+              >
+                <span class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white truncate pr-2">
+                  {{ props.student?.tariff || 'None' }}
+                </span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <UButton
+                    icon="i-lucide-pencil"
+                    variant="ghost"
+                    color="neutral"
+                    size="sm"
+                    aria-label="Edit Tariff"
+                    @click="editingTariff = true"
+                  />
+                  <UButton
+                    v-if="props.student?.tariff"
+                    icon="i-lucide-trash-2"
+                    variant="ghost"
+                    color="error"
+                    size="sm"
+                    aria-label="Clear Tariff"
+                    @click="saveField('tariff', 'none')"
+                  />
+                </div>
+              </div>
+              <div
+                v-else
+                class="flex items-center gap-2"
+              >
+                <USelect
+                  v-model="selectedTariff"
+                  :items="tariffOptions"
+                  value-key="value"
+                  label-key="label"
+                  class="flex-1"
+                  placeholder="Choose Tariff"
+                  @update:model-value="saveField('tariff', $event)"
+                />
+                <UButton
+                  icon="i-lucide-x"
+                  variant="ghost"
+                  color="neutral"
+                  size="sm"
+                  aria-label="Cancel editing"
+                  @click="editingTariff = false"
+                />
+              </div>
             </div>
+
+            <!-- University Field -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                 University
               </label>
-              <USelectMenu
-                v-model="selectedUniversity"
-                :items="universityOptions"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-                placeholder="Choose University"
-                @update:model-value="saveField('university', $event)"
-              />
+              <div
+                v-if="!editingUniversity"
+                class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]"
+              >
+                <span class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white truncate pr-2">
+                  {{ props.student?.university || 'None' }}
+                </span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <UButton
+                    icon="i-lucide-pencil"
+                    variant="ghost"
+                    color="neutral"
+                    size="sm"
+                    aria-label="Edit University"
+                    @click="editingUniversity = true"
+                  />
+                  <UButton
+                    v-if="props.student?.university"
+                    icon="i-lucide-trash-2"
+                    variant="ghost"
+                    color="error"
+                    size="sm"
+                    aria-label="Clear University"
+                    @click="saveField('university', 'none')"
+                  />
+                </div>
+              </div>
+              <div
+                v-else
+                class="flex items-center gap-2"
+              >
+                <USelectMenu
+                  v-model="selectedUniversity"
+                  :items="universityOptions"
+                  value-key="value"
+                  label-key="label"
+                  class="flex-1"
+                  placeholder="Choose University"
+                  @update:model-value="saveField('university', $event)"
+                />
+                <UButton
+                  icon="i-lucide-x"
+                  variant="ghost"
+                  color="neutral"
+                  size="sm"
+                  aria-label="Cancel editing"
+                  @click="editingUniversity = false"
+                />
+              </div>
             </div>
+
+            <!-- Coordinator Field -->
             <div>
               <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                 Coordinator
               </label>
-              <USelect
-                v-model="selectedCoordinator"
-                :items="coordinatorOptions"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-                placeholder="Choose Coordinator"
-                @update:model-value="saveField('coordinator', $event)"
-              />
+              <div
+                v-if="!editingCoordinator"
+                class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]"
+              >
+                <span class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white truncate pr-2">
+                  {{ props.student?.coordinator || 'None' }}
+                </span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <UButton
+                    icon="i-lucide-pencil"
+                    variant="ghost"
+                    color="neutral"
+                    size="sm"
+                    aria-label="Edit Coordinator"
+                    @click="editingCoordinator = true"
+                  />
+                  <UButton
+                    v-if="props.student?.coordinator"
+                    icon="i-lucide-trash-2"
+                    variant="ghost"
+                    color="error"
+                    size="sm"
+                    aria-label="Clear Coordinator"
+                    @click="saveField('coordinator', 'none')"
+                  />
+                </div>
+              </div>
+              <div
+                v-else
+                class="flex items-center gap-2"
+              >
+                <USelect
+                  v-model="selectedCoordinator"
+                  :items="coordinatorOptions"
+                  value-key="value"
+                  label-key="label"
+                  class="flex-1"
+                  placeholder="Choose Coordinator"
+                  @update:model-value="saveField('coordinator', $event)"
+                />
+                <UButton
+                  icon="i-lucide-x"
+                  variant="ghost"
+                  color="neutral"
+                  size="sm"
+                  aria-label="Cancel editing"
+                  @click="editingCoordinator = false"
+                />
+              </div>
             </div>
           </div>
         </div>
