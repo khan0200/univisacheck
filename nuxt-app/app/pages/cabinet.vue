@@ -222,8 +222,6 @@ function setFilter(filter: StatusFilter) {
       </div>
     </div>
 
-
-
     <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
       <ClientOnly>
         <UiTableSkeleton v-if="pending" />
