@@ -341,7 +341,10 @@ watch([() => props.students, () => props.currentFilter], () => {
                   class="inline-flex items-center gap-1.5 text-[0.7rem] font-medium tracking-normal normal-case text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 px-2 py-0.5 rounded-md shrink-0"
                   title="Automated visa check runs every 10 minutes"
                 >
-                  <UIcon name="i-lucide-clock" class="size-3 shrink-0 animate-pulse text-emerald-600 dark:text-emerald-400" />
+                  <UIcon
+                    name="i-lucide-clock"
+                    class="size-3 shrink-0 animate-pulse text-emerald-600 dark:text-emerald-400"
+                  />
                   <span class="font-semibold text-neutral-600 dark:text-neutral-300">Auto Check:</span>
                   <span class="font-mono font-bold text-emerald-700 dark:text-emerald-300">{{ formattedAutoCheckTimer }}</span>
                 </span>
