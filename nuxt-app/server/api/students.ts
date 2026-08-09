@@ -152,7 +152,7 @@ export default defineEventHandler(async (event) => {
                   passport, fullName, birthday, studentId, status,
                   applicationDate, lastChecked, rejectReason, pdfUrl,
                   batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                  tariff, university, coordinator
+                  tariff, university, coordinator, b2b
                 FROM students 
                 WHERE userId = ? AND deletedAt IS NULL 
                 ORDER BY createdAt DESC`,

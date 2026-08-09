@@ -223,7 +223,7 @@ const statusBreakdown = computed(() => {
         />
         Quick Actions
       </h2>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <NuxtLink
           to="/cabinet"
           class="flex flex-col items-center gap-2 p-4 rounded-lg border border-[var(--color-border)] dark:border-white/[0.08] hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
@@ -271,6 +271,18 @@ const statusBreakdown = computed(() => {
             />
           </div>
           <span class="text-xs font-medium text-[var(--color-text-primary)] dark:text-white text-center">Coordinators</span>
+        </NuxtLink>
+        <NuxtLink
+          to="/settings?section=b2b"
+          class="flex flex-col items-center gap-2 p-4 rounded-lg border border-[var(--color-border)] dark:border-white/[0.08] hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
+        >
+          <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
+            <UIcon
+              name="i-lucide-briefcase"
+              class="size-5 text-amber-600 dark:text-amber-400"
+            />
+          </div>
+          <span class="text-xs font-medium text-[var(--color-text-primary)] dark:text-white text-center">B2B Partners</span>
         </NuxtLink>
       </div>
     </div>
