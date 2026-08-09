@@ -557,11 +557,9 @@ watch([() => props.students, () => props.currentFilter], () => {
                   </UiLoadingButton>
                   <UButton
                     icon="i-lucide-eye"
-                    color="neutral"
-                    variant="ghost"
                     square
-                    class="justify-center rounded-none px-4 h-full py-2"
-                    :ui="{ leadingIcon: 'size-5' }"
+                    class="justify-center rounded-none px-4 h-full py-2 bg-amber-400 hover:bg-amber-500 text-amber-950 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 transition-colors"
+                    :ui="{ leadingIcon: 'size-5 text-amber-950 dark:text-slate-950' }"
                     aria-label="View details"
                     @click.stop="emit('details', student)"
                   />
