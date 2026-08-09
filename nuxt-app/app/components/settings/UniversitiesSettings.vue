@@ -5,8 +5,6 @@ const toast = useToast()
 interface University {
   id: number
   name: string
-  location: string
-  notes: string
 }
 
 const items = ref<University[]>([])
@@ -29,7 +27,6 @@ const filteredItems = computed(() => {
   if (!q) return items.value
   return items.value.filter(u =>
     u.name.toLowerCase().includes(q)
-    || (u.location || '').toLowerCase().includes(q)
   )
 })
 
@@ -174,9 +171,6 @@ onMounted(load)
             <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
               University Name
             </th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden sm:table-cell">
-              Location
-            </th>
             <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
               Actions
             </th>
@@ -192,15 +186,6 @@ onMounted(load)
               <div class="font-medium text-sm text-[var(--color-text-primary)] dark:text-white">
                 {{ item.name }}
               </div>
-              <div
-                v-if="item.notes"
-                class="text-xs text-[var(--color-text-secondary)] mt-0.5"
-              >
-                {{ item.notes }}
-              </div>
-            </td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden sm:table-cell">
-              {{ item.location || '—' }}
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2 justify-end">

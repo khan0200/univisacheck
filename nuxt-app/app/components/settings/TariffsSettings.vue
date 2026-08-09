@@ -5,9 +5,6 @@ const toast = useToast()
 interface Tariff {
   id: number
   name: string
-  price: string
-  currency: string
-  description: string
 }
 
 const items = ref<Tariff[]>([])
@@ -155,12 +152,6 @@ onMounted(load)
             <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
               Tariff Name
             </th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden sm:table-cell">
-              Price
-            </th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden md:table-cell">
-              Description
-            </th>
             <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
               Actions
             </th>
@@ -174,13 +165,6 @@ onMounted(load)
           >
             <td class="px-4 py-3 font-medium text-sm text-[var(--color-text-primary)] dark:text-white">
               {{ item.name }}
-            </td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden sm:table-cell">
-              <span v-if="item.price">{{ item.price }} {{ item.currency }}</span>
-              <span v-else>—</span>
-            </td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden md:table-cell max-w-xs truncate">
-              {{ item.description || '—' }}
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2 justify-end">

@@ -5,9 +5,6 @@ const toast = useToast()
 interface Coordinator {
   id: number
   name: string
-  contact: string
-  email: string
-  notes: string
 }
 
 const items = ref<Coordinator[]>([])
@@ -30,8 +27,6 @@ const filteredItems = computed(() => {
   if (!q) return items.value
   return items.value.filter(c =>
     c.name.toLowerCase().includes(q)
-    || (c.contact || '').toLowerCase().includes(q)
-    || (c.email || '').toLowerCase().includes(q)
   )
 })
 
@@ -173,12 +168,6 @@ onMounted(load)
             <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
               Name
             </th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden sm:table-cell">
-              Contact
-            </th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden md:table-cell">
-              Email
-            </th>
             <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
               Actions
             </th>
@@ -194,18 +183,6 @@ onMounted(load)
               <div class="font-medium text-sm text-[var(--color-text-primary)] dark:text-white">
                 {{ item.name }}
               </div>
-              <div
-                v-if="item.notes"
-                class="text-xs text-[var(--color-text-secondary)] mt-0.5"
-              >
-                {{ item.notes }}
-              </div>
-            </td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden sm:table-cell">
-              {{ item.contact || '—' }}
-            </td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden md:table-cell">
-              {{ item.email || '—' }}
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2 justify-end">
