@@ -1,34 +1,16 @@
 /**
- * server/api/cron/check-selected.post.ts
+ * server/api/cron/check-all-pending.post.ts
  *
- * 10-MINUTE CRON ENDPOINT
+ * 6-HOUR CRON ENDPOINT
  *
  * Rules:
- * 1. Checks ONLY selected students (batchSelected = 1).
- * 2. Checks ONLY students whose application date is 10 or more days ago
- *    (embassy visa results are announced 10-15 days after application date).
- * 3. Skips students whose lastChecked timestamp was less than 10 minutes ago.
+ * 1. Auto-checks ALL students in the Pending tab and Application tab.
+ * 2. Checks `lastChecked` timestamp column before enqueuing each student:
+ *    - If `lastChecked` was LESS than 10 minutes ago -> IGNORE & SKIP student.
+ *    - Only check students whose `lastChecked` is MORE than 10 minutes ago (or never checked).
  */
 
 import { getTursoClient } from '../../utils/turso'
-
-/** Calculate calendar days elapsed since applicationDate (YYYY-MM-DD). */
-function getDaysSinceApplication(appDateStr: string): number {
-  if (!appDateStr) return 0
-  const match = appDateStr.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (!match) return 0
-  const year = parseInt(match[1], 10)
-  const month = parseInt(match[2], 10) - 1
-  const day = parseInt(match[3], 10)
-
-  const appDate = new Date(year, month, day)
-  const today = new Date()
-  appDate.setHours(0, 0, 0, 0)
-  today.setHours(0, 0, 0, 0)
-
-  const diffMs = today.getTime() - appDate.getTime()
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24))
-}
 
 /** Calculate minutes elapsed since lastChecked timestamp. */
 function getMinutesSinceLastChecked(lastCheckedStr: string): number {
@@ -50,31 +32,20 @@ export default defineEventHandler(async (event) => {
 
   const db = await getTursoClient()
 
-  // 2. Fetch all active selected students with pending / under review status
+  // 2. Query ALL non-deleted students in Pending & Application tabs
   const studentsRes = await db.execute({
-    sql: `SELECT passport, userId, applicationDate, lastChecked, status FROM students
+    sql: `SELECT passport, userId, lastChecked, status FROM students
           WHERE deletedAt IS NULL
-            AND batchSelected = 1
-            AND (status IS NULL OR status = 'Application' OR status = 'Under Review' OR status = 'Topshirilgan' OR status = 'ko''rib chiqilmoqda' OR status = 'applied' OR status = 'Pending')`,
+            AND (status IS NULL OR status = 'Pending' OR status = 'Application' OR status = 'Under Review' OR status = 'Topshirilgan' OR status = 'ko''rib chiqilmoqda' OR status = 'applied')`,
     args: []
   })
 
-  // 3. Filter by Business Rules:
-  // - Application date must be >= 10 days ago (visa result is near)
-  // - lastChecked must be >= 10 minutes ago (ignore if checked < 10 mins ago)
+  // 3. Filter out any student checked LESS than 10 minutes ago
   const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
-    const appDate = String(row.applicationDate || '')
     const lastChecked = String(row.lastChecked || '')
-
-    const daysSinceApplied = getDaysSinceApplication(appDate)
     const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
 
-    // Must be >= 10 days after application date
-    if (daysSinceApplied < 10) {
-      return false
-    }
-
-    // Cooldown: skip if checked less than 10 minutes ago
+    // Cooldown rule: if checked less than 10 minutes ago, SKIP!
     if (minutesSinceChecked < 10) {
       return false
     }
@@ -85,7 +56,7 @@ export default defineEventHandler(async (event) => {
   if (eligibleRows.length === 0) {
     return {
       success: true,
-      message: 'No selected students meet the 10-day application threshold and 10-minute cooldown rule.',
+      message: 'All Pending and Application students were checked within the last 10 minutes. Skipped.',
       checkedCount: 0
     }
   }
@@ -127,7 +98,7 @@ export default defineEventHandler(async (event) => {
       await db.batch(statements, 'write')
       createdJobs.push(jobId)
     } catch (err) {
-      console.error(`[10-Min Cron] Failed to insert job for user ${userId}:`, err)
+      console.error(`[6-Hour Cron] Failed to insert job for user ${userId}:`, err)
     }
   }
 
@@ -137,18 +108,18 @@ export default defineEventHandler(async (event) => {
     const host = event.node.req.headers.host || 'localhost:3100'
     const workerUrl = `${protocol}://${host}/api/jobs/worker`
 
-    console.log(`[10-Min Cron] Enqueued ${eligibleRows.length} student(s) (>=10 days applied) across ${createdJobs.length} jobs. Triggering worker...`)
+    console.log(`[6-Hour Cron] Enqueued ${eligibleRows.length} Pending/Application student(s) (checked >10 mins ago) across ${createdJobs.length} jobs. Triggering worker...`)
 
     const triggerPromise = $fetch(workerUrl, { method: 'POST' })
-      .then(() => console.log('[10-Min Cron] Worker trigger completed.'))
-      .catch((err) => console.error('[10-Min Cron] Worker trigger failed:', err))
+      .then(() => console.log('[6-Hour Cron] Worker trigger completed.'))
+      .catch((err) => console.error('[6-Hour Cron] Worker trigger failed:', err))
 
     event.waitUntil(triggerPromise)
   }
 
   return {
     success: true,
-    message: `Enqueued ${eligibleRows.length} eligible selected student(s) (applied >=10 days ago).`,
+    message: `Enqueued ${eligibleRows.length} Pending/Application student(s) for 6-hour check.`,
     checkedCount: eligibleRows.length,
     jobsCreated: createdJobs.length
   }
