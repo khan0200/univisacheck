@@ -123,105 +123,125 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
   <UModal
     :open="props.open"
     title="Student Details"
+    :ui="{ content: 'sm:max-w-3xl' }"
     @update:open="emit('update:open', $event)"
   >
     <template #body>
       <div
         v-if="props.student"
-        class="space-y-5"
+        class="grid grid-cols-1 md:grid-cols-5 gap-6"
       >
-        <button
-          type="button"
-          class="w-full text-left group/name cursor-pointer"
-          @click="copyValue(props.student.fullName, 'modal-fullname')"
-        >
-          <span class="flex items-center gap-1.5">
-            <h3 class="font-semibold text-[var(--color-text-primary)] dark:text-white truncate">
-              {{ props.student.fullName }}
-            </h3>
-            <UIcon
-              :name="isCopied('modal-fullname') ? 'i-lucide-check' : 'i-lucide-copy'"
-              class="size-3.5 shrink-0"
-              :class="isCopied('modal-fullname') ? 'text-success-500' : 'text-[var(--color-text-secondary)] group-hover/name:text-primary-700 dark:group-hover/name:text-secondary-300'"
-            />
-          </span>
-          <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-            <StudentVisaTypeBadge :visa-type="props.student.visaType" />
-            <StudentStatusBadge :status="props.student.status" />
-          </div>
-        </button>
-
-        <button
-          type="button"
-          class="w-full flex items-center justify-between gap-3 rounded-xl bg-primary-50 dark:bg-white/5 px-4 py-3 text-left hover:bg-primary-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
-          @click="copyValue(props.student.passport, 'modal-passport')"
-        >
-          <div class="min-w-0">
-            <p class="text-[10.5px] font-semibold uppercase tracking-wide text-primary-700 dark:text-secondary-300">
-              Passport Number
-            </p>
-            <p class="text-base font-bold tracking-wide text-primary-950 dark:text-white truncate">
-              {{ props.student.passport }}
-            </p>
-          </div>
-          <UIcon
-            :name="isCopied('modal-passport') ? 'i-lucide-check' : 'i-lucide-copy'"
-            class="size-4.5 shrink-0"
-            :class="isCopied('modal-passport') ? 'text-success-500' : 'text-primary-700 dark:text-secondary-300'"
-          />
-        </button>
-
-        <div class="grid grid-cols-2 gap-3">
-          <StudentDetailCopyCell
-            label="Student ID"
-            :value="props.student.studentId"
-            copy-id="modal-studentid"
-          />
-          <StudentDetailCopyCell
-            label="Birthdate"
-            :value="props.student.birthday"
-            copy-id="modal-birthday"
-            bold
-          />
-          <StudentDetailCopyCell
-            label="Application Date"
-            :value="props.student.applicationDate"
-            copy-id="modal-appdate"
-          />
-          <StudentDetailCopyCell
-            v-if="props.student.visaType === 'E-Visa'"
-            label="Application Number"
-            :value="props.student.applicationNo"
-            copy-id="modal-appno"
-          />
-          <StudentDetailCopyCell
-            v-if="statusDate"
-            label="Status Date"
-            :value="statusDate"
-            copy-id="modal-statusdate"
-          />
-          <div
-            class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3"
-            :class="{ 'col-span-2': props.student.visaType !== 'E-Visa' && !statusDate }"
+        <!-- Left Column: Student Details -->
+        <div class="md:col-span-3 space-y-5">
+          <button
+            type="button"
+            class="w-full text-left group/name cursor-pointer"
+            @click="copyValue(props.student.fullName, 'modal-fullname')"
           >
-            <p class="text-xs text-[var(--color-text-secondary)] mb-1">
-              Last Checked
-            </p>
-            <p class="text-sm font-medium">
-              {{ formatTimestamp(props.student.lastChecked) }}
+            <span class="flex items-center gap-1.5">
+              <h3 class="font-semibold text-[var(--color-text-primary)] dark:text-white truncate">
+                {{ props.student.fullName }}
+              </h3>
+              <UIcon
+                :name="isCopied('modal-fullname') ? 'i-lucide-check' : 'i-lucide-copy'"
+                class="size-3.5 shrink-0"
+                :class="isCopied('modal-fullname') ? 'text-success-500' : 'text-[var(--color-text-secondary)] group-hover/name:text-primary-700 dark:group-hover/name:text-secondary-300'"
+              />
+            </span>
+            <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+              <StudentVisaTypeBadge :visa-type="props.student.visaType" />
+              <StudentStatusBadge :status="props.student.status" />
+            </div>
+          </button>
+
+          <button
+            type="button"
+            class="w-full flex items-center justify-between gap-3 rounded-xl bg-primary-50 dark:bg-white/5 px-4 py-3 text-left hover:bg-primary-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            @click="copyValue(props.student.passport, 'modal-passport')"
+          >
+            <div class="min-w-0">
+              <p class="text-[10.5px] font-semibold uppercase tracking-wide text-primary-700 dark:text-secondary-300">
+                Passport Number
+              </p>
+              <p class="text-base font-bold tracking-wide text-primary-950 dark:text-white truncate">
+                {{ props.student.passport }}
+              </p>
+            </div>
+            <UIcon
+              :name="isCopied('modal-passport') ? 'i-lucide-check' : 'i-lucide-copy'"
+              class="size-4.5 shrink-0"
+              :class="isCopied('modal-passport') ? 'text-success-500' : 'text-primary-700 dark:text-secondary-300'"
+            />
+          </button>
+
+          <div class="grid grid-cols-2 gap-3">
+            <StudentDetailCopyCell
+              label="Student ID"
+              :value="props.student.studentId"
+              copy-id="modal-studentid"
+            />
+            <StudentDetailCopyCell
+              label="Birthdate"
+              :value="props.student.birthday"
+              copy-id="modal-birthday"
+              bold
+            />
+            <StudentDetailCopyCell
+              label="Application Date"
+              :value="props.student.applicationDate"
+              copy-id="modal-appdate"
+            />
+            <StudentDetailCopyCell
+              v-if="props.student.visaType === 'E-Visa'"
+              label="Application Number"
+              :value="props.student.applicationNo"
+              copy-id="modal-appno"
+            />
+            <StudentDetailCopyCell
+              v-if="statusDate"
+              label="Status Date"
+              :value="statusDate"
+              copy-id="modal-statusdate"
+            />
+            <div
+              class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3"
+              :class="{ 'col-span-2': props.student.visaType !== 'E-Visa' && !statusDate }"
+            >
+              <p class="text-xs text-[var(--color-text-secondary)] mb-1">
+                Last Checked
+              </p>
+              <p class="text-sm font-medium">
+                {{ formatTimestamp(props.student.lastChecked) }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            v-if="reason"
+            class="flex items-start gap-2.5 rounded-xl bg-danger-50 dark:bg-danger-950/30 border border-danger-200 dark:border-danger-900 p-3"
+          >
+            <UIcon
+              name="i-lucide-triangle-alert"
+              class="size-4 text-danger-600 shrink-0 mt-0.5"
+            />
+            <p class="text-xs text-danger-700 dark:text-danger-300 leading-relaxed">
+              {{ reason }}
             </p>
           </div>
         </div>
 
-        <!-- Selection Dropdowns (Tariff, University, Coordinator) -->
-        <div class="border-t border-[var(--color-border)] dark:border-white/[0.08] pt-4.5 space-y-4">
+        <!-- Right Column: Management Selection Dropdowns -->
+        <div class="md:col-span-2 space-y-4 border-t md:border-t-0 md:border-l border-[var(--color-border)] dark:border-white/[0.08] pt-4.5 md:pt-0 md:pl-5">
           <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
             Management
           </p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="space-y-4">
             <div>
-              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">Tariff</label>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                Tariff
+              </label>
               <USelect
+                v-slot:default
                 v-model="selectedTariff"
                 :items="tariffOptions"
                 value-key="value"
@@ -232,8 +252,11 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">University</label>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                University
+              </label>
               <USelect
+                v-slot:default
                 v-model="selectedUniversity"
                 :items="universityOptions"
                 value-key="value"
@@ -244,8 +267,11 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">Coordinator</label>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                Coordinator
+              </label>
               <USelect
+                v-slot:default
                 v-model="selectedCoordinator"
                 :items="coordinatorOptions"
                 value-key="value"
@@ -256,19 +282,6 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
               />
             </div>
           </div>
-        </div>
-
-        <div
-          v-if="reason"
-          class="flex items-start gap-2.5 rounded-xl bg-danger-50 dark:bg-danger-950/30 border border-danger-200 dark:border-danger-900 p-3"
-        >
-          <UIcon
-            name="i-lucide-triangle-alert"
-            class="size-4 text-danger-600 shrink-0 mt-0.5"
-          />
-          <p class="text-xs text-danger-700 dark:text-danger-300 leading-relaxed">
-            {{ reason }}
-          </p>
         </div>
       </div>
     </template>
