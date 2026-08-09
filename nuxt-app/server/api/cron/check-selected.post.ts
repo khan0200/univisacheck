@@ -3,32 +3,13 @@
  *
  * 10-MINUTE CRON ENDPOINT
  *
- * Rules:
- * 1. Checks ONLY selected students (batchSelected = 1).
- * 2. Checks ONLY students whose application date is 10 or more days ago
- *    (embassy visa results are announced 10-15 days after application date).
- * 3. Skips students whose lastChecked timestamp was less than 10 minutes ago.
+ * Priority Rule:
+ * - Selected students (batchSelected = 1) with Under Review or in-progress status
+ *   are FIRST PRIORITY.
+ * - Auto-checks every selected non-final student on every 10-minute cycle regardless of application date.
  */
 
 import { getTursoClient } from '../../utils/turso'
-
-/** Calculate calendar days elapsed since applicationDate (YYYY-MM-DD). */
-function getDaysSinceApplication(appDateStr: string): number {
-  if (!appDateStr) return 0
-  const match = appDateStr.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (!match || !match[1] || !match[2] || !match[3]) return 0
-  const year = parseInt(match[1], 10)
-  const month = parseInt(match[2], 10) - 1
-  const day = parseInt(match[3], 10)
-
-  const appDate = new Date(year, month, day)
-  const today = new Date()
-  appDate.setHours(0, 0, 0, 0)
-  today.setHours(0, 0, 0, 0)
-
-  const diffMs = today.getTime() - appDate.getTime()
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24))
-}
 
 /** Calculate minutes elapsed since lastChecked timestamp. */
 function getMinutesSinceLastChecked(lastCheckedStr: string): number {
@@ -50,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   const db = await getTursoClient()
 
-  // 2. Fetch all active selected students with non-final status
+  // 2. Fetch all active selected students with non-final status (Under Review, Received, Pending supplement, etc.)
   const studentsRes = await db.execute({
     sql: `SELECT passport, userId, applicationDate, lastChecked, status FROM students
           WHERE deletedAt IS NULL
@@ -62,22 +43,14 @@ export default defineEventHandler(async (event) => {
     args: []
   })
 
-  // 3. Filter by Business Rules:
-  // - lastChecked must be >= 10 minutes ago (ignore if checked < 10 mins ago)
+  // 3. Priority Filter:
+  // - Every selected student in Under Review / in-progress status is checked every 10 minutes.
+  // - Skip only if checked within the last 3 minutes (safety to prevent immediate double-fire).
   const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
-    const appDate = String(row.applicationDate || '')
     const lastChecked = String(row.lastChecked || '')
-
-    const daysSinceApplied = getDaysSinceApplication(appDate)
     const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
 
-    // Skip if application date exists and is from today (< 1 day ago)
-    if (appDate && daysSinceApplied < 1) {
-      return false
-    }
-
-    // Cooldown: skip if checked less than 10 minutes ago
-    if (minutesSinceChecked < 10) {
+    if (minutesSinceChecked < 3) {
       return false
     }
 
@@ -87,7 +60,7 @@ export default defineEventHandler(async (event) => {
   if (eligibleRows.length === 0) {
     return {
       success: true,
-      message: 'No selected students meet the 10-day application threshold and 10-minute cooldown rule.',
+      message: 'No selected students require checking at this moment.',
       checkedCount: 0
     }
   }
@@ -139,7 +112,7 @@ export default defineEventHandler(async (event) => {
     const host = event.node.req.headers.host || 'localhost:3100'
     const workerUrl = `${protocol}://${host}/api/jobs/worker`
 
-    console.log(`[10-Min Cron] Enqueued ${eligibleRows.length} student(s) (>=10 days applied) across ${createdJobs.length} jobs. Triggering worker...`)
+    console.log(`[10-Min Cron] Enqueued ${eligibleRows.length} priority selected student(s) across ${createdJobs.length} jobs. Triggering worker...`)
 
     const triggerPromise = $fetch(workerUrl, { method: 'POST' })
       .then(() => {
@@ -154,7 +127,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     success: true,
-    message: `Enqueued ${eligibleRows.length} eligible selected student(s) (applied >=10 days ago).`,
+    message: `Enqueued ${eligibleRows.length} priority selected student(s) for 10-minute auto check.`,
     checkedCount: eligibleRows.length,
     jobsCreated: createdJobs.length
   }

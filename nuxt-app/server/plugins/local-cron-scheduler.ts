@@ -8,24 +8,6 @@
 
 import { getTursoClient } from '../utils/turso'
 
-/** Calculate calendar days elapsed since applicationDate (YYYY-MM-DD). */
-function getDaysSinceApplication(appDateStr: string): number {
-  if (!appDateStr) return 10 // Default to 10 if missing
-  const match = appDateStr.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (!match || !match[1] || !match[2] || !match[3]) return 10
-  const year = parseInt(match[1], 10)
-  const month = parseInt(match[2], 10) - 1
-  const day = parseInt(match[3], 10)
-
-  const appDate = new Date(year, month, day)
-  const today = new Date()
-  appDate.setHours(0, 0, 0, 0)
-  today.setHours(0, 0, 0, 0)
-
-  const diffMs = today.getTime() - appDate.getTime()
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24))
-}
-
 /** Calculate minutes elapsed since lastChecked timestamp. */
 function getMinutesSinceLastChecked(lastCheckedStr: string): number {
   if (!lastCheckedStr) return Infinity
@@ -52,18 +34,11 @@ async function runLocal10MinAutoCheck() {
     })
 
     const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
-      const appDate = String(row.applicationDate || '')
       const lastChecked = String(row.lastChecked || '')
-
-      const daysSinceApplied = getDaysSinceApplication(appDate)
       const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
 
-      // Allow selected students if applied >= 1 day ago (or missing date) AND cooldown >= 10 mins
-      if (appDate && daysSinceApplied < 1) {
-        return false
-      }
-
-      if (minutesSinceChecked < 10) {
+      // Skip only if checked within the last 3 minutes (prevent immediate double-fire)
+      if (minutesSinceChecked < 3) {
         return false
       }
 
@@ -71,7 +46,7 @@ async function runLocal10MinAutoCheck() {
     })
 
     if (eligibleRows.length === 0) {
-      console.log('[Local Scheduler] 10-Min Auto-Check: No eligible selected students to check.')
+      console.log('[Local Scheduler] 10-Min Auto-Check: No selected students to check.')
       return
     }
 
@@ -110,7 +85,7 @@ async function runLocal10MinAutoCheck() {
       createdJobs.push(jobId)
     }
 
-    console.log(`[Local Scheduler] 10-Min Auto-Check: Created ${createdJobs.length} job(s) for ${eligibleRows.length} student(s). Triggering worker...`)
+    console.log(`[Local Scheduler] 10-Min Auto-Check: Created ${createdJobs.length} job(s) for ${eligibleRows.length} priority selected student(s). Triggering worker...`)
 
     // Trigger local worker
     const workerUrl = 'http://localhost:3100/api/jobs/worker'
