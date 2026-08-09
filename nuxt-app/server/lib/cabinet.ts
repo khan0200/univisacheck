@@ -6,7 +6,6 @@
 
 import db from './turso'
 import { checkStudentVisaStatus } from './visa'
-import { getValidSession } from './auth'
 
 export interface Student {
   passport: string
@@ -23,6 +22,39 @@ export interface Student {
   applicationNo: string
   telegram_user_id: number | null
   apiResponse?: string
+}
+
+export interface DatabaseStudentRow {
+  passport: string
+  fullName?: string
+  fullname?: string
+  birthday?: string
+  studentId?: string
+  student_id?: string
+  status?: string
+  applicationDate?: string
+  application_date?: string
+  lastChecked?: string
+  last_checked?: string
+  rejectReason?: string
+  pdfUrl?: string
+  userId: number
+  visaType?: string
+  visa_type?: string
+  applicationNo?: string
+  application_no?: string
+  telegram_user_id?: number | null
+  apiResponse?: string
+  api_response?: string
+  uId?: number
+}
+
+interface ParsedApiResponse {
+  invitingCompany?: string
+  entryDate?: string
+  statusOfResidence?: string
+  visaKind?: string
+  previousRejectionReason?: string
 }
 
 export function normalizeStatus(status: string): string {
@@ -133,18 +165,19 @@ export function formatLastChecked(dateString: string, lang: 'uz' | 'en' = 'uz'):
 /**
  * Formats a Telegram student card message.
  */
-export function formatStudentCard(student: Student, isUpdate: boolean = false, oldStatus: string = '', lang: 'uz' | 'en' = 'uz'): string {
+export function formatStudentCard(student: Student, _isUpdate: boolean = false, _oldStatus: string = '', lang: 'uz' | 'en' = 'uz'): string {
   const emoji = getStatusEmoji(student.status)
   const checkedStr = formatLastChecked(student.lastChecked, lang)
   const desc = getStatusDescription(student.status, lang)
 
-  let parsedApi: any = {}
+  let parsedApi: ParsedApiResponse = {}
   try {
-    parsedApi = JSON.parse(student.apiResponse || '{}')
-  } catch (e) {}
+    parsedApi = JSON.parse(student.apiResponse || '{}') as ParsedApiResponse
+  } catch {
+    // Ignore parsing errors
+  }
 
   const partner = parsedApi.invitingCompany || ''
-  const isApproved = ['approved', 'visa used', 'issued'].some(s => (student.status || '').toLowerCase().includes(s))
   const rawGivenDate = parsedApi.entryDate || ''
   const visaGivenDate = (rawGivenDate && rawGivenDate !== student.applicationDate) ? rawGivenDate : ''
   const statusOfResidence = parsedApi.statusOfResidence || parsedApi.visaKind || student.visaType || 'Embassy'
@@ -206,7 +239,7 @@ export async function getStudentsByTelegramId(telegramId: number): Promise<Stude
       args: [telegramId]
     })
 
-    return result.rows.map((row: any) => ({
+    return (result.rows as unknown as DatabaseStudentRow[]).map(row => ({
       passport: row.passport,
       fullName: row.fullName || row.fullname || '',
       birthday: row.birthday || '',
@@ -222,8 +255,9 @@ export async function getStudentsByTelegramId(telegramId: number): Promise<Stude
       telegram_user_id: row.telegram_user_id ? Number(row.telegram_user_id) : null,
       apiResponse: row.apiResponse || row.api_response || '{}'
     }))
-  } catch (err: any) {
-    console.error('[Cabinet Service] Error fetching students:', err.message)
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[Cabinet Service] Error fetching students:', message)
     return []
   }
 }
@@ -256,7 +290,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
       return { success: false, changed: false, oldStatus: '', error: 'Student not found in your cabinet.' }
     }
 
-    const row = result.rows[0] as any
+    const row = result.rows[0] as unknown as DatabaseStudentRow
     const student: Student = {
       passport: row.passport,
       fullName: row.fullName || row.fullname || '',
@@ -350,8 +384,9 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
     }
 
     return { success: true, changed, oldStatus, student }
-  } catch (err: any) {
-    console.error(`[Cabinet Service] Error refreshing student ${passport}:`, err.message)
-    return { success: false, changed: false, oldStatus: '', error: err.message }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`[Cabinet Service] Error refreshing student ${passport}:`, message)
+    return { success: false, changed: false, oldStatus: '', error: message }
   }
 }

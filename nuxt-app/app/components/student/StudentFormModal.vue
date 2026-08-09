@@ -317,8 +317,6 @@ async function handleSubmit() {
           />
         </UFormField>
 
-
-
         <UFormField label="Student ID">
           <UInput
             :model-value="form.studentId"

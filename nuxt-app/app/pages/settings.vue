@@ -90,7 +90,10 @@ const mobileDropdownItems = computed(() => [
       <!-- ── Mobile section selector ────────────────────────────────── -->
       <div class="md:hidden w-full">
         <ClientOnly>
-          <UDropdownMenu :items="mobileDropdownItems" :ui="{ content: 'w-[calc(100vw-2rem)]' }">
+          <UDropdownMenu
+            :items="mobileDropdownItems"
+            :ui="{ content: 'w-[calc(100vw-2rem)]' }"
+          >
             <button
               type="button"
               class="w-full flex items-center justify-between h-11 rounded-xl px-4 border border-[var(--color-border)] dark:border-white/[0.12] bg-white dark:bg-white/[0.05] hover:bg-neutral-50 dark:hover:bg-white/[0.08] text-sm font-medium text-[var(--color-text-primary)] dark:text-white transition-colors ring-1 ring-inset ring-black/[0.04] dark:ring-white/[0.05]"

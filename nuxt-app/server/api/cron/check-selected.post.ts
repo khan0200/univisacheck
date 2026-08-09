@@ -32,15 +32,6 @@ function getDaysSinceApplication(appDateStr: string): number {
   return Math.floor(diffMs / (1000 * 60 * 60 * 24))
 }
 
-/** Calculate minutes elapsed since lastChecked timestamp. */
-function getMinutesSinceLastChecked(lastCheckedStr: string): number {
-  if (!lastCheckedStr) return Infinity
-  const checkedDate = new Date(lastCheckedStr)
-  if (isNaN(checkedDate.getTime())) return Infinity
-  const diffMs = Date.now() - checkedDate.getTime()
-  return Math.floor(diffMs / (1000 * 60))
-}
-
 export default defineEventHandler(async (event) => {
   // 1. Verify Secret Key
   const authHeader = getRequestHeader(event, 'authorization') || ''
@@ -48,6 +39,28 @@ export default defineEventHandler(async (event) => {
 
   if (cronSecret && authHeader !== `Bearer ${cronSecret}` && authHeader !== cronSecret) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized: Invalid CRON_SECRET' })
+  }
+
+  // 1.5 Apply Korean Standard Time (KST) night-mode check:
+  // - 09:00 to 22:00 KST: Run every 10 minutes (always)
+  // - 22:00 to 08:59 KST: Run every 3 hours (at 22:00, 01:00, 04:00, 07:00 KST)
+  const kstDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }))
+  const kstHour = kstDate.getHours()
+  const kstMinute = kstDate.getMinutes()
+
+  const isDaytime = kstHour >= 9 && kstHour < 22
+
+  if (!isDaytime) {
+    const isNightCheckHour = kstHour === 22 || kstHour === 1 || kstHour === 4 || kstHour === 7
+    const isTriggerSlot = isNightCheckHour && kstMinute < 10
+
+    if (!isTriggerSlot) {
+      return {
+        success: true,
+        message: `Skipped: 10-Minute check is currently in night mode (current KST: ${String(kstHour).padStart(2, '0')}:${String(kstMinute).padStart(2, '0')}).`,
+        checkedCount: 0
+      }
+    }
   }
 
   const db = await getTursoClient()
@@ -68,16 +81,8 @@ export default defineEventHandler(async (event) => {
   // - Condition B: applicationDate >= 10 days ago
   const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
     const appDate = String(row.applicationDate || '')
-    const lastChecked = String(row.lastChecked || '')
     const statusRaw = String(row.status || '').toLowerCase()
-
     const daysSinceApplied = getDaysSinceApplication(appDate)
-    const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
-
-    // Cooldown safeguard: skip if checked within last 3 minutes
-    if (minutesSinceChecked < 3) {
-      return false
-    }
 
     const isUnderReview = statusRaw.includes('under review')
     const isSupplement = statusRaw.includes('supplement') || statusRaw.includes('asking')

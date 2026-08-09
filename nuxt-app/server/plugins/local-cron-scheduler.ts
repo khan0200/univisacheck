@@ -38,6 +38,25 @@ function getMinutesSinceLastChecked(lastCheckedStr: string): number {
 /** 10-Minute Auto Check: Priority for selected students in Application tab */
 async function runLocal10MinAutoCheck() {
   try {
+    // Apply Korean Standard Time (KST) night-mode check:
+    // - 09:00 to 22:00 KST: Run every 10 minutes (always)
+    // - 22:00 to 08:59 KST: Run every 3 hours (at 22:00, 01:00, 04:00, 07:00 KST)
+    const kstDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }))
+    const kstHour = kstDate.getHours()
+    const kstMinute = kstDate.getMinutes()
+
+    const isDaytime = kstHour >= 9 && kstHour < 22
+
+    if (!isDaytime) {
+      const isNightCheckHour = kstHour === 22 || kstHour === 1 || kstHour === 4 || kstHour === 7
+      const isTriggerSlot = isNightCheckHour && kstMinute < 10
+
+      if (!isTriggerSlot) {
+        console.log(`[Local Scheduler] Skipping 10-min check during KST night mode (current KST: ${String(kstHour).padStart(2, '0')}:${String(kstMinute).padStart(2, '0')}).`)
+        return
+      }
+    }
+
     const db = await getTursoClient()
 
     const studentsRes = await db.execute({
@@ -51,15 +70,9 @@ async function runLocal10MinAutoCheck() {
 
     const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
       const appDate = String(row.applicationDate || '')
-      const lastChecked = String(row.lastChecked || '')
       const statusRaw = String(row.status || '').toLowerCase()
 
       const daysSinceApplied = getDaysSinceApplication(appDate)
-      const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
-
-      if (minutesSinceChecked < 3) {
-        return false
-      }
 
       const isUnderReview = statusRaw.includes('under review')
       const isSupplement = statusRaw.includes('supplement') || statusRaw.includes('asking')
