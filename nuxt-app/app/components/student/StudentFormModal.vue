@@ -347,7 +347,10 @@ async function handleSubmit() {
           />
         </UFormField>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div
+          v-if="isEdit"
+          class="grid grid-cols-1 sm:grid-cols-3 gap-3"
+        >
           <UFormField label="Tariff">
             <USelect
               v-model="form.tariff"
