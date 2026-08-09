@@ -32,11 +32,14 @@ export default defineEventHandler(async (event) => {
 
   const db = await getTursoClient()
 
-  // 2. Query ALL non-deleted students in Pending & Application tabs
+  // 2. Query ALL non-deleted students with non-final status (Pending, Application, Received, Under Review, etc.)
   const studentsRes = await db.execute({
     sql: `SELECT passport, userId, lastChecked, status FROM students
           WHERE deletedAt IS NULL
-            AND (status IS NULL OR status = 'Pending' OR status = 'Application' OR status = 'Under Review' OR status = 'Topshirilgan' OR status = 'ko''rib chiqilmoqda' OR status = 'applied')`,
+            AND (
+              status IS NULL
+              OR LOWER(status) NOT IN ('approved', 'visa used', 'cancelled', 'rejected', 'passport returned')
+            )`,
     args: []
   })
 

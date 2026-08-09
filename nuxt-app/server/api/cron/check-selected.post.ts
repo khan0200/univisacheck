@@ -50,17 +50,19 @@ export default defineEventHandler(async (event) => {
 
   const db = await getTursoClient()
 
-  // 2. Fetch all active selected students with pending / under review status
+  // 2. Fetch all active selected students with non-final status
   const studentsRes = await db.execute({
     sql: `SELECT passport, userId, applicationDate, lastChecked, status FROM students
           WHERE deletedAt IS NULL
             AND batchSelected = 1
-            AND (status IS NULL OR status = 'Application' OR status = 'Under Review' OR status = 'Topshirilgan' OR status = 'ko''rib chiqilmoqda' OR status = 'applied' OR status = 'Pending')`,
+            AND (
+              status IS NULL
+              OR LOWER(status) NOT IN ('approved', 'visa used', 'cancelled', 'rejected', 'passport returned')
+            )`,
     args: []
   })
 
   // 3. Filter by Business Rules:
-  // - Application date must be >= 10 days ago (visa result is near)
   // - lastChecked must be >= 10 minutes ago (ignore if checked < 10 mins ago)
   const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
     const appDate = String(row.applicationDate || '')
@@ -69,8 +71,8 @@ export default defineEventHandler(async (event) => {
     const daysSinceApplied = getDaysSinceApplication(appDate)
     const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
 
-    // Must be >= 10 days after application date
-    if (daysSinceApplied < 10) {
+    // Skip if application date exists and is from today (< 1 day ago)
+    if (appDate && daysSinceApplied < 1) {
       return false
     }
 
