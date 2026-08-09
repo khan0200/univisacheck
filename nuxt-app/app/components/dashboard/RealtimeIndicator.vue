@@ -16,7 +16,7 @@ const label = computed(() => {
 
 const dotClass = computed(() => {
   switch (props.status) {
-    case 'connected': return 'bg-emerald-500'
+    case 'connected': return 'bg-emerald-500 animate-pulse'
     case 'reconnecting': return 'bg-amber-400 animate-pulse'
     case 'offline': return 'bg-red-500'
     default: return 'bg-neutral-400 animate-pulse'
