@@ -165,6 +165,11 @@ const statusBreakdown = computed(() => {
       </div>
     </div>
 
+    <!-- Student Statistics by University & Tariff -->
+    <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-5 shadow-sm">
+      <StudentStats />
+    </div>
+
     <!-- Quick Links -->
     <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-5 shadow-sm">
       <h2 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white mb-4 flex items-center gap-2">
