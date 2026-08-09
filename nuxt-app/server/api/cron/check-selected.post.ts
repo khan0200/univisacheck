@@ -79,12 +79,10 @@ export default defineEventHandler(async (event) => {
       return false
     }
 
-    const isUnderReviewOrSupplement
-        = statusRaw.includes('under review')
-        || statusRaw.includes('supplement')
-        || statusRaw.includes('topshirilgan')
-        || statusRaw.includes('ko\'rib chiqilmoqda')
-        || statusRaw.includes('asking')
+    const isUnderReview = statusRaw.includes('under review')
+    const isSupplement = statusRaw.includes('supplement') || statusRaw.includes('asking')
+    const isLocalStatus = statusRaw.includes('topshirilgan') || statusRaw.includes('ko\'rib chiqilmoqda')
+    const isUnderReviewOrSupplement = isUnderReview || isSupplement || isLocalStatus
 
     const isApplied10DaysOrMore = Boolean(appDate) && daysSinceApplied >= 10
 
