@@ -60,6 +60,7 @@ async function openDetails(student: Student) {
 
 const showDeleteConfirm = ref(false)
 const studentToDelete = ref<Student | null>(null)
+const showStats = ref(false)
 
 function promptDelete(student: Student) {
   studentToDelete.value = student
@@ -220,6 +221,26 @@ function setFilter(filter: StatusFilter) {
           @update:model-value="setFilter"
         />
       </div>
+    </div>
+
+    <div>
+      <UButton
+        variant="ghost"
+        color="neutral"
+        size="sm"
+        class="text-[var(--color-text-secondary)] -ml-2.5 mb-2 font-medium"
+        :icon="showStats ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+        @click="showStats = !showStats"
+      >
+        {{ showStats ? 'Hide Statistics' : 'Show Statistics' }}
+      </UButton>
+      
+      <UCard
+        v-if="showStats"
+        :ui="{ root: 'shadow-sm border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-5 sm:p-6' }"
+      >
+        <StudentStats />
+      </UCard>
     </div>
 
     <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
