@@ -93,17 +93,20 @@ watch(() => props.student, (newStudent) => {
 }, { deep: true })
 
 const tariffOptions = computed(() => {
-  const list = tariffsList.value.map(t => ({ value: t.name, label: t.name }))
+  const uniqueNames = [...new Set(tariffsList.value.map(t => t.name))]
+  const list = uniqueNames.map(name => ({ value: name, label: name }))
   return [{ value: 'none', label: 'None' }, ...list]
 })
 
 const universityOptions = computed(() => {
-  const list = universitiesList.value.map(u => ({ value: u.name, label: u.name }))
+  const uniqueNames = [...new Set(universitiesList.value.map(u => u.name))]
+  const list = uniqueNames.map(name => ({ value: name, label: name }))
   return [{ value: 'none', label: 'None' }, ...list]
 })
 
 const coordinatorOptions = computed(() => {
-  const list = coordinatorsList.value.map(c => ({ value: c.name, label: c.name }))
+  const uniqueNames = [...new Set(coordinatorsList.value.map(c => c.name))]
+  const list = uniqueNames.map(name => ({ value: name, label: name }))
   return [{ value: 'none', label: 'None' }, ...list]
 })
 
@@ -300,7 +303,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   :items="tariffOptions"
                   value-key="value"
                   label-key="label"
-                  class="flex-1"
+                  class="flex-1 min-w-0"
                   placeholder="Choose Tariff"
                 />
                 <UButton
@@ -308,6 +311,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   variant="ghost"
                   color="success"
                   size="sm"
+                  class="shrink-0"
                   aria-label="Save Tariff"
                   @click="saveField('tariff', selectedTariff)"
                 />
@@ -316,6 +320,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   variant="ghost"
                   color="neutral"
                   size="sm"
+                  class="shrink-0"
                   aria-label="Cancel editing"
                   @click="cancelEdit('tariff')"
                 />
@@ -363,7 +368,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   :items="universityOptions"
                   value-key="value"
                   label-key="label"
-                  class="flex-1"
+                  class="flex-1 min-w-0"
                   placeholder="Choose University"
                 />
                 <UButton
@@ -371,6 +376,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   variant="ghost"
                   color="success"
                   size="sm"
+                  class="shrink-0"
                   aria-label="Save University"
                   @click="saveField('university', selectedUniversity)"
                 />
@@ -379,6 +385,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   variant="ghost"
                   color="neutral"
                   size="sm"
+                  class="shrink-0"
                   aria-label="Cancel editing"
                   @click="cancelEdit('university')"
                 />
@@ -426,7 +433,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   :items="coordinatorOptions"
                   value-key="value"
                   label-key="label"
-                  class="flex-1"
+                  class="flex-1 min-w-0"
                   placeholder="Choose Coordinator"
                 />
                 <UButton
@@ -434,6 +441,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   variant="ghost"
                   color="success"
                   size="sm"
+                  class="shrink-0"
                   aria-label="Save Coordinator"
                   @click="saveField('coordinator', selectedCoordinator)"
                 />
@@ -442,6 +450,7 @@ function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
                   variant="ghost"
                   color="neutral"
                   size="sm"
+                  class="shrink-0"
                   aria-label="Cancel editing"
                   @click="cancelEdit('coordinator')"
                 />
