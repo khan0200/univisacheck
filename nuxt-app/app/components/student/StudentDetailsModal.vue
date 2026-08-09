@@ -51,9 +51,9 @@ const tariffsList = ref<{ name: string }[]>([])
 const universitiesList = ref<{ name: string }[]>([])
 const coordinatorsList = ref<{ name: string }[]>([])
 
-const selectedTariff = ref(props.student?.tariff || '')
-const selectedUniversity = ref(props.student?.university || '')
-const selectedCoordinator = ref(props.student?.coordinator || '')
+const selectedTariff = ref(props.student?.tariff || 'none')
+const selectedUniversity = ref(props.student?.university || 'none')
+const selectedCoordinator = ref(props.student?.coordinator || 'none')
 
 async function loadOptions() {
   try {
@@ -73,44 +73,45 @@ async function loadOptions() {
 watch(() => props.open, (open) => {
   if (open) {
     loadOptions()
-    selectedTariff.value = props.student?.tariff || ''
-    selectedUniversity.value = props.student?.university || ''
-    selectedCoordinator.value = props.student?.coordinator || ''
+    selectedTariff.value = props.student?.tariff || 'none'
+    selectedUniversity.value = props.student?.university || 'none'
+    selectedCoordinator.value = props.student?.coordinator || 'none'
   }
 })
 
 watch(() => props.student, (newStudent) => {
-  selectedTariff.value = newStudent?.tariff || ''
-  selectedUniversity.value = newStudent?.university || ''
-  selectedCoordinator.value = newStudent?.coordinator || ''
+  selectedTariff.value = newStudent?.tariff || 'none'
+  selectedUniversity.value = newStudent?.university || 'none'
+  selectedCoordinator.value = newStudent?.coordinator || 'none'
 }, { deep: true })
 
 const tariffOptions = computed(() => {
   const list = tariffsList.value.map(t => ({ value: t.name, label: t.name }))
-  return [{ value: '', label: 'None' }, ...list]
+  return [{ value: 'none', label: 'None' }, ...list]
 })
 
 const universityOptions = computed(() => {
   const list = universitiesList.value.map(u => ({ value: u.name, label: u.name }))
-  return [{ value: '', label: 'None' }, ...list]
+  return [{ value: 'none', label: 'None' }, ...list]
 })
 
 const coordinatorOptions = computed(() => {
   const list = coordinatorsList.value.map(c => ({ value: c.name, label: c.name }))
-  return [{ value: '', label: 'None' }, ...list]
+  return [{ value: 'none', label: 'None' }, ...list]
 })
 
 async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', value: string) {
   if (!props.student) return
+  const apiValue = value === 'none' ? '' : value
   try {
     await apiFetch('/api/students', {
       method: 'PATCH',
       body: {
         passport: props.student.passport,
-        [fieldName]: value
+        [fieldName]: apiValue
       }
     })
-    studentsStore.patchStudent(props.student.passport, { [fieldName]: value })
+    studentsStore.patchStudent(props.student.passport, { [fieldName]: apiValue })
     toast.add({ title: `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} updated!`, color: 'success' })
   } catch (err: unknown) {
     toast.add({ title: apiErrorMessage(err, `Failed to update ${fieldName}`), color: 'error' })

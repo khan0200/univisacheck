@@ -33,9 +33,9 @@ const form = reactive<StudentFormInput>({
   studentId: '',
   visaType: 'Embassy',
   applicationNo: '',
-  tariff: '',
-  university: '',
-  coordinator: ''
+  tariff: 'none',
+  university: 'none',
+  coordinator: 'none'
 })
 
 const tariffsList = ref<{ name: string }[]>([])
@@ -60,17 +60,17 @@ async function loadOptions() {
 
 const tariffOptions = computed(() => {
   const list = tariffsList.value.map(t => ({ value: t.name, label: t.name }))
-  return [{ value: '', label: 'None' }, ...list]
+  return [{ value: 'none', label: 'None' }, ...list]
 })
 
 const universityOptions = computed(() => {
   const list = universitiesList.value.map(u => ({ value: u.name, label: u.name }))
-  return [{ value: '', label: 'None' }, ...list]
+  return [{ value: 'none', label: 'None' }, ...list]
 })
 
 const coordinatorOptions = computed(() => {
   const list = coordinatorsList.value.map(c => ({ value: c.name, label: c.name }))
-  return [{ value: '', label: 'None' }, ...list]
+  return [{ value: 'none', label: 'None' }, ...list]
 })
 
 function resetForm() {
@@ -80,9 +80,9 @@ function resetForm() {
   form.studentId = ''
   form.visaType = 'Embassy'
   form.applicationNo = ''
-  form.tariff = ''
-  form.university = ''
-  form.coordinator = ''
+  form.tariff = 'none'
+  form.university = 'none'
+  form.coordinator = 'none'
   originalPassport.value = ''
   errorMessage.value = ''
   resetLookup()
@@ -102,9 +102,9 @@ watch(() => props.open, (open) => {
     form.studentId = s.studentId || ''
     form.visaType = s.visaType || 'Embassy'
     form.applicationNo = s.applicationNo || ''
-    form.tariff = s.tariff || ''
-    form.university = s.university || ''
-    form.coordinator = s.coordinator || ''
+    form.tariff = s.tariff || 'none'
+    form.university = s.university || 'none'
+    form.coordinator = s.coordinator || 'none'
     originalPassport.value = s.passport
   } else {
     resetForm()
@@ -167,9 +167,9 @@ async function handleSubmit() {
       visaType: form.visaType,
       applicationNo: form.applicationNo.trim().toUpperCase(),
       lastChecked: new Date().toISOString(),
-      tariff: form.tariff,
-      university: form.university,
-      coordinator: form.coordinator
+      tariff: form.tariff === 'none' ? '' : form.tariff,
+      university: form.university === 'none' ? '' : form.university,
+      coordinator: form.coordinator === 'none' ? '' : form.coordinator
     }
     if (isEdit.value && originalPassport.value && originalPassport.value !== passport) {
       payload.originalPassport = originalPassport.value
@@ -196,9 +196,9 @@ async function handleSubmit() {
           studentId: form.studentId.trim(),
           visaType: form.visaType,
           applicationNo: form.applicationNo.trim().toUpperCase(),
-          tariff: form.tariff,
-          university: form.university,
-          coordinator: form.coordinator
+          tariff: form.tariff === 'none' ? '' : form.tariff,
+          university: form.university === 'none' ? '' : form.university,
+          coordinator: form.coordinator === 'none' ? '' : form.coordinator
         })
       }
     } else {
@@ -211,9 +211,9 @@ async function handleSubmit() {
         applicationNo: form.applicationNo.trim().toUpperCase(),
         status: 'Pending',
         lastChecked: payload.lastChecked,
-        tariff: form.tariff,
-        university: form.university,
-        coordinator: form.coordinator
+        tariff: form.tariff === 'none' ? '' : form.tariff,
+        university: form.university === 'none' ? '' : form.university,
+        coordinator: form.coordinator === 'none' ? '' : form.coordinator
       })
     }
 
