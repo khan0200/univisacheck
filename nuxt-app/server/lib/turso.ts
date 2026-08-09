@@ -23,6 +23,9 @@ import {
   CREATE_VISA_PROCESSING_NOTIFICATIONS_TABLE,
   CREATE_VPN_DATE_INDEX,
   CREATE_TELEGRAM_NOTIFICATION_MESSAGES_TABLE,
+  CREATE_SETTINGS_UNIVERSITIES_TABLE,
+  CREATE_SETTINGS_TARIFFS_TABLE,
+  CREATE_SETTINGS_COORDINATORS_TABLE,
   USER_COLUMNS,
   STUDENT_COLUMNS
 } from '../database/schema'
@@ -46,6 +49,11 @@ export async function initDb() {
     await db.execute(CREATE_VISA_PROCESSING_NOTIFICATIONS_TABLE)
     await db.execute(CREATE_VPN_DATE_INDEX)
     await db.execute(CREATE_TELEGRAM_NOTIFICATION_MESSAGES_TABLE)
+
+    // Settings isolated datasets
+    await db.execute(CREATE_SETTINGS_UNIVERSITIES_TABLE)
+    await db.execute(CREATE_SETTINGS_TARIFFS_TABLE)
+    await db.execute(CREATE_SETTINGS_COORDINATORS_TABLE)
 
     // 2. Add columns to users table
     const userColsInfo = await db.execute('PRAGMA table_info(users)')

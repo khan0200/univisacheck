@@ -51,7 +51,9 @@ export default defineNuxtConfig({
   routeRules: {
     '/': { prerender: true },
     '/cabinet': { ssr: false },
-    '/leads': { ssr: false }
+    '/leads': { ssr: false },
+    '/dashboard': { ssr: false },
+    '/settings': { ssr: false }
   },
 
   // Vercel function config

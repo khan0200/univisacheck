@@ -172,3 +172,43 @@ CREATE TABLE IF NOT EXISTS telegram_notification_messages (
     UNIQUE(notification_id, telegram_id)
 );
 `
+
+// ── Settings: isolated CRUD datasets ────────────────────────────────────────
+
+export const CREATE_SETTINGS_UNIVERSITIES_TABLE = `
+CREATE TABLE IF NOT EXISTS settings_universities (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId     INTEGER NOT NULL,
+    name       TEXT NOT NULL,
+    location   TEXT DEFAULT '',
+    notes      TEXT DEFAULT '',
+    createdAt  TEXT DEFAULT (datetime('now')),
+    updatedAt  TEXT DEFAULT (datetime('now'))
+);
+`
+
+export const CREATE_SETTINGS_TARIFFS_TABLE = `
+CREATE TABLE IF NOT EXISTS settings_tariffs (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId      INTEGER NOT NULL,
+    name        TEXT NOT NULL,
+    price       TEXT DEFAULT '',
+    currency    TEXT DEFAULT 'USD',
+    description TEXT DEFAULT '',
+    createdAt   TEXT DEFAULT (datetime('now')),
+    updatedAt   TEXT DEFAULT (datetime('now'))
+);
+`
+
+export const CREATE_SETTINGS_COORDINATORS_TABLE = `
+CREATE TABLE IF NOT EXISTS settings_coordinators (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId    INTEGER NOT NULL,
+    name      TEXT NOT NULL,
+    contact   TEXT DEFAULT '',
+    email     TEXT DEFAULT '',
+    notes     TEXT DEFAULT '',
+    createdAt TEXT DEFAULT (datetime('now')),
+    updatedAt TEXT DEFAULT (datetime('now'))
+);
+`

@@ -5,7 +5,6 @@ import type { VisaTypeFilter } from '~/types/student'
 const props = defineProps<{ realtimeStatus?: RealtimeStatus }>()
 const authStore = useAuthStore()
 const colorMode = useColorMode()
-const { show: showProfileModal } = useProfileModal()
 const studentsStore = useStudentsStore()
 
 const initials = computed(() => (authStore.user?.username || authStore.user?.email || 'U').charAt(0).toUpperCase())
@@ -21,7 +20,10 @@ function handleLogout() {
 }
 
 const profileMenuItems = computed(() => [
-  [{ label: 'Profile settings', icon: 'i-lucide-circle-user', onSelect: showProfileModal }],
+  [
+    { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', onSelect: () => navigateTo('/dashboard') },
+    { label: 'Settings', icon: 'i-lucide-settings', onSelect: () => navigateTo('/settings') }
+  ],
   [{ label: 'Sign out', icon: 'i-lucide-log-out', onSelect: handleLogout }]
 ])
 
