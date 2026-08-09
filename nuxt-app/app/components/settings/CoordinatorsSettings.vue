@@ -29,9 +29,9 @@ const filteredItems = computed(() => {
   const q = searchQuery.value.toLowerCase().trim()
   if (!q) return items.value
   return items.value.filter(c =>
-    c.name.toLowerCase().includes(q) ||
-    c.contact?.toLowerCase().includes(q) ||
-    c.email?.toLowerCase().includes(q)
+    c.name.toLowerCase().includes(q)
+    || (c.contact || '').toLowerCase().includes(q)
+    || (c.email || '').toLowerCase().includes(q)
   )
 })
 
@@ -87,7 +87,7 @@ async function save() {
       toast.add({ title: 'Coordinator added', color: 'success' })
     }
     showModal.value = false
-  } catch (e: any) {
+  } catch (e: unknown) {
     formError.value = apiErrorMessage(e, 'Failed to save.')
   } finally {
     saving.value = false
@@ -111,7 +111,7 @@ async function confirmDelete() {
     items.value = items.value.filter(c => c.id !== confirmDeleteId.value)
     toast.add({ title: 'Coordinator deleted', color: 'success' })
     showDeleteConfirm.value = false
-  } catch (e: any) {
+  } catch (e: unknown) {
     toast.add({ title: apiErrorMessage(e, 'Failed to delete.'), color: 'error' })
   } finally {
     deleting.value = false
@@ -125,10 +125,20 @@ onMounted(load)
   <div class="space-y-5">
     <div class="flex items-center justify-between gap-3 flex-wrap">
       <div>
-        <h2 class="text-lg font-semibold text-[var(--color-text-primary)] dark:text-white">Coordinators</h2>
-        <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">Manage your coordinator list independently</p>
+        <h2 class="text-lg font-semibold text-[var(--color-text-primary)] dark:text-white">
+          Coordinators
+        </h2>
+        <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">
+          Manage your coordinator list independently
+        </p>
       </div>
-      <UButton icon="i-lucide-plus" color="primary" @click="openAdd">Add Coordinator</UButton>
+      <UButton
+        icon="i-lucide-plus"
+        color="primary"
+        @click="openAdd"
+      >
+        Add Coordinator
+      </UButton>
     </div>
 
     <UInput
@@ -139,19 +149,39 @@ onMounted(load)
     />
 
     <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-white/[0.03]">
-      <div v-if="loading" class="p-8 flex items-center justify-center">
-        <UIcon name="i-lucide-loader-circle" class="size-6 text-[var(--color-text-secondary)] animate-spin" />
+      <div
+        v-if="loading"
+        class="p-8 flex items-center justify-center"
+      >
+        <UIcon
+          name="i-lucide-loader-circle"
+          class="size-6 text-[var(--color-text-secondary)] animate-spin"
+        />
       </div>
-      <div v-else-if="filteredItems.length === 0" class="p-8 text-center text-sm text-[var(--color-text-secondary)]">
+      <div
+        v-else-if="filteredItems.length === 0"
+        class="p-8 text-center text-sm text-[var(--color-text-secondary)]"
+      >
         {{ searchQuery ? 'No coordinators found.' : 'No coordinators yet. Click "Add Coordinator" to get started.' }}
       </div>
-      <table v-else class="w-full">
+      <table
+        v-else
+        class="w-full"
+      >
         <thead>
           <tr class="border-b border-[var(--color-border)] dark:border-white/[0.08]">
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">Name</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden sm:table-cell">Contact</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden md:table-cell">Email</th>
-            <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">Actions</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
+              Name
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden sm:table-cell">
+              Contact
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden md:table-cell">
+              Email
+            </th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.05]">
@@ -161,15 +191,41 @@ onMounted(load)
             class="hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors"
           >
             <td class="px-4 py-3">
-              <div class="font-medium text-sm text-[var(--color-text-primary)] dark:text-white">{{ item.name }}</div>
-              <div v-if="item.notes" class="text-xs text-[var(--color-text-secondary)] mt-0.5">{{ item.notes }}</div>
+              <div class="font-medium text-sm text-[var(--color-text-primary)] dark:text-white">
+                {{ item.name }}
+              </div>
+              <div
+                v-if="item.notes"
+                class="text-xs text-[var(--color-text-secondary)] mt-0.5"
+              >
+                {{ item.notes }}
+              </div>
             </td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden sm:table-cell">{{ item.contact || '—' }}</td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden md:table-cell">{{ item.email || '—' }}</td>
+            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden sm:table-cell">
+              {{ item.contact || '—' }}
+            </td>
+            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden md:table-cell">
+              {{ item.email || '—' }}
+            </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2 justify-end">
-                <UButton size="xs" variant="ghost" icon="i-lucide-pencil" @click="openEdit(item)">Edit</UButton>
-                <UButton size="xs" variant="ghost" color="error" icon="i-lucide-trash-2" @click="promptDelete(item)">Delete</UButton>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  icon="i-lucide-pencil"
+                  @click="openEdit(item)"
+                >
+                  Edit
+                </UButton>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="error"
+                  icon="i-lucide-trash-2"
+                  @click="promptDelete(item)"
+                >
+                  Delete
+                </UButton>
               </div>
             </td>
           </tr>
@@ -178,25 +234,67 @@ onMounted(load)
     </div>
 
     <!-- Add/Edit Modal -->
-    <UModal v-model:open="showModal" :title="editingItem ? 'Edit Coordinator' : 'Add Coordinator'">
+    <UModal
+      v-model:open="showModal"
+      :title="editingItem ? 'Edit Coordinator' : 'Add Coordinator'"
+    >
       <template #body>
-        <form class="space-y-4" @submit.prevent="save">
-          <UFormField label="Name" required>
-            <UInput v-model="form.name" placeholder="Full name" class="w-full" required />
+        <form
+          class="space-y-4"
+          @submit.prevent="save"
+        >
+          <UFormField
+            label="Name"
+            required
+          >
+            <UInput
+              v-model="form.name"
+              placeholder="Full name"
+              required
+              class="w-full"
+            />
           </UFormField>
           <UFormField label="Contact">
-            <UInput v-model="form.contact" placeholder="Phone / Telegram" class="w-full" />
+            <UInput
+              v-model="form.contact"
+              placeholder="Phone / Telegram"
+              class="w-full"
+            />
           </UFormField>
           <UFormField label="Email">
-            <UInput v-model="form.email" type="email" placeholder="email@example.com" class="w-full" />
+            <UInput
+              v-model="form.email"
+              type="email"
+              placeholder="email@example.com"
+              class="w-full"
+            />
           </UFormField>
           <UFormField label="Notes">
-            <UInput v-model="form.notes" placeholder="Optional notes" class="w-full" />
+            <UInput
+              v-model="form.notes"
+              placeholder="Optional notes"
+              class="w-full"
+            />
           </UFormField>
-          <UAlert v-if="formError" color="error" variant="soft" :title="formError" />
+          <UAlert
+            v-if="formError"
+            color="error"
+            variant="soft"
+            :title="formError"
+          />
           <div class="flex gap-2 justify-end pt-1">
-            <UButton variant="ghost" color="neutral" @click="showModal = false">Cancel</UButton>
-            <UiLoadingButton type="submit" :loading="saving" color="primary">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              @click="showModal = false"
+            >
+              Cancel
+            </UButton>
+            <UiLoadingButton
+              type="submit"
+              :loading="saving"
+              color="primary"
+            >
               {{ editingItem ? 'Save Changes' : 'Add Coordinator' }}
             </UiLoadingButton>
           </div>
@@ -205,15 +303,31 @@ onMounted(load)
     </UModal>
 
     <!-- Delete Confirm Modal -->
-    <UModal v-model:open="showDeleteConfirm" title="Delete Coordinator?">
+    <UModal
+      v-model:open="showDeleteConfirm"
+      title="Delete Coordinator?"
+    >
       <template #body>
         <p class="text-sm text-[var(--color-text-secondary)]">
-          Are you sure you want to delete <strong class="text-[var(--color-text-primary)] dark:text-white">{{ confirmDeleteName }}</strong>?
+          Are you sure you want to delete
+          <strong class="text-[var(--color-text-primary)] dark:text-white">{{ confirmDeleteName }}</strong>?
           This action cannot be undone.
         </p>
         <div class="flex gap-2 justify-end mt-5">
-          <UButton variant="ghost" color="neutral" @click="showDeleteConfirm = false">Cancel</UButton>
-          <UiLoadingButton :loading="deleting" color="error" @click="confirmDelete">Delete</UiLoadingButton>
+          <UButton
+            variant="ghost"
+            color="neutral"
+            @click="showDeleteConfirm = false"
+          >
+            Cancel
+          </UButton>
+          <UiLoadingButton
+            :loading="deleting"
+            color="error"
+            @click="confirmDelete"
+          >
+            Delete
+          </UiLoadingButton>
         </div>
       </template>
     </UModal>

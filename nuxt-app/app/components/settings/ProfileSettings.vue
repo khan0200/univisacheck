@@ -25,7 +25,7 @@ async function saveGeneral() {
     const data = await updateProfile({ username: trimmed })
     authStore.setSession(data.token, data.user)
     toast.add({ title: 'Consulting name updated successfully!', color: 'success' })
-  } catch (e: any) {
+  } catch (e: unknown) {
     generalError.value = apiErrorMessage(e, 'Failed to update consulting name.')
   } finally {
     generalSaving.value = false
@@ -48,7 +48,7 @@ async function savePassword() {
     newPassword.value = ''
     confirmPassword.value = ''
     toast.add({ title: 'Password updated successfully!', color: 'success' })
-  } catch (e: any) {
+  } catch (e: unknown) {
     passwordError.value = apiErrorMessage(e, 'Failed to change password.')
   } finally {
     passwordSaving.value = false
@@ -59,8 +59,12 @@ async function savePassword() {
 <template>
   <div class="space-y-6">
     <div>
-      <h2 class="text-lg font-semibold text-[var(--color-text-primary)] dark:text-white">Profile Settings</h2>
-      <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">Manage your account name and password</p>
+      <h2 class="text-lg font-semibold text-[var(--color-text-primary)] dark:text-white">
+        Profile Settings
+      </h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">
+        Manage your account name and password
+      </p>
     </div>
 
     <!-- Tab switcher -->
@@ -88,21 +92,43 @@ async function savePassword() {
       v-if="tab === 'general'"
       class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-6 max-w-lg"
     >
-      <form class="space-y-4" @submit.prevent="saveGeneral">
+      <form
+        class="space-y-4"
+        @submit.prevent="saveGeneral"
+      >
         <div class="flex items-center gap-4 mb-6">
           <div class="flex items-center justify-center size-14 rounded-full bg-primary-900 text-secondary-300 text-xl font-bold shrink-0">
             {{ (authStore.user?.username || authStore.user?.email || 'U').charAt(0).toUpperCase() }}
           </div>
           <div>
-            <div class="font-semibold text-[var(--color-text-primary)] dark:text-white">{{ authStore.user?.username || '—' }}</div>
-            <div class="text-sm text-[var(--color-text-secondary)]">{{ authStore.user?.email }}</div>
+            <div class="font-semibold text-[var(--color-text-primary)] dark:text-white">
+              {{ authStore.user?.username || '—' }}
+            </div>
+            <div class="text-sm text-[var(--color-text-secondary)]">
+              {{ authStore.user?.email }}
+            </div>
           </div>
         </div>
         <UFormField label="Consulting Name">
-          <UInput v-model="username" placeholder="Enter consulting name" required class="w-full" />
+          <UInput
+            v-model="username"
+            placeholder="Enter consulting name"
+            required
+            class="w-full"
+          />
         </UFormField>
-        <UAlert v-if="generalError" color="error" variant="soft" :title="generalError" />
-        <UiLoadingButton type="submit" :loading="generalSaving" color="primary" class="w-full sm:w-auto">
+        <UAlert
+          v-if="generalError"
+          color="error"
+          variant="soft"
+          :title="generalError"
+        />
+        <UiLoadingButton
+          type="submit"
+          :loading="generalSaving"
+          color="primary"
+          class="w-full sm:w-auto"
+        >
           Save Changes
         </UiLoadingButton>
       </form>
@@ -113,15 +139,40 @@ async function savePassword() {
       v-else
       class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-6 max-w-lg"
     >
-      <form class="space-y-4" @submit.prevent="savePassword">
+      <form
+        class="space-y-4"
+        @submit.prevent="savePassword"
+      >
         <UFormField label="New Password">
-          <UInput v-model="newPassword" type="password" placeholder="Minimum 6 characters" required class="w-full" />
+          <UInput
+            v-model="newPassword"
+            type="password"
+            placeholder="Minimum 6 characters"
+            required
+            class="w-full"
+          />
         </UFormField>
         <UFormField label="Confirm New Password">
-          <UInput v-model="confirmPassword" type="password" placeholder="••••••••" required class="w-full" />
+          <UInput
+            v-model="confirmPassword"
+            type="password"
+            placeholder="••••••••"
+            required
+            class="w-full"
+          />
         </UFormField>
-        <UAlert v-if="passwordError" color="error" variant="soft" :title="passwordError" />
-        <UiLoadingButton type="submit" :loading="passwordSaving" color="primary" class="w-full sm:w-auto">
+        <UAlert
+          v-if="passwordError"
+          color="error"
+          variant="soft"
+          :title="passwordError"
+        />
+        <UiLoadingButton
+          type="submit"
+          :loading="passwordSaving"
+          color="primary"
+          class="w-full sm:w-auto"
+        >
           Change Password
         </UiLoadingButton>
       </form>

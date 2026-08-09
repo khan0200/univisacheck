@@ -76,7 +76,7 @@ async function save() {
       toast.add({ title: 'Tariff added', color: 'success' })
     }
     showModal.value = false
-  } catch (e: any) {
+  } catch (e: unknown) {
     formError.value = apiErrorMessage(e, 'Failed to save.')
   } finally {
     saving.value = false
@@ -100,7 +100,7 @@ async function confirmDelete() {
     items.value = items.value.filter(t => t.id !== confirmDeleteId.value)
     toast.add({ title: 'Tariff deleted', color: 'success' })
     showDeleteConfirm.value = false
-  } catch (e: any) {
+  } catch (e: unknown) {
     toast.add({ title: apiErrorMessage(e, 'Failed to delete.'), color: 'error' })
   } finally {
     deleting.value = false
@@ -114,26 +114,56 @@ onMounted(load)
   <div class="space-y-5">
     <div class="flex items-center justify-between gap-3 flex-wrap">
       <div>
-        <h2 class="text-lg font-semibold text-[var(--color-text-primary)] dark:text-white">Tariff</h2>
-        <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">Manage your pricing tariffs independently</p>
+        <h2 class="text-lg font-semibold text-[var(--color-text-primary)] dark:text-white">
+          Tariff
+        </h2>
+        <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">
+          Manage your pricing tariffs independently
+        </p>
       </div>
-      <UButton icon="i-lucide-plus" color="primary" @click="openAdd">Add Tariff</UButton>
+      <UButton
+        icon="i-lucide-plus"
+        color="primary"
+        @click="openAdd"
+      >
+        Add Tariff
+      </UButton>
     </div>
 
     <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-white/[0.03]">
-      <div v-if="loading" class="p-8 flex items-center justify-center">
-        <UIcon name="i-lucide-loader-circle" class="size-6 text-[var(--color-text-secondary)] animate-spin" />
+      <div
+        v-if="loading"
+        class="p-8 flex items-center justify-center"
+      >
+        <UIcon
+          name="i-lucide-loader-circle"
+          class="size-6 text-[var(--color-text-secondary)] animate-spin"
+        />
       </div>
-      <div v-else-if="items.length === 0" class="p-8 text-center text-sm text-[var(--color-text-secondary)]">
+      <div
+        v-else-if="items.length === 0"
+        class="p-8 text-center text-sm text-[var(--color-text-secondary)]"
+      >
         No tariffs yet. Click "Add Tariff" to get started.
       </div>
-      <table v-else class="w-full">
+      <table
+        v-else
+        class="w-full"
+      >
         <thead>
           <tr class="border-b border-[var(--color-border)] dark:border-white/[0.08]">
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">Tariff Name</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden sm:table-cell">Price</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden md:table-cell">Description</th>
-            <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">Actions</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
+              Tariff Name
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden sm:table-cell">
+              Price
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide hidden md:table-cell">
+              Description
+            </th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.05]">
@@ -142,16 +172,35 @@ onMounted(load)
             :key="item.id"
             class="hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors"
           >
-            <td class="px-4 py-3 font-medium text-sm text-[var(--color-text-primary)] dark:text-white">{{ item.name }}</td>
+            <td class="px-4 py-3 font-medium text-sm text-[var(--color-text-primary)] dark:text-white">
+              {{ item.name }}
+            </td>
             <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden sm:table-cell">
               <span v-if="item.price">{{ item.price }} {{ item.currency }}</span>
               <span v-else>—</span>
             </td>
-            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden md:table-cell max-w-xs truncate">{{ item.description || '—' }}</td>
+            <td class="px-4 py-3 text-sm text-[var(--color-text-secondary)] hidden md:table-cell max-w-xs truncate">
+              {{ item.description || '—' }}
+            </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2 justify-end">
-                <UButton size="xs" variant="ghost" icon="i-lucide-pencil" @click="openEdit(item)">Edit</UButton>
-                <UButton size="xs" variant="ghost" color="error" icon="i-lucide-trash-2" @click="promptDelete(item)">Delete</UButton>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  icon="i-lucide-pencil"
+                  @click="openEdit(item)"
+                >
+                  Edit
+                </UButton>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="error"
+                  icon="i-lucide-trash-2"
+                  @click="promptDelete(item)"
+                >
+                  Delete
+                </UButton>
               </div>
             </td>
           </tr>
@@ -160,27 +209,68 @@ onMounted(load)
     </div>
 
     <!-- Add/Edit Modal -->
-    <UModal v-model:open="showModal" :title="editingItem ? 'Edit Tariff' : 'Add Tariff'">
+    <UModal
+      v-model:open="showModal"
+      :title="editingItem ? 'Edit Tariff' : 'Add Tariff'"
+    >
       <template #body>
-        <form class="space-y-4" @submit.prevent="save">
-          <UFormField label="Tariff Name" required>
-            <UInput v-model="form.name" placeholder="e.g. Standard Package" class="w-full" required />
+        <form
+          class="space-y-4"
+          @submit.prevent="save"
+        >
+          <UFormField
+            label="Tariff Name"
+            required
+          >
+            <UInput
+              v-model="form.name"
+              placeholder="e.g. Standard Package"
+              required
+              class="w-full"
+            />
           </UFormField>
           <div class="grid grid-cols-2 gap-3">
             <UFormField label="Price">
-              <UInput v-model="form.price" placeholder="e.g. 500" class="w-full" />
+              <UInput
+                v-model="form.price"
+                placeholder="e.g. 500"
+                class="w-full"
+              />
             </UFormField>
             <UFormField label="Currency">
-              <UInput v-model="form.currency" placeholder="USD" class="w-full" />
+              <UInput
+                v-model="form.currency"
+                placeholder="USD"
+                class="w-full"
+              />
             </UFormField>
           </div>
           <UFormField label="Description">
-            <UInput v-model="form.description" placeholder="Optional description" class="w-full" />
+            <UInput
+              v-model="form.description"
+              placeholder="Optional description"
+              class="w-full"
+            />
           </UFormField>
-          <UAlert v-if="formError" color="error" variant="soft" :title="formError" />
+          <UAlert
+            v-if="formError"
+            color="error"
+            variant="soft"
+            :title="formError"
+          />
           <div class="flex gap-2 justify-end pt-1">
-            <UButton variant="ghost" color="neutral" @click="showModal = false">Cancel</UButton>
-            <UiLoadingButton type="submit" :loading="saving" color="primary">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              @click="showModal = false"
+            >
+              Cancel
+            </UButton>
+            <UiLoadingButton
+              type="submit"
+              :loading="saving"
+              color="primary"
+            >
               {{ editingItem ? 'Save Changes' : 'Add Tariff' }}
             </UiLoadingButton>
           </div>
@@ -189,15 +279,31 @@ onMounted(load)
     </UModal>
 
     <!-- Delete Confirm Modal -->
-    <UModal v-model:open="showDeleteConfirm" title="Delete Tariff?">
+    <UModal
+      v-model:open="showDeleteConfirm"
+      title="Delete Tariff?"
+    >
       <template #body>
         <p class="text-sm text-[var(--color-text-secondary)]">
-          Are you sure you want to delete <strong class="text-[var(--color-text-primary)] dark:text-white">{{ confirmDeleteName }}</strong>?
+          Are you sure you want to delete
+          <strong class="text-[var(--color-text-primary)] dark:text-white">{{ confirmDeleteName }}</strong>?
           This action cannot be undone.
         </p>
         <div class="flex gap-2 justify-end mt-5">
-          <UButton variant="ghost" color="neutral" @click="showDeleteConfirm = false">Cancel</UButton>
-          <UiLoadingButton :loading="deleting" color="error" @click="confirmDelete">Delete</UiLoadingButton>
+          <UButton
+            variant="ghost"
+            color="neutral"
+            @click="showDeleteConfirm = false"
+          >
+            Cancel
+          </UButton>
+          <UiLoadingButton
+            :loading="deleting"
+            color="error"
+            @click="confirmDelete"
+          >
+            Delete
+          </UiLoadingButton>
         </div>
       </template>
     </UModal>
