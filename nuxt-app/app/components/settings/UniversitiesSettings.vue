@@ -17,7 +17,7 @@ const deleting = ref(false)
 
 const showModal = ref(false)
 const editingItem = ref<University | null>(null)
-const form = ref({ name: '', location: '', notes: '' })
+const form = ref({ name: '' })
 const formError = ref('')
 
 const confirmDeleteId = ref<number | null>(null)
@@ -47,14 +47,14 @@ async function load() {
 
 function openAdd() {
   editingItem.value = null
-  form.value = { name: '', location: '', notes: '' }
+  form.value = { name: '' }
   formError.value = ''
   showModal.value = true
 }
 
 function openEdit(item: University) {
   editingItem.value = item
-  form.value = { name: item.name, location: item.location || '', notes: item.notes || '' }
+  form.value = { name: item.name }
   formError.value = ''
   showModal.value = true
 }
@@ -249,20 +249,7 @@ onMounted(load)
               class="w-full"
             />
           </UFormField>
-          <UFormField label="Location">
-            <UInput
-              v-model="form.location"
-              placeholder="e.g. Seoul, Korea"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField label="Notes">
-            <UInput
-              v-model="form.notes"
-              placeholder="Optional notes"
-              class="w-full"
-            />
-          </UFormField>
+
           <UAlert
             v-if="formError"
             color="error"
