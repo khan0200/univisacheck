@@ -7,28 +7,21 @@ const { open: profileModalOpen } = useProfileModal()
 const { status: realtimeStatus } = useRealtimeSync()
 
 // Track mouse cursor for background glow effect
-const { x, y } = useMouse()
-const hasMoved = ref(false)
-
-watch([x, y], () => {
-  if (x.value !== 0 || y.value !== 0) {
-    hasMoved.value = true
-  }
-})
+const { x, y } = useMouse({ type: 'client' })
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-[var(--color-bg)] dark:bg-[var(--color-bg-dark)] bg-pattern-grid relative overflow-hidden">
     <!-- Interactive Background Mouse Glow -->
     <div
-      v-if="hasMoved"
       class="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
       <div
-        class="absolute size-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(31,110,88,0.13)_0%,rgba(16,185,129,0.03)_60%,transparent_100%)] dark:bg-[radial-gradient(circle,rgba(16,185,129,0.16)_0%,rgba(16,185,129,0.04)_60%,transparent_100%)] blur-3xl transition-opacity duration-300"
+        class="absolute size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.22)_0%,rgba(52,211,153,0.05)_50%,transparent_100%)] dark:bg-[radial-gradient(circle,rgba(52,211,153,0.25)_0%,rgba(16,185,129,0.05)_60%,transparent_100%)] blur-[80px] transition-opacity duration-300"
         :style="{
           left: `${x}px`,
-          top: `${y}px`
+          top: `${y}px`,
+          opacity: (x === 0 && y === 0) ? 0 : 1
         }"
       />
     </div>
