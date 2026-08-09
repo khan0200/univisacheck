@@ -202,11 +202,16 @@ export function useRealtimeSync() {
             studentsStore.checkingPassports.delete(ev.studentId)
             studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
-            // Re-upsert individual student status locally as they complete
+            // Re-upsert individual student status & lastChecked timestamp locally
             const student = studentsStore.students.find(s => s.passport === ev.studentId)
+            const updatedTime = ev.result.lastChecked || new Date().toISOString()
             if (student) {
               student.status = ev.result.status
-              student.lastChecked = new Date().toISOString()
+              student.lastChecked = updatedTime
+              studentsStore.patchStudent(student.passport, {
+                status: ev.result.status,
+                lastChecked: updatedTime
+              })
             }
           }
         })
@@ -346,9 +351,14 @@ export function useRealtimeSync() {
           studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
           const student = studentsStore.students.find(s => s.passport === ev.studentId)
+          const updatedTime = ev.result.lastChecked || new Date().toISOString()
           if (student) {
             student.status = ev.result.status
-            student.lastChecked = new Date().toISOString()
+            student.lastChecked = updatedTime
+            studentsStore.patchStudent(student.passport, {
+              status: ev.result.status,
+              lastChecked: updatedTime
+            })
           }
         }
       } catch {

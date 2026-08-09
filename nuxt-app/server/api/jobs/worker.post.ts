@@ -369,7 +369,8 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
         jobId: claimedTask.jobId,
         studentId: claimedTask.passport,
         result: {
-          status: newStatus
+          status: newStatus,
+          lastChecked: nowIso
         }
       })
     } catch (err) {
