@@ -55,6 +55,8 @@ export interface Student {
   university?: string
   coordinator?: string
   b2b?: string
+  check_source?: string
+  checkSource?: string
   /** Internal: tracks the updatedAt of the last applied realtime event for ordering/dedup. */
   _realtimeUpdatedAt?: string
   /** Internal: cached lowercase search string to prevent string allocation during render. */

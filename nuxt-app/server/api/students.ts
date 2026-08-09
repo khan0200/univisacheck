@@ -58,7 +58,9 @@ async function fetchStudentPayload(
       pinned: r.pinned === 1,
       tariff: r.tariff ? String(r.tariff) : undefined,
       university: r.university ? String(r.university) : undefined,
-      coordinator: r.coordinator ? String(r.coordinator) : undefined
+      coordinator: r.coordinator ? String(r.coordinator) : undefined,
+      check_source: r.check_source ? String(r.check_source) : 'manual',
+      checkSource: r.checkSource ? String(r.checkSource) : (r.check_source ? String(r.check_source) : 'manual')
     }
   } catch {
     return null
@@ -144,7 +146,13 @@ export default defineEventHandler(async (event) => {
         })
         return result.rows.map((r) => {
           const row = r as unknown as Record<string, unknown>
-          return { ...row, batchSelected: row.batchSelected === 1, pinned: row.pinned === 1 }
+          return {
+            ...row,
+            batchSelected: row.batchSelected === 1,
+            pinned: row.pinned === 1,
+            check_source: row.check_source ? String(row.check_source) : 'manual',
+            checkSource: row.checkSource ? String(row.checkSource) : (row.check_source ? String(row.check_source) : 'manual')
+          }
         })
       } else {
         const result = await db.execute({
@@ -152,7 +160,7 @@ export default defineEventHandler(async (event) => {
                   passport, fullName, birthday, studentId, status,
                   applicationDate, lastChecked, rejectReason, pdfUrl,
                   batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                  tariff, university, coordinator, b2b
+                  tariff, university, coordinator, b2b, check_source, checkSource
                 FROM students 
                 WHERE userId = ? AND deletedAt IS NULL 
                 ORDER BY createdAt DESC`,
@@ -160,7 +168,13 @@ export default defineEventHandler(async (event) => {
         })
         return result.rows.map((r) => {
           const row = r as unknown as Record<string, unknown>
-          return { ...row, batchSelected: row.batchSelected === 1, pinned: row.pinned === 1 }
+          return {
+            ...row,
+            batchSelected: row.batchSelected === 1,
+            pinned: row.pinned === 1,
+            check_source: row.check_source ? String(row.check_source) : 'manual',
+            checkSource: row.checkSource ? String(row.checkSource) : (row.check_source ? String(row.check_source) : 'manual')
+          }
         })
       }
     }

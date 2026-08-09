@@ -83,7 +83,9 @@ export const STUDENT_COLUMNS: DbColumn[] = [
   { name: 'tariff', type: 'TEXT' },
   { name: 'university', type: 'TEXT' },
   { name: 'coordinator', type: 'TEXT' },
-  { name: 'b2b', type: 'TEXT' }
+  { name: 'b2b', type: 'TEXT' },
+  { name: 'check_source', type: 'TEXT' },
+  { name: 'checkSource', type: 'TEXT' }
 ]
 
 export const CREATE_JOBS_TABLE = `
@@ -92,6 +94,7 @@ CREATE TABLE IF NOT EXISTS visa_check_jobs (
     userId INTEGER NOT NULL,
     total INTEGER NOT NULL,
     status TEXT NOT NULL,
+    check_source TEXT NOT NULL DEFAULT 'manual',
     createdAt TEXT DEFAULT (datetime('now')),
     updatedAt TEXT DEFAULT (datetime('now'))
 );

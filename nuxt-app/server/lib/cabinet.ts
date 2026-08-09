@@ -287,7 +287,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
       // Update last checked time even if not found on the portal (e.g. pending submission)
       const now = new Date().toISOString()
       await db.execute({
-        sql: 'UPDATE students SET lastChecked = ?, last_checked = ? WHERE passport = ?',
+        sql: 'UPDATE students SET lastChecked = ?, last_checked = ?, check_source = \'manual\', checkSource = \'manual\' WHERE passport = ?',
         args: [now, now, student.passport]
       })
       student.lastChecked = now
@@ -311,7 +311,9 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
                     rejectReason = ?,
                     pdfUrl = ?,
                     apiResponse = ?,
-                    telegram_user_id = ?
+                    telegram_user_id = ?,
+                    check_source = 'manual',
+                    checkSource = 'manual'
                 WHERE passport = ?
             `,
       args: [

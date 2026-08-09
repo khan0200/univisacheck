@@ -51,8 +51,8 @@ export default defineEventHandler(async (event) => {
 
     // Insert Job
     statements.push({
-      sql: `INSERT INTO visa_check_jobs (id, userId, total, status, createdAt, updatedAt)
-            VALUES (?, ?, ?, 'queued', ?, ?)`,
+      sql: `INSERT INTO visa_check_jobs (id, userId, total, status, check_source, createdAt, updatedAt)
+            VALUES (?, ?, ?, 'queued', 'manual', ?, ?)`,
       args: [jobId, userId, ownedPassports.length, now, now]
     })
 

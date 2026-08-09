@@ -88,6 +88,14 @@ export async function initDb() {
       await db.execute('ALTER TABLE cabinet_subscribers ADD COLUMN lang TEXT DEFAULT \'uz\'')
     }
 
+    // Add check_source column to visa_check_jobs if missing
+    const jobsColsInfo = await db.execute('PRAGMA table_info(visa_check_jobs)')
+    const existingJobsCols = jobsColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
+    if (!existingJobsCols.includes('check_source')) {
+      console.log('[Turso] Altering visa_check_jobs: adding column check_source TEXT DEFAULT \'manual\'')
+      await db.execute('ALTER TABLE visa_check_jobs ADD COLUMN check_source TEXT DEFAULT \'manual\'')
+    }
+
     // 6. Create unique index for telegram_id to enforce uniqueness in SQLite
     await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')
 

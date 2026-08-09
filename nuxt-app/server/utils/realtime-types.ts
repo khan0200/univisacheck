@@ -27,6 +27,8 @@ export interface StudentPayload {
   tariff?: string
   university?: string
   coordinator?: string
+  check_source?: string
+  checkSource?: string
 }
 
 export interface BaseEvent {

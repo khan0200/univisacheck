@@ -185,6 +185,12 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
         newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
         const statusChanged = !isSameStatus(oldStatus, newStatus)
 
+        const checkSourceRes = await executeWithRetry(db, {
+          sql: 'SELECT check_source FROM visa_check_jobs WHERE id = ?',
+          args: [claimedTask.jobId]
+        })
+        const checkSource = checkSourceRes.rows[0] ? String(checkSourceRes.rows[0].check_source) : 'manual'
+
         // Consolidate updates into ONE single database write with retry
         const appDate = liveResult.latestDate || student.applicationDate || ''
         await executeWithRetry(db, {
@@ -197,7 +203,9 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
                 last_checked = ?,
                 rejectReason = ?,
                 pdfUrl = ?,
-                apiResponse = ?
+                apiResponse = ?,
+                check_source = ?,
+                checkSource = ?
             WHERE passport = ? AND userId = ? AND deletedAt IS NULL
           `,
           args: [
@@ -209,6 +217,8 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
             liveResult.rejectionReason || '',
             liveResult.pdfUrl || '',
             JSON.stringify(liveResult),
+            checkSource,
+            checkSource,
             claimedTask.passport,
             claimedTask.userId
           ]
@@ -220,7 +230,9 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
           lastChecked: nowIso,
           rejectReason: liveResult.rejectionReason || '',
           pdfUrl: liveResult.pdfUrl || '',
-          apiResponse: JSON.stringify(liveResult)
+          apiResponse: JSON.stringify(liveResult),
+          check_source: checkSource,
+          checkSource: checkSource
         }
 
         // Log notification row if status changed

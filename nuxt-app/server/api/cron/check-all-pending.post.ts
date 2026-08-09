@@ -83,8 +83,8 @@ export default defineEventHandler(async (event) => {
     const statements: { sql: string, args: (string | number | null)[] }[] = []
 
     statements.push({
-      sql: `INSERT INTO visa_check_jobs (id, userId, total, status, createdAt, updatedAt)
-            VALUES (?, ?, ?, 'queued', ?, ?)`,
+      sql: `INSERT INTO visa_check_jobs (id, userId, total, status, check_source, createdAt, updatedAt)
+            VALUES (?, ?, ?, 'queued', 'auto', ?, ?)`,
       args: [jobId, userId, passports.length, now, now]
     })
 

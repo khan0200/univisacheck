@@ -232,8 +232,19 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
               <p class="text-xs text-[var(--color-text-secondary)] mb-1">
                 Last Checked
               </p>
-              <p class="text-sm font-medium">
-                {{ formatTimestamp(props.student.lastChecked) }}
+              <p class="text-sm font-medium flex items-center gap-1.5">
+                <span>{{ formatTimestamp(props.student.lastChecked) }}</span>
+                <span
+                  v-if="props.student.check_source === 'auto' || props.student.checkSource === 'auto'"
+                  class="flex items-center gap-1 mt-0.5"
+                  title="Automated Visa Check"
+                >
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Auto</span>
+                </span>
               </p>
             </div>
           </div>

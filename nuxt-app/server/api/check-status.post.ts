@@ -63,8 +63,8 @@ export default defineEventHandler(async (event) => {
 
     await db.batch([
       {
-        sql: `INSERT INTO visa_check_jobs (id, userId, total, status, createdAt, updatedAt)
-              VALUES (?, ?, 1, 'queued', ?, ?)`,
+        sql: `INSERT INTO visa_check_jobs (id, userId, total, status, check_source, createdAt, updatedAt)
+              VALUES (?, ?, 1, 'queued', 'manual', ?, ?)`,
         args: [jobId, targetUserId, now, now]
       },
       {
