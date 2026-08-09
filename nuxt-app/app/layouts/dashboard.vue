@@ -33,7 +33,10 @@ watch([x, y], () => {
       />
     </div>
 
-    <DashboardAppTopbar class="relative z-10" :realtime-status="realtimeStatus" />
+    <DashboardAppTopbar
+      class="relative z-10"
+      :realtime-status="realtimeStatus"
+    />
 
     <main class="flex-1 min-w-0 px-4 sm:px-6 py-6 max-w-[1400px] w-full mx-auto relative z-10">
       <slot />
