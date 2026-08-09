@@ -2,6 +2,11 @@
 import type { Student, StudentFormInput, VisaType } from '~/types/student'
 import { formatDateInput, formatPassportInput, validateBirthday, validatePassport } from '~/utils/validation'
 
+interface StudentSubmitPayload extends StudentFormInput {
+  status?: string
+  lastChecked: string
+}
+
 const props = defineProps<{
   open: boolean
   editingStudent: Student | null
@@ -154,7 +159,7 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    const payload: any = {
+    const payload: StudentSubmitPayload = {
       fullName,
       passport,
       birthday,
