@@ -63,12 +63,12 @@ async function runLocal10MinAutoCheck() {
         return false
       }
 
-      const isUnderReviewOrSupplement =
-        statusRaw.includes('under review') ||
-        statusRaw.includes('supplement') ||
-        statusRaw.includes('topshirilgan') ||
-        statusRaw.includes('ko\'rib chiqilmoqda') ||
-        statusRaw.includes('asking')
+      const isUnderReviewOrSupplement
+        = statusRaw.includes('under review')
+        || statusRaw.includes('supplement')
+        || statusRaw.includes('topshirilgan')
+        || statusRaw.includes('ko\'rib chiqilmoqda')
+        || statusRaw.includes('asking')
 
       const isApplied10DaysOrMore = Boolean(appDate) && daysSinceApplied >= 10
 
