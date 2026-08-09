@@ -17,7 +17,7 @@ const deleting = ref(false)
 
 const showModal = ref(false)
 const editingItem = ref<Tariff | null>(null)
-const form = ref({ name: '', price: '', currency: 'USD', description: '' })
+const form = ref({ name: '' })
 const formError = ref('')
 
 const confirmDeleteId = ref<number | null>(null)
@@ -38,14 +38,14 @@ async function load() {
 
 function openAdd() {
   editingItem.value = null
-  form.value = { name: '', price: '', currency: 'USD', description: '' }
+  form.value = { name: '' }
   formError.value = ''
   showModal.value = true
 }
 
 function openEdit(item: Tariff) {
   editingItem.value = item
-  form.value = { name: item.name, price: item.price || '', currency: item.currency || 'USD', description: item.description || '' }
+  form.value = { name: item.name }
   formError.value = ''
   showModal.value = true
 }
@@ -229,29 +229,7 @@ onMounted(load)
               class="w-full"
             />
           </UFormField>
-          <div class="grid grid-cols-2 gap-3">
-            <UFormField label="Price">
-              <UInput
-                v-model="form.price"
-                placeholder="e.g. 500"
-                class="w-full"
-              />
-            </UFormField>
-            <UFormField label="Currency">
-              <UInput
-                v-model="form.currency"
-                placeholder="USD"
-                class="w-full"
-              />
-            </UFormField>
-          </div>
-          <UFormField label="Description">
-            <UInput
-              v-model="form.description"
-              placeholder="Optional description"
-              class="w-full"
-            />
-          </UFormField>
+
           <UAlert
             v-if="formError"
             color="error"

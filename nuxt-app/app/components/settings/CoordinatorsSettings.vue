@@ -18,7 +18,7 @@ const deleting = ref(false)
 
 const showModal = ref(false)
 const editingItem = ref<Coordinator | null>(null)
-const form = ref({ name: '', contact: '', email: '', notes: '' })
+const form = ref({ name: '' })
 const formError = ref('')
 
 const confirmDeleteId = ref<number | null>(null)
@@ -49,14 +49,14 @@ async function load() {
 
 function openAdd() {
   editingItem.value = null
-  form.value = { name: '', contact: '', email: '', notes: '' }
+  form.value = { name: '' }
   formError.value = ''
   showModal.value = true
 }
 
 function openEdit(item: Coordinator) {
   editingItem.value = item
-  form.value = { name: item.name, contact: item.contact || '', email: item.email || '', notes: item.notes || '' }
+  form.value = { name: item.name }
   formError.value = ''
   showModal.value = true
 }
@@ -254,28 +254,7 @@ onMounted(load)
               class="w-full"
             />
           </UFormField>
-          <UFormField label="Contact">
-            <UInput
-              v-model="form.contact"
-              placeholder="Phone / Telegram"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField label="Email">
-            <UInput
-              v-model="form.email"
-              type="email"
-              placeholder="email@example.com"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField label="Notes">
-            <UInput
-              v-model="form.notes"
-              placeholder="Optional notes"
-              class="w-full"
-            />
-          </UFormField>
+
           <UAlert
             v-if="formError"
             color="error"
