@@ -241,7 +241,6 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                 Tariff
               </label>
               <USelect
-                v-slot:default
                 v-model="selectedTariff"
                 :items="tariffOptions"
                 value-key="value"
@@ -256,7 +255,6 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                 University
               </label>
               <USelect
-                v-slot:default
                 v-model="selectedUniversity"
                 :items="universityOptions"
                 value-key="value"
@@ -271,7 +269,6 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                 Coordinator
               </label>
               <USelect
-                v-slot:default
                 v-model="selectedCoordinator"
                 :items="coordinatorOptions"
                 value-key="value"
