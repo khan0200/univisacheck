@@ -80,11 +80,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const isUnderReviewOrSupplement
-      = statusRaw.includes('under review')
-      || statusRaw.includes('supplement')
-      || statusRaw.includes('topshirilgan')
-      || statusRaw.includes('ko\'rib chiqilmoqda')
-      || statusRaw.includes('asking')
+        = statusRaw.includes('under review')
+        || statusRaw.includes('supplement')
+        || statusRaw.includes('topshirilgan')
+        || statusRaw.includes('ko\'rib chiqilmoqda')
+        || statusRaw.includes('asking')
 
     const isApplied10DaysOrMore = Boolean(appDate) && daysSinceApplied >= 10
 
