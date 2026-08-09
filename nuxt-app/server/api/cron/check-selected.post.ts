@@ -16,7 +16,7 @@ import { getTursoClient } from '../../utils/turso'
 function getDaysSinceApplication(appDateStr: string): number {
   if (!appDateStr) return 0
   const match = appDateStr.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (!match) return 0
+  if (!match || !match[1] || !match[2] || !match[3]) return 0
   const year = parseInt(match[1], 10)
   const month = parseInt(match[2], 10) - 1
   const day = parseInt(match[3], 10)
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
   // 5. Create Job Queue per user
   for (const [userId, passports] of userMap.entries()) {
     const jobId = crypto.randomUUID()
-    const statements: { sql: string; args: (string | number | null)[] }[] = []
+    const statements: { sql: string, args: (string | number | null)[] }[] = []
 
     statements.push({
       sql: `INSERT INTO visa_check_jobs (id, userId, total, status, createdAt, updatedAt)
@@ -140,8 +140,12 @@ export default defineEventHandler(async (event) => {
     console.log(`[10-Min Cron] Enqueued ${eligibleRows.length} student(s) (>=10 days applied) across ${createdJobs.length} jobs. Triggering worker...`)
 
     const triggerPromise = $fetch(workerUrl, { method: 'POST' })
-      .then(() => console.log('[10-Min Cron] Worker trigger completed.'))
-      .catch((err) => console.error('[10-Min Cron] Worker trigger failed:', err))
+      .then(() => {
+        console.log('[10-Min Cron] Worker trigger completed.')
+      })
+      .catch((err: unknown) => {
+        console.error('[10-Min Cron] Worker trigger failed:', err)
+      })
 
     event.waitUntil(triggerPromise)
   }

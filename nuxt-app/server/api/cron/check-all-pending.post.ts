@@ -77,7 +77,7 @@ export default defineEventHandler(async (event) => {
   // 5. Create Job Queue per user
   for (const [userId, passports] of userMap.entries()) {
     const jobId = crypto.randomUUID()
-    const statements: { sql: string; args: (string | number | null)[] }[] = []
+    const statements: { sql: string, args: (string | number | null)[] }[] = []
 
     statements.push({
       sql: `INSERT INTO visa_check_jobs (id, userId, total, status, createdAt, updatedAt)
@@ -111,8 +111,12 @@ export default defineEventHandler(async (event) => {
     console.log(`[6-Hour Cron] Enqueued ${eligibleRows.length} Pending/Application student(s) (checked >10 mins ago) across ${createdJobs.length} jobs. Triggering worker...`)
 
     const triggerPromise = $fetch(workerUrl, { method: 'POST' })
-      .then(() => console.log('[6-Hour Cron] Worker trigger completed.'))
-      .catch((err) => console.error('[6-Hour Cron] Worker trigger failed:', err))
+      .then(() => {
+        console.log('[6-Hour Cron] Worker trigger completed.')
+      })
+      .catch((err: unknown) => {
+        console.error('[6-Hour Cron] Worker trigger failed:', err)
+      })
 
     event.waitUntil(triggerPromise)
   }
