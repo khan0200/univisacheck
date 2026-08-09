@@ -83,6 +83,28 @@ function getContextMenuItems(student: Student) {
   ]
 }
 
+// ─── 10-MINUTE AUTO-CHECK COUNTDOWN ───
+const autoCheckRemainingSeconds = ref(600)
+let autoCheckTimer: ReturnType<typeof setInterval> | null = null
+
+function updateAutoCheckCountdown() {
+  const now = new Date()
+  const minutes = now.getMinutes()
+  const seconds = now.getSeconds()
+  const secondsInCycle = (minutes % 10) * 60 + seconds
+  const remaining = 600 - secondsInCycle
+  autoCheckRemainingSeconds.value = remaining <= 0 ? 600 : remaining
+}
+
+const formattedAutoCheckTimer = computed(() => {
+  const totalSec = autoCheckRemainingSeconds.value
+  const m = Math.floor(totalSec / 60)
+  const s = totalSec % 60
+  const mm = String(m).padStart(2, '0')
+  const ss = String(s).padStart(2, '0')
+  return `${mm}:${ss}`
+})
+
 // ─── VIRTUAL SCROLL LOGIC ───
 const containerRef = ref<HTMLElement | null>(null)
 const containerTop = ref(300)
@@ -98,21 +120,27 @@ const { y } = useWindowScroll()
 const { height: windowHeight } = useWindowSize()
 
 const buffer = 15
-const mobileRowHeight = 230
-const desktopRowHeight = 72
+const desktopRowHeight = 73
+const mobileRowHeight = 175
+
+const isMobile = computed(() => {
+  if (import.meta.server) return false
+  return window.innerWidth < 768
+})
+
+const itemHeight = computed(() => (isMobile.value ? mobileRowHeight : desktopRowHeight))
 
 const startIndex = computed(() => {
-  const isMobile = !import.meta.env.SSR && window.innerWidth < 768
-  const rowHeight = isMobile ? mobileRowHeight : desktopRowHeight
-  const relativeScroll = Math.max(0, y.value - containerTop.value)
-  return Math.max(0, Math.floor(relativeScroll / rowHeight) - buffer)
+  const relativeY = Math.max(0, y.value - containerTop.value)
+  const index = Math.floor(relativeY / itemHeight.value) - buffer
+  return Math.max(0, index)
 })
 
 const endIndex = computed(() => {
-  const isMobile = !import.meta.env.SSR && window.innerWidth < 768
-  const rowHeight = isMobile ? mobileRowHeight : desktopRowHeight
-  const relativeScroll = Math.max(0, y.value - containerTop.value)
-  return Math.min(props.students.length, Math.ceil((relativeScroll + windowHeight.value) / rowHeight) + buffer)
+  const relativeY = Math.max(0, y.value - containerTop.value)
+  const visibleCount = Math.ceil(windowHeight.value / itemHeight.value)
+  const index = Math.floor(relativeY / itemHeight.value) + visibleCount + buffer
+  return Math.min(props.students.length, index)
 })
 
 const visibleStudents = computed(() => {
@@ -130,10 +158,18 @@ const columnCount = computed(() => {
 onMounted(() => {
   updateContainerTop()
   window.addEventListener('resize', updateContainerTop)
+
+  updateAutoCheckCountdown()
+  autoCheckTimer = setInterval(updateAutoCheckCountdown, 1000)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateContainerTop)
+
+  if (autoCheckTimer) {
+    clearInterval(autoCheckTimer)
+    autoCheckTimer = null
+  }
 })
 
 watch([() => props.students, () => props.currentFilter], () => {
@@ -299,7 +335,17 @@ watch([() => props.students, () => props.currentFilter], () => {
         <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
           <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
             <th class="px-4 py-3">
-              Name
+              <div class="flex items-center gap-2">
+                <span>Name</span>
+                <span
+                  class="inline-flex items-center gap-1.5 text-[0.7rem] font-medium tracking-normal normal-case text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 px-2 py-0.5 rounded-md shrink-0"
+                  title="Automated visa check runs every 10 minutes"
+                >
+                  <UIcon name="i-lucide-clock" class="size-3 shrink-0 animate-pulse text-emerald-600 dark:text-emerald-400" />
+                  <span class="font-semibold text-neutral-600 dark:text-neutral-300">Auto Check:</span>
+                  <span class="font-mono font-bold text-emerald-700 dark:text-emerald-300">{{ formattedAutoCheckTimer }}</span>
+                </span>
+              </div>
             </th>
             <th class="px-4 py-3">
               Passport
