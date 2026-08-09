@@ -34,9 +34,25 @@ const navItems: { key: Section, label: string, icon: string }[] = [
 <template>
   <div class="space-y-4">
     <!-- Page Header -->
-    <div>
-      <h1 class="text-2xl font-bold text-[var(--color-text-primary)] dark:text-white">Settings</h1>
-      <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">Manage your account and application configuration</p>
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <div>
+        <h1 class="text-2xl font-bold text-[var(--color-text-primary)] dark:text-white">
+          Settings
+        </h1>
+        <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">
+          Manage your account and application configuration
+        </p>
+      </div>
+      <NuxtLink
+        to="/cabinet"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-900 text-white text-sm font-medium hover:bg-primary-800 transition-colors shrink-0"
+      >
+        <UIcon
+          name="i-lucide-layout-list"
+          class="size-4"
+        />
+        Back to Cabinet
+      </NuxtLink>
     </div>
 
     <div class="flex flex-col md:flex-row gap-5 min-h-[60vh]">
