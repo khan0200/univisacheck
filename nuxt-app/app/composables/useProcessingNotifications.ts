@@ -6,10 +6,8 @@
  * Behavior:
  * - Maintains active notification state for the cabinet toolbar.
  * - Single-line announcement: "Elchixona 20-iyul kuni hujjat topshirganlarga viza berishni boshladi."
- * - If an update arrives for the same date (e.g. new visa type added), the data updates
- *   in place and the 3-second timer resets.
- * - Auto-dismisses after 3 seconds of inactivity.
- * - Manual dismiss via dismiss().
+ * - Stays visible until the user clicks the X button.
+ * - Clicking the X button starts a 3-second countdown before auto-dismissing.
  */
 
 export interface ActiveProcessingNotification {
@@ -20,6 +18,7 @@ export interface ActiveProcessingNotification {
   message: string
   createdAt: string
   countdown: number
+  isDismissing?: boolean
 }
 
 // Singleton state
@@ -70,7 +69,8 @@ export function useProcessingNotifications() {
     const createdAt = ev.createdAt || new Date().toISOString()
     const id = `vpn-${notificationId}`
 
-    // Set or update active notification state & reset 3s timer
+    clearTimer()
+    // Set or update active notification state & stay still until user clicks X
     activeNotification.value = {
       id,
       notificationId,
@@ -78,15 +78,28 @@ export function useProcessingNotifications() {
       visaTypes,
       message,
       createdAt,
-      countdown: 3
+      countdown: 3,
+      isDismissing: false
     }
-
-    startTimer()
   }
 
-  function dismiss() {
-    activeNotification.value = null
-    clearTimer()
+  function dismiss(immediate = false) {
+    if (!activeNotification.value) return
+
+    // If already counting down or immediate flag passed, close immediately
+    if (immediate || activeNotification.value.isDismissing) {
+      activeNotification.value = null
+      clearTimer()
+      return
+    }
+
+    // Start 3-second countdown after user clicks X button
+    activeNotification.value = {
+      ...activeNotification.value,
+      isDismissing: true,
+      countdown: 3
+    }
+    startTimer()
   }
 
   return { activeNotification, add, dismiss }

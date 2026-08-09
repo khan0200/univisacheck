@@ -29,10 +29,15 @@
       <button
         type="button"
         class="vpn-banner__close shrink-0"
+        :class="{ 'is-dismissing': activeNotification?.isDismissing }"
+        :title="activeNotification?.isDismissing ? `${activeNotification.countdown} soniyada yopiladi` : 'Yopish'"
         aria-label="Yopish"
-        @click="dismiss"
+        @click="dismiss()"
       >
-        ×
+        <span v-if="activeNotification?.isDismissing" class="text-[0.75rem] font-mono font-semibold px-0.5">
+          {{ activeNotification.countdown }}s
+        </span>
+        <span v-else>×</span>
       </button>
     </div>
   </Transition>
