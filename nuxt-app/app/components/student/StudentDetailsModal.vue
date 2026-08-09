@@ -129,10 +129,10 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
     <template #body>
       <div
         v-if="props.student"
-        class="grid grid-cols-1 md:grid-cols-5 gap-6"
+        class="grid grid-cols-1 md:grid-cols-2 gap-8"
       >
         <!-- Left Column: Student Details -->
-        <div class="md:col-span-3 space-y-5">
+        <div class="space-y-5">
           <button
             type="button"
             class="w-full text-left group/name cursor-pointer"
@@ -231,7 +231,7 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
         </div>
 
         <!-- Right Column: Management Selection Dropdowns -->
-        <div class="md:col-span-2 space-y-4 border-t md:border-t-0 md:border-l border-[var(--color-border)] dark:border-white/[0.08] pt-4.5 md:pt-0 md:pl-5">
+        <div class="space-y-4 border-t md:border-t-0 md:border-l border-[var(--color-border)] dark:border-white/[0.08] pt-4.5 md:pt-0 md:pl-6">
           <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
             Management
           </p>
