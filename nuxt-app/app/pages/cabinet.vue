@@ -22,7 +22,7 @@ const toast = useToast()
 // which ref backs it. <ClientOnly> sidesteps this by rendering the same
 // fallback on the server and through the client's hydration pass, only
 // swapping to the real content after mount.
-useAsyncData('students', () => studentsStore.loadStudents(), { server: false })
+useLazyAsyncData('students', () => studentsStore.loadStudents(), { server: false })
 const pending = computed(() => studentsStore.isLoading)
 
 const formModalOpen = ref(false)

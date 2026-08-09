@@ -150,7 +150,7 @@ export default defineEventHandler(async (event) => {
         const result = await db.execute({
           sql: `SELECT 
                   passport, fullName, birthday, studentId, status,
-                  applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
+                  applicationDate, lastChecked, rejectReason, pdfUrl,
                   batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
                   tariff, university, coordinator
                 FROM students 
