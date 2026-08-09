@@ -37,6 +37,7 @@ interface RealtimeEvent {
   studentId?: string
   result?: {
     status: string
+    lastChecked?: string
   }
   // visa_processing_started fields
   notificationId?: number

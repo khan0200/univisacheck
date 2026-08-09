@@ -370,7 +370,7 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
         studentId: claimedTask.passport,
         result: {
           status: newStatus,
-          lastChecked: nowIso
+          lastChecked: new Date().toISOString()
         }
       })
     } catch (err) {
