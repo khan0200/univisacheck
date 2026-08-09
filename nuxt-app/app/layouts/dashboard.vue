@@ -17,7 +17,7 @@ const { x, y } = useMouse({ type: 'client' })
       class="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
       <div
-        class="absolute size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.58)_0%,rgba(52,211,153,0.22)_50%,transparent_100%)] dark:bg-[radial-gradient(circle,rgba(52,211,153,0.60)_0%,rgba(16,185,129,0.25)_60%,transparent_100%)] blur-[60px] transition-opacity duration-300"
+        class="absolute size-[250px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.58)_0%,rgba(52,211,153,0.22)_50%,transparent_100%)] dark:bg-[radial-gradient(circle,rgba(52,211,153,0.60)_0%,rgba(16,185,129,0.25)_60%,transparent_100%)] blur-[40px] transition-opacity duration-300"
         :style="{
           left: `${x}px`,
           top: `${y}px`,
