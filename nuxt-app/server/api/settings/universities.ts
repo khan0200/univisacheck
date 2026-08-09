@@ -16,7 +16,7 @@ import {
   ONE_PERCENT_COLLEGES,
   RESTRICTED_BACHELOR_UNIVERSITIES,
   RESTRICTED_LANGUAGE_COURSE_UNIVERSITIES
-} from '../../app/data/accredited-universities'
+} from '../../utils/accredited-universities'
 
 export default defineEventHandler(async (event) => {
   const authUser = await verifyToken(event)
