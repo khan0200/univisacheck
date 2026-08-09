@@ -145,72 +145,55 @@ onMounted(load)
       class="max-w-sm"
     />
 
-    <!-- Table -->
-    <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] overflow-hidden bg-white dark:bg-white/[0.03]">
+    <!-- Grid -->
+    <div
+      v-if="loading"
+      class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-8 flex items-center justify-center"
+    >
+      <UIcon
+        name="i-lucide-loader-circle"
+        class="size-6 text-[var(--color-text-secondary)] animate-spin"
+      />
+    </div>
+    <div
+      v-else-if="filteredItems.length === 0"
+      class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-8 text-center text-sm text-[var(--color-text-secondary)]"
+    >
+      {{ searchQuery ? 'No universities found matching your search.' : 'No universities yet. Click "Add University" to get started.' }}
+    </div>
+    <div
+      v-else
+      class="grid grid-cols-1 md:grid-cols-2 gap-3"
+    >
       <div
-        v-if="loading"
-        class="p-8 flex items-center justify-center"
+        v-for="item in filteredItems"
+        :key="item.id"
+        class="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] hover:bg-neutral-50 dark:hover:bg-white/[0.05] transition-colors"
       >
-        <UIcon
-          name="i-lucide-loader-circle"
-          class="size-6 text-[var(--color-text-secondary)] animate-spin"
-        />
-      </div>
-      <div
-        v-else-if="filteredItems.length === 0"
-        class="p-8 text-center text-sm text-[var(--color-text-secondary)]"
-      >
-        {{ searchQuery ? 'No universities found matching your search.' : 'No universities yet. Click "Add University" to get started.' }}
-      </div>
-      <table
-        v-else
-        class="w-full"
-      >
-        <thead>
-          <tr class="border-b border-[var(--color-border)] dark:border-white/[0.08]">
-            <th class="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
-              University Name
-            </th>
-            <th class="px-4 py-3 text-right text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-[var(--color-border)] dark:divide-white/[0.05]">
-          <tr
-            v-for="item in filteredItems"
-            :key="item.id"
-            class="hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors"
+        <span class="font-medium text-sm text-[var(--color-text-primary)] dark:text-white truncate pr-4">
+          {{ item.name }}
+        </span>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <UButton
+            size="xs"
+            variant="ghost"
+            icon="i-lucide-pencil"
+            class="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+            @click="openEdit(item)"
           >
-            <td class="px-4 py-3">
-              <div class="font-medium text-sm text-[var(--color-text-primary)] dark:text-white">
-                {{ item.name }}
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2 justify-end">
-                <UButton
-                  size="xs"
-                  variant="ghost"
-                  icon="i-lucide-pencil"
-                  @click="openEdit(item)"
-                >
-                  Edit
-                </UButton>
-                <UButton
-                  size="xs"
-                  variant="ghost"
-                  color="error"
-                  icon="i-lucide-trash-2"
-                  @click="promptDelete(item)"
-                >
-                  Delete
-                </UButton>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            Edit
+          </UButton>
+          <UButton
+            size="xs"
+            variant="ghost"
+            color="error"
+            icon="i-lucide-trash-2"
+            @click="promptDelete(item)"
+          >
+            Delete
+          </UButton>
+        </div>
+      </div>
     </div>
 
     <!-- Add/Edit Modal -->
