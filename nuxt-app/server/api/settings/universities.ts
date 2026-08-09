@@ -9,6 +9,15 @@ import { getTursoClient } from '../../utils/turso'
 import { verifyToken } from '../../utils/auth'
 import { apiError } from '../../utils/api-error'
 
+import {
+  ACCREDITED_UNIVERSITIES,
+  JUNIOR_COLLEGES,
+  ONE_PERCENT_UNIVERSITIES,
+  ONE_PERCENT_COLLEGES,
+  RESTRICTED_BACHELOR_UNIVERSITIES,
+  RESTRICTED_LANGUAGE_COURSE_UNIVERSITIES
+} from '../../app/data/accredited-universities'
+
 export default defineEventHandler(async (event) => {
   const authUser = await verifyToken(event)
   if (!authUser) apiError(401, 'Unauthorized.')
@@ -17,10 +26,37 @@ export default defineEventHandler(async (event) => {
   const userId = authUser!.userId
 
   if (event.method === 'GET') {
-    const res = await db.execute({
+    let res = await db.execute({
       sql: 'SELECT * FROM settings_universities WHERE userId = ? ORDER BY name',
       args: [userId]
     })
+
+    if (res.rows.length === 0) {
+      const allInitial = Array.from(new Set([
+        ...ACCREDITED_UNIVERSITIES,
+        ...JUNIOR_COLLEGES,
+        ...ONE_PERCENT_UNIVERSITIES,
+        ...ONE_PERCENT_COLLEGES,
+        ...RESTRICTED_BACHELOR_UNIVERSITIES,
+        ...RESTRICTED_LANGUAGE_COURSE_UNIVERSITIES
+      ])).sort()
+
+      const now = new Date().toISOString()
+      const statements = allInitial.map(name => ({
+        sql: 'INSERT INTO settings_universities (userId, name, location, notes, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [userId, name, '', '', now, now]
+      }))
+
+      if (statements.length > 0) {
+        await db.batch(statements)
+      }
+
+      res = await db.execute({
+        sql: 'SELECT * FROM settings_universities WHERE userId = ? ORDER BY name',
+        args: [userId]
+      })
+    }
+
     return res.rows
   }
 
