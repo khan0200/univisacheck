@@ -27,6 +27,7 @@ export interface StudentPayload {
   tariff?: string
   university?: string
   coordinator?: string
+  b2b?: string
   check_source?: string
   checkSource?: string
 }
