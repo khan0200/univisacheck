@@ -154,7 +154,7 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    const payload: StudentFormInput & { status?: string; lastChecked: string } = {
+    const payload: any = {
       fullName,
       passport,
       birthday,
