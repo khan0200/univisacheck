@@ -19,7 +19,7 @@ function processStats(getKey: (s: Student) => string | undefined) {
   for (const student of studentsStore.students) {
     const key = (getKey(student) || '').trim()
     if (!key || key.toLowerCase() === 'none') continue
-    
+
     if (!map.has(key)) {
       map.set(key, { name: key, pending: 0, application: 0, approved: 0, cancelled: 0, total: 0 })
     }
@@ -28,7 +28,7 @@ function processStats(getKey: (s: Student) => string | undefined) {
     stat[bucket]++
     stat.total++
   }
-  
+
   return Array.from(map.values())
     .filter(s => s.total > 0)
     .sort((a, b) => b.total - a.total)
@@ -45,12 +45,19 @@ function getWidth(count: number, total: number) {
 
 <template>
   <div class="space-y-8">
-    <div v-if="universityStats.length > 0" class="space-y-4">
+    <div
+      v-if="universityStats.length > 0"
+      class="space-y-4"
+    >
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white uppercase tracking-wider">
         By University
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="stat in universityStats" :key="stat.name" class="space-y-2">
+        <div
+          v-for="stat in universityStats"
+          :key="stat.name"
+          class="space-y-2"
+        >
           <div class="flex items-center justify-between text-sm">
             <span class="font-medium text-[var(--color-text-primary)] dark:text-white truncate pr-2">
               {{ stat.name }}
@@ -59,7 +66,7 @@ function getWidth(count: number, total: number) {
               {{ stat.total }} Total
             </span>
           </div>
-          
+
           <div class="w-full h-2.5 bg-neutral-200 dark:bg-white/10 rounded-full overflow-hidden flex">
             <div
               v-if="stat.pending > 0"
@@ -86,21 +93,33 @@ function getWidth(count: number, total: number) {
               title="Cancelled"
             />
           </div>
-          
+
           <div class="flex items-center gap-3 text-[10px] sm:text-xs text-[var(--color-text-secondary)] whitespace-nowrap overflow-x-auto pb-1 no-scrollbar">
-            <span v-if="stat.pending > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.pending > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-neutral-400 dark:bg-neutral-500" />
               Pending: <strong class="text-neutral-600 dark:text-neutral-300">{{ stat.pending }}</strong>
             </span>
-            <span v-if="stat.application > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.application > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 dark:bg-yellow-400" />
               Received: <strong class="text-yellow-600 dark:text-yellow-400">{{ stat.application }}</strong>
             </span>
-            <span v-if="stat.approved > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.approved > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
               Approved: <strong class="text-emerald-600 dark:text-emerald-400">{{ stat.approved }}</strong>
             </span>
-            <span v-if="stat.cancelled > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.cancelled > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-red-500 dark:bg-red-400" />
               Cancelled: <strong class="text-red-600 dark:text-red-400">{{ stat.cancelled }}</strong>
             </span>
@@ -109,12 +128,19 @@ function getWidth(count: number, total: number) {
       </div>
     </div>
 
-    <div v-if="tariffStats.length > 0" class="space-y-4">
+    <div
+      v-if="tariffStats.length > 0"
+      class="space-y-4"
+    >
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white uppercase tracking-wider">
         By Tariff
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="stat in tariffStats" :key="stat.name" class="space-y-2">
+        <div
+          v-for="stat in tariffStats"
+          :key="stat.name"
+          class="space-y-2"
+        >
           <div class="flex items-center justify-between text-sm">
             <span class="font-medium text-[var(--color-text-primary)] dark:text-white truncate pr-2">
               {{ stat.name }}
@@ -123,7 +149,7 @@ function getWidth(count: number, total: number) {
               {{ stat.total }} Total
             </span>
           </div>
-          
+
           <div class="w-full h-2.5 bg-neutral-200 dark:bg-white/10 rounded-full overflow-hidden flex">
             <div
               v-if="stat.pending > 0"
@@ -150,21 +176,33 @@ function getWidth(count: number, total: number) {
               title="Cancelled"
             />
           </div>
-          
+
           <div class="flex items-center gap-3 text-[10px] sm:text-xs text-[var(--color-text-secondary)] whitespace-nowrap overflow-x-auto pb-1 no-scrollbar">
-            <span v-if="stat.pending > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.pending > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-neutral-400 dark:bg-neutral-500" />
               Pending: <strong class="text-neutral-600 dark:text-neutral-300">{{ stat.pending }}</strong>
             </span>
-            <span v-if="stat.application > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.application > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 dark:bg-yellow-400" />
               Received: <strong class="text-yellow-600 dark:text-yellow-400">{{ stat.application }}</strong>
             </span>
-            <span v-if="stat.approved > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.approved > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
               Approved: <strong class="text-emerald-600 dark:text-emerald-400">{{ stat.approved }}</strong>
             </span>
-            <span v-if="stat.cancelled > 0" class="flex items-center gap-1">
+            <span
+              v-if="stat.cancelled > 0"
+              class="flex items-center gap-1"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-red-500 dark:bg-red-400" />
               Cancelled: <strong class="text-red-600 dark:text-red-400">{{ stat.cancelled }}</strong>
             </span>

@@ -234,7 +234,7 @@ function setFilter(filter: StatusFilter) {
       >
         {{ showStats ? 'Hide Statistics' : 'Show Statistics' }}
       </UButton>
-      
+
       <UCard
         v-if="showStats"
         :ui="{ root: 'shadow-sm border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-5 sm:p-6' }"
