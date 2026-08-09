@@ -127,6 +127,19 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
     toast.add({ title: apiErrorMessage(err, `Failed to update ${fieldName}`), color: 'error' })
   }
 }
+
+function cancelEdit(fieldName: 'tariff' | 'university' | 'coordinator') {
+  if (fieldName === 'tariff') {
+    selectedTariff.value = props.student?.tariff || 'none'
+    editingTariff.value = false
+  } else if (fieldName === 'university') {
+    selectedUniversity.value = props.student?.university || 'none'
+    editingUniversity.value = false
+  } else if (fieldName === 'coordinator') {
+    selectedCoordinator.value = props.student?.coordinator || 'none'
+    editingCoordinator.value = false
+  }
+}
 </script>
 
 <template>
@@ -289,7 +302,14 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                   label-key="label"
                   class="flex-1"
                   placeholder="Choose Tariff"
-                  @update:model-value="saveField('tariff', $event)"
+                />
+                <UButton
+                  icon="i-lucide-check"
+                  variant="ghost"
+                  color="success"
+                  size="sm"
+                  aria-label="Save Tariff"
+                  @click="saveField('tariff', selectedTariff)"
                 />
                 <UButton
                   icon="i-lucide-x"
@@ -297,7 +317,7 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                   color="neutral"
                   size="sm"
                   aria-label="Cancel editing"
-                  @click="editingTariff = false"
+                  @click="cancelEdit('tariff')"
                 />
               </div>
             </div>
@@ -345,7 +365,14 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                   label-key="label"
                   class="flex-1"
                   placeholder="Choose University"
-                  @update:model-value="saveField('university', $event)"
+                />
+                <UButton
+                  icon="i-lucide-check"
+                  variant="ghost"
+                  color="success"
+                  size="sm"
+                  aria-label="Save University"
+                  @click="saveField('university', selectedUniversity)"
                 />
                 <UButton
                   icon="i-lucide-x"
@@ -353,7 +380,7 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                   color="neutral"
                   size="sm"
                   aria-label="Cancel editing"
-                  @click="editingUniversity = false"
+                  @click="cancelEdit('university')"
                 />
               </div>
             </div>
@@ -401,7 +428,14 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                   label-key="label"
                   class="flex-1"
                   placeholder="Choose Coordinator"
-                  @update:model-value="saveField('coordinator', $event)"
+                />
+                <UButton
+                  icon="i-lucide-check"
+                  variant="ghost"
+                  color="success"
+                  size="sm"
+                  aria-label="Save Coordinator"
+                  @click="saveField('coordinator', selectedCoordinator)"
                 />
                 <UButton
                   icon="i-lucide-x"
@@ -409,7 +443,7 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator', val
                   color="neutral"
                   size="sm"
                   aria-label="Cancel editing"
-                  @click="editingCoordinator = false"
+                  @click="cancelEdit('coordinator')"
                 />
               </div>
             </div>
