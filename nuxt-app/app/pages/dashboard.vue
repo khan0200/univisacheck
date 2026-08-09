@@ -17,7 +17,7 @@ const stats = computed(() => {
   const cancelled = studentsStore.counts.cancelled
 
   const underReview = all.filter(s => String(s.status || '').toLowerCase().includes('under review')).length
-  const received = all.filter(s => {
+  const received = all.filter((s) => {
     const b = bucketForStatus(s.status)
     return b === 'application' && String(s.status || '').toLowerCase().includes('received')
   }).length
@@ -63,14 +63,21 @@ const statusBreakdown = computed(() => {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-[var(--color-text-primary)] dark:text-white">Dashboard</h1>
-        <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">Overview of your student visa management</p>
+        <h1 class="text-2xl font-bold text-[var(--color-text-primary)] dark:text-white">
+          Dashboard
+        </h1>
+        <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">
+          Overview of your student visa management
+        </p>
       </div>
       <NuxtLink
         to="/cabinet"
         class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-900 text-white text-sm font-medium hover:bg-primary-800 transition-colors"
       >
-        <UIcon name="i-lucide-layout-list" class="size-4" />
+        <UIcon
+          name="i-lucide-layout-list"
+          class="size-4"
+        />
         View Cabinet
       </NuxtLink>
     </div>
@@ -84,18 +91,29 @@ const statusBreakdown = computed(() => {
           :class="[card.color, 'rounded-xl p-4 flex flex-col gap-2 shadow-sm']"
         >
           <div :class="[card.iconBg, 'w-8 h-8 rounded-lg flex items-center justify-center']">
-            <UIcon :name="card.icon" :class="[card.textColor, 'size-4']" />
+            <UIcon
+              :name="card.icon"
+              :class="[card.textColor, 'size-4']"
+            />
           </div>
           <div>
-            <div :class="[card.textColor, 'text-2xl font-bold tabular-nums leading-tight']">{{ card.value }}</div>
-            <div :class="[card.textColor, 'text-xs font-medium opacity-80 mt-0.5']">{{ card.label }}</div>
+            <div :class="[card.textColor, 'text-2xl font-bold tabular-nums leading-tight']">
+              {{ card.value }}
+            </div>
+            <div :class="[card.textColor, 'text-xs font-medium opacity-80 mt-0.5']">
+              {{ card.label }}
+            </div>
           </div>
         </div>
       </div>
 
       <template #fallback>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div v-for="i in 6" :key="i" class="h-24 rounded-xl bg-neutral-100 dark:bg-white/5 animate-pulse" />
+          <div
+            v-for="i in 6"
+            :key="i"
+            class="h-24 rounded-xl bg-neutral-100 dark:bg-white/5 animate-pulse"
+          />
         </div>
       </template>
     </ClientOnly>
@@ -105,15 +123,24 @@ const statusBreakdown = computed(() => {
       <!-- Visa Type Breakdown -->
       <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-5 shadow-sm">
         <h2 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white mb-4 flex items-center gap-2">
-          <UIcon name="i-lucide-pie-chart" class="size-4 text-[var(--color-text-secondary)]" />
+          <UIcon
+            name="i-lucide-pie-chart"
+            class="size-4 text-[var(--color-text-secondary)]"
+          />
           Visa Type Breakdown
         </h2>
         <ClientOnly>
           <div class="space-y-4">
-            <div v-for="item in visaTypeBreakdown" :key="item.label">
+            <div
+              v-for="item in visaTypeBreakdown"
+              :key="item.label"
+            >
               <div class="flex items-center justify-between mb-1.5">
                 <div class="flex items-center gap-2">
-                  <UIcon :name="item.icon" :class="[item.color, 'size-4']" />
+                  <UIcon
+                    :name="item.icon"
+                    :class="[item.color, 'size-4']"
+                  />
                   <span class="text-sm font-medium text-[var(--color-text-primary)] dark:text-white">{{ item.label }}</span>
                 </div>
                 <span class="text-sm font-semibold tabular-nums text-[var(--color-text-primary)] dark:text-white">{{ item.value }}</span>
@@ -128,7 +155,11 @@ const statusBreakdown = computed(() => {
           </div>
           <template #fallback>
             <div class="space-y-4">
-              <div v-for="i in 3" :key="i" class="h-8 rounded bg-neutral-100 dark:bg-white/5 animate-pulse" />
+              <div
+                v-for="i in 3"
+                :key="i"
+                class="h-8 rounded bg-neutral-100 dark:bg-white/5 animate-pulse"
+              />
             </div>
           </template>
         </ClientOnly>
@@ -137,11 +168,17 @@ const statusBreakdown = computed(() => {
       <!-- Status Breakdown -->
       <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-5 shadow-sm">
         <h2 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white mb-4 flex items-center gap-2">
-          <UIcon name="i-lucide-bar-chart-2" class="size-4 text-[var(--color-text-secondary)]" />
+          <UIcon
+            name="i-lucide-bar-chart-2"
+            class="size-4 text-[var(--color-text-secondary)]"
+          />
           Status Distribution
         </h2>
         <ClientOnly>
-          <div v-if="statusBreakdown.length > 0" class="space-y-2.5">
+          <div
+            v-if="statusBreakdown.length > 0"
+            class="space-y-2.5"
+          >
             <div
               v-for="item in statusBreakdown"
               :key="item.label"
@@ -153,12 +190,19 @@ const statusBreakdown = computed(() => {
               </span>
             </div>
           </div>
-          <div v-else class="flex items-center justify-center h-32 text-sm text-[var(--color-text-secondary)]">
+          <div
+            v-else
+            class="flex items-center justify-center h-32 text-sm text-[var(--color-text-secondary)]"
+          >
             No students yet
           </div>
           <template #fallback>
             <div class="space-y-2.5">
-              <div v-for="i in 5" :key="i" class="h-7 rounded bg-neutral-100 dark:bg-white/5 animate-pulse" />
+              <div
+                v-for="i in 5"
+                :key="i"
+                class="h-7 rounded bg-neutral-100 dark:bg-white/5 animate-pulse"
+              />
             </div>
           </template>
         </ClientOnly>
@@ -173,7 +217,10 @@ const statusBreakdown = computed(() => {
     <!-- Quick Links -->
     <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-5 shadow-sm">
       <h2 class="text-sm font-semibold text-[var(--color-text-primary)] dark:text-white mb-4 flex items-center gap-2">
-        <UIcon name="i-lucide-zap" class="size-4 text-[var(--color-text-secondary)]" />
+        <UIcon
+          name="i-lucide-zap"
+          class="size-4 text-[var(--color-text-secondary)]"
+        />
         Quick Actions
       </h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -182,7 +229,10 @@ const statusBreakdown = computed(() => {
           class="flex flex-col items-center gap-2 p-4 rounded-lg border border-[var(--color-border)] dark:border-white/[0.08] hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
         >
           <div class="w-10 h-10 rounded-lg bg-primary-900/10 dark:bg-primary-300/10 flex items-center justify-center group-hover:bg-primary-900/20 transition-colors">
-            <UIcon name="i-lucide-layout-list" class="size-5 text-primary-900 dark:text-primary-300" />
+            <UIcon
+              name="i-lucide-layout-list"
+              class="size-5 text-primary-900 dark:text-primary-300"
+            />
           </div>
           <span class="text-xs font-medium text-[var(--color-text-primary)] dark:text-white text-center">Student Cabinet</span>
         </NuxtLink>
@@ -191,7 +241,10 @@ const statusBreakdown = computed(() => {
           class="flex flex-col items-center gap-2 p-4 rounded-lg border border-[var(--color-border)] dark:border-white/[0.08] hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
         >
           <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center group-hover:bg-violet-500/20 transition-colors">
-            <UIcon name="i-lucide-settings" class="size-5 text-violet-600 dark:text-violet-400" />
+            <UIcon
+              name="i-lucide-settings"
+              class="size-5 text-violet-600 dark:text-violet-400"
+            />
           </div>
           <span class="text-xs font-medium text-[var(--color-text-primary)] dark:text-white text-center">Settings</span>
         </NuxtLink>
@@ -200,7 +253,10 @@ const statusBreakdown = computed(() => {
           class="flex flex-col items-center gap-2 p-4 rounded-lg border border-[var(--color-border)] dark:border-white/[0.08] hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
         >
           <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-            <UIcon name="i-lucide-building-2" class="size-5 text-blue-600 dark:text-blue-400" />
+            <UIcon
+              name="i-lucide-building-2"
+              class="size-5 text-blue-600 dark:text-blue-400"
+            />
           </div>
           <span class="text-xs font-medium text-[var(--color-text-primary)] dark:text-white text-center">Universities</span>
         </NuxtLink>
@@ -209,7 +265,10 @@ const statusBreakdown = computed(() => {
           class="flex flex-col items-center gap-2 p-4 rounded-lg border border-[var(--color-border)] dark:border-white/[0.08] hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
         >
           <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-            <UIcon name="i-lucide-users" class="size-5 text-emerald-600 dark:text-emerald-400" />
+            <UIcon
+              name="i-lucide-users"
+              class="size-5 text-emerald-600 dark:text-emerald-400"
+            />
           </div>
           <span class="text-xs font-medium text-[var(--color-text-primary)] dark:text-white text-center">Coordinators</span>
         </NuxtLink>
