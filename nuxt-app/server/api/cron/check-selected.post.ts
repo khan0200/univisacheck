@@ -3,10 +3,13 @@
  *
  * 10-MINUTE CRON ENDPOINT
  *
- * Eligibility Rules for Selected Students (batchSelected = 1):
- * A student is auto-checked every 10 minutes if EITHER condition is met:
- * 1. Status is "Under Review" or "Pending Supplement" (regardless of application date - e.g. 2 days ago).
- * 2. Application Date is 10 or more days ago (regardless of visa status).
+ * Eligibility Rules for Selected Students in Application Tab (batchSelected = 1):
+ * - Checks ONLY selected students in the Application tab (status != 'Pending').
+ * - Excludes final statuses ('approved', 'cancelled', 'rejected', etc.) and 'pending'.
+ * - Auto-checks if:
+ *   Condition A: status is "Under Review" or "Pending Supplement" (regardless of app date).
+ *   OR
+ *   Condition B: applicationDate is 10 or more days ago.
  */
 
 import { getTursoClient } from '../../utils/turso'
@@ -49,22 +52,20 @@ export default defineEventHandler(async (event) => {
 
   const db = await getTursoClient()
 
-  // 2. Fetch all active selected students in non-final status
+  // 2. Fetch all active selected students in Application tab (excluding 'pending' and final statuses)
   const studentsRes = await db.execute({
     sql: `SELECT passport, userId, applicationDate, lastChecked, status FROM students
           WHERE deletedAt IS NULL
             AND batchSelected = 1
-            AND (
-              status IS NULL
-              OR LOWER(status) NOT IN ('approved', 'visa used', 'cancelled', 'rejected', 'passport returned')
-            )`,
+            AND status IS NOT NULL
+            AND LOWER(status) NOT IN ('pending', 'approved', 'visa used', 'cancelled', 'rejected', 'passport returned')`,
     args: []
   })
 
-  // 3. Filter by Exact Business Rule:
+  // 3. Filter by Eligibility Rules:
   // - Condition A: status is Under Review / Pending Supplement (regardless of app date)
   // OR
-  // - Condition B: applicationDate >= 10 days ago (regardless of in-progress status)
+  // - Condition B: applicationDate >= 10 days ago
   const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
     const appDate = String(row.applicationDate || '')
     const lastChecked = String(row.lastChecked || '')
@@ -94,7 +95,7 @@ export default defineEventHandler(async (event) => {
   if (eligibleRows.length === 0) {
     return {
       success: true,
-      message: 'No selected students currently match the 10-minute check rules.',
+      message: 'No selected Application tab students currently match the 10-minute check rules.',
       checkedCount: 0
     }
   }

@@ -35,7 +35,7 @@ function getMinutesSinceLastChecked(lastCheckedStr: string): number {
   return Math.floor(diffMs / (1000 * 60))
 }
 
-/** 10-Minute Auto Check: Priority for selected students matching rules */
+/** 10-Minute Auto Check: Priority for selected students in Application tab */
 async function runLocal10MinAutoCheck() {
   try {
     const db = await getTursoClient()
@@ -44,10 +44,8 @@ async function runLocal10MinAutoCheck() {
       sql: `SELECT passport, userId, applicationDate, lastChecked, status FROM students
             WHERE deletedAt IS NULL
               AND batchSelected = 1
-              AND (
-                status IS NULL
-                OR LOWER(status) NOT IN ('approved', 'visa used', 'cancelled', 'rejected', 'passport returned')
-              )`,
+              AND status IS NOT NULL
+              AND LOWER(status) NOT IN ('pending', 'approved', 'visa used', 'cancelled', 'rejected', 'passport returned')`,
       args: []
     })
 
@@ -76,7 +74,7 @@ async function runLocal10MinAutoCheck() {
     })
 
     if (eligibleRows.length === 0) {
-      console.log('[Local Scheduler] 10-Min Auto-Check: No selected students match rules.')
+      console.log('[Local Scheduler] 10-Min Auto-Check: No selected Application tab students match rules.')
       return
     }
 
