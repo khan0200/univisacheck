@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { Student } from '~/types/student'
 import { formatTimestamp } from '~/utils/format'
 import { getCancellationReason, getStatusDate } from '~/utils/visa-status'
@@ -42,7 +42,7 @@ function handleDownloadPdf() {
   if (props.student) emit('download-pdf', props.student)
 }
 
-// ── Dropdown selection logic ──────────────────────────────────────────────────
+// â”€â”€ Dropdown selection logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const { apiFetch } = useApiFetch()
 const studentsStore = useStudentsStore()
 const toast = useToast()
@@ -240,10 +240,10 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
                   title="Automated Visa Check"
                 >
                   <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75" />
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500" />
                   </span>
-                  <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Auto</span>
+                  <span class="text-[10px] font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wider">Auto</span>
                 </span>
               </p>
             </div>
@@ -483,3 +483,4 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
     </template>
   </UModal>
 </template>
+

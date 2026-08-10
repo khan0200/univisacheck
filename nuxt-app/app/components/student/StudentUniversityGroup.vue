@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { Student } from '~/types/student'
 
 const props = defineProps<{
@@ -27,22 +27,22 @@ const displayName = computed(() => props.university || 'No University')
     <!-- Accordion header -->
     <button
       type="button"
-      class="w-full flex items-center justify-between gap-2 px-4 py-2 text-left bg-[#0B4133] hover:bg-[#0d4e3d] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset"
+      class="w-full flex items-center justify-between gap-2 px-4 py-2 text-left bg-[#0B4133] hover:bg-[#0d4e3d] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
       :aria-expanded="isOpen"
       @click="isOpen = !isOpen"
     >
       <div class="flex items-center gap-2 min-w-0">
-        <UIcon name="i-lucide-landmark" class="flex-shrink-0 size-3.5 text-emerald-300/80" />
+        <UIcon name="i-lucide-landmark" class="flex-shrink-0 size-3.5 text-primary-300/80" />
         <span class="font-semibold text-white text-xs truncate tracking-wide">
           {{ displayName }}
         </span>
-        <span class="flex-shrink-0 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[10px] font-bold bg-emerald-600/70 text-white">
+        <span class="flex-shrink-0 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[10px] font-bold bg-primary-600/70 text-white">
           {{ students.length }}
         </span>
       </div>
       <UIcon
         name="i-lucide-chevron-down"
-        class="flex-shrink-0 size-3.5 text-emerald-300/60 transition-transform duration-200"
+        class="flex-shrink-0 size-3.5 text-primary-300/60 transition-transform duration-200"
         :class="{ 'rotate-180': isOpen }"
       />
     </button>
@@ -81,3 +81,4 @@ const displayName = computed(() => props.university || 'No University')
   opacity: 1;
 }
 </style>
+

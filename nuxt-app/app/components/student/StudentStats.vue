@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed } from 'vue'
 import { bucketForStatus } from '~/utils/visa-status'
 import type { Student } from '~/types/student'
@@ -83,7 +83,7 @@ function getWidth(count: number, total: number) {
             />
             <div
               v-if="stat.approved > 0"
-              class="bg-emerald-500 dark:bg-emerald-400 h-full transition-all duration-500"
+              class="bg-primary-500 dark:bg-primary-400 h-full transition-all duration-500"
               :style="{ width: getWidth(stat.approved, stat.total) }"
               title="Approved"
             />
@@ -114,8 +114,8 @@ function getWidth(count: number, total: number) {
               v-if="stat.approved > 0"
               class="flex items-center gap-1"
             >
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-              Approved: <strong class="text-emerald-600 dark:text-emerald-400">{{ stat.approved }}</strong>
+              <span class="w-1.5 h-1.5 rounded-full bg-primary-500 dark:bg-primary-400" />
+              Approved: <strong class="text-primary-600 dark:text-primary-400">{{ stat.approved }}</strong>
             </span>
             <span
               v-if="stat.cancelled > 0"
@@ -166,7 +166,7 @@ function getWidth(count: number, total: number) {
             />
             <div
               v-if="stat.approved > 0"
-              class="bg-emerald-500 dark:bg-emerald-400 h-full transition-all duration-500"
+              class="bg-primary-500 dark:bg-primary-400 h-full transition-all duration-500"
               :style="{ width: getWidth(stat.approved, stat.total) }"
               title="Approved"
             />
@@ -197,8 +197,8 @@ function getWidth(count: number, total: number) {
               v-if="stat.approved > 0"
               class="flex items-center gap-1"
             >
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-              Approved: <strong class="text-emerald-600 dark:text-emerald-400">{{ stat.approved }}</strong>
+              <span class="w-1.5 h-1.5 rounded-full bg-primary-500 dark:bg-primary-400" />
+              Approved: <strong class="text-primary-600 dark:text-primary-400">{{ stat.approved }}</strong>
             </span>
             <span
               v-if="stat.cancelled > 0"
@@ -249,7 +249,7 @@ function getWidth(count: number, total: number) {
             />
             <div
               v-if="stat.approved > 0"
-              class="bg-emerald-500 dark:bg-emerald-400 h-full transition-all duration-500"
+              class="bg-primary-500 dark:bg-primary-400 h-full transition-all duration-500"
               :style="{ width: getWidth(stat.approved, stat.total) }"
               title="Approved"
             />
@@ -280,8 +280,8 @@ function getWidth(count: number, total: number) {
               v-if="stat.approved > 0"
               class="flex items-center gap-1"
             >
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-              Approved: <strong class="text-emerald-600 dark:text-emerald-400">{{ stat.approved }}</strong>
+              <span class="w-1.5 h-1.5 rounded-full bg-primary-500 dark:bg-primary-400" />
+              Approved: <strong class="text-primary-600 dark:text-primary-400">{{ stat.approved }}</strong>
             </span>
             <span
               v-if="stat.cancelled > 0"
@@ -306,3 +306,4 @@ function getWidth(count: number, total: number) {
   scrollbar-width: none;
 }
 </style>
+

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useWindowScroll, useWindowSize } from '@vueuse/core'
 import type { Student } from '~/types/student'
@@ -84,7 +84,7 @@ function getContextMenuItems(student: Student) {
   ]
 }
 
-// ─── 10-MINUTE AUTO-CHECK COUNTDOWN ───
+// â”€â”€â”€ 10-MINUTE AUTO-CHECK COUNTDOWN â”€â”€â”€
 const autoCheckRemainingSeconds = ref(600)
 let autoCheckTimer: ReturnType<typeof setInterval> | null = null
 
@@ -106,7 +106,7 @@ const formattedAutoCheckTimer = computed(() => {
   return `${mm}:${ss}`
 })
 
-// ─── VIRTUAL SCROLL LOGIC ───
+// â”€â”€â”€ VIRTUAL SCROLL LOGIC â”€â”€â”€
 const containerRef = ref<HTMLElement | null>(null)
 const containerTop = ref(300)
 
@@ -220,7 +220,7 @@ watch([() => props.students, () => props.currentFilter], () => {
                 <UIcon
                   v-if="student.pinned"
                   name="i-lucide-pin"
-                  class="size-3.5 text-emerald-700 dark:text-emerald-400 shrink-0"
+                  class="size-3.5 text-primary-700 dark:text-primary-400 shrink-0"
                 />
               </div>
               <div class="flex flex-wrap items-center gap-1.5 mt-1">
@@ -310,10 +310,10 @@ watch([() => props.students, () => props.currentFilter], () => {
                 class="flex items-center gap-1.5 mt-0.5"
               >
                 <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75" />
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500" />
                 </span>
-                <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Auto</span>
+                <span class="text-[10px] font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wider">Auto</span>
               </span>
             </span>
           </div>
@@ -369,15 +369,15 @@ watch([() => props.students, () => props.currentFilter], () => {
                 <span>Name</span>
                 <span
                   v-if="currentFilter !== 'cancelled' && currentFilter !== 'approved'"
-                  class="inline-flex items-center gap-1.5 text-[0.65rem] font-medium tracking-normal normal-case text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 px-1.5 py-0.5 rounded-md shrink-0"
+                  class="inline-flex items-center gap-1.5 text-[0.65rem] font-medium tracking-normal normal-case text-primary-700 dark:text-primary-300 bg-primary-100/80 dark:bg-primary-950/70 border border-primary-300/80 dark:border-primary-700/60 px-1.5 py-0.5 rounded-md shrink-0"
                   title="Automated visa check runs every 10 minutes"
                 >
                   <UIcon
                     name="i-lucide-clock"
-                    class="size-2.5 shrink-0 animate-pulse text-emerald-600 dark:text-emerald-400"
+                    class="size-2.5 shrink-0 animate-pulse text-primary-600 dark:text-primary-400"
                   />
                   <span class="font-semibold text-neutral-600 dark:text-neutral-300">Auto Check:</span>
-                  <span class="font-mono font-bold text-emerald-700 dark:text-emerald-300">{{ formattedAutoCheckTimer }}</span>
+                  <span class="font-mono font-bold text-primary-700 dark:text-primary-300">{{ formattedAutoCheckTimer }}</span>
                 </span>
               </div>
             </th>
@@ -448,7 +448,7 @@ watch([() => props.students, () => props.currentFilter], () => {
                   <UIcon
                     v-if="student.pinned"
                     name="i-lucide-pin"
-                    class="size-3.5 text-emerald-700 dark:text-emerald-400 shrink-0"
+                    class="size-3.5 text-primary-700 dark:text-primary-400 shrink-0"
                   />
                 </div>
                 <div class="flex flex-wrap items-center gap-1.5 mt-1">
@@ -553,10 +553,10 @@ watch([() => props.students, () => props.currentFilter], () => {
                     class="flex items-center gap-1.5 mt-0.5"
                   >
                     <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75" />
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500" />
                     </span>
-                    <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Auto</span>
+                    <span class="text-[10px] font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wider">Auto</span>
                   </span>
                 </span>
               </td>
@@ -624,3 +624,4 @@ watch([() => props.students, () => props.currentFilter], () => {
     </div>
   </div>
 </template>
+
