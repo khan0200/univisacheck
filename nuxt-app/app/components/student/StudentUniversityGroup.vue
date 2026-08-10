@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import type { Student } from '~/types/student'
 
 const props = defineProps<{
@@ -27,24 +27,22 @@ const displayName = computed(() => props.university || 'No University')
     <!-- Accordion header -->
     <button
       type="button"
-      class="w-full flex items-center justify-between gap-3 px-5 py-3.5 text-left transition-colors hover:bg-primary-50/60 dark:hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+      class="w-full flex items-center justify-between gap-2 px-4 py-2 text-left bg-[#1a3a2a] dark:bg-[#0f2418] hover:bg-[#1f4530] dark:hover:bg-[#132d1e] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset"
       :aria-expanded="isOpen"
       @click="isOpen = !isOpen"
     >
-      <div class="flex items-center gap-3 min-w-0">
-        <span class="flex-shrink-0 size-8 rounded-lg bg-primary-100 dark:bg-primary-950/60 flex items-center justify-center">
-          <UIcon name="i-lucide-landmark" class="size-4 text-primary-700 dark:text-primary-400" />
-        </span>
-        <span class="font-semibold text-[var(--color-text-primary)] dark:text-white text-sm truncate">
+      <div class="flex items-center gap-2 min-w-0">
+        <UIcon name="i-lucide-landmark" class="flex-shrink-0 size-3.5 text-emerald-300/80" />
+        <span class="font-semibold text-white text-xs truncate tracking-wide">
           {{ displayName }}
         </span>
-        <span class="flex-shrink-0 inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 rounded-full text-xs font-bold bg-primary-700 dark:bg-primary-600 text-white">
+        <span class="flex-shrink-0 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[10px] font-bold bg-emerald-600/70 text-white">
           {{ students.length }}
         </span>
       </div>
       <UIcon
         name="i-lucide-chevron-down"
-        class="flex-shrink-0 size-4 text-[var(--color-text-secondary)] transition-transform duration-200"
+        class="flex-shrink-0 size-3.5 text-emerald-300/60 transition-transform duration-200"
         :class="{ 'rotate-180': isOpen }"
       />
     </button>
