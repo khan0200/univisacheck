@@ -60,6 +60,11 @@ const MAX_RECONNECT_ATTEMPTS = 10
 const RECONNECT_BASE_MS = 1_000
 const RECONNECT_MAX_MS = 30_000
 
+// Tracks whether we have ever successfully connected in this session.
+// Used to distinguish a genuine reconnect (should reconcile) from the
+// initial connection on page load (should NOT trigger a full reload).
+let hadSuccessfulConnection = false
+
 // Rolling dedup set for idempotency
 const seenEventIds = new Set<string>()
 const EVENT_ID_HISTORY = 100
@@ -123,14 +128,16 @@ export function useRealtimeSync() {
         pusher.connection.bind('state_change', (states: { current: string }) => {
           console.log(`[Pusher Connection] State changed: ${states.current}`)
           if (states.current === 'connected') {
-            // FIX PROBLEM 3: Check if we were reconnecting before resetting
-            const wasReconnecting = reconnectAttempts > 0
             reconnectAttempts = 0
             globalStatus.value = 'connected'
 
-            if (wasReconnecting) {
+            if (hadSuccessfulConnection) {
+              // Genuine reconnect after a drop — reconcile state with server
               console.log('[Realtime Sync] Pusher reconnected! Reconciling state...')
               studentsStore.loadStudents().catch(() => {})
+            } else {
+              // First successful connection on this page load — no reload needed
+              hadSuccessfulConnection = true
             }
           } else if (states.current === 'connecting') {
             globalStatus.value = reconnectAttempts > 0 ? 'reconnecting' : 'connecting'
@@ -258,14 +265,16 @@ export function useRealtimeSync() {
     globalSource = source
 
     source.addEventListener('connected', () => {
-      // FIX PROBLEM 3: Check if we were reconnecting before resetting
-      const wasReconnecting = reconnectAttempts > 0
       reconnectAttempts = 0
       globalStatus.value = 'connected'
 
-      if (wasReconnecting) {
+      if (hadSuccessfulConnection) {
+        // Genuine reconnect after a drop — reconcile state with server
         console.log('[Realtime Sync] SSE reconnected! Reconciling state...')
         studentsStore.loadStudents().catch(() => {})
+      } else {
+        // First successful connection on this page load — no reload needed
+        hadSuccessfulConnection = true
       }
     })
 
@@ -426,6 +435,7 @@ export function useRealtimeSync() {
     }
     globalStatus.value = 'connecting'
     reconnectAttempts = 0
+    hadSuccessfulConnection = false
   }
 
   onMounted(() => {
