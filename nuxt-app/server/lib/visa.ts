@@ -39,7 +39,7 @@ export interface VisaStatusInfo {
 /**
  * Checks a student's visa status directly from the official visa.go.kr portal.
  *
- * @param passport - Passport number (e.g. "FB0369182")
+ * @param passport - Passport number (e.g. "FA1234567")
  * @param fullName - Full name in English (e.g. "ABDUGANIEV MUKHAMMAD AZIZ")
  * @param birthDate - Date of birth in YYYY-MM-DD format
  * @param visaType - 'Embassy' or 'E-Visa'

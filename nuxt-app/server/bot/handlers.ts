@@ -15,7 +15,7 @@ import { getLang, setLang, t, type Lang } from '../lib/i18n'
 import db from '../lib/turso'
 
 // Input Validation Helpers
-const PASSPORT_REGEX = /^[A-Z]{2}\d{7}$/i
+const PASSPORT_REGEX = /^[A-Z0-9]{5,20}$/i
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
 
 async function getMenuKeyboard(telegramId: number) {

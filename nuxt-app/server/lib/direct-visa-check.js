@@ -352,7 +352,7 @@ function parseResult3_2(html) {
 /**
  * Main function: check visa status directly from visa.go.kr
  *
- * @param {string} passport - Passport number (e.g., "FB0369182")
+ * @param {string} passport - Passport number (e.g., "FA1234567")
  * @param {string} fullName - Full name in English (e.g., "ABDUGANIEV MUKHAMMAD AZIZ")
  * @param {string} birthDate - Date of birth in YYYY-MM-DD format (e.g., "2006-03-18")
  * @returns {Object} { found: boolean, records: Array, latestStatus: string, latestDate: string, ... }

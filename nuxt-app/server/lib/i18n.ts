@@ -62,8 +62,8 @@ const translations: Record<string, Record<Lang, string>> = {
 
   // ── Visa check flow ────────────────────────────────────────────────────
   check_type_prompt: { uz: '✈️ *Visa turini tanlang*:', en: '✈️ *Select visa type*:' },
-  check_passport_prompt: { uz: '🔍 *Tezkor tekshirish*\n\nPasport raqamini kiriting (misol: FA1234567):', en: '🔍 *Quick Check*\n\nEnter passport number (e.g. AA1234567):' },
-  check_passport_invalid: { uz: '⚠️ Pasport raqami xato. Misol: FA1234567. Qaytadan kiriting:', en: '⚠️ Invalid passport. Example: AA1234567. Try again:' },
+  check_passport_prompt: { uz: '🔍 *Tezkor tekshirish*\n\nPasport raqamini kiriting (misol: FA1234567 yoki 550873628):', en: '🔍 *Quick Check*\n\nEnter passport number (e.g. FA1234567 or 550873628):' },
+  check_passport_invalid: { uz: '⚠️ Pasport raqami xato (harflar va raqamlar 5-20 simvol). Qaytadan kiriting:', en: '⚠️ Invalid passport number (letters and numbers 5-20 characters). Try again:' },
   check_name_prompt: { uz: '👤Xalqaro passportdagi Talabaning *Ism-familiyasi, otasining* ismini to\'liq kiriting (inglizcha, pasportdagidek):', en: '👤 Enter student\'s *Full Name* (in English, as in passport):' },
   check_name_short: { uz: '⚠️ Ism juda qisqa. To\'liq kiriting:', en: '⚠️ Name too short. Enter full name:' },
   check_dob_prompt: { uz: '📅 Talabaning *Tug\'ilgan kuni* (format: YYYY-MM-DD, misol: 2005-03-18):', en: '📅 Student\'s *Date of Birth* (format: YYYY-MM-DD, e.g. 2005-03-18):' },

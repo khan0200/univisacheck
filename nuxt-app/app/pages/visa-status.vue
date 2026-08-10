@@ -88,7 +88,7 @@ function validate(): boolean {
   const appNo = form.appNo.trim().toUpperCase()
 
   if (!passport) { fieldErrors.passport = true; errorMessage.value = 'Passport number is required.'; return false }
-  if (!PASSPORT_REGEX.test(passport)) { fieldErrors.passport = true; errorMessage.value = 'Passport number must be 2 letters followed by 7 digits (e.g. FA1234567).'; return false }
+  if (!PASSPORT_REGEX.test(passport)) { fieldErrors.passport = true; errorMessage.value = 'Passport number must be 5 to 20 letters or numbers (e.g. FA1234567 or 550873628).'; return false }
   if (!name) { fieldErrors.name = true; errorMessage.value = 'Full name is required.'; return false }
   if (!dob) { fieldErrors.dob = true; errorMessage.value = 'Date of birth is required.'; return false }
   if (!DATE_REGEX.test(dob)) { fieldErrors.dob = true; errorMessage.value = 'Date of birth must be in YYYY-MM-DD format (e.g. 1998-07-15).'; return false }
@@ -218,7 +218,7 @@ async function handleSearch() {
             <UInput
               :model-value="form.passport"
               placeholder="FA1234567"
-              maxlength="9"
+              maxlength="20"
               size="lg"
               class="w-full"
               :color="fieldErrors.passport ? 'error' : 'neutral'"

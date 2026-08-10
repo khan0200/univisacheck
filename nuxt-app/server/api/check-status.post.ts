@@ -27,6 +27,24 @@ export default defineEventHandler(async (event) => {
       // Fallback: If student does not exist, check directly (anonymous/public check fallback)
       console.log(`[Check Status] Student ${passport} not found in DB. Direct checking...`)
       const direct = await checkStudentVisaStatus(passport, fullName, birthDate, visaType, applicationNo)
+
+      // Save/upsert to bot_manual_refreshes so public passport lookup (e.g. Add Student modal in cabinet) can autofill name & birthday
+      try {
+        await db.execute({
+          sql: `INSERT INTO bot_manual_refreshes (passport, fullname, birthday, visa_type, application_no, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(passport) DO UPDATE SET
+                  fullname = excluded.fullname,
+                  birthday = excluded.birthday,
+                  visa_type = excluded.visa_type,
+                  application_no = excluded.application_no,
+                  updated_at = excluded.updated_at`,
+          args: [passport, fullName, birthDate, visaType, applicationNo, new Date().toISOString()]
+        })
+      } catch (err: any) {
+        console.error('[Check Status] Failed to save to bot_manual_refreshes:', err?.message)
+      }
+
       return {
         found: direct.found,
         status: direct.latestStatus,

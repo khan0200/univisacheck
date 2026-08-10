@@ -262,7 +262,7 @@ async function handleSubmit() {
         <UFormField label="Passport Number">
           <UInput
             :model-value="form.passport"
-            placeholder="AA1234567"
+            placeholder="FA1234567"
             required
             class="w-full"
             @input="handlePassportInput"

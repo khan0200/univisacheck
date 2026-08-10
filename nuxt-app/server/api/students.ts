@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     // ── Public: GET by passport (for student self-check page) ──────────────
-    // GET /api/students?passport=XX1234567&public=true → returns limited fields, no auth
+    // GET /api/students?passport=FA1234567&public=true → returns limited fields, no auth
     // Intentionally includes soft-deleted rows too, so re-adding a deleted
     // student can still autofill from their last known name/birthday.
     // Falls back to bot_manual_refreshes if the passport was only ever
