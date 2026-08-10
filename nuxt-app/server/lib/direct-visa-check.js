@@ -19,8 +19,9 @@
  *   발급     → ISSUED
  */
 
-const https = require('https')
-const querystring = require('querystring')
+import https from 'node:https'
+import querystring from 'node:querystring'
+import { getTursoClient } from '../utils/turso.ts'
 
 const HOST = 'www.visa.go.kr'
 let sessionCookies = null
@@ -44,8 +45,7 @@ async function getSession(force = false) {
   const now = Date.now()
   let db
   try {
-    const tursoUtil = require('../utils/turso')
-    db = await tursoUtil.getTursoClient()
+    db = await getTursoClient()
   } catch (e) {
     console.error('[Session DB] Failed to load Turso client, falling back to memory:', e.message)
   }
@@ -151,6 +151,34 @@ function parseKoreanStatus(korean) {
   return korean // Return original if no mapping found
 }
 
+function extractRejectionReasons(html) {
+  const matches = []
+
+  // Pattern 1: <th>...사유...</th> <td...>...</td>
+  const regex1 = /<th[^>]*>[\s\S]*?사유[\s\S]*?<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/gi
+  for (const m of html.matchAll(regex1)) {
+    let text = stripTags(m[1]).trim()
+    text = text.replace(/^귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다\s*:\s*/i, '').trim()
+    if (text) {
+      matches.push({ text, index: m.index })
+    }
+  }
+
+  // Pattern 2: Fallback for preamble if pattern 1 missed it
+  if (matches.length === 0) {
+    const regex2 = /귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다[\s\S]*?:\s*([\s\S]*?)(?:<\/td>|<\/div>)/gi
+    for (const m of html.matchAll(regex2)) {
+      let text = stripTags(m[1]).trim()
+      text = text.replace(/^귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다\s*:\s*/i, '').trim()
+      if (text) {
+        matches.push({ text, index: m.index })
+      }
+    }
+  }
+
+  return matches
+}
+
 function parseResult1_1(html) {
   // result1_1 is the E-Visa Search (gb01) result section
   const results = []
@@ -166,11 +194,7 @@ function parseResult1_1(html) {
   }))
 
   // Extract rejection reasons with position
-  const rejMatches = [...html.matchAll(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)]
-  const rejReasons = rejMatches.map(m => ({
-    text: stripTags(m[1]).trim(),
-    index: m.index
-  }))
+  const rejReasons = extractRejectionReasons(html)
 
   const statusCount = statuses.length
   const mappedRejections = new Array(statusCount).fill('')
@@ -264,11 +288,7 @@ function parseResult3_2(html) {
   }))
 
   // 3. Extract rejection reasons along with their positions in HTML
-  const rejMatches = [...html.matchAll(/귀하의 비자신청에 대한 불허사유는 다음과 같습니다\s*:\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)]
-  const rejReasons = rejMatches.map(m => ({
-    text: stripTags(m[1]).trim(),
-    index: m.index
-  }))
+  const rejReasons = extractRejectionReasons(html)
 
   // 4. Map rejection reasons to their respective status based on HTML position
   const statusCount = statuses.length
@@ -507,4 +527,5 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
   }
 }
 
-module.exports = { checkVisaDirect, getSession }
+export { checkVisaDirect, getSession }
+export default { checkVisaDirect, getSession }
