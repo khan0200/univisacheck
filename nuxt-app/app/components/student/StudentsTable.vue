@@ -348,61 +348,61 @@ watch([() => props.students, () => props.currentFilter], () => {
     <div class="hidden md:block overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
-          <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
-            <th class="px-4 py-3">
+          <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
+            <th class="px-3 py-1.5">
               <div class="flex items-center gap-2">
                 <span>Name</span>
                 <span
                   v-if="currentFilter !== 'cancelled' && currentFilter !== 'approved'"
-                  class="inline-flex items-center gap-1.5 text-[0.7rem] font-medium tracking-normal normal-case text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 px-2 py-0.5 rounded-md shrink-0"
+                  class="inline-flex items-center gap-1.5 text-[0.65rem] font-medium tracking-normal normal-case text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 px-1.5 py-0.5 rounded-md shrink-0"
                   title="Automated visa check runs every 10 minutes"
                 >
                   <UIcon
                     name="i-lucide-clock"
-                    class="size-3 shrink-0 animate-pulse text-emerald-600 dark:text-emerald-400"
+                    class="size-2.5 shrink-0 animate-pulse text-emerald-600 dark:text-emerald-400"
                   />
                   <span class="font-semibold text-neutral-600 dark:text-neutral-300">Auto Check:</span>
                   <span class="font-mono font-bold text-emerald-700 dark:text-emerald-300">{{ formattedAutoCheckTimer }}</span>
                 </span>
               </div>
             </th>
-            <th class="px-4 py-3">
+            <th class="px-3 py-1.5">
               Passport
             </th>
-            <th class="px-4 py-3">
+            <th class="px-3 py-1.5">
               Status
             </th>
             <th
               v-if="showAppliedColumn"
-              class="px-4 py-3"
+              class="px-3 py-1.5"
             >
               Applied
             </th>
             <th
               v-if="showStatusDateColumn"
-              class="px-4 py-3"
+              class="px-3 py-1.5"
             >
               Status Date
             </th>
             <th
               v-else
-              class="px-4 py-3"
+              class="px-3 py-1.5"
             >
               Checked
             </th>
             <th
               v-if="showSelectColumn"
-              class="px-4 py-3 text-center"
+              class="px-3 py-1.5 text-center"
             >
               Select
             </th>
             <th
               v-if="showPdfColumn"
-              class="px-4 py-3 text-center"
+              class="px-3 py-1.5 text-center"
             >
               PDF
             </th>
-            <th class="px-4 py-3 text-right">
+            <th class="px-3 py-1.5 text-right">
               Actions
             </th>
           </tr>
