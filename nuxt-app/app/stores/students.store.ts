@@ -98,6 +98,33 @@ export const useStudentsStore = defineStore('students', () => {
     })
   })
 
+  /** True when at least one student in the current filtered list has a university set. */
+  const hasAnyUniversity = computed(() =>
+    filteredStudents.value.some(s => !!s.university)
+  )
+
+  /**
+   * Students grouped by university, sorted alphabetically.
+   * Students without a university are placed in a group with key ''.
+   * Only populated when hasAnyUniversity is true.
+   */
+  const groupedByUniversity = computed((): { university: string; students: Student[] }[] => {
+    const map = new Map<string, Student[]>()
+    for (const student of filteredStudents.value) {
+      const key = student.university?.trim() || ''
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(student)
+    }
+    // Sort groups: named universities alphabetically, then '' (no university) last
+    return [...map.entries()]
+      .sort(([a], [b]) => {
+        if (a === '') return 1
+        if (b === '') return -1
+        return a.localeCompare(b)
+      })
+      .map(([university, students]) => ({ university, students }))
+  })
+
   const { list: listStudents } = useStudentsService()
   let activeLoadPromise: Promise<Student[]> | null = null
 
@@ -199,6 +226,8 @@ export const useStudentsStore = defineStore('students', () => {
     counts,
     visaTypeCounts,
     filteredStudents,
+    hasAnyUniversity,
+    groupedByUniversity,
     loadStudents,
     setFilter,
     setVisaTypeFilter,

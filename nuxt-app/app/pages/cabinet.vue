@@ -222,8 +222,33 @@ function setFilter(filter: StatusFilter) {
       </div>
     </div>
 
-    <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
-      <ClientOnly>
+    <ClientOnly>
+      <!-- Grouped by university (accordion) when at least one student has a university set -->
+      <template v-if="!pending && studentsStore.hasAnyUniversity">
+        <div class="space-y-3">
+          <StudentUniversityGroup
+            v-for="group in studentsStore.groupedByUniversity"
+            :key="group.university"
+            :university="group.university"
+            :students="group.students"
+            :current-filter="studentsStore.currentFilter"
+            :checking-passports="checkingPassports"
+            @edit="openEditModal"
+            @details="openDetails"
+            @delete="promptDelete"
+            @refresh="handleRefresh"
+            @download-pdf="handleDownloadPdf"
+            @toggle-select="handleToggleSelect"
+            @toggle-pin="handleTogglePin"
+          />
+        </div>
+      </template>
+
+      <!-- Flat table / skeleton / empty — wrapped in a card -->
+      <UCard
+        v-else
+        :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }"
+      >
         <UiTableSkeleton v-if="pending" />
         <UiEmptyState
           v-else-if="studentsStore.filteredStudents.length === 0"
@@ -244,11 +269,14 @@ function setFilter(filter: StatusFilter) {
           @toggle-select="handleToggleSelect"
           @toggle-pin="handleTogglePin"
         />
-        <template #fallback>
+      </UCard>
+
+      <template #fallback>
+        <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
           <UiTableSkeleton />
-        </template>
-      </ClientOnly>
-    </UCard>
+        </UCard>
+      </template>
+    </ClientOnly>
 
     <DashboardTelegramBotBanner />
 
