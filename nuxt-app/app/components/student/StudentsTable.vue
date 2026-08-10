@@ -353,6 +353,7 @@ watch([() => props.students, () => props.currentFilter], () => {
               <div class="flex items-center gap-2">
                 <span>Name</span>
                 <span
+                  v-if="currentFilter !== 'cancelled' && currentFilter !== 'approved'"
                   class="inline-flex items-center gap-1.5 text-[0.7rem] font-medium tracking-normal normal-case text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 px-2 py-0.5 rounded-md shrink-0"
                   title="Automated visa check runs every 10 minutes"
                 >
