@@ -186,7 +186,7 @@ async function handleSubmit() {
         university: form.university === 'none' ? '' : form.university,
         coordinator: form.coordinator === 'none' ? '' : form.coordinator,
         b2b: form.b2b === 'none' ? '' : form.b2b
-      }
+      })
     }
 
     // Auto-check visa status after both add and edit
