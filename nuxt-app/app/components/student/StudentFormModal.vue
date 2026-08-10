@@ -186,22 +186,25 @@ async function handleSubmit() {
         university: form.university === 'none' ? '' : form.university,
         coordinator: form.coordinator === 'none' ? '' : form.coordinator,
         b2b: form.b2b === 'none' ? '' : form.b2b
-      })
-
-      submitting.value = false
-      checkingVisa.value = true
-      try {
-        const newStudent = studentsStore.students.find(s => s.passport.toUpperCase().trim() === passport)
-        if (newStudent) {
-          await checkOne(newStudent)
-        }
-      } catch {
-      } finally {
-        checkingVisa.value = false
       }
     }
 
-    toast.add({ title: isEdit.value ? 'Student updated' : 'Student added & checked', color: 'primary', duration: 2500 })
+    // Auto-check visa status after both add and edit
+    submitting.value = false
+    checkingVisa.value = true
+    try {
+      const targetPassport = isEdit.value ? passport : passport
+      const student = studentsStore.students.find(s => s.passport.toUpperCase().trim() === targetPassport)
+      if (student) {
+        await checkOne(student)
+      }
+    } catch {
+      // Visa check failure is non-critical — student is already saved
+    } finally {
+      checkingVisa.value = false
+    }
+
+    toast.add({ title: isEdit.value ? 'Student updated & checked' : 'Student added & checked', color: 'primary', duration: 2500 })
     emit('saved')
     emit('update:open', false)
   } catch (e: unknown) {
