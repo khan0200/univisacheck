@@ -199,7 +199,7 @@ async function handleSubmit() {
         await checkOne(student)
       }
     } catch {
-      // Visa check failure is non-critical — student is already saved
+      // Visa check failure is non-critical - student is already saved
     } finally {
       checkingVisa.value = false
     }
