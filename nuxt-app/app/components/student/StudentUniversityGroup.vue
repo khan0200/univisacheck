@@ -27,7 +27,7 @@ const displayName = computed(() => props.university || 'No University')
     <!-- Accordion header -->
     <button
       type="button"
-      class="w-full flex items-center justify-between gap-2 px-4 py-2 text-left bg-[#1a3a2a] dark:bg-[#0f2418] hover:bg-[#1f4530] dark:hover:bg-[#132d1e] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset"
+      class="w-full flex items-center justify-between gap-2 px-4 py-2 text-left bg-[#0B4133] hover:bg-[#0d4e3d] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset"
       :aria-expanded="isOpen"
       @click="isOpen = !isOpen"
     >
