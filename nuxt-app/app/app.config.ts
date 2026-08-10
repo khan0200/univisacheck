@@ -30,7 +30,14 @@ export default defineAppConfig({
     button: {
       slots: {
         base: 'font-medium rounded-sm transition-all duration-150 ease-out'
-      }
+      },
+      compoundVariants: [
+        {
+          color: 'primary',
+          variant: 'solid',
+          class: 'bg-primary-700 hover:bg-primary-800 focus-visible:bg-primary-800 disabled:bg-primary-700'
+        }
+      ]
     },
     card: {
       slots: {
