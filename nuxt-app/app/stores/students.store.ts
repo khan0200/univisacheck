@@ -156,18 +156,20 @@ export const useStudentsStore = defineStore('students', () => {
 
   function upsertLocal(student: Student) {
     addSearchNormalized(student)
-    const index = students.value.findIndex(s => s.passport === student.passport)
+    const normalizedPassport = student.passport.toUpperCase().trim()
+    const index = students.value.findIndex(s => s.passport.toUpperCase().trim() === normalizedPassport)
     if (index !== -1) students.value[index] = student
     else students.value.push(student)
   }
 
   function removeLocal(passports: string[]) {
-    const set = new Set(passports)
-    students.value = students.value.filter(s => !set.has(s.passport))
+    const set = new Set(passports.map(p => p.toUpperCase().trim()))
+    students.value = students.value.filter(s => !set.has(s.passport.toUpperCase().trim()))
   }
 
   function patchStudent(passport: string, changes: Partial<Student>, updatedAt?: string): boolean {
-    const index = students.value.findIndex(s => s.passport === passport)
+    const normalizedPassport = passport.toUpperCase().trim()
+    const index = students.value.findIndex(s => s.passport.toUpperCase().trim() === normalizedPassport)
     if (index === -1) return false
 
     if (updatedAt && students.value[index]!._realtimeUpdatedAt) {

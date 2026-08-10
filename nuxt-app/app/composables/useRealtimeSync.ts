@@ -182,7 +182,9 @@ export function useRealtimeSync() {
         // Bind Visa Check Job events
         channel.bind('visa_check.started', (ev: RealtimeEvent) => {
           if (ev.studentId) {
-            studentsStore.checkingPassports.set(ev.studentId, 'processing')
+            const matchingKey = Array.from(studentsStore.checkingPassports.keys())
+              .find(k => k.toUpperCase().trim() === ev.studentId!.toUpperCase().trim()) || ev.studentId
+            studentsStore.checkingPassports.set(matchingKey, 'processing')
             studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
           }
         })
@@ -200,11 +202,18 @@ export function useRealtimeSync() {
         channel.bind('visa_check.completed', (ev: RealtimeEvent) => {
           if (ev.studentId && ev.result) {
             // Remove from checkingPassports set reactively
-            studentsStore.checkingPassports.delete(ev.studentId)
+            const matchingKey = Array.from(studentsStore.checkingPassports.keys())
+              .find(k => k.toUpperCase().trim() === ev.studentId!.toUpperCase().trim())
+            if (matchingKey) {
+              studentsStore.checkingPassports.delete(matchingKey)
+            } else {
+              studentsStore.checkingPassports.delete(ev.studentId)
+            }
             studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
             // Re-upsert individual student status & lastChecked timestamp locally
-            const student = studentsStore.students.find(s => s.passport === ev.studentId)
+            const normalizedPassport = ev.studentId.toUpperCase().trim()
+            const student = studentsStore.students.find(s => s.passport.toUpperCase().trim() === normalizedPassport)
             const updatedTime = ev.result.lastChecked || new Date().toISOString()
             if (student) {
               student.status = ev.result.status
@@ -320,7 +329,9 @@ export function useRealtimeSync() {
       try {
         const ev = JSON.parse(e.data) as RealtimeEvent
         if (ev.studentId) {
-          studentsStore.checkingPassports.set(ev.studentId, 'processing')
+          const matchingKey = Array.from(studentsStore.checkingPassports.keys())
+            .find(k => k.toUpperCase().trim() === ev.studentId!.toUpperCase().trim()) || ev.studentId
+          studentsStore.checkingPassports.set(matchingKey, 'processing')
           studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
         }
       } catch {
@@ -348,10 +359,17 @@ export function useRealtimeSync() {
         const ev = JSON.parse(e.data) as RealtimeEvent
         if (ev.studentId && ev.result) {
           // Remove from checkingPassports set reactively
-          studentsStore.checkingPassports.delete(ev.studentId)
+          const matchingKey = Array.from(studentsStore.checkingPassports.keys())
+            .find(k => k.toUpperCase().trim() === ev.studentId!.toUpperCase().trim())
+          if (matchingKey) {
+            studentsStore.checkingPassports.delete(matchingKey)
+          } else {
+            studentsStore.checkingPassports.delete(ev.studentId)
+          }
           studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
-          const student = studentsStore.students.find(s => s.passport === ev.studentId)
+          const normalizedPassport = ev.studentId.toUpperCase().trim()
+          const student = studentsStore.students.find(s => s.passport.toUpperCase().trim() === normalizedPassport)
           const updatedTime = ev.result.lastChecked || new Date().toISOString()
           if (student) {
             student.status = ev.result.status

@@ -1,8 +1,8 @@
 /**
  * app/composables/useVisaCheck.ts
  *
- * Rewritten to use the persistent backend job queue.
- * Initiates visa checks by creating jobs and tracking active job progress.
+ * checkOne — fast direct path (no queue): calls /api/jobs/direct for instant results.
+ * checkMany — bulk queue path: creates a queued job for multiple students.
  */
 
 import type { Student } from '~/types/student'
@@ -18,10 +18,57 @@ interface JobCancelResponse {
   success: boolean
 }
 
+interface DirectCheckResponse {
+  passport: string
+  status: string
+  applicationDate: string
+  lastChecked: string
+  rejectReason: string
+  pdfUrl: string
+  statusChanged: boolean
+  oldStatus: string
+}
+
 export function useVisaCheck() {
   const { apiFetch } = useApiFetch()
   const studentsStore = useStudentsStore()
   const checkingPassports = computed(() => studentsStore.checkingPassports)
+
+  /**
+   * Single-student fast check — bypasses the queue.
+   * Calls /api/jobs/direct which runs synchronously and returns the result immediately.
+   * The SSE realtime event is still published server-side so other tabs also refresh.
+   */
+  async function checkOne(student: Student): Promise<void> {
+    const passport = student.passport
+
+    // Optimistically mark as "processing" right away — no "queued" intermediate state
+    studentsStore.checkingPassports.set(passport, 'processing')
+    studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+
+    try {
+      const result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
+        method: 'POST',
+        body: { passport }
+      })
+
+      // Patch the student in the store immediately from the response
+      studentsStore.patchStudent(passport, {
+        status: result.status,
+        applicationDate: result.applicationDate,
+        lastChecked: result.lastChecked,
+        rejectReason: result.rejectReason,
+        pdfUrl: result.pdfUrl
+      }, result.lastChecked)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[Visa Check Direct] Failed:', msg)
+    } finally {
+      // Remove from checking state
+      studentsStore.checkingPassports.delete(passport)
+      studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+    }
+  }
 
   // Creates a job for the specified passports and updates studentsStore.activeJob
   async function createVisaCheckJob(passports: string[]): Promise<JobCreationResponse> {
@@ -73,11 +120,6 @@ export function useVisaCheck() {
       console.error('[Visa Check Queue] Failed to cancel job:', msg)
       throw err
     }
-  }
-
-  // Keep checkOne and checkMany interfaces but redirect them to use the queue
-  async function checkOne(student: Student): Promise<void> {
-    await createVisaCheckJob([student.passport])
   }
 
   async function checkMany(students: Student[]): Promise<void> {

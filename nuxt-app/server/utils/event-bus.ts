@@ -14,8 +14,12 @@ import type { StudentRealtimeEvent } from './realtime-types'
 
 type SSEWriter = (event: any) => void
 
-// Map: userId → Set of writer functions (one per active SSE connection)
-const connections = new Map<number, Set<SSEWriter>>()
+// Use globalThis to avoid duplicate instances of EventBus due to Vite/Nuxt module reloading
+const GLOBAL_CONNECTIONS_KEY = Symbol.for('event-bus.connections')
+if (!(GLOBAL_CONNECTIONS_KEY in globalThis)) {
+  (globalThis as any)[GLOBAL_CONNECTIONS_KEY] = new Map<number, Set<SSEWriter>>()
+}
+const connections: Map<number, Set<SSEWriter>> = (globalThis as any)[GLOBAL_CONNECTIONS_KEY]
 
 /**
  * Publish an event to all active SSE connections for `userId`.
@@ -23,12 +27,13 @@ const connections = new Map<number, Set<SSEWriter>>()
  */
 function publish(userId: number, event: any): void {
   const writers = connections.get(userId)
+  console.log(`[EventBus] Publishing event to userId: ${userId}, eventType: ${event.type}, active subscribers: ${writers ? writers.size : 0}`)
   if (!writers || writers.size === 0) return
   for (const write of writers) {
     try {
       write(event)
-    } catch {
-      // Writer already closed — it will clean up on disconnect
+    } catch (err: any) {
+      console.error(`[EventBus] Failed to write event to subscriber for userId ${userId}:`, err.message)
     }
   }
 }
@@ -42,11 +47,13 @@ function subscribe(userId: number, writer: SSEWriter): () => void {
     connections.set(userId, new Set())
   }
   connections.get(userId)!.add(writer)
+  console.log(`[EventBus] Subscribed subscriber for userId: ${userId}, total user subscribers: ${connections.get(userId)!.size}`)
 
   return () => {
     const writers = connections.get(userId)
     if (writers) {
       writers.delete(writer)
+      console.log(`[EventBus] Unsubscribed subscriber for userId: ${userId}, remaining user subscribers: ${writers.size}`)
       if (writers.size === 0) connections.delete(userId)
     }
   }
@@ -60,3 +67,4 @@ function size(): number {
 }
 
 export const EventBus = { publish, subscribe, size }
+
