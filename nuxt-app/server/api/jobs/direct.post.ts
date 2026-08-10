@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
           apiResponse = ?,
           check_source = 'manual',
           checkSource = 'manual'
-      WHERE passport = ? AND userId = ? AND deletedAt IS NULL
+      WHERE passport = ? AND deletedAt IS NULL
     `,
     args: [
       newStatus,
@@ -91,8 +91,7 @@ export default defineEventHandler(async (event) => {
       liveResult.rejectionReason || '',
       liveResult.pdfUrl || '',
       JSON.stringify(liveResult),
-      passport,
-      userId
+      passport
     ]
   })
 
@@ -108,14 +107,28 @@ export default defineEventHandler(async (event) => {
     checkSource: 'manual'
   }
 
-  await publishRealtime(userId, {
-    type: 'student.updated',
-    eventId: crypto.randomUUID(),
-    updatedAt: nowIso,
-    originClientId: `direct-${passport}`,
-    passport,
-    changes: updatedChanges
+  const userRowsRes = await db.execute({
+    sql: 'SELECT DISTINCT userId FROM students WHERE passport = ? AND deletedAt IS NULL',
+    args: [passport]
   })
+  const targetUserIds = new Set<number>([userId])
+  for (const row of userRowsRes.rows) {
+    const uid = Number((row as any).userId)
+    if (uid && !isNaN(uid)) targetUserIds.add(uid)
+  }
+
+  for (const targetUserId of targetUserIds) {
+    await publishRealtime(targetUserId, {
+      type: 'student.updated',
+      eventId: crypto.randomUUID(),
+      updatedAt: nowIso,
+      originClientId: `direct-${passport}`,
+      passport,
+      changes: updatedChanges
+    }).catch((err) => {
+      console.error(`[Direct Realtime] Failed for userId ${targetUserId}:`, err)
+    })
+  }
 
   // 7. Telegram notification if status changed
   if (statusChanged) {

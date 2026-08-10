@@ -345,10 +345,9 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
                     rejectReason = ?,
                     pdfUrl = ?,
                     apiResponse = ?,
-                    telegram_user_id = ?,
                     check_source = 'manual',
                     checkSource = 'manual'
-                WHERE passport = ?
+                WHERE passport = ? AND deletedAt IS NULL
             `,
       args: [
         newStatus,
@@ -359,10 +358,16 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
         liveStatus.rejectionReason || '',
         liveStatus.pdfUrl || '',
         JSON.stringify(liveStatus),
-        telegramId,
         student.passport
       ]
     })
+
+    if (telegramId) {
+      await db.execute({
+        sql: 'UPDATE students SET telegram_user_id = ? WHERE passport = ?',
+        args: [telegramId, student.passport]
+      })
+    }
 
     // Update local object
     student.status = newStatus
@@ -372,6 +377,40 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
     student.pdfUrl = liveStatus.pdfUrl || ''
     student.apiResponse = JSON.stringify(liveStatus)
 
+    // Publish realtime update to all consultings holding this passport
+    const updatedChanges = {
+      status: newStatus,
+      applicationDate: student.applicationDate,
+      lastChecked: now,
+      rejectReason: student.rejectReason,
+      pdfUrl: student.pdfUrl,
+      apiResponse: student.apiResponse,
+      check_source: 'manual',
+      checkSource: 'manual'
+    }
+
+    try {
+      const userRowsRes = await db.execute({
+        sql: 'SELECT DISTINCT userId FROM students WHERE passport = ? AND deletedAt IS NULL',
+        args: [student.passport]
+      })
+      for (const row of userRowsRes.rows) {
+        const uid = Number((row as any).userId)
+        if (uid && !isNaN(uid)) {
+          await publishRealtime(uid, {
+            type: 'student.updated',
+            eventId: crypto.randomUUID(),
+            updatedAt: now,
+            originClientId: `cabinet-${student.passport}`,
+            passport: student.passport,
+            changes: updatedChanges
+          }).catch(() => {})
+        }
+      }
+    } catch (rErr) {
+      console.error('[Cabinet Service] Realtime publish failed:', rErr)
+    }
+
     // 4. Log notification if status changed
     if (changed) {
       await db.execute({
@@ -379,7 +418,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
                     INSERT INTO notifications (telegram_user_id, student_id, old_status, new_status, created_at)
                     VALUES (?, ?, ?, ?, datetime('now'))
                 `,
-        args: [telegramId, student.passport, oldStatus, newStatus]
+        args: [telegramId || null, student.passport, oldStatus, newStatus]
       })
     }
 

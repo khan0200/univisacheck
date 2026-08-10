@@ -206,7 +206,7 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
                 apiResponse = ?,
                 check_source = ?,
                 checkSource = ?
-            WHERE passport = ? AND userId = ? AND deletedAt IS NULL
+            WHERE passport = ? AND deletedAt IS NULL
           `,
           args: [
             newStatus,
@@ -219,8 +219,7 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
             JSON.stringify(liveResult),
             checkSource,
             checkSource,
-            claimedTask.passport,
-            claimedTask.userId
+            claimedTask.passport
           ]
         })
 
@@ -297,16 +296,30 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
           args: [claimedTask.id]
         })
 
-        // Send realtime event for student updated
+        // Send realtime event for student updated to all consultings that hold this passport
         if (Object.keys(updatedChanges).length > 0) {
-          await publishRealtime(claimedTask.userId, {
-            type: 'student.updated',
-            eventId: crypto.randomUUID(),
-            updatedAt: new Date().toISOString(),
-            originClientId: runnerId,
-            passport: claimedTask.passport,
-            changes: updatedChanges
+          const userRowsRes = await executeWithRetry(db, {
+            sql: 'SELECT DISTINCT userId FROM students WHERE passport = ? AND deletedAt IS NULL',
+            args: [claimedTask.passport]
           })
+          const targetUserIds = new Set<number>([claimedTask.userId])
+          for (const row of userRowsRes.rows) {
+            const uid = Number((row as any).userId)
+            if (uid && !isNaN(uid)) targetUserIds.add(uid)
+          }
+
+          for (const targetUserId of targetUserIds) {
+            await publishRealtime(targetUserId, {
+              type: 'student.updated',
+              eventId: crypto.randomUUID(),
+              updatedAt: new Date().toISOString(),
+              originClientId: runnerId,
+              passport: claimedTask.passport,
+              changes: updatedChanges
+            }).catch((err) => {
+              console.error(`[Worker Realtime] Failed for userId ${targetUserId}:`, err)
+            })
+          }
         }
       } else {
         // Retry logic with backoff

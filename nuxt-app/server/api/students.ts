@@ -303,6 +303,29 @@ export default defineEventHandler(async (event) => {
       const eventTimestamp = new Date().toISOString()
 
       if (!exists) {
+        // Check if this passport was already checked by another cabinet/user
+        const existingCheck = await db.execute({
+          sql: 'SELECT status, applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse FROM students WHERE passport = ? AND deletedAt IS NULL AND lastChecked IS NOT NULL LIMIT 1',
+          args: [passport]
+        })
+
+        let inheritedStatus = status || 'Pending'
+        let inheritedAppDate = applicationDate || ''
+        let inheritedLastChecked = lastChecked || new Date().toISOString()
+        let inheritedRejectReason = rejectReason || ''
+        let inheritedPdfUrl = pdfUrl || ''
+        let inheritedApiResponse = apiResponse || ''
+
+        if (existingCheck.rows.length > 0) {
+          const prev = existingCheck.rows[0] as unknown as Record<string, unknown>
+          if (!status && prev.status) inheritedStatus = String(prev.status)
+          if (!applicationDate && prev.applicationDate) inheritedAppDate = String(prev.applicationDate)
+          if (!lastChecked && prev.lastChecked) inheritedLastChecked = String(prev.lastChecked)
+          if (!rejectReason && prev.rejectReason) inheritedRejectReason = String(prev.rejectReason)
+          if (!pdfUrl && prev.pdfUrl) inheritedPdfUrl = String(prev.pdfUrl)
+          if (!apiResponse && prev.apiResponse) inheritedApiResponse = String(prev.apiResponse)
+        }
+
         // ── INSERT ───────────────────────────────────────────────────────────
         const sql = `
                     INSERT INTO students (
@@ -319,12 +342,12 @@ export default defineEventHandler(async (event) => {
             fullName || '',
             birthday || '',
             studentId || '',
-            status || 'Pending',
-            applicationDate || '',
-            lastChecked || new Date().toISOString(),
-            rejectReason || '',
-            pdfUrl || '',
-            apiResponse || '',
+            inheritedStatus,
+            inheritedAppDate,
+            inheritedLastChecked,
+            inheritedRejectReason,
+            inheritedPdfUrl,
+            inheritedApiResponse,
             batchSelected !== null ? batchSelected : 0,
             batchSelectedUpdatedAt || '',
             userId,
