@@ -295,11 +295,12 @@ const remainingDaysText = computed(() => {
         :to="downloadUrl"
         target="_blank"
         block
-        color="neutral"
-        variant="outline"
+        color="primary"
+        variant="solid"
         icon="i-lucide-download"
+        class="bg-[#064e3b] hover:bg-[#043e2f] text-white font-semibold py-2.5 shadow-xs"
       >
-        Download Certificate PDF
+        Download pdf
       </UButton>
     </div>
   </div>
