@@ -19,11 +19,13 @@ const emit = defineEmits<{
 const toast = useToast()
 const studentsStore = useStudentsStore()
 const { save } = useStudentsService()
+const { checkOne } = useVisaCheck()
 const { status: lookupStatus, onPassportInput, reset: resetLookup } = usePassportLookup()
 
 const isEdit = computed(() => Boolean(props.editingStudent))
 const originalPassport = ref('')
 const submitting = ref(false)
+const checkingVisa = ref(false)
 const errorMessage = ref('')
 
 const form = reactive<StudentFormInput>({
@@ -185,15 +187,28 @@ async function handleSubmit() {
         coordinator: form.coordinator === 'none' ? '' : form.coordinator,
         b2b: form.b2b === 'none' ? '' : form.b2b
       })
+
+      submitting.value = false
+      checkingVisa.value = true
+      try {
+        const newStudent = studentsStore.students.find(s => s.passport.toUpperCase().trim() === passport)
+        if (newStudent) {
+          await checkOne(newStudent)
+        }
+      } catch {
+      } finally {
+        checkingVisa.value = false
+      }
     }
 
-    toast.add({ title: isEdit.value ? 'Student updated' : 'Student added', color: 'primary', duration: 2500 })
+    toast.add({ title: isEdit.value ? 'Student updated' : 'Student added & checked', color: 'primary', duration: 2500 })
     emit('saved')
     emit('update:open', false)
   } catch (e: unknown) {
     errorMessage.value = apiErrorMessage(e, 'Failed to save student. Please try again.')
   } finally {
     submitting.value = false
+    checkingVisa.value = false
   }
 }
 </script>
@@ -337,10 +352,19 @@ async function handleSubmit() {
           type="submit"
           block
           size="lg"
-          :loading="submitting"
+          :loading="submitting || checkingVisa"
           color="primary"
         >
-          {{ isEdit ? 'Update Student' : 'Save Student' }}
+          <template v-if="checkingVisa">
+            <UIcon name="i-lucide-refresh-cw" class="size-4 animate-spin mr-1.5" />
+            Checking visa status…
+          </template>
+          <template v-else-if="submitting">
+            Saving…
+          </template>
+          <template v-else>
+            {{ isEdit ? 'Update Student' : 'Save Student' }}
+          </template>
         </UiLoadingButton>
       </form>
     </template>
