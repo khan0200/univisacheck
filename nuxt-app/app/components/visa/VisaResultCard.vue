@@ -45,6 +45,28 @@ const labelColorMap: Record<string, string> = {
   cancelled: 'text-white bg-danger-600'
 }
 
+function formatDaysAgo(dateStr: string): string {
+  if (!dateStr || dateStr === '—') return '—'
+  const match = dateStr.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/)
+  if (!match) return dateStr
+
+  const appYear = parseInt(match[1], 10)
+  const appMonth = parseInt(match[2], 10) - 1
+  const appDay = parseInt(match[3], 10)
+
+  const date = new Date(appYear, appMonth, appDay)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const diffTime = today.getTime() - date.getTime()
+  const daysAgo = Math.floor(diffTime / (1000 * 3600 * 24))
+
+  if (daysAgo === 0) return `${dateStr} (today)`
+  if (daysAgo === 1) return `${dateStr} (1 day ago)`
+  if (daysAgo > 1) return `${dateStr} (${daysAgo} days ago)`
+  return dateStr
+}
+
 const cells = computed(() => {
   const r = props.result
   const appDate = r.applicationDate || '—'
@@ -53,9 +75,9 @@ const cells = computed(() => {
 
   const list: { label: string, value: string, copy?: boolean }[] = [
     { label: 'Passport', value: props.input.passport, copy: true },
-    { label: 'Applied', value: appDate }
+    { label: 'Applied', value: formatDaysAgo(appDate) }
   ]
-  if (entryDate !== '—' && entryDate !== '') list.push({ label: 'Issued Date', value: entryDate })
+  if (entryDate !== '—' && entryDate !== '') list.push({ label: 'Issued Date', value: formatDaysAgo(entryDate) })
   if (r.statusOfResidence) list.push({ label: 'Residency Class', value: r.statusOfResidence })
   if (r.visaKind) list.push({ label: 'Visa Category', value: r.visaKind })
   if (r.visaExpiry) list.push({ label: 'Expiry Date', value: r.visaExpiry })
