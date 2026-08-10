@@ -361,7 +361,7 @@ watch([() => props.students, () => props.currentFilter], () => {
 
     <!-- Desktop/tablet: table -->
     <div class="hidden md:block overflow-x-auto">
-      <table class="w-full text-sm border-collapse">
+      <table class="w-full text-sm border-collapse table-fixed">
         <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
           <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
             <th class="px-3 py-1.5">
@@ -381,43 +381,43 @@ watch([() => props.students, () => props.currentFilter], () => {
                 </span>
               </div>
             </th>
-            <th class="px-3 py-1.5">
+            <th class="px-3 py-1.5 w-44">
               Passport
             </th>
-            <th class="px-3 py-1.5">
+            <th class="px-3 py-1.5 w-44">
               Status
             </th>
             <th
               v-if="showAppliedColumn"
-              class="px-3 py-1.5"
+              class="px-3 py-1.5 w-32"
             >
               Applied
             </th>
             <th
               v-if="showStatusDateColumn"
-              class="px-3 py-1.5"
+              class="px-3 py-1.5 w-36"
             >
               Status Date
             </th>
             <th
               v-else
-              class="px-3 py-1.5"
+              class="px-3 py-1.5 w-36"
             >
               Checked
             </th>
             <th
               v-if="showSelectColumn"
-              class="px-3 py-1.5 text-center"
+              class="px-3 py-1.5 w-16 text-center"
             >
               Select
             </th>
             <th
               v-if="showPdfColumn"
-              class="px-3 py-1.5 text-center"
+              class="px-3 py-1.5 w-20 text-center"
             >
               PDF
             </th>
-            <th class="px-3 py-1.5 text-right">
+            <th class="px-3 py-1.5 w-40 text-right">
               Actions
             </th>
           </tr>
