@@ -115,7 +115,7 @@ const visaFilterMenuItems = computed(() =>
       <UInput
         v-model="studentsStore.searchQuery"
         icon="i-lucide-search"
-        placeholder="Search students..."
+        placeholder="Search students, university..."
         size="md"
         class="flex-1 min-w-0"
         :ui="{ base: 'h-10' }"
@@ -174,7 +174,7 @@ const visaFilterMenuItems = computed(() =>
         <UInput
           v-model="studentsStore.searchQuery"
           icon="i-lucide-search"
-          placeholder="Search students…"
+          placeholder="Search students, university..."
           size="lg"
           class="flex-1 min-w-0"
           :ui="{ base: 'h-10' }"

@@ -23,6 +23,7 @@ const filteredStudents = computed(() => {
       || s.passport.toLowerCase().includes(query)
       || (s.applicationNo && s.applicationNo.toLowerCase().includes(query))
       || (s.studentId && s.studentId.toLowerCase().includes(query))
+      || (s.university && s.university.toLowerCase().includes(query))
   )
 })
 

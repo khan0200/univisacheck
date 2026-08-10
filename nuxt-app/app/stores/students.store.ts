@@ -28,7 +28,7 @@ export const useStudentsStore = defineStore('students', () => {
 
   // Helper to precompute search index
   function addSearchNormalized(s: Student) {
-    s._searchNormalized = `${s.fullName || ''} ${s.passport || ''} ${s.studentId || ''} ${s.visaType || ''} ${s.applicationNo || ''}`.toLowerCase()
+    s._searchNormalized = `${s.fullName || ''} ${s.passport || ''} ${s.studentId || ''} ${s.visaType || ''} ${s.applicationNo || ''} ${s.university || ''}`.toLowerCase()
   }
 
   const counts = computed(() => {
