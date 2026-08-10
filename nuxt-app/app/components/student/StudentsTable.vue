@@ -9,6 +9,7 @@ const props = defineProps<{
   students: Student[]
   currentFilter: string
   checkingPassports: Map<string, 'queued' | 'processing'>
+  disableVirtualScroll?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -144,8 +145,22 @@ const endIndex = computed(() => {
 })
 
 const visibleStudents = computed(() => {
+  if (props.disableVirtualScroll) return props.students
   return props.students.slice(startIndex.value, endIndex.value)
 })
+
+const topSpacerHeight = computed(() =>
+  props.disableVirtualScroll ? 0 : startIndex.value * desktopRowHeight
+)
+const topSpacerMobileHeight = computed(() =>
+  props.disableVirtualScroll ? 0 : startIndex.value * mobileRowHeight
+)
+const bottomSpacerHeight = computed(() =>
+  props.disableVirtualScroll ? 0 : Math.max(0, (props.students.length - endIndex.value) * desktopRowHeight)
+)
+const bottomSpacerMobileHeight = computed(() =>
+  props.disableVirtualScroll ? 0 : Math.max(0, (props.students.length - endIndex.value) * mobileRowHeight)
+)
 
 const columnCount = computed(() => {
   let count = 5
@@ -184,7 +199,7 @@ watch([() => props.students, () => props.currentFilter], () => {
   >
     <!-- Mobile: card list (no horizontal scrolling/cut-off columns) -->
     <div class="md:hidden space-y-3 p-3">
-      <div :style="{ height: `${startIndex * mobileRowHeight}px` }" />
+      <div :style="{ height: `${topSpacerMobileHeight}px` }" />
       <UContextMenu
         v-for="student in visibleStudents"
         :key="student.passport"
@@ -341,7 +356,7 @@ watch([() => props.students, () => props.currentFilter], () => {
           </div>
         </div>
       </UContextMenu>
-      <div :style="{ height: `${Math.max(0, (props.students.length - endIndex) * mobileRowHeight)}px` }" />
+      <div :style="{ height: `${bottomSpacerMobileHeight}px` }" />
     </div>
 
     <!-- Desktop/tablet: table -->
@@ -408,7 +423,7 @@ watch([() => props.students, () => props.currentFilter], () => {
           </tr>
         </thead>
         <tbody class="divide-y divide-neutral-200 dark:divide-white/10">
-          <tr :style="{ height: `${startIndex * desktopRowHeight}px` }">
+          <tr :style="{ height: `${topSpacerHeight}px` }">
             <td
               :colspan="columnCount"
               style="padding: 0; border: 0;"
@@ -598,7 +613,7 @@ watch([() => props.students, () => props.currentFilter], () => {
               </td>
             </tr>
           </UContextMenu>
-          <tr :style="{ height: `${Math.max(0, (props.students.length - endIndex) * desktopRowHeight)}px` }">
+          <tr :style="{ height: `${bottomSpacerHeight}px` }">
             <td
               :colspan="columnCount"
               style="padding: 0; border: 0;"

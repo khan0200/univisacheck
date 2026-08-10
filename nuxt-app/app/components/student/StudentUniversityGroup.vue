@@ -57,6 +57,7 @@ const displayName = computed(() => props.university || 'No University')
         :students="students"
         :current-filter="currentFilter"
         :checking-passports="checkingPassports"
+        :disable-virtual-scroll="true"
         @edit="emit('edit', $event)"
         @details="emit('details', $event)"
         @delete="emit('delete', $event)"
