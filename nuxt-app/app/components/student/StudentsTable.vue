@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useWindowScroll, useWindowSize } from '@vueuse/core'
 import type { Student } from '~/types/student'
@@ -361,7 +361,7 @@ watch([() => props.students, () => props.currentFilter], () => {
 
     <!-- Desktop/tablet: table -->
     <div class="hidden md:block overflow-x-auto">
-      <table class="w-full text-sm">
+      <table class="w-full text-sm border-collapse">
         <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
           <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
             <th class="px-3 py-1.5">
