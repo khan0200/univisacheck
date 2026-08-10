@@ -24,6 +24,18 @@ const resultState = ref<'idle' | 'loading' | 'result' | 'not-found'>('idle')
 const resultData = ref<VisaCheckApiResult | null>(null)
 const resultCached = ref(false)
 const submittedInput = ref<VisaCheckFormInput>({ passport: '', name: '', dob: '', appNo: '' })
+const resultContainerRef = ref<HTMLElement | null>(null)
+
+function scrollToResult() {
+  nextTick(() => {
+    if (resultContainerRef.value) {
+      resultContainerRef.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
+  })
+}
 
 function selectType(type: VisaType) {
   visaType.value = type
@@ -95,6 +107,8 @@ async function handleSearch() {
 
   submitting.value = true
   resultState.value = 'loading'
+  scrollToResult()
+
   try {
     const data = await checkStatus({ passport, name, dob, visaType: visaType.value, appNo })
 
@@ -104,15 +118,18 @@ async function handleSearch() {
         resultData.value = fallback.result
         resultCached.value = true
         resultState.value = 'result'
+        scrollToResult()
         return
       }
       resultState.value = 'not-found'
+      scrollToResult()
       return
     }
 
     resultData.value = data
     resultCached.value = false
     resultState.value = 'result'
+    scrollToResult()
     toast.add({ title: 'Visa status updated.', color: 'success' })
   } catch (e: any) {
     clearResult()
@@ -295,8 +312,9 @@ async function handleSearch() {
       </div>
 
       <div
+        ref="resultContainerRef"
         v-if="resultState !== 'idle'"
-        class="w-full max-w-md mt-4"
+        class="w-full max-w-md mt-4 scroll-mt-20"
       >
         <VisaResultSkeleton v-if="resultState === 'loading'" />
         <VisaNotFoundCard v-else-if="resultState === 'not-found'" />
