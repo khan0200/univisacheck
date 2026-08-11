@@ -22,7 +22,7 @@ const emit = defineEmits<{
   'toggle-pin': [student: Student]
 }>()
 
-const showSelectColumn = computed(() => props.currentFilter === 'application')
+const showSelectColumn = computed(() => props.currentFilter === 'application' || props.currentFilter === 'pending')
 
 const showAppliedColumn = computed(() => props.currentFilter !== 'pending')
 
@@ -244,7 +244,7 @@ watch([() => props.students, () => props.currentFilter], () => {
               type="checkbox"
               class="mt-1 size-4 shrink-0 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
               :checked="Boolean(student.batchSelected)"
-              :disabled="currentFilter !== 'application' || !isSelectable(student)"
+              :disabled="(currentFilter !== 'application' && currentFilter !== 'pending') || !isSelectable(student)"
               :title="!isSelectable(student) ? `Selectable ${MIN_DAYS_SINCE_APPLIED} days after application date` : undefined"
               @click.stop
               @change="emit('toggle-select', student, ($event.target as HTMLInputElement).checked)"
@@ -568,7 +568,7 @@ watch([() => props.students, () => props.currentFilter], () => {
                   type="checkbox"
                   class="size-4 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
                   :checked="Boolean(student.batchSelected)"
-                  :disabled="currentFilter !== 'application' || !isSelectable(student)"
+                  :disabled="(currentFilter !== 'application' && currentFilter !== 'pending') || !isSelectable(student)"
                   :title="!isSelectable(student) ? `Selectable ${MIN_DAYS_SINCE_APPLIED} days after application date` : undefined"
                   @change="emit('toggle-select', student, ($event.target as HTMLInputElement).checked)"
                 >

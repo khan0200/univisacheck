@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Student, StatusFilter } from '~/types/student'
-import { isApplicationStatus } from '~/utils/visa-status'
+import { isApplicationStatus, bucketForStatus } from '~/utils/visa-status'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -129,17 +129,22 @@ async function handleTogglePin(student: Student) {
   }
 }
 
-const selectedApplicationStudents = computed(() =>
-  studentsStore.currentFilter === 'application'
-    ? studentsStore.filteredStudents.filter(s => s.batchSelected && isApplicationStatus(s.status))
-    : []
-)
+const selectedStudentsToCheck = computed(() => {
+  const filter = studentsStore.currentFilter
+  if (filter === 'application') {
+    return studentsStore.filteredStudents.filter(s => s.batchSelected && isApplicationStatus(s.status))
+  }
+  if (filter === 'pending') {
+    return studentsStore.filteredStudents.filter(s => s.batchSelected && bucketForStatus(s.status) === 'pending')
+  }
+  return []
+})
 
 const bulkDeleteModalOpen = ref(false)
 
 const batchChecking = ref(false)
 async function handleBatchCheck() {
-  const list = [...selectedApplicationStudents.value]
+  const list = [...selectedStudentsToCheck.value]
   if (list.length === 0) return
   batchChecking.value = true
   try {
@@ -198,14 +203,14 @@ function setFilter(filter: StatusFilter) {
         </UButton>
 
         <UiLoadingButton
-          v-if="selectedApplicationStudents.length > 0"
+          v-if="selectedStudentsToCheck.length > 0"
           color="primary"
           size="lg"
           class="h-11 justify-center flex-1 sm:flex-none"
           :loading="batchChecking"
           @click="handleBatchCheck"
         >
-          Check ({{ selectedApplicationStudents.length }})
+          Check ({{ selectedStudentsToCheck.length }})
         </UiLoadingButton>
       </div>
 

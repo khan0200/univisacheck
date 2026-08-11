@@ -171,7 +171,7 @@ export const useStudentsStore = defineStore('students', () => {
   function setFilter(filter: StatusFilter) {
     currentFilter.value = filter
     for (const s of students.value) {
-      if (s.batchSelected && bucketForStatus(s.status) !== 'application') {
+      if (s.batchSelected && bucketForStatus(s.status) !== 'application' && bucketForStatus(s.status) !== 'pending') {
         s.batchSelected = false
       }
     }

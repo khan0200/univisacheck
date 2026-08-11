@@ -39,16 +39,16 @@ function getMinutesSinceLastChecked(lastCheckedStr: string): number {
 async function runLocal10MinAutoCheck() {
   try {
     // Apply Korean Standard Time (KST) night-mode check:
-    // - 09:00 to 22:00 KST: Run every 10 minutes (always)
-    // - 22:00 to 08:59 KST: Run every 3 hours (at 22:00, 01:00, 04:00, 07:00 KST)
+    // - 09:00 to 21:00 KST: Run every 10 minutes (always)
+    // - 21:00 to 08:59 KST: Run every 3 hours (at 21:00, 00:00, 03:00, 06:00 KST)
     const kstDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }))
     const kstHour = kstDate.getHours()
     const kstMinute = kstDate.getMinutes()
 
-    const isDaytime = kstHour >= 9 && kstHour < 22
+    const isDaytime = kstHour >= 9 && kstHour < 21
 
     if (!isDaytime) {
-      const isNightCheckHour = kstHour === 22 || kstHour === 1 || kstHour === 4 || kstHour === 7
+      const isNightCheckHour = kstHour === 21 || kstHour === 0 || kstHour === 3 || kstHour === 6
       const isTriggerSlot = isNightCheckHour && kstMinute < 10
 
       if (!isTriggerSlot) {
