@@ -106,24 +106,24 @@ const downloadUrl = computed(() =>
 const isProcessingStatus = computed(() => {
   const statusUpper = (props.result.status || '').toUpperCase()
   const isFinal = (
-    statusUpper.includes('APPROVED') ||
-    statusUpper.includes('REJECTED') ||
-    statusUpper.includes('CANCELLED') ||
-    statusUpper.includes('EXPIRED') ||
-    statusUpper.includes('USED') ||
-    statusUpper.includes('RETURNED') ||
-    statusUpper.includes('PASSED') ||
-    statusUpper.includes('ISSUED')
+    statusUpper.includes('APPROVED')
+    || statusUpper.includes('REJECTED')
+    || statusUpper.includes('CANCELLED')
+    || statusUpper.includes('EXPIRED')
+    || statusUpper.includes('USED')
+    || statusUpper.includes('RETURNED')
+    || statusUpper.includes('PASSED')
+    || statusUpper.includes('ISSUED')
   )
   if (isFinal) return false
 
   return (
-    statusUpper.includes('RECEIVED') ||
-    statusUpper.includes('REVIEW') ||
-    statusUpper.includes('SUPPLEMENT') ||
-    statusUpper.includes('PENDING') ||
-    statusUpper.includes('접수') ||
-    statusUpper.includes('심사중')
+    statusUpper.includes('RECEIVED')
+    || statusUpper.includes('REVIEW')
+    || statusUpper.includes('SUPPLEMENT')
+    || statusUpper.includes('PENDING')
+    || statusUpper.includes('접수')
+    || statusUpper.includes('심사중')
   )
 })
 

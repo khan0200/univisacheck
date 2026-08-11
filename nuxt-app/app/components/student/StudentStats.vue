@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { bucketForStatus } from '~/utils/visa-status'
 import type { Student } from '~/types/student'
@@ -306,4 +306,3 @@ function getWidth(count: number, total: number) {
   scrollbar-width: none;
 }
 </style>
-

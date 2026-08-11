@@ -304,7 +304,7 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
           })
           const targetUserIds = new Set<number>([claimedTask.userId])
           for (const row of userRowsRes.rows) {
-            const uid = Number((row as any).userId)
+            const uid = Number((row as Record<string, unknown>).userId)
             if (uid && !isNaN(uid)) targetUserIds.add(uid)
           }
 

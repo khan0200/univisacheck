@@ -5,7 +5,9 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/fonts',
     '@pinia/nuxt',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
+    '@nuxtjs/sitemap',
+    '@nuxtjs/robots'
   ],
 
   imports: {
@@ -17,6 +19,14 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+
+  // @ts-expect-error Site config provides global configuration for sitemap/robots modules
+  site: {
+    url: 'https://salomkorea.uz',
+    name: 'SalomKorea',
+    description: 'Koreyadagi universitetlarga ariza topshiring, viza holatini tekshiring va hujjatlar ro\'yxatini bilib oling.',
+    defaultLocale: 'uz'
+  },
 
   colorMode: {
     preference: 'light',

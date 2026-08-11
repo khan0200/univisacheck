@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import type { Student } from '~/types/student'
 import { formatTimestamp } from '~/utils/format'
 import { getCancellationReason, getStatusDate } from '~/utils/visa-status'
@@ -483,4 +483,3 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
     </template>
   </UModal>
 </template>
-

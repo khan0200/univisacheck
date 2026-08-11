@@ -624,4 +624,3 @@ watch([() => props.students, () => props.currentFilter], () => {
     </div>
   </div>
 </template>
-

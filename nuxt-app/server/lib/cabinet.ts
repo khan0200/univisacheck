@@ -396,7 +396,7 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
         args: [student.passport]
       })
       for (const row of userRowsRes.rows) {
-        const uid = Number((row as any).userId)
+        const uid = Number((row as Record<string, unknown>).userId)
         if (uid && !isNaN(uid)) {
           await publishRealtime(uid, {
             type: 'student.updated',

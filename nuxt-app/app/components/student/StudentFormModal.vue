@@ -359,7 +359,10 @@ async function handleSubmit() {
           color="primary"
         >
           <template v-if="checkingVisa">
-            <UIcon name="i-lucide-refresh-cw" class="size-4 animate-spin mr-1.5" />
+            <UIcon
+              name="i-lucide-refresh-cw"
+              class="size-4 animate-spin mr-1.5"
+            />
             Checking visa status…
           </template>
           <template v-else-if="submitting">

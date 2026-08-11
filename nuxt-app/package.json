@@ -15,6 +15,8 @@
     "@libsql/client": "^0.17.4",
     "@nuxt/fonts": "^0.11.0",
     "@nuxt/ui": "^4.10.0",
+    "@nuxtjs/robots": "^6.1.4",
+    "@nuxtjs/sitemap": "^8.3.4",
     "@pinia/nuxt": "^0.9.0",
     "@vueuse/nuxt": "^12.4.0",
     "axios": "^1.19.0",

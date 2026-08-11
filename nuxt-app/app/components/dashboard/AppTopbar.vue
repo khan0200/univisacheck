@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RealtimeStatus } from '~/composables/useRealtimeSync'
-import type { VisaTypeFilter } from '~/types/student'
+import type { Student, VisaTypeFilter } from '~/types/student'
 
 const props = defineProps<{ realtimeStatus?: RealtimeStatus }>()
 const authStore = useAuthStore()
@@ -90,7 +90,7 @@ const visaFilterMenuItems = computed(() =>
           color="primary"
           size="sm"
           square
-          :ui="{ rounded: 'rounded-full' }"
+          class="rounded-full"
           aria-label="Add Student"
           @click="openAddModal"
         />
@@ -239,8 +239,7 @@ const visaFilterMenuItems = computed(() =>
           icon="i-lucide-plus"
           color="primary"
           size="sm"
-          class="px-3 font-semibold"
-          :ui="{ rounded: 'rounded-full' }"
+          class="px-3 font-semibold rounded-full"
           @click="openAddModal"
         >
           Add

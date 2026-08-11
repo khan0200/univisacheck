@@ -113,7 +113,7 @@ export const useStudentsStore = defineStore('students', () => {
    * Students without the field are placed in a group with key ''.
    * Only populated when hasAnyGroup is true.
    */
-  const groupedStudents = computed((): { groupName: string; students: Student[] }[] => {
+  const groupedStudents = computed((): { groupName: string, students: Student[] }[] => {
     const map = new Map<string, Student[]>()
     const sort = sortBy.value
     for (const student of filteredStudents.value) {

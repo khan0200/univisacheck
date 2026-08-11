@@ -54,8 +54,9 @@ export default defineEventHandler(async (event) => {
                   updated_at = excluded.updated_at`,
           args: [passport, fullName, birthDate, visaType, applicationNo, new Date().toISOString()]
         })
-      } catch (err: any) {
-        console.error('[Check Status] Failed to save to bot_manual_refreshes:', err?.message)
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err)
+        console.error('[Check Status] Failed to save to bot_manual_refreshes:', msg)
       }
     } else {
       // Student exists in DB: Update student record(s) with live result
@@ -108,7 +109,7 @@ export default defineEventHandler(async (event) => {
 
       const targetUserIds = new Set<number>()
       for (const row of studentRes.rows) {
-        const uid = Number((row as any).userId)
+        const uid = Number((row as Record<string, unknown>).userId)
         if (uid && !isNaN(uid)) targetUserIds.add(uid)
       }
 
@@ -179,4 +180,3 @@ export default defineEventHandler(async (event) => {
     apiError(500, errorObj.message || String(err))
   }
 })
-

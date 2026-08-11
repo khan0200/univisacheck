@@ -37,18 +37,6 @@ const sortMenuItems = computed(() => [
     { label: 'Date', icon: studentsStore.sortBy === 'applicationDate' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('applicationDate') }
   ]
 ])
-const sortLabel = computed(() => {
-  if (studentsStore.sortBy === 'university') return 'University'
-  if (studentsStore.sortBy === 'tariff') return 'Tariff'
-  if (studentsStore.sortBy === 'applicationDate') return 'App Date'
-  return 'University'
-})
-
-function openAddModal() {
-  editingStudent.value = null
-  formModalOpen.value = true
-}
-
 function openEditModal(student: Student) {
   editingStudent.value = student
   formModalOpen.value = true
