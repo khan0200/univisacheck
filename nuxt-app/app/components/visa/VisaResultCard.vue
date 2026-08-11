@@ -136,7 +136,7 @@ const remainingDaysText = computed(() => {
   }
 
   const match = appDateStr.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/)
-  if (!match) {
+  if (!match || !match[1] || !match[2] || !match[3]) {
     return `Result expected in approx. ${AVERAGE_VISA_DAYS} days`
   }
 
@@ -264,7 +264,7 @@ const remainingDaysText = computed(() => {
     </div>
 
     <div
-      v-if="props.result.rejectionReason"
+      v-if="props.result.rejectionReason && (props.result.status || '').toUpperCase().match(/REJECT|CANCEL|RETURN/)"
       class="px-5 py-3.5 bg-danger-50 dark:bg-danger-950/30 border-t border-danger-200 dark:border-danger-900 flex gap-2.5"
     >
       <UIcon

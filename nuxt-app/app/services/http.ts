@@ -40,7 +40,7 @@ export function useApiFetch() {
       return await $fetch<T>(`${config.public.apiBase}${path}`, {
         ...options,
         headers
-      })
+      }) as T
     } catch (error: any) {
       if (hadToken && error?.response?.status === 401) {
         authStore.clearSession()

@@ -154,8 +154,8 @@ function parseKoreanStatus(korean) {
 function extractRejectionReasons(html) {
   const matches = []
 
-  // Pattern 1: <th>...사유...</th> <td...>...</td>
-  const regex1 = /<th[^>]*>[\s\S]*?사유[\s\S]*?<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/gi
+  // Pattern 1: Exact <th class="no_reason"> or <th>...불허사유...</th> <td...>...</td>
+  const regex1 = /<th[^>]*class=["']no_reason["'][^>]*>[\s\S]*?<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/gi
   for (const m of html.matchAll(regex1)) {
     let text = stripTags(m[1]).trim()
     text = text.replace(/^귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다\s*:\s*/i, '').trim()
@@ -164,10 +164,20 @@ function extractRejectionReasons(html) {
     }
   }
 
-  // Pattern 2: Fallback for preamble if pattern 1 missed it
   if (matches.length === 0) {
-    const regex2 = /귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다[\s\S]*?:\s*([\s\S]*?)(?:<\/td>|<\/div>)/gi
+    const regex2 = /<th[^>]*>[^<]*불허사유[^<]*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/gi
     for (const m of html.matchAll(regex2)) {
+      let text = stripTags(m[1]).trim()
+      text = text.replace(/^귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다\s*:\s*/i, '').trim()
+      if (text) {
+        matches.push({ text, index: m.index })
+      }
+    }
+  }
+
+  if (matches.length === 0) {
+    const regex3 = /귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다[\s\S]*?:\s*([\s\S]*?)(?:<\/td>|<\/div>)/gi
+    for (const m of html.matchAll(regex3)) {
       let text = stripTags(m[1]).trim()
       text = text.replace(/^귀하의\s*비자신청에\s*대한\s*불허사유는\s*다음과\s*같습니다\s*:\s*/i, '').trim()
       if (text) {
@@ -242,13 +252,16 @@ function parseResult1_1(html) {
       entryDate = ''
     }
 
+    const parsedStatus = parseKoreanStatus(statusKor)
+    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED'
+
     results.push({
       applicationDate: appl_dates[i] || '',
-      status: parseKoreanStatus(statusKor),
+      status: parsedStatus,
       statusKorean: statusKor,
       entryDate,
       entryPurpose: purposes[i] || '',
-      rejectionReason: mappedRejections[i] || ''
+      rejectionReason: isReject ? (mappedRejections[i] || '') : ''
     })
   }
 
@@ -337,13 +350,16 @@ function parseResult3_2(html) {
       entryDate = ''
     }
 
+    const parsedStatus = parseKoreanStatus(statusKor)
+    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED'
+
     results.push({
       applicationDate: appl_dates[i] || '',
-      status: parseKoreanStatus(statusKor),
+      status: parsedStatus,
       statusKorean: statusKor,
       entryDate,
       entryPurpose: purposes[i] || '',
-      rejectionReason: mappedRejections[i] || ''
+      rejectionReason: isReject ? (mappedRejections[i] || '') : ''
     })
   }
   return results
@@ -470,9 +486,31 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
   const latest = records[0] || {}
 
   // Extract dynamic variables for printing/downloading certificate PDF
-  const evSeq = (r.body.match(/var\s+evSeq\s*=\s*"([^"]*)"/) || [])[1] || ''
-  const invSeq = (r.body.match(/var\s+invSeq\s*=\s*"([^"]*)"/) || [])[1] || ''
-  const applNo = (r.body.match(/var\s+applNo\s*=\s*"([^"]*)"/) || [])[1] || ''
+  let evSeq = (r.body.match(/var\s+evSeq\s*=\s*"([^"]+)"/) || [])[1] || ''
+  let invSeq = (r.body.match(/var\s+invSeq\s*=\s*"([^"]+)"/) || [])[1] || ''
+  let applNo = (r.body.match(/var\s+applNo\s*=\s*"([^"]+)"/) || [])[1] || ''
+
+  if (!evSeq) {
+    // Fallback: Extract from print link function calls (e.g. fn_reportByCsvMap4('UZ26VC014857','0','',...))
+    const reportMatch = r.body.match(/fn_reportBy\w*\s*\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]*)['"]\s*,\s*['"]([^'"]*)['"]/i)
+    if (reportMatch) {
+      evSeq = reportMatch[1]
+      invSeq = reportMatch[2] || '0'
+      applNo = reportMatch[3] || ''
+    }
+  }
+
+  if (!evSeq) {
+    // Fallback: Check URL parameter patterns in HTML
+    const evSeqMatch = r.body.match(/(?:evSeq|EV_SEQ)=([^&"'\s]+)/i)
+    if (evSeqMatch) {
+      evSeq = evSeqMatch[1]
+      const invSeqMatch = r.body.match(/(?:invSeq|INVITEE_SEQ)=([^&"'\s]+)/i)
+      const applNoMatch = r.body.match(/(?:applNo|APPL_NO)=([^&"'\s]+)/i)
+      invSeq = invSeqMatch ? invSeqMatch[1] : '0'
+      applNo = applNoMatch ? applNoMatch[1] : ''
+    }
+  }
 
   let pdfUrl = ''
   if (evSeq) {

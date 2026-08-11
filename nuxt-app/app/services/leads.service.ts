@@ -12,7 +12,7 @@ export function useLeadsService() {
         method: (options.method as any) || 'GET',
         body: options.body as Record<string, any> | undefined,
         headers: { Authorization: `Bearer ${leadsAdmin.secret}` }
-      })
+      }) as T
     } catch (error: any) {
       if (error?.response?.status === 401) {
         throw new Error('unauthorized')
