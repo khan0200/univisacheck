@@ -239,7 +239,7 @@ const visaFilterMenuItems = computed(() =>
           icon="i-lucide-plus"
           color="primary"
           size="sm"
-          class="px-3 font-semibold rounded-full"
+          class="px-3 font-semibold rounded-full text-white"
           @click="openAddModal"
         >
           Add
