@@ -179,7 +179,8 @@ export function formatStudentCard(student: Student, _isUpdate: boolean = false, 
 
   const partner = parsedApi.invitingCompany || ''
   const rawGivenDate = parsedApi.entryDate || ''
-  const visaGivenDate = (rawGivenDate && rawGivenDate !== student.applicationDate) ? rawGivenDate : ''
+  const isApproved = ['APPROVED', 'USED', 'ISSUED'].some(s => (student.status || '').toUpperCase().includes(s))
+  const visaGivenDate = (isApproved && rawGivenDate && rawGivenDate !== student.applicationDate) ? rawGivenDate : ''
   const statusOfResidence = parsedApi.statusOfResidence || parsedApi.visaKind || student.visaType || 'Embassy'
   const prevReason = parsedApi.previousRejectionReason || ''
 
@@ -190,7 +191,7 @@ export function formatStudentCard(student: Student, _isUpdate: boolean = false, 
     appNo: lang === 'en' ? '📄 Application No:' : '📄 Ariza raqami:',
     submitted: lang === 'en' ? '📅 Submitted date:' : '📅 Topshirilgan sana:',
     status: lang === 'en' ? '🔄 Status:' : '🔄 Holati:',
-    givenDate: lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:',
+    givenDate: lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Viza berilgan sana:',
     checked: lang === 'en' ? '🕒 Checked:' : '🕒 Tekshirildi:',
     result: lang === 'en' ? 'Result:' : 'Natija:',
     reason: lang === 'en' ? '⚠️ Reason:' : '⚠️ Sababi:',

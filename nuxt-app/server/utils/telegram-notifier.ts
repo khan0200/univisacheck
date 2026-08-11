@@ -216,6 +216,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   function buildMessage(lang: string): string {
     const desc = getStatusDescription(newStatus, lang)
     const checkedStr = formatLastChecked(nowIso, lang)
+    const isApprovedNotif = ['APPROVED', 'USED', 'ISSUED'].some(s => newStatus.toUpperCase().includes(s))
     const labels = {
       title: lang === 'en' ? '🔍 Visa Status Check' : '🔍 Visa statusini tekshirish',
       visaLbl: lang === 'en' ? '✈️ Visa type:' : '✈️ Visa turi:',
@@ -223,7 +224,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
       appNo: lang === 'en' ? '📄 Application No:' : '📄 Ariza raqami:',
       submitted: lang === 'en' ? '📅 Submitted date:' : '📅 Topshirilgan sana:',
       status: lang === 'en' ? '🔄 Status:' : '🔄 Holati:',
-      givenDate: lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Visa berilgan sana:',
+      givenDate: lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Viza berilgan sana:',
       checked: lang === 'en' ? '🕒 Checked:' : '🕒 Tekshirildi:',
       result: lang === 'en' ? 'Result:' : 'Natija:',
       reason: lang === 'en' ? '⚠️ Reason:' : '⚠️ Sababi:',
@@ -239,7 +240,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
       ...((visaType === 'E-Visa' || visaType === 'Regional') && applicationNo ? [`${labels.appNo} ${applicationNo}`] : []),
       `${labels.submitted} ${applicationDate || 'N/A'}`,
       `${labels.status} ${emoji} ${newStatus.toUpperCase()}`,
-      ...(rawEntryDate && rawEntryDate !== applicationDate ? [`${labels.givenDate} ${escapeTelegramText(rawEntryDate)}`] : []),
+      ...(isApprovedNotif && rawEntryDate && rawEntryDate !== applicationDate ? [`${labels.givenDate} ${escapeTelegramText(rawEntryDate)}`] : []),
       '',
       `${labels.checked} ${checkedStr}`, '',
       `${labels.result} ${desc}`,
