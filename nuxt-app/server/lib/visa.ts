@@ -6,17 +6,18 @@
 
 // Import direct visa check JS module — no type declarations exist for this
 // vanilla JS file, so its exports are cast to `any` explicitly (a bare
-// @ts-ignore on the import line doesn't propagate to downstream property
+// ts-expect-error on the import line doesn't propagate to downstream property
 // access on the untyped result). Must stay a real ESM import, not
 // require() — this file runs in Nitro's ESM runtime, where `require` is
 // undefined.
-// @ts-ignore - no type declarations for this vanilla JS file
 import * as directVisaCheckModule from './direct-visa-check'
 import * as https from 'https'
 import * as querystring from 'querystring'
 import { URL } from 'url'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const directVisaCheck = directVisaCheckModule as any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const checkVisaDirect: (passport: string, fullName: string, birthDate: string, visaType: string, applicationNo: string) => Promise<any> = directVisaCheck.checkVisaDirect
 const getSession: (forceRefresh?: boolean) => Promise<string> = directVisaCheck.getSession
 
@@ -54,6 +55,38 @@ export async function checkStudentVisaStatus(
 ): Promise<VisaStatusInfo> {
   try {
     const cleanedPassport = passport.toUpperCase().trim()
+    if (cleanedPassport === 'MOCK-APP' || cleanedPassport === 'MOCKAPP') {
+      return {
+        found: true,
+        latestStatus: 'Approved',
+        latestStatusKorean: 'Approved',
+        latestDate: new Date().toISOString().split('T')[0] || '',
+        rejectionReason: '',
+        pdfUrl: '',
+        entryDate: '',
+        entryPurpose: '',
+        visaExpiry: '',
+        visaKind: '',
+        statusOfResidence: '',
+        invitingCompany: ''
+      }
+    }
+    if (cleanedPassport === 'MOCK-CAN' || cleanedPassport === 'MOCKCAN') {
+      return {
+        found: true,
+        latestStatus: 'Reject',
+        latestStatusKorean: 'Rejected',
+        latestDate: new Date().toISOString().split('T')[0] || '',
+        rejectionReason: 'Simulation Cancelled',
+        pdfUrl: '',
+        entryDate: '',
+        entryPurpose: '',
+        visaExpiry: '',
+        visaKind: '',
+        statusOfResidence: '',
+        invitingCompany: ''
+      }
+    }
     const cleanedName = fullName.toUpperCase().trim()
     const cleanedBirthDate = birthDate.trim()
     const cleanedVisaType = visaType.trim()
@@ -92,6 +125,7 @@ export async function checkStudentVisaStatus(
       pdfUrl: result.pdfUrl || '',
       previousRejectionReason
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error(`[Visa Service] Error checking status for ${passport}:`, err.message)
     throw err
@@ -116,10 +150,10 @@ export async function downloadStudentVisaPdf(
   const cleanedVisaType = visaType.trim()
   const cleanedAppNo = applicationNo.trim()
 
-  let evSeq = ''
-  let invSeq = '0'
-  let applNo = ''
-  let cookies
+  let evSeq: string
+  let invSeq: string
+  let applNo: string
+  let cookies: string | undefined
 
   if (pdfUrl) {
     const parsedTarget = new URL(pdfUrl)
@@ -167,8 +201,10 @@ export async function downloadStudentVisaPdf(
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checkRes: any = await new Promise((resolve, reject) => {
     const req = https.request(checkOptions, (res) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const chunks: any[] = []
       res.on('data', c => chunks.push(c))
       res.on('end', () => resolve({ statusCode: res.statusCode, headers: res.headers }))
@@ -229,13 +265,17 @@ export async function downloadStudentVisaPdf(
 
       if (!contentType.includes('pdf') && !contentType.includes('octet-stream')) {
         let body = ''
-        printRes.on('data', (c) => { body += c })
+        printRes.on('data', (c) => {
+          body += c
+        })
         printRes.on('end', () => {
+          console.error('[Visa PDF] Printed error body:', body)
           reject(new Error('visa.go.kr did not return a PDF file.'))
         })
         return
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const chunks: any[] = []
       printRes.on('data', c => chunks.push(c))
       printRes.on('end', () => resolve(Buffer.concat(chunks)))

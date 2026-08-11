@@ -562,11 +562,11 @@ watch([() => props.students, () => props.currentFilter], () => {
               </td>
               <td
                 v-if="showSelectColumn"
-                class="px-4 py-3 align-top text-center"
+                class="px-4 py-3 align-middle text-center"
               >
                 <input
                   type="checkbox"
-                  class="size-4 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
+                  class="size-6 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   :checked="Boolean(student.batchSelected)"
                   :disabled="(currentFilter !== 'application' && currentFilter !== 'pending') || !isSelectable(student)"
                   :title="!isSelectable(student) ? `Selectable ${MIN_DAYS_SINCE_APPLIED} days after application date` : undefined"
@@ -575,7 +575,7 @@ watch([() => props.students, () => props.currentFilter], () => {
               </td>
               <td
                 v-if="showPdfColumn"
-                class="px-4 py-3 align-top text-center"
+                class="px-4 py-3 align-middle text-center"
               >
                 <button
                   v-if="isPdfEligible(student)"
@@ -587,7 +587,7 @@ watch([() => props.students, () => props.currentFilter], () => {
                 >
                   <UIcon
                     :name="student.visaType === 'E-Visa' ? 'i-lucide-info' : 'i-lucide-file-down'"
-                    class="size-5"
+                    class="size-6"
                   />
                 </button>
               </td>

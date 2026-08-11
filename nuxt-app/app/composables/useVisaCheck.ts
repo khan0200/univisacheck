@@ -42,6 +42,9 @@ export function useVisaCheck() {
   async function checkOne(student: Student): Promise<void> {
     const passport = student.passport
 
+    studentsStore.sessionChanges = []
+    studentsStore.isCheckingSession = true
+
     // Optimistically mark as "processing" right away — no "queued" intermediate state
     studentsStore.checkingPassports.set(passport, 'processing')
     studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
@@ -72,6 +75,9 @@ export function useVisaCheck() {
 
   // Creates a job for the specified passports and updates studentsStore.activeJob
   async function createVisaCheckJob(passports: string[]): Promise<JobCreationResponse> {
+    studentsStore.sessionChanges = []
+    studentsStore.isCheckingSession = true
+
     // 1. Optimistically add passports to checkingPassports BEFORE the fetch
     // to prevent race conditions where realtime events arrive before the fetch resolves.
     for (const passport of passports) {

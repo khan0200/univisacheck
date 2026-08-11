@@ -20,7 +20,7 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  // @ts-expect-error Site config provides global configuration for sitemap/robots modules
+  // Site config provides global configuration for sitemap/robots modules
   site: {
     url: 'https://salomkorea.uz',
     name: 'SalomKorea',

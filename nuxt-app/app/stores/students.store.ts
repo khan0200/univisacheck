@@ -27,6 +27,10 @@ export const useStudentsStore = defineStore('students', () => {
   const activeJob = ref<JobProgress | null>(null)
   const checkingPassports = ref<Map<string, 'queued' | 'processing'>>(new Map())
 
+  const sessionChanges = ref<{ fullName: string, oldStatus: string, newStatus: string }[]>([])
+  const showReportModal = ref(false)
+  const isCheckingSession = ref(false)
+
   // Helper to precompute search index
   function addSearchNormalized(s: Student) {
     s._searchNormalized = `${s.fullName || ''} ${s.passport || ''} ${s.studentId || ''} ${s.visaType || ''} ${s.applicationNo || ''} ${s.university || ''}`.toLowerCase()
@@ -218,6 +222,19 @@ export const useStudentsStore = defineStore('students', () => {
     }
 
     const target = students.value[index]!
+    const oldStatus = target.status
+    const newStatus = changes.status
+
+    if (newStatus && oldStatus !== newStatus) {
+      if (isCheckingSession.value) {
+        sessionChanges.value.push({
+          fullName: target.fullName,
+          oldStatus,
+          newStatus
+        })
+      }
+    }
+
     for (const key of Object.keys(changes) as (keyof Student)[]) {
       const val = changes[key]
       if (val !== undefined) {
@@ -230,6 +247,15 @@ export const useStudentsStore = defineStore('students', () => {
     addSearchNormalized(target)
     return true
   }
+
+  watch(() => checkingPassports.value.size, (newSize, oldSize) => {
+    if (isCheckingSession.value && oldSize > 0 && newSize === 0) {
+      isCheckingSession.value = false
+      if (sessionChanges.value.length > 0) {
+        showReportModal.value = true
+      }
+    }
+  })
 
   return {
     students,
@@ -252,6 +278,9 @@ export const useStudentsStore = defineStore('students', () => {
     patchStudent,
     activeJob,
     loadActiveJob,
-    checkingPassports
+    checkingPassports,
+    sessionChanges,
+    showReportModal,
+    isCheckingSession
   }
 })

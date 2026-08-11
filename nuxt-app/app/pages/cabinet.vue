@@ -342,5 +342,7 @@ function setFilter(filter: StatusFilter) {
         </div>
       </template>
     </UModal>
+
+    <StudentChangeReportModal />
   </div>
 </template>
