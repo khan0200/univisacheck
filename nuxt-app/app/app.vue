@@ -12,9 +12,9 @@ useHead({
 useSeoMeta({
   titleTemplate: title => (title ? `${title} — SalomKorea` : 'SalomKorea — Koreya vizasi va ta\'lim'),
   ogSiteName: 'SalomKorea',
-  ogImage: 'https://salomkorea.uz/logo.png',
+  ogImage: 'https://salomkorea.uz/logo.png?v=2',
   twitterCard: 'summary_large_image',
-  twitterImage: 'https://salomkorea.uz/logo.png'
+  twitterImage: 'https://salomkorea.uz/logo.png?v=2'
 })
 
 useHead({
