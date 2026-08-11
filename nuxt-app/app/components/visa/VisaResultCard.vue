@@ -48,7 +48,7 @@ const labelColorMap: Record<string, string> = {
 function formatDaysAgo(dateStr: string): string {
   if (!dateStr || dateStr === '—') return '—'
   const match = dateStr.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/)
-  if (!match) return dateStr
+  if (!match || !match[1] || !match[2] || !match[3]) return dateStr
 
   const appYear = parseInt(match[1], 10)
   const appMonth = parseInt(match[2], 10) - 1
@@ -130,7 +130,7 @@ const isProcessingStatus = computed(() => {
 const AVERAGE_VISA_DAYS = 19
 
 const remainingDaysText = computed(() => {
-  const appDateStr = props.result.applicationDate || props.result.latestDate
+  const appDateStr = props.result.applicationDate
   if (!appDateStr) {
     return `Result expected in approx. ${AVERAGE_VISA_DAYS} days`
   }
