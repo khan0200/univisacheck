@@ -8,6 +8,7 @@ export const useStudentsStore = defineStore('students', () => {
   const currentFilter = ref<StatusFilter>('pending')
   const visaTypeFilter = ref<VisaTypeFilter>('all')
   const searchQuery = ref('')
+  const sortBy = ref<'university' | 'tariff' | 'applicationDate'>('university')
 
   interface JobProgress {
     jobId: string
@@ -98,31 +99,40 @@ export const useStudentsStore = defineStore('students', () => {
     })
   })
 
-  /** True when at least one student in the current filtered list has a university set. */
-  const hasAnyUniversity = computed(() =>
-    filteredStudents.value.some(s => !!s.university)
-  )
+  /** True when at least one student in the current filtered list has the chosen sort field set. */
+  const hasAnyGroup = computed(() => {
+    const sort = sortBy.value
+    if (sort === 'university') return filteredStudents.value.some(s => !!s.university)
+    if (sort === 'tariff') return filteredStudents.value.some(s => !!s.tariff)
+    if (sort === 'applicationDate') return filteredStudents.value.some(s => !!s.applicationDate)
+    return false
+  })
 
   /**
-   * Students grouped by university, sorted alphabetically.
-   * Students without a university are placed in a group with key ''.
-   * Only populated when hasAnyUniversity is true.
+   * Students grouped by the selected sort option.
+   * Students without the field are placed in a group with key ''.
+   * Only populated when hasAnyGroup is true.
    */
-  const groupedByUniversity = computed((): { university: string; students: Student[] }[] => {
+  const groupedStudents = computed((): { groupName: string; students: Student[] }[] => {
     const map = new Map<string, Student[]>()
+    const sort = sortBy.value
     for (const student of filteredStudents.value) {
-      const key = student.university?.trim() || ''
+      let key = ''
+      if (sort === 'university') key = student.university?.trim() || ''
+      else if (sort === 'tariff') key = student.tariff?.trim() || ''
+      else if (sort === 'applicationDate') key = student.applicationDate?.trim() || ''
+
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(student)
     }
-    // Sort groups: named universities alphabetically, then '' (no university) last
+    // Sort groups
     return [...map.entries()]
       .sort(([a], [b]) => {
         if (a === '') return 1
         if (b === '') return -1
         return a.localeCompare(b)
       })
-      .map(([university, students]) => ({ university, students }))
+      .map(([groupName, students]) => ({ groupName, students }))
   })
 
   const { list: listStudents } = useStudentsService()
@@ -181,6 +191,10 @@ export const useStudentsStore = defineStore('students', () => {
     visaTypeFilter.value = filter
   }
 
+  function setSortBy(field: 'university' | 'tariff' | 'applicationDate') {
+    sortBy.value = field
+  }
+
   function upsertLocal(student: Student) {
     addSearchNormalized(student)
     const normalizedPassport = student.passport.toUpperCase().trim()
@@ -226,11 +240,13 @@ export const useStudentsStore = defineStore('students', () => {
     counts,
     visaTypeCounts,
     filteredStudents,
-    hasAnyUniversity,
-    groupedByUniversity,
+    sortBy,
+    hasAnyGroup,
+    groupedStudents,
     loadStudents,
     setFilter,
     setVisaTypeFilter,
+    setSortBy,
     upsertLocal,
     removeLocal,
     patchStudent,

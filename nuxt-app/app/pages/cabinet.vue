@@ -25,10 +25,24 @@ const toast = useToast()
 useLazyAsyncData('students', () => studentsStore.loadStudents(), { server: false })
 const pending = computed(() => studentsStore.isLoading)
 
-const formModalOpen = ref(false)
-const editingStudent = ref<Student | null>(null)
+const formModalOpen = useState('addStudentModalOpen', () => false)
+const editingStudent = useState<Student | null>('editingStudent', () => null)
 const detailsModalOpen = ref(false)
 const detailsStudent = ref<Student | null>(null)
+
+const sortMenuItems = computed(() => [
+  [
+    { label: 'University', icon: studentsStore.sortBy === 'university' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('university') },
+    { label: 'Tariff', icon: studentsStore.sortBy === 'tariff' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('tariff') },
+    { label: 'Date', icon: studentsStore.sortBy === 'applicationDate' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('applicationDate') }
+  ]
+])
+const sortLabel = computed(() => {
+  if (studentsStore.sortBy === 'university') return 'University'
+  if (studentsStore.sortBy === 'tariff') return 'Tariff'
+  if (studentsStore.sortBy === 'applicationDate') return 'App Date'
+  return 'University'
+})
 
 function openAddModal() {
   editingStudent.value = null
@@ -180,15 +194,19 @@ function setFilter(filter: StatusFilter) {
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
       <!-- Action buttons — full width row on mobile -->
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <UButton
-          icon="i-lucide-plus"
-          color="primary"
-          size="lg"
-          class="h-11 justify-center flex-1 sm:flex-none"
-          @click="openAddModal"
-        >
-          Add Student
-        </UButton>
+        <ClientOnly>
+          <UDropdownMenu :items="sortMenuItems">
+            <UButton
+              icon="i-lucide-arrow-down-up"
+              color="neutral"
+              variant="outline"
+              size="lg"
+              class="h-11 justify-center flex-1 sm:flex-none bg-white dark:bg-white/[0.05]"
+            >
+              Sort
+            </UButton>
+          </UDropdownMenu>
+        </ClientOnly>
         <UButton
           v-if="studentsStore.currentFilter === 'cancelled' || studentsStore.currentFilter === 'approved' || studentsStore.currentFilter === 'pending'"
           icon="i-lucide-trash-2"
@@ -228,13 +246,13 @@ function setFilter(filter: StatusFilter) {
     </div>
 
     <ClientOnly>
-      <!-- Grouped by university (accordion) when at least one student has a university set -->
-      <template v-if="!pending && studentsStore.hasAnyUniversity">
+      <!-- Grouped list (accordion) when at least one student has the sort field set -->
+      <template v-if="!pending && studentsStore.hasAnyGroup">
         <div class="space-y-3">
           <StudentUniversityGroup
-            v-for="group in studentsStore.groupedByUniversity"
-            :key="group.university"
-            :university="group.university"
+            v-for="group in studentsStore.groupedStudents"
+            :key="group.groupName"
+            :group-name="group.groupName"
             :students="group.students"
             :current-filter="studentsStore.currentFilter"
             :checking-passports="checkingPassports"

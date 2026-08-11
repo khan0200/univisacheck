@@ -1,8 +1,8 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import type { Student } from '~/types/student'
 
 const props = defineProps<{
-  university: string
+  groupName: string
   students: Student[]
   currentFilter: string
   checkingPassports: Map<string, 'queued' | 'processing'>
@@ -19,7 +19,7 @@ const emit = defineEmits<{
 }>()
 
 const isOpen = ref(true)
-const displayName = computed(() => props.university || 'No University')
+const displayName = computed(() => props.groupName || 'No Group')
 </script>
 
 <template>

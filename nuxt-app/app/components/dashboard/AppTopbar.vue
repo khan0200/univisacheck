@@ -10,6 +10,14 @@ const studentsStore = useStudentsStore()
 const initials = computed(() => (authStore.user?.username || authStore.user?.email || 'U').charAt(0).toUpperCase())
 const displayName = computed(() => authStore.user?.username || authStore.user?.email || 'Account')
 
+const addStudentModalOpen = useState('addStudentModalOpen', () => false)
+const editingStudent = useState<Student | null>('editingStudent', () => null)
+
+function openAddModal() {
+  editingStudent.value = null
+  addStudentModalOpen.value = true
+}
+
 function toggleColorMode() {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
 }
@@ -77,6 +85,16 @@ const visaFilterMenuItems = computed(() =>
 
       <!-- Right controls -->
       <div class="flex items-center gap-1.5 shrink-0">
+        <UButton
+          icon="i-lucide-plus"
+          color="primary"
+          size="sm"
+          square
+          :ui="{ rounded: 'rounded-full' }"
+          aria-label="Add Student"
+          @click="openAddModal"
+        />
+
         <ClientOnly>
           <DashboardRealtimeIndicator
             v-if="props.realtimeStatus"
@@ -216,6 +234,17 @@ const visaFilterMenuItems = computed(() =>
       <!-- Right controls -->
       <div class="ml-auto flex items-center gap-2 justify-self-end">
         <slot name="actions" />
+
+        <UButton
+          icon="i-lucide-plus"
+          color="primary"
+          size="sm"
+          class="px-3 font-semibold"
+          :ui="{ rounded: 'rounded-full' }"
+          @click="openAddModal"
+        >
+          Add
+        </UButton>
 
         <ClientOnly>
           <DashboardRealtimeIndicator
