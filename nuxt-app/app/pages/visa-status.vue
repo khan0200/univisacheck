@@ -10,7 +10,6 @@ useSeoMeta({
 })
 
 const { checkStatus, cachedFallback } = useVisaCheckService()
-const toast = useToast()
 
 const visaType = ref<VisaType>('Embassy')
 const form = reactive({ passport: '', name: '', dob: '', appNo: '' })
@@ -130,7 +129,6 @@ async function handleSearch() {
     resultCached.value = false
     resultState.value = 'result'
     scrollToResult()
-    toast.add({ title: 'Visa status updated.', color: 'success' })
   } catch (e: any) {
     clearResult()
     let msg = apiErrorMessage(e, typeof e?.message === 'string' ? e.message : 'Unknown error')
