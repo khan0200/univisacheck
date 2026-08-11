@@ -72,34 +72,51 @@ export function useVisaCheck() {
 
   // Creates a job for the specified passports and updates studentsStore.activeJob
   async function createVisaCheckJob(passports: string[]): Promise<JobCreationResponse> {
+    // 1. Optimistically add passports to checkingPassports BEFORE the fetch
+    // to prevent race conditions where realtime events arrive before the fetch resolves.
+    for (const passport of passports) {
+      if (!studentsStore.checkingPassports.has(passport)) {
+        studentsStore.checkingPassports.set(passport, 'queued')
+      }
+    }
+    studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+
     try {
       const response = await apiFetch<JobCreationResponse>('/api/jobs', {
         method: 'POST',
         body: { passports }
       })
 
-      studentsStore.activeJob = {
-        jobId: response.jobId,
-        status: response.status,
-        total: response.total,
-        createdAt: new Date().toISOString(),
-        progress: {
-          queued: response.total,
-          processing: 0,
-          completed: 0,
-          failed: 0,
-          cancelled: 0
+      // 2. Only update activeJob if we haven't already received a progress event for this job.
+      const stillChecking = passports.some(p => studentsStore.checkingPassports.has(p))
+      const alreadyTracking = studentsStore.activeJob?.jobId === response.jobId
+
+      if (!alreadyTracking && stillChecking) {
+        studentsStore.activeJob = {
+          jobId: response.jobId,
+          status: response.status,
+          total: response.total,
+          createdAt: new Date().toISOString(),
+          progress: {
+            queued: response.total,
+            processing: 0,
+            completed: 0,
+            failed: 0,
+            cancelled: 0
+          }
         }
       }
 
-      // Add all passports of the new job to the checkingPassports loading set
+      return response
+    } catch (err) {
+      // Revert optimistic updates
       for (const passport of passports) {
-        studentsStore.checkingPassports.set(passport, 'queued')
+        if (studentsStore.checkingPassports.get(passport) === 'queued') {
+          studentsStore.checkingPassports.delete(passport)
+        }
       }
       studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
-      return response
-    } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('[Visa Check Queue] Failed to create job:', msg)
       throw err
