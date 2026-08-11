@@ -2,8 +2,9 @@
 useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [
-    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-    { rel: 'apple-touch-icon', href: '/logo.png' }
+    { rel: 'icon', type: 'image/png', href: '/favicon-32x32.png', sizes: '32x32' },
+    { rel: 'icon', type: 'image/png', href: '/icon-120.png', sizes: '120x120' },
+    { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' }
   ],
   htmlAttrs: { lang: 'uz' }
 })
