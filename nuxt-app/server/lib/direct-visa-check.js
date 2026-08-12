@@ -253,7 +253,7 @@ function parseResult1_1(html) {
     }
 
     const parsedStatus = parseKoreanStatus(statusKor)
-    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED'
+    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED' || parsedStatus === 'PENDING SUPPLEMENT'
 
     results.push({
       applicationDate: appl_dates[i] || '',
@@ -351,7 +351,7 @@ function parseResult3_2(html) {
     }
 
     const parsedStatus = parseKoreanStatus(statusKor)
-    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED'
+    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED' || parsedStatus === 'PENDING SUPPLEMENT'
 
     results.push({
       applicationDate: appl_dates[i] || '',

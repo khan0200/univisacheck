@@ -82,7 +82,8 @@ export function getStatusDate(student: Student): string {
 
 export function getCancellationReason(student: Student): string {
   const bucket = bucketForStatus(student.status)
-  if (bucket !== 'cancelled') return ''
+  const isSupplement = (student.status || '').toLowerCase().includes('supplement')
+  if (bucket !== 'cancelled' && !isSupplement) return ''
 
   let reason = ''
   const data = parseApiResponse(student.apiResponse)

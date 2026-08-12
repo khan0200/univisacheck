@@ -251,13 +251,20 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
 
           <div
             v-if="reason"
-            class="flex items-start gap-2.5 rounded-xl bg-danger-50 dark:bg-danger-950/30 border border-danger-200 dark:border-danger-900 p-3"
+            class="flex items-start gap-2.5 rounded-xl p-3 border"
+            :class="(props.student?.status || '').toLowerCase().includes('supplement')
+              ? 'bg-warning-50 dark:bg-warning-950/30 border-warning-200 dark:border-warning-900'
+              : 'bg-danger-50 dark:bg-danger-950/30 border-danger-200 dark:border-danger-900'"
           >
             <UIcon
-              name="i-lucide-triangle-alert"
-              class="size-4 text-danger-600 shrink-0 mt-0.5"
+              :name="(props.student?.status || '').toLowerCase().includes('supplement') ? 'i-lucide-triangle-alert' : 'i-lucide-circle-x'"
+              class="size-4 shrink-0 mt-0.5"
+              :class="(props.student?.status || '').toLowerCase().includes('supplement') ? 'text-warning-600' : 'text-danger-600'"
             />
-            <p class="text-xs text-danger-700 dark:text-danger-300 leading-relaxed">
+            <p
+              class="text-xs leading-relaxed"
+              :class="(props.student?.status || '').toLowerCase().includes('supplement') ? 'text-warning-700 dark:text-warning-300' : 'text-danger-700 dark:text-danger-300'"
+            >
               {{ reason }}
             </p>
           </div>

@@ -89,6 +89,7 @@ const cells = computed(() => {
 
 const showDownload = computed(() => {
   const statusUpper = (props.result.status || '').toUpperCase()
+  if (statusUpper.includes('SUPPLEMENT')) return false
   const isApproved = statusUpper.includes('APPROVED') || statusUpper.includes('VISA USED') || statusUpper.includes('ISSUED')
   return isApproved && Boolean(props.result.pdfUrl)
 })
@@ -273,6 +274,19 @@ const remainingDaysText = computed(() => {
       />
       <p class="text-[13.5px] text-danger-800 dark:text-danger-300 leading-relaxed">
         <strong>Reason:</strong> {{ props.result.rejectionReason }}
+      </p>
+    </div>
+
+    <div
+      v-if="props.result.rejectionReason && (props.result.status || '').toUpperCase().includes('SUPPLEMENT')"
+      class="px-5 py-3.5 bg-warning-50 dark:bg-warning-950/30 border-t border-warning-200 dark:border-warning-900 flex gap-2.5"
+    >
+      <UIcon
+        name="i-lucide-triangle-alert"
+        class="size-4 text-warning-600 shrink-0 mt-0.5"
+      />
+      <p class="text-[13.5px] text-warning-800 dark:text-warning-300 leading-relaxed">
+        <strong>Reason for Supplement:</strong> {{ props.result.rejectionReason }}
       </p>
     </div>
 
