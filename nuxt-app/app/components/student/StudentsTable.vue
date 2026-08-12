@@ -499,12 +499,12 @@ watch([() => props.students, () => props.currentFilter], () => {
                   />
                 </div>
               </td>
-              <td class="px-4 py-3 align-top">
+              <td class="px-4 py-3 align-middle">
                 <StudentStatusBadge :status="student.status" />
               </td>
               <td
                 v-if="showAppliedColumn"
-                class="px-4 py-3 align-top whitespace-nowrap"
+                class="px-4 py-3 align-middle whitespace-nowrap"
               >
                 <UiCopyField
                   :value="student.applicationDate"
@@ -516,13 +516,13 @@ watch([() => props.students, () => props.currentFilter], () => {
               </td>
               <td
                 v-if="showStatusDateColumn"
-                class="px-4 py-3 align-top whitespace-nowrap text-[var(--color-text-secondary)]"
+                class="px-4 py-3 align-middle whitespace-nowrap text-[var(--color-text-secondary)]"
               >
                 {{ getStatusDate(student) || '--' }}
               </td>
               <td
                 v-else
-                class="px-4 py-3 align-top whitespace-nowrap text-[var(--color-text-secondary)]"
+                class="px-4 py-3 align-middle whitespace-nowrap text-[var(--color-text-secondary)]"
               >
                 <span
                   v-if="checkingPassports.has(student.passport)"
