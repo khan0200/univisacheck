@@ -229,9 +229,6 @@ function setFilter(filter: StatusFilter) {
         </UiLoadingButton>
       </div>
 
-      <!-- Single-line announcement inside cabinet toolbar -->
-      <StudentVisaProcessingBanner />
-
       <!-- Status tabs — full width on mobile (already grid-cols-4 w-full inside) -->
       <div class="w-full sm:w-auto shrink-0">
         <StudentStatusTabs

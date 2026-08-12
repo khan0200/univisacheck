@@ -3,7 +3,6 @@ import { getTursoClient } from '../utils/turso'
 import { apiError } from '../utils/api-error'
 import { publishRealtime } from '../utils/realtime-publisher'
 import { sendTelegramNotification } from '../utils/telegram-notifier'
-import { tryCreateProcessingNotification } from '../utils/processing-notifier'
 
 function normalizeStatus(status: string): string {
   const s = String(status || '').trim().toLowerCase()
@@ -144,13 +143,6 @@ export default defineEventHandler(async (event) => {
           }).catch((err) => {
             console.error('[Check Status] Telegram notification error:', err instanceof Error ? err.message : String(err))
           })
-
-          if (normalizeStatus(newStatus) === 'under review' && appDate) {
-            const visaCategory = direct.statusOfResidence || String(firstStudent.visaType || firstStudent.visa_type || visaType)
-            tryCreateProcessingNotification(db, appDate, visaCategory, targetUserId, passport).catch((err) => {
-              console.error('[Check Status] ProcessingNotifier error:', err instanceof Error ? err.message : String(err))
-            })
-          }
         }
       }
     }

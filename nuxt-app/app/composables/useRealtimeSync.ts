@@ -232,17 +232,6 @@ export function useRealtimeSync() {
             }
           }
         })
-
-        // Bind global visa_processing_started event
-        channel.bind('visa_processing_started', (ev: RealtimeEvent) => {
-          useProcessingNotifications().add({
-            applicationDate: ev.applicationDate,
-            notificationId: ev.notificationId,
-            visaTypes: ev.visaTypes,
-            message: ev.message,
-            createdAt: ev.createdAt
-          })
-        })
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         console.error('[Realtime Sync] Pusher setup failed, falling back to SSE:', msg)
@@ -389,16 +378,6 @@ export function useRealtimeSync() {
             })
           }
         }
-      } catch {
-        // Parse error ignored
-      }
-    })
-
-    // Bind global visa_processing_started event
-    source.addEventListener('visa_processing_started', (e: MessageEvent) => {
-      try {
-        const ev = JSON.parse(e.data)
-        useProcessingNotifications().add(ev)
       } catch {
         // Parse error ignored
       }

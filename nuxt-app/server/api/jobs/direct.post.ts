@@ -13,7 +13,6 @@ import { apiError } from '../../utils/api-error'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
 import { sendTelegramNotification } from '../../utils/telegram-notifier'
-import { tryCreateProcessingNotification } from '../../utils/processing-notifier'
 
 function normalizeStatus(status: string): string {
   const s = String(status || '').trim().toLowerCase()
@@ -150,14 +149,6 @@ export default defineEventHandler(async (event) => {
     }).catch((err) => {
       console.error('[Direct Check] Telegram notification error:', err instanceof Error ? err.message : String(err))
     })
-
-    // Processing notification for Under Review
-    if (normalizeStatus(newStatus) === 'under review' && appDate) {
-      const visaCategory = liveResult.statusOfResidence || String(student.visaType || student.visa_type || "Unknown")
-      tryCreateProcessingNotification(db, appDate, visaCategory, userId, passport).catch((err) => {
-        console.error('[Direct Check] ProcessingNotifier error:', err instanceof Error ? err.message : String(err))
-      })
-    }
   }
 
   // 8. Return result immediately

@@ -13,7 +13,6 @@ import { getTursoClient } from '../../utils/turso'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
 import { sendTelegramNotification } from '../../utils/telegram-notifier'
-import { tryCreateProcessingNotification } from '../../utils/processing-notifier'
 
 interface WorkerTask {
   id: string
@@ -261,22 +260,6 @@ async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Ev
           }).catch((tErr) => {
             const errorText = tErr instanceof Error ? tErr.message : String(tErr)
             console.error('[Task Runner Telegram Notifier] Error:', errorText)
-          })
-        }
-
-        // Trigger on UNDER_REVIEW results with a known applicationDate.
-        const isUnderReview = normalizeStatus(newStatus) === 'under review'
-        if (isUnderReview && appDate) {
-          const visaCategory = liveResult.statusOfResidence || student.visaType || student.visa_type || 'Noma\'lum'
-          tryCreateProcessingNotification(
-            db,
-            appDate,
-            visaCategory,
-            claimedTask.userId,
-            claimedTask.passport
-          ).catch((tErr) => {
-            const errText = tErr instanceof Error ? tErr.message : String(tErr)
-            console.error('[Task Runner ProcessingNotifier] Error:', errText)
           })
         }
 
