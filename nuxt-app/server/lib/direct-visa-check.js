@@ -116,11 +116,13 @@ async function getSession(force = false) {
     sessionCookies = newCookies
     sessionFetchedAt = now
     return newCookies
-  } catch {
+  } catch (err) {
     try {
       await tx.rollback()
-    } catch {}
-    console.error('[Session DB] Transaction failed, falling back to local memory')
+    } catch (e) {
+      // ignore rollback failure
+    }
+    console.error('[Session DB] Transaction failed, falling back to local memory:', err)
     if (dbSession && dbSession.cookies) {
       return dbSession.cookies
     }
