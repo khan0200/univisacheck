@@ -150,9 +150,9 @@ export async function downloadStudentVisaPdf(
   const cleanedVisaType = visaType.trim()
   const cleanedAppNo = applicationNo.trim()
 
-  let evSeq: string
-  let invSeq: string
-  let applNo: string
+  let evSeq: string = ''
+  let invSeq: string = ''
+  let applNo: string = ''
   let ccviApplNo: string = ''
   let ccviSeq: string = ''
   let cookies: string | undefined

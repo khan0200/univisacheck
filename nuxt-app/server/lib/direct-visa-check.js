@@ -446,7 +446,6 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
   }
 
   // ── Detect result count ───────────────────────────────────────────────────
-  require('fs').writeFileSync('c:\\Users\\User\\Desktop\\univisacheck\\test-body-debug.html', r.body)
   // visa.go.kr embeds JS like: if ("3" == 0) { /* no results block */ }
   // When countMatch is null the regex didn't match — DON'T assume 0.
   // Instead fall through to the parser and let it decide.
