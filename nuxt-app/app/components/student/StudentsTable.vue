@@ -505,15 +505,9 @@ watch([() => props.students, () => props.currentFilter], () => {
               </td>
               <td
                 v-if="showAppliedColumn"
-                class="px-4 py-3 align-middle whitespace-nowrap"
+                class="px-4 py-3 align-middle whitespace-nowrap text-[var(--color-text-secondary)]"
               >
-                <UiCopyField
-                  :value="student.applicationDate"
-                  label="Copy applied date"
-                  :copy-id="`ad-${student.passport}`"
-                >
-                  {{ student.applicationDate || '--' }}
-                </UiCopyField>
+                {{ student.applicationDate || '--' }}
               </td>
               <td
                 v-if="showStatusDateColumn"
