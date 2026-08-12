@@ -116,9 +116,11 @@ async function getSession(force = false) {
     sessionCookies = newCookies
     sessionFetchedAt = now
     return newCookies
-  } catch (err) {
-    try { await tx.rollback() } catch {}
-    console.error('[Session DB] Transaction failed, falling back to local memory:', err.message)
+  } catch {
+    try {
+      await tx.rollback()
+    } catch {}
+    console.error('[Session DB] Transaction failed, falling back to local memory')
     if (dbSession && dbSession.cookies) {
       return dbSession.cookies
     }
@@ -240,11 +242,11 @@ function parseResult1_1(html) {
     if (judgDates[i] && judgDates[i].match(/\d{4}-\d{2}-\d{2}/)) {
       entryDate = judgDates[i]
     } else {
-      const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/)
+      const entryDateMatch = statusKor.match(/(\d{4}[.-]\d{2}[.-]\d{2})/)
       if (entryDateMatch) {
         entryDate = entryDateMatch[1].replace(/\.$/, '').replace(/\./g, '-')
       } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
-        const htmlDateMatch = html.match(/id="JUDG_DTM"[\s\S]{0,200}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i)
+        const htmlDateMatch = html.match(/id="JUDG_DTM"[\s\S]{0,200}?(\d{4}[.-]\d{2}[.-]\d{2})/i)
         if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g, '-')
       }
     }
@@ -338,11 +340,11 @@ function parseResult3_2(html) {
     if (judgDates3[i] && judgDates3[i].match(/\d{4}-\d{2}-\d{2}/)) {
       entryDate = judgDates3[i]
     } else {
-      const entryDateMatch = statusKor.match(/(\d{4}[\.\-]\d{2}[\.\-]\d{2})/)
+      const entryDateMatch = statusKor.match(/(\d{4}[.-]\d{2}[.-]\d{2})/)
       if (entryDateMatch) {
         entryDate = entryDateMatch[1].replace(/\.$/, '').replace(/\./g, '-')
       } else if (parseKoreanStatus(statusKor) === 'APPROVED') {
-        const htmlDateMatch = html.match(/id="JUDG_(?:DTM|YMD)"[\s\S]{0,200}?(\d{4}[\.\-]\d{2}[\.\-]\d{2})/i)
+        const htmlDateMatch = html.match(/id="JUDG_(?:DTM|YMD)"[\s\S]{0,200}?(\d{4}[.-]\d{2}[.-]\d{2})/i)
         if (htmlDateMatch) entryDate = htmlDateMatch[1].replace(/\./g, '-')
       }
     }
@@ -427,7 +429,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
       'Content-Length': String(Buffer.byteLength(body)),
       'Cookie': cookies
     }, body)
-  } catch (err) {
+  } catch {
     // On network error, try refreshing the session once
     const freshCookies = await getSession(true)
     r = await httpReq('POST', '/openPage.do?MENU_ID=10301', {
