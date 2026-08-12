@@ -272,7 +272,7 @@ watch([() => props.students, () => props.currentFilter], () => {
           </div>
 
           <p
-            v-if="getCancellationReason(student)"
+            v-if="getCancellationReason(student) && !(student.status || '').toLowerCase().includes('supplement')"
             class="text-xs text-danger-600 leading-snug"
           >
             Rejected: {{ formatCancellationReason(getCancellationReason(student)) }}
@@ -478,7 +478,7 @@ watch([() => props.students, () => props.currentFilter], () => {
                   </span>
                 </div>
                 <p
-                  v-if="getCancellationReason(student)"
+                  v-if="getCancellationReason(student) && !(student.status || '').toLowerCase().includes('supplement')"
                   class="text-xs text-danger-600 mt-1 max-w-xs leading-snug"
                 >
                   Rejected: {{ formatCancellationReason(getCancellationReason(student)) }}

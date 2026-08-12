@@ -173,16 +173,46 @@ export async function downloadStudentVisaPdf(
     cookies = await getSession()
   }
 
+  const isEVisa = (cleanedVisaType === 'E-Visa') && cleanedAppNo
+  const isRegional = (cleanedVisaType === 'Regional') && cleanedAppNo
+
+  let bodyParams: Record<string, string>
+  if (isEVisa) {
+    bodyParams = {
+      pRADIOSEARCH: 'gb01',
+      sINVITEE_SEQ: cleanedAppNo,
+      ssINVITEE_SEQ: cleanedAppNo,
+      sPASS_NO: cleanedPassport,
+      sEK_NM: cleanedName,
+      sFROMDATE: cleanedBirthDate,
+      sMainPopUpGB: 'main'
+    }
+  } else if (isRegional) {
+    bodyParams = {
+      pRADIOSEARCH: 'gb02',
+      sBUSI_GB_gb02: 'INVITEE_SEQ_gb02',
+      sPASS_NO: cleanedPassport,
+      sINVITEE_SEQ: cleanedAppNo,
+      ssINVITEE_SEQ: cleanedAppNo,
+      ssBUSI_GBNO_gb02: cleanedAppNo,
+      sEK_NM: cleanedName,
+      sFROMDATE: cleanedBirthDate,
+      sMainPopUpGB: 'main'
+    }
+  } else {
+    bodyParams = {
+      pRADIOSEARCH: 'gb03',
+      sBUSI_GB: 'PASS_NO',
+      sBUSI_GBNO: cleanedPassport,
+      ssBUSI_GBNO: cleanedPassport,
+      sEK_NM: cleanedName,
+      sFROMDATE: cleanedBirthDate,
+      sMainPopUpGB: 'main'
+    }
+  }
+
   // Pre-populate the session
-  const checkBody = querystring.stringify({
-    pRADIOSEARCH: 'gb03',
-    sBUSI_GB: 'PASS_NO',
-    sBUSI_GBNO: cleanedPassport,
-    ssBUSI_GBNO: cleanedPassport,
-    sEK_NM: cleanedName,
-    sFROMDATE: cleanedBirthDate,
-    sMainPopUpGB: 'main'
-  })
+  const checkBody = querystring.stringify(bodyParams)
 
   const checkOptions = {
     hostname: 'www.visa.go.kr',

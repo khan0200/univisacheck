@@ -30,6 +30,7 @@ function handleLogout() {
 const profileMenuItems = computed(() => [
   [
     { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', onSelect: () => navigateTo('/dashboard') },
+    { label: 'Visa Status', icon: 'i-lucide-search', onSelect: () => navigateTo('/visa-status') },
     { label: 'Settings', icon: 'i-lucide-settings', onSelect: () => navigateTo('/settings') }
   ],
   [{ label: 'Sign out', icon: 'i-lucide-log-out', onSelect: handleLogout }]
