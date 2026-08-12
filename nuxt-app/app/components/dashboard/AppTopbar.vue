@@ -89,11 +89,11 @@ const visaFilterMenuItems = computed(() =>
           icon="i-lucide-plus"
           color="primary"
           size="sm"
-          square
-          class="rounded-full"
-          aria-label="Add Student"
+          class="px-2.5 font-semibold text-white"
           @click="openAddModal"
-        />
+        >
+          Add
+        </UButton>
 
         <ClientOnly>
           <DashboardRealtimeIndicator
@@ -239,7 +239,7 @@ const visaFilterMenuItems = computed(() =>
           icon="i-lucide-plus"
           color="primary"
           size="sm"
-          class="px-3 font-semibold rounded-full text-white"
+          class="px-3 font-semibold text-white"
           @click="openAddModal"
         >
           Add
