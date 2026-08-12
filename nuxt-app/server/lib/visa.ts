@@ -153,6 +153,8 @@ export async function downloadStudentVisaPdf(
   let evSeq: string
   let invSeq: string
   let applNo: string
+  let ccviApplNo: string = ''
+  let ccviSeq: string = ''
   let cookies: string | undefined
 
   if (pdfUrl) {
@@ -160,6 +162,8 @@ export async function downloadStudentVisaPdf(
     evSeq = parsedTarget.searchParams.get('evSeq') || ''
     invSeq = parsedTarget.searchParams.get('invSeq') || '0'
     applNo = parsedTarget.searchParams.get('applNo') || ''
+    ccviApplNo = parsedTarget.searchParams.get('ccviApplNo') || ''
+    ccviSeq = parsedTarget.searchParams.get('ccviSeq') || ''
     cookies = await getSession(true)
   } else {
     const directResult = await checkVisaDirect(cleanedPassport, cleanedName, cleanedBirthDate, cleanedVisaType, cleanedAppNo)
@@ -170,6 +174,8 @@ export async function downloadStudentVisaPdf(
     evSeq = resultUrl.searchParams.get('evSeq') || ''
     invSeq = resultUrl.searchParams.get('invSeq') || '0'
     applNo = resultUrl.searchParams.get('applNo') || ''
+    ccviApplNo = resultUrl.searchParams.get('ccviApplNo') || ''
+    ccviSeq = resultUrl.searchParams.get('ccviSeq') || ''
     cookies = await getSession()
   }
 
@@ -250,25 +256,39 @@ export async function downloadStudentVisaPdf(
   }
 
   // Send POST to print servlet to download the PDF
-  const printBody = querystring.stringify({
-    sBUSI_GB: 'PASS_NO',
-    sBUSI_GBNO: cleanedPassport,
-    EV_SEQ: evSeq,
-    INVITEE_SEQ: invSeq,
-    APPL_NO: applNo,
-    ENG_NM: cleanedName,
-    BIRTH_YMD: birthYmd,
-    IN_PHOTO: '/biz/ap/ev/selectInviteeXvarmImage.do',
-    TRAN_TYPE: 'ComSubmit',
-    SE_FLAG_YN: '',
-    LANG_TYPE: 'KO',
-    CMM_TEST_VAL: 'test'
-  })
+  let printParams: Record<string, string> = {}
+  let printPath = '/biz/ap/ev/selectElectronicVisaPrint3.do'
+
+  if (isRegional) {
+    printParams = {
+      PARAM_CCVI_SEQ: ccviSeq,
+      INVITEE_SEQ: invSeq,
+      PARAM_CCVI_APPL_NO: ccviApplNo
+    }
+    printPath = '/biz/si/pr/selectVisaPrintOnOff.do'
+  } else {
+    printParams = {
+      sBUSI_GB: 'PASS_NO',
+      sBUSI_GBNO: cleanedPassport,
+      EV_SEQ: evSeq,
+      INVITEE_SEQ: invSeq,
+      APPL_NO: applNo,
+      ENG_NM: cleanedName,
+      BIRTH_YMD: birthYmd,
+      IN_PHOTO: '/biz/ap/ev/selectInviteeXvarmImage.do',
+      TRAN_TYPE: 'ComSubmit',
+      SE_FLAG_YN: '',
+      LANG_TYPE: 'KO',
+      CMM_TEST_VAL: 'test'
+    }
+  }
+
+  const printBody = querystring.stringify(printParams)
 
   const printOptions = {
     hostname: 'www.visa.go.kr',
     port: 443,
-    path: '/biz/ap/ev/selectElectronicVisaPrint3.do',
+    path: printPath,
     method: 'POST',
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',

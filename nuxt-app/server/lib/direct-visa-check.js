@@ -446,6 +446,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
   }
 
   // ── Detect result count ───────────────────────────────────────────────────
+  require('fs').writeFileSync('c:\\Users\\User\\Desktop\\univisacheck\\test-body-debug.html', r.body)
   // visa.go.kr embeds JS like: if ("3" == 0) { /* no results block */ }
   // When countMatch is null the regex didn't match — DON'T assume 0.
   // Instead fall through to the parser and let it decide.
@@ -491,8 +492,10 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
 
   // Extract dynamic variables for printing/downloading certificate PDF
   let evSeq = (r.body.match(/var\s+evSeq\s*=\s*"([^"]+)"/) || [])[1] || ''
-  let invSeq = (r.body.match(/var\s+invSeq\s*=\s*"([^"]+)"/) || [])[1] || ''
+  let ccviSeq = (r.body.match(/var\s+ccvi_seq\s*=\s*"([^"]+)"/) || [])[1] || ''
+  let invSeq = (r.body.match(/var\s+(?:invSeq|invitee_seq)\s*=\s*"([^"]+)"/) || [])[1] || ''
   let applNo = (r.body.match(/var\s+applNo\s*=\s*"([^"]+)"/) || [])[1] || ''
+  let ccviApplNo = (r.body.match(/var\s+ccviApplNo\s*=\s*"([^"]+)"/) || [])[1] || ''
 
   if (!evSeq) {
     // Fallback: Extract from print link function calls (e.g. fn_reportByCsvMap4('UZ26VC014857','0','',...))
@@ -517,8 +520,8 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
   }
 
   let pdfUrl = ''
-  if (evSeq) {
-    pdfUrl = `https://www.visa.go.kr/biz/ap/ev/selectElectronicVisaPrint3.do?evSeq=${evSeq}&invSeq=${invSeq}&applNo=${applNo}`
+  if (evSeq || ccviSeq) {
+    pdfUrl = `https://www.visa.go.kr/biz/ap/ev/selectElectronicVisaPrint3.do?evSeq=${evSeq}&invSeq=${invSeq}&applNo=${applNo}&ccviApplNo=${ccviApplNo}&ccviSeq=${ccviSeq}`
   }
 
   // Extract extra visa info fields (TABLE 3 / E-Visa Table)
@@ -565,7 +568,9 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     visaKind,
     statusOfResidence,
     invitingCompany,
-    pdfUrl
+    pdfUrl,
+    ccviApplNo,
+    ccviSeq
   }
 }
 
