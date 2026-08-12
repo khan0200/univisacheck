@@ -214,7 +214,7 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
               copy-id="modal-appdate"
             />
             <StudentDetailCopyCell
-              v-if="props.student.visaType === 'E-Visa'"
+              v-if="props.student.applicationNo"
               label="Application Number"
               :value="props.student.applicationNo"
               copy-id="modal-appno"
@@ -227,7 +227,7 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
             />
             <div
               class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3"
-              :class="{ 'col-span-2': props.student.visaType !== 'E-Visa' && !statusDate }"
+              :class="{ 'col-span-2': !props.student.applicationNo && !statusDate }"
             >
               <p class="text-xs text-[var(--color-text-secondary)] mb-1">
                 Last Checked
