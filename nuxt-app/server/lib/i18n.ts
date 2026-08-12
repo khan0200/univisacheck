@@ -94,7 +94,7 @@ const translations: Record<string, Record<Lang, string>> = {
   // ── PDF ────────────────────────────────────────────────────────────────
   pdf_loading: { uz: '⏳ *Viza yuklab olinmoqda...*\n_Iltimos kutib turing, visa.go.kr portaliga so\'rov yuborilmoqda..._', en: '⏳ *Downloading certificate...*\n_Please wait, sending request to visa.go.kr portal..._' },
   pdf_no_student: { uz: '❌ Talaba ma\'lumotlari topilmadi. Avval statusni tekshiring.', en: '❌ Student data not found. Check status first.' },
-  pdf_caption: { uz: '📄 *Koreya vizasi* ({passport})', en: '📄 *Korea Visa Certificate* ({passport})' },
+  pdf_caption: { uz: '📄 *Koreya vizasi*\n👤 *{name}*\n🪪 *{passport}*', en: '📄 *Korea Visa Certificate*\n👤 *{name}*\n🪪 *{passport}*' },
   pdf_error: { uz: '❌ *Vizani yuklab bo\'lmadi:* {error}', en: '❌ *Could not download certificate:* {error}' },
   btn_pdf: { uz: '📥 Viza (pdf)', en: '📥 Visa (pdf)' },
 

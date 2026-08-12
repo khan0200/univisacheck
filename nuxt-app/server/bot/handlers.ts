@@ -562,7 +562,7 @@ export async function handleCallbackQuery(ctx: Context) {
       await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {})
 
       await ctx.replyWithDocument(new InputFile(pdfRes.buffer, pdfRes.filename), {
-        caption: t('pdf_caption', lang, { passport }),
+        caption: t('pdf_caption', lang, { passport, name: fullName }),
         parse_mode: 'Markdown'
       })
     } catch (err: any) {
