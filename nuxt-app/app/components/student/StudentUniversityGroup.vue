@@ -13,6 +13,7 @@ const emit = defineEmits<{
   'details': [student: Student]
   'delete': [student: Student]
   'refresh': [student: Student]
+  'refresh-group': [students: Student[]]
   'download-pdf': [student: Student]
   'toggle-select': [student: Student, checked: boolean]
   'toggle-pin': [student: Student]
@@ -20,32 +21,57 @@ const emit = defineEmits<{
 
 const isOpen = ref(true)
 const displayName = computed(() => props.groupName || 'No Group')
+const groupIsChecking = computed(() => props.students.some(s => props.checkingPassports.has(s.passport)))
 </script>
 
 <template>
   <div class="rounded-xl border border-neutral-300 dark:border-white/20 shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] overflow-hidden bg-white dark:bg-[var(--color-card-dark)]">
     <!-- Accordion header -->
-    <button
-      type="button"
-      class="w-full flex items-center justify-between gap-2 px-4 py-2 text-left bg-[#0B4133] hover:bg-[#0d4e3d] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
-      :aria-expanded="isOpen"
-      @click="isOpen = !isOpen"
-    >
-      <div class="flex items-center gap-2 min-w-0">
-        <UIcon name="i-lucide-landmark" class="flex-shrink-0 size-3.5 text-primary-300/80" />
+    <div class="w-full flex items-center justify-between bg-[#0B4133] hover:bg-[#0d4e3d] transition-colors group">
+      <!-- Clickable area to toggle accordion -->
+      <button
+        type="button"
+        class="flex-1 flex items-center gap-2 px-4 py-2 min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+        :aria-expanded="isOpen"
+        @click="isOpen = !isOpen"
+      >
+        <UIcon name="i-lucide-landmark" class="flex-shrink-0 size-3.5 text-white" />
         <span class="font-semibold text-white text-xs truncate tracking-wide">
           {{ displayName }}
         </span>
         <span class="flex-shrink-0 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[10px] font-bold bg-primary-600/70 text-white">
           {{ students.length }}
         </span>
+      </button>
+
+      <!-- Actions area -->
+      <div class="flex items-center gap-1 pr-3">
+        <button
+          type="button"
+          class="flex items-center justify-center text-white/90 hover:text-white transition-colors p-1.5 rounded hover:bg-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          title="Check all in group"
+          :disabled="groupIsChecking"
+          @click="emit('refresh-group', students)"
+        >
+          <UIcon 
+            name="i-lucide-refresh-cw" 
+            class="size-3.5" 
+            :class="{ 'animate-spin': groupIsChecking }" 
+          />
+        </button>
+        <button
+          type="button"
+          class="flex items-center justify-center text-white/90 hover:text-white p-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          @click="isOpen = !isOpen"
+        >
+          <UIcon
+            name="i-lucide-chevron-down"
+            class="flex-shrink-0 size-3.5 transition-transform duration-200"
+            :class="{ 'rotate-180': isOpen }"
+          />
+        </button>
       </div>
-      <UIcon
-        name="i-lucide-chevron-down"
-        class="flex-shrink-0 size-3.5 text-primary-300/60 transition-transform duration-200"
-        :class="{ 'rotate-180': isOpen }"
-      />
-    </button>
+    </div>
 
     <!-- Collapsible body -->
     <div

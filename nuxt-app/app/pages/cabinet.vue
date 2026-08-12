@@ -90,6 +90,15 @@ async function handleRefresh(student: Student) {
   }
 }
 
+async function handleGroupRefresh(students: Student[]) {
+  if (!students.length) return
+  try {
+    await checkMany(students)
+  } catch {
+    toast.add({ title: 'Failed to queue group visa check.', color: 'error', icon: 'i-lucide-alert-triangle', duration: 2500 })
+  }
+}
+
 function handleDownloadPdf(student: Student) {
   if (student.visaType === 'E-Visa') {
     toast.add({
@@ -248,6 +257,7 @@ function setFilter(filter: StatusFilter) {
             @details="openDetails"
             @delete="promptDelete"
             @refresh="handleRefresh"
+            @refresh-group="handleGroupRefresh"
             @download-pdf="handleDownloadPdf"
             @toggle-select="handleToggleSelect"
             @toggle-pin="handleTogglePin"
