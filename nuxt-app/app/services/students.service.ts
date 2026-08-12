@@ -94,12 +94,14 @@ export function useStudentsService() {
     })
   }
 
-  function downloadPdfUrl(student: Pick<Student, 'passport' | 'fullName' | 'birthday' | 'pdfUrl'>) {
+  function downloadPdfUrl(student: Pick<Student, 'passport' | 'fullName' | 'birthday' | 'pdfUrl' | 'visaType' | 'applicationNo'>) {
     const params = new URLSearchParams({
       url: student.pdfUrl || '',
       passport: student.passport,
       full_name: student.fullName || '',
-      birth_date: student.birthday || ''
+      birth_date: student.birthday || '',
+      visa_type: student.visaType || '',
+      application_no: student.applicationNo || ''
     })
     return `/api/download-visa-pdf?${params.toString()}`
   }

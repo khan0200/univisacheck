@@ -157,6 +157,9 @@ export async function downloadStudentVisaPdf(
   let ccviSeq: string = ''
   let cookies: string | undefined
 
+  const isEVisa = (cleanedVisaType === 'Regional' || cleanedVisaType === 'E-Visa') && cleanedAppNo
+  const isRegional = (cleanedVisaType === 'Regional')
+
   if (pdfUrl) {
     const parsedTarget = new URL(pdfUrl)
     evSeq = parsedTarget.searchParams.get('evSeq') || ''
@@ -165,7 +168,10 @@ export async function downloadStudentVisaPdf(
     ccviApplNo = parsedTarget.searchParams.get('ccviApplNo') || ''
     ccviSeq = parsedTarget.searchParams.get('ccviSeq') || ''
     cookies = await getSession(true)
-  } else {
+  }
+
+  // If pdfUrl was not passed OR if this is a Regional visa missing ccviSeq/ccviApplNo, perform a live check to get fresh params
+  if (!pdfUrl || (isRegional && (!ccviSeq || !ccviApplNo))) {
     const directResult = await checkVisaDirect(cleanedPassport, cleanedName, cleanedBirthDate, cleanedVisaType, cleanedAppNo)
     if (!directResult.found || !directResult.pdfUrl) {
       throw new Error('No visa record or PDF download parameters found on visa.go.kr.')
@@ -178,9 +184,6 @@ export async function downloadStudentVisaPdf(
     ccviSeq = resultUrl.searchParams.get('ccviSeq') || ''
     cookies = await getSession()
   }
-
-  const isEVisa = (cleanedVisaType === 'E-Visa') && cleanedAppNo
-  const isRegional = (cleanedVisaType === 'Regional') && cleanedAppNo
 
   let bodyParams: Record<string, string>
   if (isEVisa) {
