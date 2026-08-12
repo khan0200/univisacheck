@@ -361,10 +361,10 @@ watch([() => props.students, () => props.currentFilter], () => {
 
     <!-- Desktop/tablet: table -->
     <div class="hidden md:block overflow-x-auto">
-      <table class="w-full text-sm border-collapse table-fixed">
+      <table class="w-full min-w-[1000px] text-sm border-collapse table-fixed">
         <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
           <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
-            <th class="px-3 py-1.5">
+            <th class="px-3 py-1.5 min-w-[250px]">
               <div class="flex items-center gap-2">
                 <span>Name</span>
                 <span
@@ -376,26 +376,27 @@ watch([() => props.students, () => props.currentFilter], () => {
                     name="i-lucide-clock"
                     class="size-2.5 shrink-0 animate-pulse text-primary-600 dark:text-primary-400"
                   />
-                  <span class="font-semibold text-neutral-600 dark:text-neutral-300">Auto Check:</span>
+                  <span class="font-semibold text-neutral-600 dark:text-neutral-300 hidden lg:inline">Auto Check:</span>
+                  <span class="font-semibold text-neutral-600 dark:text-neutral-300 lg:hidden">Auto:</span>
                   <span class="font-mono font-bold text-primary-700 dark:text-primary-300">{{ formattedAutoCheckTimer }}</span>
                 </span>
               </div>
             </th>
-            <th class="px-3 py-1.5 w-44">
+            <th class="px-3 py-1.5 w-32">
               Passport
             </th>
-            <th class="px-3 py-1.5 w-44">
+            <th class="px-3 py-1.5 w-40">
               Status
             </th>
             <th
               v-if="showAppliedColumn"
-              class="px-3 py-1.5 w-32"
+              class="px-3 py-1.5 w-28"
             >
               Applied
             </th>
             <th
               v-if="showStatusDateColumn"
-              class="px-3 py-1.5 w-36"
+              class="px-3 py-1.5 w-32"
             >
               Status Date
             </th>
@@ -413,11 +414,11 @@ watch([() => props.students, () => props.currentFilter], () => {
             </th>
             <th
               v-if="showPdfColumn"
-              class="px-3 py-1.5 w-20 text-center"
+              class="px-3 py-1.5 w-16 text-center"
             >
               PDF
             </th>
-            <th class="px-3 py-1.5 w-40 text-right">
+            <th class="px-3 py-1.5 w-36 text-right">
               Actions
             </th>
           </tr>
