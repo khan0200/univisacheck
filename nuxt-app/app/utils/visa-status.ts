@@ -56,6 +56,45 @@ export function formatCancellationReason(reason: string | undefined | null): str
   return String(reason || '').replace(/\s+(?=\d+\.)/g, ' ')
 }
 
+export interface RejectionReasonItem {
+  number?: string
+  text: string
+}
+
+export function parseRejectionReason(reason: string | undefined | null): RejectionReasonItem[] {
+  if (!reason) return []
+  let str = String(reason).trim()
+  if (!str) return []
+
+  // Remove leading "Rejected:" prefix if present
+  str = str.replace(/^Rejected:\s*/i, '').trim()
+
+  // Match pattern: (digit+).(text until next digit+. or end of string)
+  const regex = /(\d+)\.\s*([\s\S]+?)(?=(?:\s*\d+\.|$))/g
+  const matches = Array.from(str.matchAll(regex))
+
+  if (matches.length > 0) {
+    const items: RejectionReasonItem[] = []
+    const firstMatchIdx = matches[0].index ?? 0
+    if (firstMatchIdx > 0) {
+      const preText = str.slice(0, firstMatchIdx).trim()
+      if (preText) {
+        items.push({ text: preText })
+      }
+    }
+    for (const match of matches) {
+      const num = match[1]
+      const txt = match[2].trim()
+      if (txt) {
+        items.push({ number: num, text: txt })
+      }
+    }
+    return items
+  }
+
+  return [{ text: str }]
+}
+
 function parseApiResponse(apiResponse: Student['apiResponse']): StudentApiResponse | null {
   if (!apiResponse) return null
   if (typeof apiResponse === 'string') {

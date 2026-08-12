@@ -186,6 +186,11 @@ export function useRealtimeSync() {
           }
         })
 
+        channel.bind('visa_processing_started', (ev: RealtimeEvent) => {
+          const { add: addProcessingNotification } = useProcessingNotifications()
+          addProcessingNotification(ev as unknown as Record<string, unknown>)
+        })
+
         // Bind Visa Check Job events
         channel.bind('visa_check.started', (ev: RealtimeEvent) => {
           if (ev.studentId) {
@@ -378,6 +383,16 @@ export function useRealtimeSync() {
             })
           }
         }
+      } catch {
+        // Parse error ignored
+      }
+    })
+
+    source.addEventListener('visa_processing_started', (e: MessageEvent) => {
+      try {
+        const ev = JSON.parse(e.data) as RealtimeEvent
+        const { add: addProcessingNotification } = useProcessingNotifications()
+        addProcessingNotification(ev as unknown as Record<string, unknown>)
       } catch {
         // Parse error ignored
       }

@@ -251,22 +251,27 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
 
           <div
             v-if="reason"
-            class="flex items-start gap-2.5 rounded-xl p-3 border"
+            class="rounded-xl p-3 border"
             :class="(props.student?.status || '').toLowerCase().includes('supplement')
               ? 'bg-warning-50 dark:bg-warning-950/30 border-warning-200 dark:border-warning-900'
-              : 'bg-danger-50 dark:bg-danger-950/30 border-danger-200 dark:border-danger-900'"
+              : 'bg-danger-50/70 dark:bg-danger-950/30 border-danger-200 dark:border-danger-900'"
           >
-            <UIcon
-              :name="(props.student?.status || '').toLowerCase().includes('supplement') ? 'i-lucide-triangle-alert' : 'i-lucide-circle-x'"
-              class="size-4 shrink-0 mt-0.5"
-              :class="(props.student?.status || '').toLowerCase().includes('supplement') ? 'text-warning-600' : 'text-danger-600'"
+            <StudentRejectionReason
+              v-if="!(props.student?.status || '').toLowerCase().includes('supplement')"
+              :reason="reason"
             />
-            <p
-              class="text-xs leading-relaxed"
-              :class="(props.student?.status || '').toLowerCase().includes('supplement') ? 'text-warning-700 dark:text-warning-300' : 'text-danger-700 dark:text-danger-300'"
+            <div
+              v-else
+              class="flex items-start gap-2.5"
             >
-              {{ reason }}
-            </p>
+              <UIcon
+                name="i-lucide-triangle-alert"
+                class="size-4 shrink-0 mt-0.5 text-warning-600"
+              />
+              <p class="text-xs leading-relaxed text-warning-700 dark:text-warning-300">
+                {{ reason }}
+              </p>
+            </div>
           </div>
         </div>
 

@@ -266,15 +266,9 @@ const remainingDaysText = computed(() => {
 
     <div
       v-if="props.result.rejectionReason && (props.result.status || '').toUpperCase().match(/REJECT|CANCEL|RETURN/)"
-      class="px-5 py-3.5 bg-danger-50 dark:bg-danger-950/30 border-t border-danger-200 dark:border-danger-900 flex gap-2.5"
+      class="px-5 py-3.5 bg-danger-50/70 dark:bg-danger-950/30 border-t border-danger-200 dark:border-danger-900"
     >
-      <UIcon
-        name="i-lucide-circle-x"
-        class="size-4 text-danger-600 shrink-0 mt-0.5"
-      />
-      <p class="text-[13.5px] text-danger-800 dark:text-danger-300 leading-relaxed">
-        <strong>Reason:</strong> {{ props.result.rejectionReason }}
-      </p>
+      <StudentRejectionReason :reason="props.result.rejectionReason" />
     </div>
 
     <div

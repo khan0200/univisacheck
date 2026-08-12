@@ -271,12 +271,11 @@ watch([() => props.students, () => props.currentFilter], () => {
             <StudentStatusBadge :status="student.status" />
           </div>
 
-          <p
+          <StudentRejectionReason
             v-if="getCancellationReason(student) && !(student.status || '').toLowerCase().includes('supplement')"
-            class="text-xs text-danger-600 leading-snug"
-          >
-            Rejected: {{ formatCancellationReason(getCancellationReason(student)) }}
-          </p>
+            :reason="getCancellationReason(student)"
+            compact
+          />
 
           <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
             <span v-if="showAppliedColumn">Applied: {{ student.applicationDate || '--' }}</span>
@@ -477,14 +476,13 @@ watch([() => props.students, () => props.currentFilter], () => {
                     />
                   </span>
                 </div>
-                <p
+                <StudentRejectionReason
                   v-if="getCancellationReason(student) && !(student.status || '').toLowerCase().includes('supplement')"
-                  class="text-xs text-danger-600 mt-1 max-w-xs leading-snug"
-                >
-                  Rejected: {{ formatCancellationReason(getCancellationReason(student)) }}
-                </p>
+                  :reason="getCancellationReason(student)"
+                  compact
+                />
               </td>
-              <td class="px-4 py-3 align-top whitespace-nowrap">
+              <td class="px-4 py-3 align-middle whitespace-nowrap">
                 <div class="font-bold text-[var(--color-text-primary)] dark:text-white">
                   <UiCopyField
                     :value="student.passport"
