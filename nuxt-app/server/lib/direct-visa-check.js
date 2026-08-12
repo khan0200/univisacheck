@@ -119,7 +119,7 @@ async function getSession(force = false) {
   } catch (err) {
     try {
       await tx.rollback()
-    } catch (e) {
+    } catch {
       // ignore rollback failure
     }
     console.error('[Session DB] Transaction failed, falling back to local memory:', err)
