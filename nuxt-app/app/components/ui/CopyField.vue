@@ -11,12 +11,12 @@ const canCopy = computed(() => displayText.value !== '--')
 </script>
 
 <template>
-  <span class="inline-flex items-center gap-1 group/copy">
-    <span><slot>{{ displayText }}</slot></span>
+  <span class="inline-flex max-w-full items-center gap-1 group/copy min-w-0">
+    <span class="min-w-0 break-words overflow-wrap-anywhere"><slot>{{ displayText }}</slot></span>
     <button
       v-if="canCopy"
       type="button"
-      class="inline-flex items-center gap-1 transition-colors opacity-70 hover:opacity-100"
+      class="inline-flex shrink-0 items-center gap-1 transition-colors opacity-70 hover:opacity-100"
       :class="isCopied(props.copyId) ? 'text-primary-600 dark:text-primary-400 opacity-100' : 'text-[var(--color-text-secondary)] hover:text-primary-700 dark:hover:text-secondary-300'"
       :title="label"
       :aria-label="label"
