@@ -17,6 +17,7 @@ const emit = defineEmits<{
   'download-pdf': [student: Student]
   'toggle-select': [student: Student, checked: boolean]
   'toggle-pin': [student: Student]
+  'deselect-group': [students: Student[]]
 }>()
 
 const isOpen = ref(true)
@@ -91,6 +92,7 @@ const groupIsChecking = computed(() => props.students.some(s => props.checkingPa
         @download-pdf="emit('download-pdf', $event)"
         @toggle-select="(s, c) => emit('toggle-select', s, c)"
         @toggle-pin="emit('toggle-pin', $event)"
+        @deselect-all="emit('deselect-group', students)"
       />
     </div>
   </div>

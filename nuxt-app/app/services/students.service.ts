@@ -30,10 +30,13 @@ export function useStudentsService() {
     })
   }
 
-  function setBatchSelected(passport: string, batchSelected: boolean) {
+  function setBatchSelected(passport: string | string[], batchSelected: boolean) {
+    const body = Array.isArray(passport)
+      ? { passports: passport, batchSelected, batchSelectedUpdatedAt: true }
+      : { passport, batchSelected, batchSelectedUpdatedAt: true }
     return apiFetch<{ success: boolean }>(STUDENTS_URL, {
       method: 'PATCH',
-      body: { passport, batchSelected, batchSelectedUpdatedAt: true }
+      body
     })
   }
 

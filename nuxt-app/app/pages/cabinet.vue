@@ -181,6 +181,42 @@ async function handleModalBulkDelete(passports: string[]) {
   }
 }
 
+const selectedStudentsCount = computed(() => {
+  return selectedStudentsToCheck.value.length
+})
+
+const isDeselecting = ref(false)
+
+async function handleDeselectGroup(studentsList: Student[]) {
+  const selectedList = studentsList.filter(s => s.batchSelected)
+  if (selectedList.length === 0) return
+
+  isDeselecting.value = true
+  const passports = selectedList.map(s => s.passport)
+
+  // Optimistic update
+  for (const s of selectedList) {
+    s.batchSelected = false
+  }
+
+  try {
+    await setBatchSelected(passports, false)
+    toast.add({ title: `Deselected ${passports.length} student(s)`, color: 'primary', icon: 'i-lucide-check-circle', duration: 2500 })
+  } catch {
+    // Revert optimistic update on failure
+    for (const s of selectedList) {
+      s.batchSelected = true
+    }
+    toast.add({ title: 'Failed to deselect students.', color: 'error', duration: 2500 })
+  } finally {
+    isDeselecting.value = false
+  }
+}
+
+async function handleDeselectAll() {
+  await handleDeselectGroup(selectedStudentsToCheck.value)
+}
+
 function setFilter(filter: StatusFilter) {
   studentsStore.setFilter(filter)
 }
@@ -216,6 +252,16 @@ function setFilter(filter: StatusFilter) {
         >
           Delete
         </UButton>
+
+        <UiLoadingButton
+          v-if="selectedStudentsCount > 0"
+          size="lg"
+          class="h-11 justify-center flex-1 sm:flex-none bg-[#FBBF24] hover:bg-[#F59E0B] text-[#0B4133] font-bold shadow-sm border-0"
+          :loading="isDeselecting"
+          @click="handleDeselectAll"
+        >
+          Undo ({{ selectedStudentsCount }})
+        </UiLoadingButton>
 
         <UiLoadingButton
           v-if="selectedStudentsToCheck.length > 0"
@@ -258,6 +304,7 @@ function setFilter(filter: StatusFilter) {
             @download-pdf="handleDownloadPdf"
             @toggle-select="handleToggleSelect"
             @toggle-pin="handleTogglePin"
+            @deselect-group="handleDeselectGroup"
           />
         </div>
       </template>
@@ -286,6 +333,7 @@ function setFilter(filter: StatusFilter) {
           @download-pdf="handleDownloadPdf"
           @toggle-select="handleToggleSelect"
           @toggle-pin="handleTogglePin"
+          @deselect-all="handleDeselectAll"
         />
       </UCard>
 

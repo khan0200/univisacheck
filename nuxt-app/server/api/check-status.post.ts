@@ -175,9 +175,13 @@ export default defineEventHandler(async (event) => {
       source: 'visa.go.kr'
     }
   } catch (err: unknown) {
-    const errorObj = err as { statusCode?: number, message?: string }
+    const errorObj = err as { statusCode?: number, message?: string, code?: string }
     if (errorObj.statusCode) throw err
+    const isTimeout = errorObj.code === 'ETIMEDOUT' || errorObj.code === 'ECONNRESET' || errorObj.code === 'ENOTFOUND' || (errorObj.message && errorObj.message.includes('ETIMEDOUT'))
     console.error('[Check Status] Error:', errorObj.message || String(err))
-    apiError(500, errorObj.message || String(err))
+    if (isTimeout) {
+      apiError(504, 'Official visa portal (visa.go.kr) connection timed out. Please try again in a few moments.')
+    }
+    apiError(502, `Failed to connect to visa portal: ${errorObj.message || 'Unknown network error'}`)
   }
 })

@@ -75,7 +75,8 @@ export function parseRejectionReason(reason: string | undefined | null): Rejecti
 
   if (matches.length > 0) {
     const items: RejectionReasonItem[] = []
-    const firstMatchIdx = matches[0].index ?? 0
+    const firstMatch = matches[0]
+    const firstMatchIdx = firstMatch?.index ?? 0
     if (firstMatchIdx > 0) {
       const preText = str.slice(0, firstMatchIdx).trim()
       if (preText) {
@@ -84,7 +85,7 @@ export function parseRejectionReason(reason: string | undefined | null): Rejecti
     }
     for (const match of matches) {
       const num = match[1]
-      const txt = match[2].trim()
+      const txt = (match[2] ?? '').trim()
       if (txt) {
         items.push({ number: num, text: txt })
       }

@@ -20,7 +20,10 @@ const emit = defineEmits<{
   'download-pdf': [student: Student]
   'toggle-select': [student: Student, checked: boolean]
   'toggle-pin': [student: Student]
+  'deselect-all': []
 }>()
+
+const hasAnySelected = computed(() => props.students.some(s => s.batchSelected))
 
 const showSelectColumn = computed(() => props.currentFilter === 'application' || props.currentFilter === 'pending')
 
@@ -407,9 +410,20 @@ watch([() => props.students, () => props.currentFilter], () => {
             </th>
             <th
               v-if="showSelectColumn"
-              class="px-3 py-1.5 w-16 text-center"
+              class="px-3 py-1.5 w-20 text-center"
             >
-              Select
+              <div class="flex items-center justify-center gap-1">
+                <span>Select</span>
+                <button
+                  v-if="hasAnySelected"
+                  type="button"
+                  class="p-0.5 rounded text-neutral-500 hover:text-error-600 dark:text-neutral-400 dark:hover:text-error-400 hover:bg-neutral-200 dark:hover:bg-white/10 transition-colors"
+                  title="Deselect all selected checkboxes"
+                  @click.stop="emit('deselect-all')"
+                >
+                  <UIcon name="i-lucide-square-x" class="size-3.5" />
+                </button>
+              </div>
             </th>
             <th
               v-if="showPdfColumn"

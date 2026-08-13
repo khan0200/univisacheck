@@ -52,13 +52,25 @@ export default defineEventHandler(async (event) => {
 
   // 4. Run visa check directly (synchronous — no queue)
   console.log(`[Direct Check] Checking passport ${passport} for userId ${userId}`)
-  const liveResult = await checkStudentVisaStatus(
-    passport,
-    String(student.fullName || student.fullname || ''),
-    String(student.birthday || ''),
-    String(student.visaType || student.visa_type || 'Embassy'),
-    String(student.applicationNo || student.application_no || '')
-  )
+  let liveResult
+  try {
+    liveResult = await checkStudentVisaStatus(
+      passport,
+      String(student.fullName || student.fullname || ''),
+      String(student.birthday || ''),
+      String(student.visaType || student.visa_type || 'Embassy'),
+      String(student.applicationNo || student.application_no || '')
+    )
+  } catch (err: unknown) {
+    const errorObj = err as { statusCode?: number, message?: string, code?: string }
+    if (errorObj.statusCode) throw err
+    const isTimeout = errorObj.code === 'ETIMEDOUT' || errorObj.code === 'ECONNRESET' || errorObj.code === 'ENOTFOUND' || (errorObj.message && errorObj.message.includes('ETIMEDOUT'))
+    console.error(`[Direct Check] Network error checking passport ${passport}:`, errorObj.message || String(err))
+    if (isTimeout) {
+      apiError(504, 'Official visa portal (visa.go.kr) connection timed out. Please try again in a few moments.')
+    }
+    apiError(502, `Failed to connect to visa portal: ${errorObj.message || 'Unknown network error'}`)
+  }
 
   const nowIso = new Date().toISOString()
   const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus

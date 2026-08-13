@@ -211,6 +211,45 @@ export default defineEventHandler(async (event) => {
 
     if (method === 'POST' || method === 'PATCH') {
       const body = await readBody(event)
+
+      if (method === 'PATCH' && (Array.isArray(body.passports) || (typeof body.passports === 'string' && body.passports.includes(',')))) {
+        const rawPassports: string[] = Array.isArray(body.passports)
+          ? body.passports
+          : String(body.passports).split(',')
+        const passports = rawPassports.map(p => String(p).toUpperCase().trim()).filter(Boolean)
+        if (passports.length === 0) apiError(400, 'Missing passports in request body')
+
+        const batchSelected = body.batchSelected !== undefined ? (body.batchSelected ? 1 : 0) : null
+        const batchSelectedUpdatedAt = body.batchSelectedUpdatedAt ? new Date().toISOString() : null
+
+        if (batchSelected !== null) {
+          const placeholders = passports.map(() => '?').join(',')
+          const sql = `UPDATE students SET batchSelected = ?, batchSelectedUpdatedAt = ? WHERE userId = ? AND passport IN (${placeholders})`
+          const eventTimestamp = batchSelectedUpdatedAt || new Date().toISOString()
+          await db.execute({
+            sql,
+            args: [batchSelected, eventTimestamp, userId, ...passports]
+          })
+
+          const originClientId = getHeader(event, 'x-client-id') || ''
+          for (const p of passports) {
+            publishEvent(userId, {
+              type: 'student.updated',
+              eventId: crypto.randomUUID(),
+              updatedAt: eventTimestamp,
+              originClientId,
+              passport: p,
+              changes: {
+                batchSelected: batchSelected === 1,
+                batchSelectedUpdatedAt: eventTimestamp
+              }
+            })
+          }
+        }
+
+        return { success: true }
+      }
+
       const passport = (body.passport || '').toUpperCase().trim()
       // originalPassport is sent only when editing an existing student whose
       // passport number itself is being changed — it identifies which row to
