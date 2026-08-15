@@ -34,6 +34,7 @@ const embassyModalOpen = ref(false)
     />
     <UniversitySection />
     <UniversityAccreditedListSection />
+    <UniversityAdmissionTableSection />
     <UiSiteFooter />
 
     <UniversityAdmissionDocsModal v-model:open="admissionModalOpen" />

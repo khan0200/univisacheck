@@ -4,8 +4,9 @@ const scrolled = ref(false)
 
 const navLinks = [
   { label: 'Viza tekshirish', to: '/visa-status' },
-  { label: 'Hujjatlar', to: '#hujjatlar' },
-  { label: 'Universitetlar', to: '#universitetlar' }
+  { label: 'Admission', to: '/#admission' },
+  { label: 'Hujjatlar', to: '/#hujjatlar' },
+  { label: 'Universitetlar', to: '/#universitetlar' }
 ]
 
 function handleScroll() {
@@ -57,12 +58,12 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
           v-for="link in navLinks"
           :key="link.to"
         >
-          <a
-            :href="link.to"
+          <NuxtLink
+            :to="link.to"
             class="px-3.5 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] dark:hover:text-white hover:bg-primary-50 dark:hover:bg-white/5 transition-colors"
           >
             {{ link.label }}
-          </a>
+          </NuxtLink>
         </li>
       </ul>
 
@@ -119,13 +120,13 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
             v-for="link in navLinks"
             :key="link.to"
           >
-            <a
-              :href="link.to"
+            <NuxtLink
+              :to="link.to"
               class="block px-4 py-3.5 rounded-xl text-base font-medium text-[var(--color-text-primary)] dark:text-white hover:bg-primary-50 dark:hover:bg-white/5 transition-colors"
               @click="closeMobileMenu"
             >
               {{ link.label }}
-            </a>
+            </NuxtLink>
           </li>
         </ul>
         <div class="p-6 border-t border-[var(--color-border)] dark:border-white/[0.08]">

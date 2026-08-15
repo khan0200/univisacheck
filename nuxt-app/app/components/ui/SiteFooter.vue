@@ -1,8 +1,9 @@
 <script setup lang="ts">
 const links = [
-  { label: 'Bosh sahifa', to: '#home' },
-  { label: 'Hujjatlar', to: '#hujjatlar' },
-  { label: 'Universitetlar', to: '#universitetlar' },
+  { label: 'Bosh sahifa', to: '/' },
+  { label: 'Admission', to: '/#admission' },
+  { label: 'Hujjatlar', to: '/#hujjatlar' },
+  { label: 'Universitetlar', to: '/#universitetlar' },
   { label: 'Viza tekshirish', to: '/visa-status' },
   { label: 'Kabinet', to: '/auth' }
 ]
@@ -20,14 +21,14 @@ const links = [
         <span class="font-semibold text-sm text-[var(--color-text-primary)] dark:text-white">SalomKorea</span>
       </div>
       <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-        <a
+        <NuxtLink
           v-for="link in links"
           :key="link.to"
-          :href="link.to"
+          :to="link.to"
           class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] dark:hover:text-white transition-colors"
         >
           {{ link.label }}
-        </a>
+        </NuxtLink>
       </nav>
       <p class="text-xs text-[var(--color-text-secondary)]">
         © {{ new Date().getFullYear() }} SalomKorea
