@@ -71,6 +71,22 @@ function getUniTypeBadge(type: string) {
   return 'bg-blue-800 text-white font-bold'
 }
 
+function getRoundBadgeClass(roundNum: number | string) {
+  const num = typeof roundNum === 'number' ? roundNum : parseInt(String(roundNum), 10) || 1
+  switch (num) {
+    case 1:
+      return 'bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60'
+    case 2:
+      return 'bg-purple-50 text-purple-700 border border-purple-200/80 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/60'
+    case 3:
+      return 'bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60'
+    case 4:
+      return 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60'
+    default:
+      return 'bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/60'
+  }
+}
+
 function getAdmissionStatus(item: Admission) {
   if (item.is_expected || item.rounds_count === 'EXPECTED') {
     let expTime = Infinity
@@ -459,9 +475,10 @@ const filteredAdmissions = computed(() => {
                   >
                     <span
                       v-if="item.rounds.length > 1"
-                      class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 font-bold text-[10px] uppercase"
+                      :class="getRoundBadgeClass(round.roundNumber || (rIdx + 1))"
+                      class="px-2 py-0.5 rounded-full font-bold text-[10.5px] tracking-wide shrink-0 shadow-2xs"
                     >
-                      {{ round.roundNumber || (rIdx + 1) }}-bosqich:
+                      R{{ round.roundNumber || (rIdx + 1) }}
                     </span>
                     <span
                       v-if="round.onlineApplicationFrom && round.onlineApplicationTo"
