@@ -228,3 +228,31 @@ CREATE TABLE IF NOT EXISTS settings_b2b (
     updatedAt TEXT DEFAULT (datetime('now'))
 );
 `
+
+// ── University Admissions (Migrated from Supabase) ──────────────────────────
+
+export const CREATE_ADMISSIONS_TABLE = `
+CREATE TABLE IF NOT EXISTS admissions (
+    id                  TEXT PRIMARY KEY,
+    university_name     TEXT NOT NULL,
+    education_level     TEXT NOT NULL,
+    admission_period    TEXT DEFAULT '',
+    rounds_count        TEXT DEFAULT '',
+    is_expected         INTEGER DEFAULT 0,
+    expected_date_range TEXT DEFAULT '{}',
+    rounds              TEXT DEFAULT '[]',
+    visa_types          TEXT DEFAULT '[]',
+    university_types    TEXT DEFAULT '[]',
+    is_hidden           INTEGER DEFAULT 0,
+    created_at          TEXT DEFAULT (datetime('now')),
+    updated_at          TEXT DEFAULT (datetime('now'))
+);
+`
+
+export const CREATE_ADMISSIONS_UNIVERSITY_INDEX = `
+CREATE INDEX IF NOT EXISTS idx_admissions_university ON admissions(university_name);
+`
+
+export const CREATE_ADMISSIONS_CREATED_AT_INDEX = `
+CREATE INDEX IF NOT EXISTS idx_admissions_created_at ON admissions(created_at);
+`

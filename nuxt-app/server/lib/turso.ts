@@ -27,6 +27,9 @@ import {
   CREATE_SETTINGS_TARIFFS_TABLE,
   CREATE_SETTINGS_COORDINATORS_TABLE,
   CREATE_SETTINGS_B2B_TABLE,
+  CREATE_ADMISSIONS_TABLE,
+  CREATE_ADMISSIONS_UNIVERSITY_INDEX,
+  CREATE_ADMISSIONS_CREATED_AT_INDEX,
   USER_COLUMNS,
   STUDENT_COLUMNS
 } from '../database/schema'
@@ -56,6 +59,11 @@ export async function initDb() {
     await db.execute(CREATE_SETTINGS_TARIFFS_TABLE)
     await db.execute(CREATE_SETTINGS_COORDINATORS_TABLE)
     await db.execute(CREATE_SETTINGS_B2B_TABLE)
+
+    // Admissions dataset (migrated from Supabase)
+    await db.execute(CREATE_ADMISSIONS_TABLE)
+    await db.execute(CREATE_ADMISSIONS_UNIVERSITY_INDEX)
+    await db.execute(CREATE_ADMISSIONS_CREATED_AT_INDEX)
 
     // 2. Add columns to users table
     const userColsInfo = await db.execute('PRAGMA table_info(users)')

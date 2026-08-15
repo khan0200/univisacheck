@@ -1,5 +1,5 @@
 <script setup lang="ts">
-export interface SupabaseAdmission {
+export interface Admission {
   id: string
   university_name: string
   education_level: string
@@ -21,6 +21,8 @@ export interface SupabaseAdmission {
   created_at: string
   updated_at: string
 }
+
+export type SupabaseAdmission = Admission
 
 const props = defineProps<{
   open: boolean

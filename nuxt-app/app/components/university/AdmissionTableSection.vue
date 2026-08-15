@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { SupabaseAdmission } from './AdmissionDetailsModal.vue'
+import type { Admission } from './AdmissionDetailsModal.vue'
 
 interface AdmissionsApiResponse {
   success: boolean
-  data: SupabaseAdmission[]
+  data: Admission[]
   error?: string
 }
 
@@ -30,14 +30,14 @@ const statusFilters = [
 
 // Modal state
 const detailsModalOpen = ref(false)
-const selectedAdmission = ref<SupabaseAdmission | null>(null)
+const selectedAdmission = ref<Admission | null>(null)
 
-function openDetails(item: SupabaseAdmission) {
+function openDetails(item: Admission) {
   selectedAdmission.value = item
   detailsModalOpen.value = true
 }
 
-// Fetch admissions exclusively from Supabase admissions table via server API
+// Fetch admissions from Turso admissions table via server API
 const { data: response, pending } = await useFetch<AdmissionsApiResponse>('/api/admissions', {
   default: () => ({ success: true, data: [] })
 })
@@ -71,7 +71,7 @@ function getUniTypeBadge(type: string) {
   return 'bg-blue-800 text-white font-bold'
 }
 
-function getAdmissionStatus(item: SupabaseAdmission) {
+function getAdmissionStatus(item: Admission) {
   if (item.is_expected || item.rounds_count === 'EXPECTED') {
     let expTime = Infinity
     if (item.expected_date_range?.from) {

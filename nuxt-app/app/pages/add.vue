@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SupabaseAdmission } from '~/components/university/AdmissionDetailsModal.vue'
+import type { Admission } from '~/components/university/AdmissionDetailsModal.vue'
 import {
   ACCREDITED_UNIVERSITIES,
   JUNIOR_COLLEGES,
@@ -256,7 +256,7 @@ const SEMESTER_SUGGESTIONS = [
 ]
 
 // Fetch admissions
-const { data: response, pending, refresh } = await useFetch<{ success: boolean, data: SupabaseAdmission[] }>('/api/admissions', {
+const { data: response, pending, refresh } = await useFetch<{ success: boolean, data: Admission[] }>('/api/admissions', {
   default: () => ({ success: true, data: [] })
 })
 
@@ -264,8 +264,8 @@ const admissions = computed(() => response.value?.data || [])
 
 // Detail Modal
 const viewModalOpen = ref(false)
-const selectedAdmission = ref<SupabaseAdmission | null>(null)
-function openViewModal(item: SupabaseAdmission) {
+const selectedAdmission = ref<Admission | null>(null)
+function openViewModal(item: Admission) {
   selectedAdmission.value = item
   viewModalOpen.value = true
 }
@@ -381,7 +381,7 @@ function openAddModal() {
   formModalOpen.value = true
 }
 
-function openEditModal(item: SupabaseAdmission) {
+function openEditModal(item: Admission) {
   formMode.value = 'edit'
   editingId.value = item.id
   resetForm()
@@ -568,7 +568,7 @@ async function handleSave() {
 // Reactive local state for instant toggle feedback
 const hiddenState = reactive<Record<string, boolean>>({})
 
-function isHidden(item: SupabaseAdmission): boolean {
+function isHidden(item: Admission): boolean {
   if (item.id in hiddenState) {
     return hiddenState[item.id] ?? false
   }
@@ -576,7 +576,7 @@ function isHidden(item: SupabaseAdmission): boolean {
 }
 
 // Toggle Hide/Unhide
-async function toggleHide(item: SupabaseAdmission) {
+async function toggleHide(item: Admission) {
   const current = isHidden(item)
   const next = !current
 
@@ -612,10 +612,10 @@ async function toggleHide(item: SupabaseAdmission) {
 
 // Delete
 const deleteModalOpen = ref(false)
-const itemToDelete = ref<SupabaseAdmission | null>(null)
+const itemToDelete = ref<Admission | null>(null)
 const isDeleting = ref(false)
 
-function confirmDelete(item: SupabaseAdmission) {
+function confirmDelete(item: Admission) {
   itemToDelete.value = item
   deleteModalOpen.value = true
 }
@@ -657,7 +657,7 @@ function getEducationLevelName(lvl?: string | null) {
   return levelLabels[lvl.toUpperCase()] || lvl.toUpperCase()
 }
 
-function getAdmissionStatus(item: SupabaseAdmission) {
+function getAdmissionStatus(item: Admission) {
   if (item.is_expected || item.rounds_count === 'EXPECTED') {
     let expTime = Infinity
     if (item.expected_date_range?.from) {
