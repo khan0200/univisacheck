@@ -89,7 +89,7 @@ function advanceToNextDateGroup() {
     const currentIndex = allContainers.indexOf(container)
     if (currentIndex !== -1 && currentIndex < allContainers.length - 1) {
       const nextContainer = allContainers[currentIndex + 1]
-      const nextMm = nextContainer.querySelector<HTMLInputElement>('.date-part-mm')
+      const nextMm = nextContainer?.querySelector<HTMLInputElement>('.date-part-mm')
       if (nextMm) {
         nextMm.focus()
         nextMm.select()
@@ -106,7 +106,7 @@ function moveToPrevDateGroup() {
     const currentIndex = allContainers.indexOf(container)
     if (currentIndex > 0) {
       const prevContainer = allContainers[currentIndex - 1]
-      const prevDd = prevContainer.querySelector<HTMLInputElement>('.date-part-dd')
+      const prevDd = prevContainer?.querySelector<HTMLInputElement>('.date-part-dd')
       if (prevDd) {
         prevDd.focus()
         prevDd.select()

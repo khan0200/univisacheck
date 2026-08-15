@@ -41,26 +41,70 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    // Static Pages (served directly from Vercel Edge CDN with 0 compute)
     '/': { prerender: true },
+    '/visa-status': { prerender: true },
+    '/auth': { ssr: false },
+    '/add': { ssr: false },
     '/cabinet': { ssr: false },
     '/leads': { ssr: false },
     '/dashboard': { ssr: false },
-    '/settings': { ssr: false }
+    '/settings': { ssr: false },
+
+    // Public API endpoints with Edge CDN caching & ISR
+    '/api/universities': {
+      isr: 86400,
+      headers: {
+        'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400',
+        'CDN-Cache-Control': 'public, s-maxage=86400',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=86400'
+      }
+    },
+    '/api/admissions': {
+      isr: 3600,
+      headers: {
+        'Cache-Control': 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400',
+        'CDN-Cache-Control': 'public, s-maxage=3600',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=3600'
+      }
+    },
+    '/api/qabul-dates': {
+      isr: 86400,
+      headers: {
+        'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+        'CDN-Cache-Control': 'public, s-maxage=86400',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=86400'
+      }
+    },
+    '/api/realtime/config': {
+      headers: {
+        'Cache-Control': 'public, max-age=3600, s-maxage=86400'
+      }
+    },
+
+    // Static Assets & Media (1 year immutable edge caching)
+    '/_nuxt/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
+    },
+    '/**.{png,jpg,jpeg,svg,webp,ico,woff2,ttf}': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
+    }
   },
 
   compatibilityDate: '2026-06-30',
 
-  // Vercel function config
-  // - /api/ai-assistant: chains multiple AI calls, can exceed the default ~10s timeout
-  // - /api/realtime: SSE long-lived connection; maxDuration limits how long the
-  //   Vercel function stays open. The client auto-reconnects, so 60s is fine on
-  //   Hobby. Upgrade to 300 on Pro for fewer reconnect cycles.
+  // Vercel function config:
+  // Lower memory allocation from default 1024MB down to 256MB to drastically cut
+  // GB-hours execution cost by 75% across all serverless invocations.
   nitro: {
     vercel: {
       functions: {
-        '/api/ai-assistant': { maxDuration: 60 },
-        '/api/realtime': { maxDuration: 60 },
-        '/api/jobs/worker': { maxDuration: 60 }
+        memory: 256,
+        maxDuration: 30
       }
     }
   },

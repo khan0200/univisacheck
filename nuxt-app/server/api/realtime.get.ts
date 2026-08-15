@@ -82,10 +82,7 @@ export default defineEventHandler(async (event) => {
 
   const unsubscribe = EventBus.subscribe(userId, writer)
 
-  // ── 6. Keep-alive ping every 25s ────────────────────────────────────────
-  // SSE connections time out on proxies/load-balancers without periodic data.
-  // A comment line (": ping") resets the timeout without triggering a client
-  // message event.
+  // ── 6. Keep-alive ping every 15s ────────────────────────────────────────
   const pingInterval = setInterval(() => {
     if (res.destroyed) {
       clearInterval(pingInterval)
@@ -96,21 +93,38 @@ export default defineEventHandler(async (event) => {
     } catch {
       clearInterval(pingInterval)
     }
-  }, 25_000)
+  }, 15_000)
+
+  // Auto-close SSE stream after 28 seconds on Serverless to gracefully release compute
+  const connectionTimeout = setTimeout(() => {
+    clearInterval(pingInterval)
+    unsubscribe()
+    if (!res.destroyed) {
+      try {
+        res.end()
+      } catch {
+        // Ignored
+      }
+    }
+  }, 28_000)
 
   // ── 7. Cleanup on disconnect ─────────────────────────────────────────────
   event.node.req.on('close', () => {
+    clearTimeout(connectionTimeout)
     clearInterval(pingInterval)
     unsubscribe()
   })
 
   event.node.req.on('error', () => {
+    clearTimeout(connectionTimeout)
     clearInterval(pingInterval)
     unsubscribe()
   })
 
   // Hold the connection open — Nitro will not close it automatically because
   // we write the headers manually and manage the stream ourselves.
-  // Return a promise that never resolves (the close event above handles cleanup).
-  return new Promise<void>(() => {})
+  return new Promise<void>((resolve) => {
+    event.node.req.on('close', () => resolve())
+    event.node.req.on('end', () => resolve())
+  })
 })

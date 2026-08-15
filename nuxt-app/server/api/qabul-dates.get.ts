@@ -22,6 +22,12 @@ interface AdmissionDate {
 const ADMISSION_DATES = admissionDates as AdmissionDate[]
 
 export default defineEventHandler((event) => {
+  setResponseHeaders(event, {
+    'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+    'CDN-Cache-Control': 'public, s-maxage=86400',
+    'Vercel-CDN-Cache-Control': 'public, s-maxage=86400'
+  })
+
   const query = getQuery(event)
   const search = String(query.search || '').toLowerCase()
   const status = query.status ? String(query.status) : ''

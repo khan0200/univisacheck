@@ -35,7 +35,22 @@ function safeParseJson<T>(str: unknown, fallback: T): T {
   }
 }
 
-export default defineEventHandler(async () => {
+let cachedAdmissions: { success: boolean, data: AdmissionRow[] } | null = null
+let cacheExpiresAt = 0
+const CACHE_TTL_MS = 10 * 60 * 1000 // 10 minutes in-memory
+
+export default defineEventHandler(async (event) => {
+  setResponseHeaders(event, {
+    'Cache-Control': 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400',
+    'CDN-Cache-Control': 'public, s-maxage=3600',
+    'Vercel-CDN-Cache-Control': 'public, s-maxage=3600'
+  })
+
+  const now = Date.now()
+  if (cachedAdmissions && now < cacheExpiresAt) {
+    return cachedAdmissions
+  }
+
   try {
     const db = await getTursoClient()
     const result = await db.execute('SELECT * FROM admissions ORDER BY created_at DESC')
@@ -56,10 +71,15 @@ export default defineEventHandler(async () => {
       updated_at: String(r.updated_at || '')
     }))
 
-    return {
+    const res = {
       success: true,
       data
     }
+
+    cachedAdmissions = res
+    cacheExpiresAt = Date.now() + CACHE_TTL_MS
+
+    return res
   } catch (error: unknown) {
     const err = error as { message?: string }
     return {

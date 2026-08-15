@@ -49,7 +49,22 @@ interface ScholarshipRow {
   percent: string
 }
 
-export default defineEventHandler(async () => {
+let cachedResponse: Record<string, unknown>[] | null = null
+let cacheExpiresAt = 0
+const CACHE_TTL_MS = 15 * 60 * 1000 // 15 minutes in-memory
+
+export default defineEventHandler(async (event) => {
+  setResponseHeaders(event, {
+    'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400',
+    'CDN-Cache-Control': 'public, s-maxage=86400',
+    'Vercel-CDN-Cache-Control': 'public, s-maxage=86400'
+  })
+
+  const now = Date.now()
+  if (cachedResponse && now < cacheExpiresAt) {
+    return cachedResponse
+  }
+
   const db = await getTursoClient()
   const [universitiesResult, majorsResult, scholarshipsResult] = await Promise.all([
     db.execute('SELECT * FROM ai_universities ORDER BY name'),
@@ -71,7 +86,7 @@ export default defineEventHandler(async () => {
     scholarshipsByUniversity.set(row.university_id, list)
   }
 
-  return (universitiesResult.rows as unknown as UniversityRow[]).map((row) => {
+  const result = (universitiesResult.rows as unknown as UniversityRow[]).map((row) => {
     const majors = majorsByUniversity.get(row.id) || []
     const scholarships = (scholarshipsByUniversity.get(row.id) || []).map(s => ({ cert: s.cert, percent: s.percent }))
     const cosmetic = cosmeticByName.get(row.name) || {}
@@ -115,4 +130,9 @@ export default defineEventHandler(async () => {
       otherGrantsNote: row.other_grants_note
     }
   })
+
+  cachedResponse = result
+  cacheExpiresAt = Date.now() + CACHE_TTL_MS
+
+  return result
 })

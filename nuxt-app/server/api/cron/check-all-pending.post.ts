@@ -22,6 +22,17 @@ function getMinutesSinceLastChecked(lastCheckedStr: string): number {
 }
 
 export default defineEventHandler(async (event) => {
+  // ── [FROZEN] AUTO CHECK TEMPORARILY DISABLED TO PREVENT COMPUTE CONSUMPTION ──
+  const AUTO_CHECK_FROZEN = true
+  if (AUTO_CHECK_FROZEN) {
+    return {
+      success: true,
+      frozen: true,
+      message: '6-Hour Auto-Check is currently frozen/paused. No compute hours consumed.',
+      checkedCount: 0
+    }
+  }
+
   // 1. Verify Secret Key
   const authHeader = getRequestHeader(event, 'authorization') || ''
   const cronSecret = process.env.CRON_SECRET || ''

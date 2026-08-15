@@ -95,6 +95,12 @@ export default defineEventHandler(async (event) => {
     // Falls back to bot_manual_refreshes if the passport was only ever
     // checked via the Telegram bot (not yet added to any cabinet).
     if (method === 'GET' && query.public === 'true') {
+      setResponseHeaders(event, {
+        'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=3600',
+        'CDN-Cache-Control': 'public, s-maxage=300',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=300'
+      })
+
       const passport = query.passport as string | undefined
       if (!passport) apiError(400, 'Missing passport parameter')
 
@@ -134,6 +140,10 @@ export default defineEventHandler(async (event) => {
     }
 
     // ── All other operations require authentication ─────────────────────────
+    setResponseHeaders(event, {
+      'Cache-Control': 'private, no-cache, no-store, must-revalidate'
+    })
+
     const authUser = await verifyToken(event)
     if (!authUser) apiError(401, 'Unauthorized. Please log in.')
     const userId = authUser!.userId

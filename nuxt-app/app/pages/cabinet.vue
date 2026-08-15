@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Student, StatusFilter } from '~/types/student'
-import { isApplicationStatus, bucketForStatus } from '~/utils/visa-status'
+import { isApplicationStatus, bucketForStatus, isEligibleForApplicationCheck } from '~/utils/visa-status'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -140,10 +140,21 @@ async function handleTogglePin(student: Student) {
   }
 }
 
-const selectedStudentsToCheck = computed(() => {
+const selectedStudentsInTab = computed(() => {
   const filter = studentsStore.currentFilter
   if (filter === 'application') {
     return studentsStore.filteredStudents.filter(s => s.batchSelected && isApplicationStatus(s.status))
+  }
+  if (filter === 'pending') {
+    return studentsStore.filteredStudents.filter(s => s.batchSelected && bucketForStatus(s.status) === 'pending')
+  }
+  return []
+})
+
+const selectedStudentsToCheck = computed(() => {
+  const filter = studentsStore.currentFilter
+  if (filter === 'application') {
+    return studentsStore.filteredStudents.filter(s => s.batchSelected && isApplicationStatus(s.status) && isEligibleForApplicationCheck(s))
   }
   if (filter === 'pending') {
     return studentsStore.filteredStudents.filter(s => s.batchSelected && bucketForStatus(s.status) === 'pending')
@@ -156,7 +167,15 @@ const bulkDeleteModalOpen = ref(false)
 const batchChecking = ref(false)
 async function handleBatchCheck() {
   const list = [...selectedStudentsToCheck.value]
-  if (list.length === 0) return
+  if (list.length === 0) {
+    toast.add({
+      title: 'No eligible students to check',
+      description: 'Selected students applied 10 or fewer days ago and are not Under Review or Supplement Needed.',
+      color: 'warning',
+      duration: 3500
+    })
+    return
+  }
   batchChecking.value = true
   try {
     await checkMany(list)
@@ -182,7 +201,7 @@ async function handleModalBulkDelete(passports: string[]) {
 }
 
 const selectedStudentsCount = computed(() => {
-  return selectedStudentsToCheck.value.length
+  return selectedStudentsInTab.value.length
 })
 
 const isDeselecting = ref(false)
@@ -214,7 +233,7 @@ async function handleDeselectGroup(studentsList: Student[]) {
 }
 
 async function handleDeselectAll() {
-  await handleDeselectGroup(selectedStudentsToCheck.value)
+  await handleDeselectGroup(selectedStudentsInTab.value)
 }
 
 function setFilter(filter: StatusFilter) {

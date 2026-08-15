@@ -215,22 +215,7 @@ async function runLocal6HourAutoCheck() {
 }
 
 export default defineNitroPlugin(() => {
-  if (process.env.VERCEL) {
-    return // Vercel uses cloud cron triggers from cron-job.org
-  }
-
-  console.log('[Local Scheduler] Initializing local 10-minute and 6-hour auto-check schedulers for localhost...')
-
-  const now = new Date()
-  const minutes = now.getMinutes()
-  const seconds = now.getSeconds()
-  const msInCycle = ((minutes % 10) * 60 + seconds) * 1000 + now.getMilliseconds()
-  const initialDelay10m = 600000 - msInCycle
-
-  setTimeout(() => {
-    runLocal10MinAutoCheck()
-    setInterval(runLocal10MinAutoCheck, 10 * 60 * 1000)
-  }, Math.max(1000, initialDelay10m))
-
-  setInterval(runLocal6HourAutoCheck, 6 * 60 * 60 * 1000)
+  // ── [FROZEN] LOCAL AUTO CHECK SCHEDULER PAUSED ──
+  // Auto-check is currently frozen/disabled. Re-enable when ready.
+  return
 })

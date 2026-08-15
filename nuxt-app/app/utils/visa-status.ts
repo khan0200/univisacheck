@@ -271,3 +271,73 @@ export function applyVisaCheckResult(student: Student, result: VisaCheckResult):
 
   return { student, changed, oldStatus, newStatus }
 }
+
+/** Calculate calendar days elapsed since applicationDate (YYYY-MM-DD). */
+export function getDaysSinceApplication(appDateStr: string | undefined | null): number {
+  if (!appDateStr) return 0
+  const str = String(appDateStr).trim()
+  const match = str.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})/)
+  if (match && match[1] && match[2] && match[3]) {
+    const year = parseInt(match[1], 10)
+    const month = parseInt(match[2], 10) - 1
+    const day = parseInt(match[3], 10)
+
+    const appDate = new Date(year, month, day)
+    const today = new Date()
+    appDate.setHours(0, 0, 0, 0)
+    today.setHours(0, 0, 0, 0)
+
+    const diffMs = today.getTime() - appDate.getTime()
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  }
+
+  const parsed = new Date(str)
+  if (isNaN(parsed.getTime())) return 0
+  const today = new Date()
+  parsed.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0)
+  return Math.floor((today.getTime() - parsed.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+export function isUnderReviewStatus(statusValue: string | undefined | null): boolean {
+  const s = (statusValue || '').toLowerCase()
+  return s.includes('under review')
+    || s.includes('심사중')
+    || s.includes('심사 중')
+    || s.includes('처리중')
+    || s.includes('처리 중')
+    || s.includes('ko\'rib chiqilmoqda')
+    || s.includes('viza tayyorlanish bosqichida')
+}
+
+export function isSupplementStatus(statusValue: string | undefined | null): boolean {
+  const s = (statusValue || '').toLowerCase()
+  return s.includes('supplement')
+    || s.includes('asking')
+    || s.includes('보완')
+    || s.includes('qo\'shimcha')
+}
+
+/**
+ * Determines whether a selected student in the Application tab is eligible for bulk checking:
+ * 1. Under Review — highest priority (always check, regardless of applied date).
+ * 2. Supplement Needed — highest priority (always check, regardless of applied date).
+ * 3. Applied date > 10 days ago — check.
+ * 4. Applied date <= 10 days ago — do not check.
+ */
+export function isEligibleForApplicationCheck(student: { status?: string | null, applicationDate?: string | null }): boolean {
+  if (isUnderReviewStatus(student.status)) {
+    return true
+  }
+
+  if (isSupplementStatus(student.status)) {
+    return true
+  }
+
+  const days = getDaysSinceApplication(student.applicationDate)
+  if (days > 10) {
+    return true
+  }
+
+  return false
+}
