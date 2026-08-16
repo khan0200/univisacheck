@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type { RealtimeStatus } from '~/composables/useRealtimeSync'
 import type { Student, VisaTypeFilter } from '~/types/student'
 
-const props = defineProps<{ realtimeStatus?: RealtimeStatus }>()
+defineProps<{ realtimeStatus?: string }>()
 const authStore = useAuthStore()
 const colorMode = useColorMode()
 const studentsStore = useStudentsStore()
@@ -96,13 +95,6 @@ const visaFilterMenuItems = computed(() =>
         >
           Add
         </UButton>
-
-        <ClientOnly>
-          <DashboardRealtimeIndicator
-            v-if="props.realtimeStatus"
-            :status="props.realtimeStatus"
-          />
-        </ClientOnly>
 
         <UButton
           :icon="colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon'"
@@ -246,13 +238,6 @@ const visaFilterMenuItems = computed(() =>
         >
           Add
         </UButton>
-
-        <ClientOnly>
-          <DashboardRealtimeIndicator
-            v-if="props.realtimeStatus"
-            :status="props.realtimeStatus"
-          />
-        </ClientOnly>
 
         <UButton
           :icon="colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon'"
