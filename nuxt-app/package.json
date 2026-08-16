@@ -24,6 +24,7 @@
     "grammy": "^1.45.1",
     "jsonwebtoken": "^9.0.3",
     "nuxt": "^4.5.1",
+    "pg": "^8.23.0",
     "pinia": "^2.3.0",
     "pusher": "^5.3.4",
     "pusher-js": "^8.6.0",
@@ -33,6 +34,7 @@
     "@nuxt/eslint": "^1.16.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/pg": "^8.21.0",
     "eslint": "^10.8.0",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.9"

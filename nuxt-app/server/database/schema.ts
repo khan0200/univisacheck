@@ -1,23 +1,23 @@
 /**
  * database/schema.ts
  *
- * Defines schemas for new tables and column additions for the Telegram bot.
+ * Defines PostgreSQL schemas for tables and columns.
  */
 
 export const CREATE_NOTIFICATIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS notifications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    telegram_user_id INTEGER,
+    id SERIAL PRIMARY KEY,
+    telegram_user_id BIGINT,
     student_id TEXT,
     old_status TEXT,
     new_status TEXT,
-    created_at TEXT DEFAULT (datetime('now'))
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
 export const CREATE_SESSIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS bot_sessions (
-    telegram_id INTEGER PRIMARY KEY,
+    telegram_id BIGINT PRIMARY KEY,
     state TEXT,
     data TEXT
 );
@@ -30,29 +30,21 @@ CREATE TABLE IF NOT EXISTS bot_manual_refreshes (
     birthday TEXT,
     visa_type TEXT,
     application_no TEXT,
-    updated_at TEXT DEFAULT (datetime('now'))
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
-/**
- * Stores per-Telegram-user connections to a cabinet.
- * Replaces the single telegram_id column on users with a proper
- * one-to-many relationship: one cabinet → many Telegram subscribers.
- *
- * UNIQUE(telegram_id) ensures one Telegram account connects to
- * at most one cabinet at a time (INSERT OR REPLACE evicts the old row).
- */
 export const CREATE_CABINET_SUBSCRIBERS_TABLE = `
 CREATE TABLE IF NOT EXISTS cabinet_subscribers (
-    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    id               SERIAL PRIMARY KEY,
     cabinet_id       INTEGER NOT NULL,
-    telegram_id      INTEGER NOT NULL,
+    telegram_id      BIGINT NOT NULL UNIQUE,
     telegram_username TEXT,
     first_name       TEXT,
     last_name        TEXT,
     session          TEXT,
-    connected_at     TEXT DEFAULT (datetime('now')),
-    UNIQUE(telegram_id)
+    connected_at     TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    lang             TEXT DEFAULT 'uz'
 );
 `
 
@@ -62,18 +54,18 @@ export interface DbColumn {
 }
 
 export const USER_COLUMNS: DbColumn[] = [
-  { name: 'telegram_id', type: 'INTEGER' },
+  { name: 'telegram_id', type: 'BIGINT' },
   { name: 'telegram_username', type: 'TEXT' },
   { name: 'first_name', type: 'TEXT' },
   { name: 'last_name', type: 'TEXT' },
   { name: 'encrypted_password', type: 'TEXT' },
   { name: 'session', type: 'TEXT' },
   { name: 'cookies', type: 'TEXT' },
-  { name: 'updated_at', type: 'TEXT' }
+  { name: 'updated_at', type: 'TIMESTAMPTZ' }
 ]
 
 export const STUDENT_COLUMNS: DbColumn[] = [
-  { name: 'telegram_user_id', type: 'INTEGER' },
+  { name: 'telegram_user_id', type: 'BIGINT' },
   { name: 'student_id', type: 'TEXT' },
   { name: 'application_no', type: 'TEXT' },
   { name: 'fullname', type: 'TEXT' },
@@ -91,31 +83,30 @@ export const STUDENT_COLUMNS: DbColumn[] = [
 export const CREATE_JOBS_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_check_jobs (
     id TEXT PRIMARY KEY,
-    userId INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
     total INTEGER NOT NULL,
     status TEXT NOT NULL,
     check_source TEXT NOT NULL DEFAULT 'manual',
-    createdAt TEXT DEFAULT (datetime('now')),
-    updatedAt TEXT DEFAULT (datetime('now'))
+    "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
 export const CREATE_TASKS_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_check_tasks (
     id TEXT PRIMARY KEY,
-    jobId TEXT NOT NULL,
-    userId INTEGER NOT NULL,
+    "jobId" TEXT NOT NULL REFERENCES visa_check_jobs(id) ON DELETE CASCADE,
+    "userId" INTEGER NOT NULL,
     passport TEXT NOT NULL,
     status TEXT NOT NULL,
     attempts INTEGER DEFAULT 0,
-    lockedAt TEXT,
-    lockedBy TEXT,
-    startedAt TEXT,
-    completedAt TEXT,
+    "lockedAt" TEXT,
+    "lockedBy" TEXT,
+    "startedAt" TEXT,
+    "completedAt" TEXT,
     error TEXT,
-    createdAt TEXT DEFAULT (datetime('now')),
-    updatedAt TEXT DEFAULT (datetime('now')),
-    FOREIGN KEY(jobId) REFERENCES visa_check_jobs(id) ON DELETE CASCADE
+    "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
@@ -128,36 +119,36 @@ CREATE INDEX IF NOT EXISTS idx_visa_tasks_passport ON visa_check_tasks(passport)
 `
 
 export const CREATE_TASKS_JOBID_INDEX = `
-CREATE INDEX IF NOT EXISTS idx_visa_tasks_jobId ON visa_check_tasks(jobId);
+CREATE INDEX IF NOT EXISTS idx_visa_tasks_jobId ON visa_check_tasks("jobId");
 `
 
 export const CREATE_VISA_SESSIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_sessions (
     key TEXT PRIMARY KEY,
     cookies TEXT,
-    fetchedAt INTEGER
+    "fetchedAt" BIGINT
 );
 `
 
 export const CREATE_SCHEDULER_LOCK_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_scheduler_lock (
     id TEXT PRIMARY KEY,
-    locked_at INTEGER NOT NULL,
+    locked_at BIGINT NOT NULL,
     locked_by TEXT NOT NULL
 );
 `
 
 export const CREATE_VISA_PROCESSING_NOTIFICATIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_processing_notifications (
-    id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+    id                    SERIAL PRIMARY KEY,
     type                  TEXT NOT NULL DEFAULT 'visa_processing_started',
     application_date      TEXT NOT NULL,
     visa_types            TEXT NOT NULL DEFAULT '[]',
     message               TEXT NOT NULL DEFAULT '',
     triggered_by_user_id  INTEGER,
     triggered_by_passport TEXT,
-    created_at            TEXT DEFAULT (datetime('now')),
-    updated_at            TEXT DEFAULT (datetime('now')),
+    created_at            TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at            TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(type, application_date)
 );
 `
@@ -169,12 +160,12 @@ CREATE INDEX IF NOT EXISTS idx_vpn_app_date
 
 export const CREATE_TELEGRAM_NOTIFICATION_MESSAGES_TABLE = `
 CREATE TABLE IF NOT EXISTS telegram_notification_messages (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    id              SERIAL PRIMARY KEY,
     notification_id INTEGER NOT NULL,
-    telegram_id     INTEGER NOT NULL,
-    message_id      INTEGER NOT NULL,
-    created_at      TEXT DEFAULT (datetime('now')),
-    updated_at      TEXT DEFAULT (datetime('now')),
+    telegram_id     BIGINT NOT NULL,
+    message_id      BIGINT NOT NULL,
+    created_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(notification_id, telegram_id)
 );
 `
@@ -183,53 +174,53 @@ CREATE TABLE IF NOT EXISTS telegram_notification_messages (
 
 export const CREATE_SETTINGS_UNIVERSITIES_TABLE = `
 CREATE TABLE IF NOT EXISTS settings_universities (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId     INTEGER NOT NULL,
+    id         SERIAL PRIMARY KEY,
+    "userId"   INTEGER NOT NULL,
     name       TEXT NOT NULL,
     location   TEXT DEFAULT '',
     notes      TEXT DEFAULT '',
-    createdAt  TEXT DEFAULT (datetime('now')),
-    updatedAt  TEXT DEFAULT (datetime('now'))
+    "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
 export const CREATE_SETTINGS_TARIFFS_TABLE = `
 CREATE TABLE IF NOT EXISTS settings_tariffs (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId      INTEGER NOT NULL,
+    id          SERIAL PRIMARY KEY,
+    "userId"    INTEGER NOT NULL,
     name        TEXT NOT NULL,
     price       TEXT DEFAULT '',
     currency    TEXT DEFAULT 'USD',
     description TEXT DEFAULT '',
-    createdAt   TEXT DEFAULT (datetime('now')),
-    updatedAt   TEXT DEFAULT (datetime('now'))
+    "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
 export const CREATE_SETTINGS_COORDINATORS_TABLE = `
 CREATE TABLE IF NOT EXISTS settings_coordinators (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId    INTEGER NOT NULL,
+    id        SERIAL PRIMARY KEY,
+    "userId"  INTEGER NOT NULL,
     name      TEXT NOT NULL,
     contact   TEXT DEFAULT '',
     email     TEXT DEFAULT '',
     notes     TEXT DEFAULT '',
-    createdAt TEXT DEFAULT (datetime('now')),
-    updatedAt TEXT DEFAULT (datetime('now'))
+    "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
 export const CREATE_SETTINGS_B2B_TABLE = `
 CREATE TABLE IF NOT EXISTS settings_b2b (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId    INTEGER NOT NULL,
+    id        SERIAL PRIMARY KEY,
+    "userId"  INTEGER NOT NULL,
     name      TEXT NOT NULL,
-    createdAt TEXT DEFAULT (datetime('now')),
-    updatedAt TEXT DEFAULT (datetime('now'))
+    "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 
-// ── University Admissions (Migrated from Supabase) ──────────────────────────
+// ── University Admissions ───────────────────────────────────────────────────
 
 export const CREATE_ADMISSIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS admissions (
@@ -244,8 +235,8 @@ CREATE TABLE IF NOT EXISTS admissions (
     visa_types          TEXT DEFAULT '[]',
     university_types    TEXT DEFAULT '[]',
     is_hidden           INTEGER DEFAULT 0,
-    created_at          TEXT DEFAULT (datetime('now')),
-    updated_at          TEXT DEFAULT (datetime('now'))
+    created_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 `
 

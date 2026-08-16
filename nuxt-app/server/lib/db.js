@@ -1,23 +1,9 @@
-const { createClient } = require('@libsql/client')
+const { Pool } = require('pg')
 const path = require('path')
 const { existsSync } = require('fs')
 const { pathToFileURL } = require('url')
 
-// Lazily create the client on first real use rather than as a top-level
-// module side effect — Nitro's dev bundler (Rollup) hits a
-// "Cannot access ... before initialization" TDZ error when a route imports
-// a chain of CJS modules where one does eager work (createClient()) at
-// import time. server/utils/turso.ts already uses this lazy-singleton
-// pattern for the same reason; mirrored here so lib/ai/*.js and friends
-// (ported verbatim from the legacy Node backend) don't need to change
-// their `const db = require('./db')` + `db.execute(...)` call sites.
-//
-// require() of the repo-root turso.config.js does NOT work here — this
-// runs inside Nitro's ESM runtime, where plain `require` is undefined
-// (only available via createRequire or dynamic import()). Config loading
-// is therefore async, same as server/utils/turso.ts.
-let client = null
-let configPromise = null
+let pool = null
 
 async function loadLocalConfig() {
   try {
@@ -30,20 +16,121 @@ async function loadLocalConfig() {
   }
 }
 
-async function getClient() {
-  if (client) return client
-  if (!configPromise) configPromise = loadLocalConfig()
-  const config = await configPromise
+function transformSql(sql) {
+  let paramIndex = 1
+  let inSingleQuote = false
+  let inDoubleQuote = false
+  let result = ''
 
-  const url = process.env.TURSO_URL || process.env.TURSO_DATABASE_URL || config.TURSO_DATABASE_URL
-  const authToken = process.env.TURSO_AUTH_TOKEN || config.TURSO_AUTH_TOKEN
+  for (let i = 0; i < sql.length; i++) {
+    const char = sql[i]
+    if (char === "'" && (i === 0 || sql[i - 1] !== '\\')) {
+      inSingleQuote = !inSingleQuote
+      result += char
+    } else if (char === '"' && (i === 0 || sql[i - 1] !== '\\')) {
+      inDoubleQuote = !inDoubleQuote
+      result += char
+    } else if (char === '?' && !inSingleQuote && !inDoubleQuote) {
+      result += `$${paramIndex++}`
+    } else {
+      result += char
+    }
+  }
 
-  client = createClient({ url, authToken })
-  return client
+  if (result.includes('INSERT OR IGNORE INTO')) {
+    result = result.replace('INSERT OR IGNORE INTO', 'INSERT INTO') + ' ON CONFLICT DO NOTHING'
+  }
+
+  return result
+}
+
+async function getPool() {
+  if (pool) return pool
+  const config = await loadLocalConfig()
+  const connectionString =
+    process.env.DATABASE_URL ||
+    config.DATABASE_URL ||
+    'postgresql://salomkorea_user:SalomKoreaPg2026SecurePass!@127.0.0.1:5432/salomkorea_db'
+
+  pool = new Pool({
+    connectionString,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000
+  })
+
+  pool.on('error', (err) => {
+    console.error('[PostgreSQL CJS Pool Error]', err)
+  })
+
+  return pool
+}
+
+async function execute(stmt, argsParam) {
+  const p = await getPool()
+  let sql = typeof stmt === 'string' ? stmt : stmt.sql
+  const rawArgs = typeof stmt === 'string' ? (argsParam || []) : (stmt.args || argsParam || [])
+
+  let values = []
+  if (Array.isArray(rawArgs)) {
+    values = rawArgs
+    sql = transformSql(sql)
+  } else if (rawArgs && typeof rawArgs === 'object') {
+    let paramIndex = 1
+    values = []
+    sql = sql.replace(/[:$]([a-zA-Z0-9_]+)/g, (_, name) => {
+      values.push(rawArgs[name])
+      return `$${paramIndex++}`
+    })
+  }
+
+  const res = await p.query(sql, values)
+  return {
+    rows: res.rows || [],
+    columns: res.fields ? res.fields.map(f => f.name) : [],
+    rowsAffected: res.rowCount || 0
+  }
+}
+
+async function batch(stmts) {
+  const p = await getPool()
+  const client = await p.connect()
+  try {
+    await client.query('BEGIN')
+    const results = []
+    for (const s of stmts) {
+      let sql = typeof s === 'string' ? s : s.sql
+      const rawArgs = typeof s === 'string' ? [] : (s.args || [])
+      let values = []
+      if (Array.isArray(rawArgs)) {
+        values = rawArgs
+        sql = transformSql(sql)
+      } else if (rawArgs && typeof rawArgs === 'object') {
+        let paramIndex = 1
+        values = []
+        sql = sql.replace(/[:$]([a-zA-Z0-9_]+)/g, (_, name) => {
+          values.push(rawArgs[name])
+          return `$${paramIndex++}`
+        })
+      }
+      const res = await client.query(sql, values)
+      results.push({
+        rows: res.rows || [],
+        columns: res.fields ? res.fields.map(f => f.name) : [],
+        rowsAffected: res.rowCount || 0
+      })
+    }
+    await client.query('COMMIT')
+    return results
+  } catch (err) {
+    await client.query('ROLLBACK')
+    throw err
+  } finally {
+    client.release()
+  }
 }
 
 module.exports = {
-  execute: async (...args) => (await getClient()).execute(...args),
-  batch: async (...args) => (await getClient()).batch(...args),
-  transaction: async (...args) => (await getClient()).transaction(...args)
+  execute,
+  batch
 }
