@@ -24,7 +24,7 @@ function transformSql(sql) {
 
   for (let i = 0; i < sql.length; i++) {
     const char = sql[i]
-    if (char === "'" && (i === 0 || sql[i - 1] !== '\\')) {
+    if (char === '\'' && (i === 0 || sql[i - 1] !== '\\')) {
       inSingleQuote = !inSingleQuote
       result += char
     } else if (char === '"' && (i === 0 || sql[i - 1] !== '\\')) {
@@ -47,10 +47,10 @@ function transformSql(sql) {
 async function getPool() {
   if (pool) return pool
   const config = await loadLocalConfig()
-  const connectionString =
-    process.env.DATABASE_URL ||
-    config.DATABASE_URL ||
-    'postgresql://salomkorea_user:SalomKoreaPg2026SecurePass!@127.0.0.1:5432/salomkorea_db'
+  const connectionString
+    = process.env.DATABASE_URL
+      || config.DATABASE_URL
+      || 'postgresql://salomkorea_user:SalomKoreaPg2026SecurePass!@127.0.0.1:5432/salomkorea_db'
 
   pool = new Pool({
     connectionString,

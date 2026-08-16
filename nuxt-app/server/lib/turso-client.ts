@@ -1,10 +1,10 @@
-import { getTursoClient, type SqlStatement } from '../utils/turso'
+import { getTursoClient, type SqlStatement, type QueryResult } from '../utils/turso'
 
-type InStatement = string | SqlStatement | { sql: string; args?: any }
+type InStatement = string | SqlStatement | { sql: string, args?: unknown[] | Record<string, unknown> }
 
 const db = {
-  execute: async (stmt: InStatement, args?: any[]) => (await getTursoClient()).execute(stmt as any, args),
-  batch: async (stmts: InStatement[]) => (await getTursoClient()).batch(stmts as any)
+  execute: async (stmt: InStatement, args?: unknown[]): Promise<QueryResult> => (await getTursoClient()).execute(stmt as SqlStatement, args),
+  batch: async (stmts: InStatement[]): Promise<QueryResult[]> => (await getTursoClient()).batch(stmts as SqlStatement[])
 }
 
 export default db
