@@ -5,7 +5,7 @@ const conn = new Client();
 const deployCommand = `
 export PATH=/www/server/nvm/versions/node/v24.19.0/bin:$PATH
 echo "=== 1. Pulling latest changes from GitHub ==="
-cd /www/wwwroot/salomkorea && git pull origin master
+cd /www/wwwroot/salomkorea && git fetch origin master && git reset --hard origin/master
 echo "=== 2. Installing dependencies ==="
 cd /www/wwwroot/salomkorea/nuxt-app && npm install
 echo "=== 3. Building Nuxt production app ==="
@@ -26,7 +26,7 @@ conn.on('ready', () => {
     stream.stderr.on('data', (d) => process.stderr.write(d.toString()));
     stream.on('close', (code) => {
       if (code === 0) {
-        console.log('\n🎉 ALL DONE! Your site is live on VPS.');
+        console.log('\n🎉 ALL DONE! Your site is live on VPS with PostgreSQL.');
       } else {
         console.error(`\n❌ Deployment failed with exit code: ${code}`);
       }
