@@ -36,7 +36,10 @@ const groupIsChecking = computed(() => props.students.some(s => props.checkingPa
         :aria-expanded="isOpen"
         @click="isOpen = !isOpen"
       >
-        <UIcon name="i-lucide-landmark" class="flex-shrink-0 size-3.5 text-white" />
+        <UIcon
+          name="i-lucide-landmark"
+          class="flex-shrink-0 size-3.5 text-white"
+        />
         <span class="font-semibold text-white text-xs truncate tracking-wide">
           {{ displayName }}
         </span>
@@ -54,10 +57,10 @@ const groupIsChecking = computed(() => props.students.some(s => props.checkingPa
           :disabled="groupIsChecking"
           @click="emit('refresh-group', students)"
         >
-          <UIcon 
-            name="i-lucide-refresh-cw" 
-            class="size-3.5" 
-            :class="{ 'animate-spin': groupIsChecking }" 
+          <UIcon
+            name="i-lucide-refresh-cw"
+            class="size-3.5"
+            :class="{ 'animate-spin': groupIsChecking }"
           />
         </button>
         <button
@@ -81,6 +84,7 @@ const groupIsChecking = computed(() => props.students.some(s => props.checkingPa
       :class="isOpen ? 'accordion-open' : 'accordion-closed'"
     >
       <StudentStudentsTable
+        :key="currentFilter"
         :students="students"
         :current-filter="currentFilter"
         :checking-passports="checkingPassports"
@@ -109,4 +113,3 @@ const groupIsChecking = computed(() => props.students.some(s => props.checkingPa
   opacity: 1;
 }
 </style>
-

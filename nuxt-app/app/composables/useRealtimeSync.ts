@@ -134,7 +134,7 @@ export function useRealtimeSync() {
             if (hadSuccessfulConnection) {
               // Genuine reconnect after a drop — reconcile state with server
               console.log('[Realtime Sync] Pusher reconnected! Reconciling state...')
-              studentsStore.loadStudents().catch(() => {})
+              studentsStore.loadStudents({ silent: true }).catch(() => {})
             } else {
               // First successful connection on this page load — no reload needed
               hadSuccessfulConnection = true
@@ -165,7 +165,7 @@ export function useRealtimeSync() {
           if (ev.passport && ev.changes) {
             const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
             if (!patched) {
-              studentsStore.loadStudents().catch(() => {})
+              studentsStore.loadStudents({ silent: true }).catch(() => {})
             }
           }
         })
@@ -263,11 +263,9 @@ export function useRealtimeSync() {
       globalStatus.value = 'connected'
 
       if (hadSuccessfulConnection) {
-        // Genuine reconnect after a drop — reconcile state with server
-        console.log('[Realtime Sync] SSE reconnected! Reconciling state...')
-        studentsStore.loadStudents().catch(() => {})
+        // SSE reconnect: no full reload needed since individual event listeners keep state synchronized
+        console.log('[Realtime Sync] SSE connection active.')
       } else {
-        // First successful connection on this page load — no reload needed
         hadSuccessfulConnection = true
       }
     })
@@ -293,7 +291,7 @@ export function useRealtimeSync() {
         if (ev.passport && ev.changes) {
           const patched = studentsStore.patchStudent(ev.passport, ev.changes, ev.updatedAt)
           if (!patched) {
-            studentsStore.loadStudents().catch(() => {})
+            studentsStore.loadStudents({ silent: true }).catch(() => {})
           }
         }
       } catch {

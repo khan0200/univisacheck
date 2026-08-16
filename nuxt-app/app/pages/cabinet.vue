@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Student, StatusFilter } from '~/types/student'
-import { isApplicationStatus, bucketForStatus, isEligibleForApplicationCheck } from '~/utils/visa-status'
+import { isEligibleForApplicationCheck } from '~/utils/visa-status'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -142,11 +142,8 @@ async function handleTogglePin(student: Student) {
 
 const selectedStudentsInTab = computed(() => {
   const filter = studentsStore.currentFilter
-  if (filter === 'application') {
-    return studentsStore.filteredStudents.filter(s => s.batchSelected && isApplicationStatus(s.status))
-  }
-  if (filter === 'pending') {
-    return studentsStore.filteredStudents.filter(s => s.batchSelected && bucketForStatus(s.status) === 'pending')
+  if (filter === 'application' || filter === 'pending') {
+    return studentsStore.filteredStudents.filter(s => s.batchSelected)
   }
   return []
 })
@@ -154,10 +151,10 @@ const selectedStudentsInTab = computed(() => {
 const selectedStudentsToCheck = computed(() => {
   const filter = studentsStore.currentFilter
   if (filter === 'application') {
-    return studentsStore.filteredStudents.filter(s => s.batchSelected && isApplicationStatus(s.status) && isEligibleForApplicationCheck(s))
+    return studentsStore.filteredStudents.filter(s => s.batchSelected && isEligibleForApplicationCheck(s))
   }
   if (filter === 'pending') {
-    return studentsStore.filteredStudents.filter(s => s.batchSelected && bucketForStatus(s.status) === 'pending')
+    return studentsStore.filteredStudents.filter(s => s.batchSelected)
   }
   return []
 })
@@ -168,17 +165,41 @@ const batchChecking = ref(false)
 async function handleBatchCheck() {
   const list = [...selectedStudentsToCheck.value]
   if (list.length === 0) {
-    toast.add({
-      title: 'No eligible students to check',
-      description: 'Selected students applied 10 or fewer days ago and are not Under Review or Supplement Needed.',
-      color: 'warning',
-      duration: 3500
-    })
+    if (studentsStore.currentFilter === 'pending') {
+      toast.add({
+        title: 'No pending students selected',
+        description: 'Please select one or more students in the Pending tab to check.',
+        color: 'warning',
+        duration: 3500
+      })
+    } else {
+      toast.add({
+        title: 'No eligible students to check',
+        description: 'Selected students applied 10 or fewer days ago and are not Under Review or Supplement Needed.',
+        color: 'warning',
+        duration: 3500
+      })
+    }
     return
   }
   batchChecking.value = true
   try {
-    await checkMany(list)
+    const { completed, failed } = await checkMany(list)
+    if (failed > 0 && completed === 0) {
+      toast.add({
+        title: 'Batch check failed',
+        description: 'Could not connect to visa portal. Please try again.',
+        color: 'error',
+        duration: 3500
+      })
+    } else if (failed > 0) {
+      toast.add({
+        title: 'Batch check finished with errors',
+        description: `Checked ${completed} student(s), but ${failed} failed to connect.`,
+        color: 'warning',
+        duration: 3500
+      })
+    }
   } catch {
     toast.add({ title: 'Batch check failed. Please try again.', color: 'error', duration: 2500 })
   } finally {
@@ -246,19 +267,17 @@ function setFilter(filter: StatusFilter) {
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
       <!-- Action buttons — full width row on mobile -->
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <ClientOnly>
-          <UDropdownMenu :items="sortMenuItems">
-            <UButton
-              icon="i-lucide-arrow-down-up"
-              color="neutral"
-              variant="outline"
-              size="lg"
-              class="h-11 justify-center flex-1 sm:flex-none bg-white dark:bg-white/[0.05]"
-            >
-              Sort
-            </UButton>
-          </UDropdownMenu>
-        </ClientOnly>
+        <UDropdownMenu :items="sortMenuItems">
+          <UButton
+            icon="i-lucide-arrow-down-up"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="h-11 justify-center flex-1 sm:flex-none bg-white dark:bg-white/[0.05]"
+          >
+            Sort
+          </UButton>
+        </UDropdownMenu>
         <UButton
           v-if="studentsStore.currentFilter === 'cancelled' || studentsStore.currentFilter === 'approved' || studentsStore.currentFilter === 'pending'"
           icon="i-lucide-trash-2"
@@ -304,64 +323,57 @@ function setFilter(filter: StatusFilter) {
       </div>
     </div>
 
-    <ClientOnly>
-      <!-- Grouped list (accordion) when at least one student has the sort field set -->
-      <template v-if="!pending && studentsStore.hasAnyGroup">
-        <div class="space-y-3">
-          <StudentUniversityGroup
-            v-for="group in studentsStore.groupedStudents"
-            :key="group.groupName"
-            :group-name="group.groupName"
-            :students="group.students"
-            :current-filter="studentsStore.currentFilter"
-            :checking-passports="checkingPassports"
-            @edit="openEditModal"
-            @details="openDetails"
-            @delete="promptDelete"
-            @refresh="handleRefresh"
-            @refresh-group="handleGroupRefresh"
-            @download-pdf="handleDownloadPdf"
-            @toggle-select="handleToggleSelect"
-            @toggle-pin="handleTogglePin"
-            @deselect-group="handleDeselectGroup"
-          />
-        </div>
-      </template>
+    <!-- Grouped list (accordion) when at least one student has the sort field set -->
+    <div
+      v-if="!pending && studentsStore.hasAnyGroup"
+      class="space-y-3"
+    >
+      <StudentUniversityGroup
+        v-for="group in studentsStore.groupedStudents"
+        :key="`${studentsStore.currentFilter}-${group.groupName}`"
+        :group-name="group.groupName"
+        :students="group.students"
+        :current-filter="studentsStore.currentFilter"
+        :checking-passports="checkingPassports"
+        @edit="openEditModal"
+        @details="openDetails"
+        @delete="promptDelete"
+        @refresh="handleRefresh"
+        @refresh-group="handleGroupRefresh"
+        @download-pdf="handleDownloadPdf"
+        @toggle-select="handleToggleSelect"
+        @toggle-pin="handleTogglePin"
+        @deselect-group="handleDeselectGroup"
+      />
+    </div>
 
-      <!-- Flat table / skeleton / empty — wrapped in a card -->
-      <UCard
+    <!-- Flat table / skeleton / empty — wrapped in a card -->
+    <UCard
+      v-else
+      :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }"
+    >
+      <UiTableSkeleton v-if="pending" />
+      <UiEmptyState
+        v-else-if="studentsStore.filteredStudents.length === 0"
+        icon="i-lucide-inbox"
+        title="No students found"
+        description="Try adjusting your search or add a new student to get started."
+      />
+      <StudentStudentsTable
         v-else
-        :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }"
-      >
-        <UiTableSkeleton v-if="pending" />
-        <UiEmptyState
-          v-else-if="studentsStore.filteredStudents.length === 0"
-          icon="i-lucide-inbox"
-          title="No students found"
-          description="Try adjusting your search or add a new student to get started."
-        />
-        <StudentStudentsTable
-          v-else
-          :students="studentsStore.filteredStudents"
-          :current-filter="studentsStore.currentFilter"
-          :checking-passports="checkingPassports"
-          @edit="openEditModal"
-          @details="openDetails"
-          @delete="promptDelete"
-          @refresh="handleRefresh"
-          @download-pdf="handleDownloadPdf"
-          @toggle-select="handleToggleSelect"
-          @toggle-pin="handleTogglePin"
-          @deselect-all="handleDeselectAll"
-        />
-      </UCard>
-
-      <template #fallback>
-        <UCard :ui="{ root: 'shadow-[0_8px_30px_rgba(15,23,42,0.1),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)] border border-neutral-300 dark:border-white/20 ring-1 ring-black/5 dark:ring-white/10 rounded-xl overflow-hidden', body: 'p-0 sm:p-0' }">
-          <UiTableSkeleton />
-        </UCard>
-      </template>
-    </ClientOnly>
+        :students="studentsStore.filteredStudents"
+        :current-filter="studentsStore.currentFilter"
+        :checking-passports="checkingPassports"
+        @edit="openEditModal"
+        @details="openDetails"
+        @delete="promptDelete"
+        @refresh="handleRefresh"
+        @download-pdf="handleDownloadPdf"
+        @toggle-select="handleToggleSelect"
+        @toggle-pin="handleTogglePin"
+        @deselect-all="handleDeselectAll"
+      />
+    </UCard>
 
     <DashboardTelegramBotBanner />
 

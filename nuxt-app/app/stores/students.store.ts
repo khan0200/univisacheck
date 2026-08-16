@@ -162,12 +162,14 @@ export const useStudentsStore = defineStore('students', () => {
     }
   }
 
-  async function loadStudents() {
+  async function loadStudents(options?: { silent?: boolean }) {
     if (activeLoadPromise) {
       await activeLoadPromise
       return
     }
-    isLoading.value = true
+    if (!options?.silent && students.value.length === 0) {
+      isLoading.value = true
+    }
     try {
       activeLoadPromise = listStudents()
       const list = await activeLoadPromise

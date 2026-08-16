@@ -19,7 +19,7 @@ export function bucketForStatus(statusValue: string | undefined | null): StatusB
   const status = (statusValue || '').toLowerCase()
   const isApproved = status.includes('approved') || status.includes('visa used')
   const isCancelled = status.includes('cancel') || status.includes('reject')
-  const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error')
+  const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error') || status.includes('not found') || status.includes('no application') || status.includes('topilmadi') || status.includes('mavjud emas')
 
   if (isApproved) return 'approved'
   if (isCancelled) return 'cancelled'

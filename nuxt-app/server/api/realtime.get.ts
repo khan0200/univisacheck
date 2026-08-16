@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
   })
 
   // ── 5. Register EventBus writer ──────────────────────────────────────────
-  const writer = (realtimeEvent: any) => {
+  const writer = (realtimeEvent: StudentRealtimeEvent) => {
     sendSSE(realtimeEvent.type, realtimeEvent)
   }
 
@@ -95,28 +95,31 @@ export default defineEventHandler(async (event) => {
     }
   }, 15_000)
 
-  // Auto-close SSE stream after 28 seconds on Serverless to gracefully release compute
-  const connectionTimeout = setTimeout(() => {
-    clearInterval(pingInterval)
-    unsubscribe()
-    if (!res.destroyed) {
-      try {
-        res.end()
-      } catch {
-        // Ignored
-      }
-    }
-  }, 28_000)
+  // On Serverless (e.g. Vercel) gracefully release compute; on standard server keep open
+  const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY)
+  const connectionTimeout = isServerless
+    ? setTimeout(() => {
+        clearInterval(pingInterval)
+        unsubscribe()
+        if (!res.destroyed) {
+          try {
+            res.end()
+          } catch {
+            // Ignored
+          }
+        }
+      }, 28_000)
+    : null
 
   // ── 7. Cleanup on disconnect ─────────────────────────────────────────────
   event.node.req.on('close', () => {
-    clearTimeout(connectionTimeout)
+    if (connectionTimeout) clearTimeout(connectionTimeout)
     clearInterval(pingInterval)
     unsubscribe()
   })
 
   event.node.req.on('error', () => {
-    clearTimeout(connectionTimeout)
+    if (connectionTimeout) clearTimeout(connectionTimeout)
     clearInterval(pingInterval)
     unsubscribe()
   })
