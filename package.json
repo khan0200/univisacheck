@@ -5,7 +5,8 @@
   "main": "proxy.js",
   "scripts": {
     "dev": "npm run --prefix nuxt-app dev",
-    "start": "npm run --prefix nuxt-app build && npm run --prefix nuxt-app preview"
+    "start": "npm run --prefix nuxt-app build && npm run --prefix nuxt-app preview",
+    "deploy": "node scripts/deploy_vps.js"
   },
   "keywords": [
     "visa",
@@ -20,7 +21,8 @@
     "bcryptjs": "^3.0.3",
     "grammy": "^1.45.0",
     "jsonwebtoken": "^9.0.3",
-    "pdf-parse": "^2.4.5"
+    "pdf-parse": "^2.4.5",
+    "ssh2": "^1.17.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
