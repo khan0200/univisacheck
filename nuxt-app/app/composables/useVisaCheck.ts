@@ -1,8 +1,12 @@
 /**
  * app/composables/useVisaCheck.ts
  *
- * checkOne — fast direct path (no queue): calls /api/jobs/direct for instant results.
- * checkMany — bulk queue path: creates a queued job for multiple students.
+ * UniVisaCheck AutoCheck — Batched Concurrent Checking (Staggered Wave Dispatcher)
+ *
+ * - Process selected students in staggered batches of 3.
+ * - 200ms delay between launching batches (WITHOUT awaiting in-flight requests).
+ * - All requests run concurrently in the background and update each student row independently.
+ * - Reactive state management with duplicate protection.
  */
 
 import type { Student } from '~/types/student'
@@ -35,17 +39,21 @@ export function useVisaCheck() {
   const checkingPassports = computed(() => studentsStore.checkingPassports)
 
   /**
-   * Single-student fast check — bypasses the queue.
-   * Calls /api/jobs/direct which runs synchronously and returns the result immediately.
-   * The SSE realtime event is still published server-side so other tabs also refresh.
+   * Single-student direct check.
    */
   async function checkOne(student: Student): Promise<void> {
     const passport = student.passport
+    if (!passport) return
+
+    // Duplicate-request protection
+    if (studentsStore.checkingPassports.has(passport)) {
+      return
+    }
 
     studentsStore.sessionChanges = []
     studentsStore.isCheckingSession = true
 
-    // Optimistically mark as "processing" right away — no "queued" intermediate state
+    // Set individual student state to checking immediately
     studentsStore.checkingPassports.set(passport, 'processing')
     studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
@@ -55,102 +63,39 @@ export function useVisaCheck() {
         body: { passport }
       })
 
-      // Patch the student in the store immediately from the response
+      // Update student row immediately in local reactive state without page refresh
       studentsStore.patchStudent(passport, {
         status: result.status,
         applicationDate: result.applicationDate,
         lastChecked: result.lastChecked,
         rejectReason: result.rejectReason,
-        pdfUrl: result.pdfUrl
+        pdfUrl: result.pdfUrl,
+        check_source: 'manual',
+        checkSource: 'manual'
       }, result.lastChecked)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      console.error('[Visa Check Direct] Failed:', msg)
+      console.error(`[Visa Check Direct] Failed for ${passport}:`, msg)
     } finally {
-      // Remove from checking state
+      // Remove checking state
       studentsStore.checkingPassports.delete(passport)
       studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
     }
   }
 
-  // Creates a job for the specified passports and updates studentsStore.activeJob
-  async function createVisaCheckJob(passports: string[]): Promise<JobCreationResponse> {
-    studentsStore.sessionChanges = []
-    studentsStore.isCheckingSession = true
-
-    // 1. Optimistically add passports to checkingPassports BEFORE the fetch
-    // to prevent race conditions where realtime events arrive before the fetch resolves.
-    for (const passport of passports) {
-      if (!studentsStore.checkingPassports.has(passport)) {
-        studentsStore.checkingPassports.set(passport, 'queued')
-      }
-    }
-    studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
-
-    try {
-      const response = await apiFetch<JobCreationResponse>('/api/jobs', {
-        method: 'POST',
-        body: { passports }
-      })
-
-      // 2. Only update activeJob if we haven't already received a progress event for this job.
-      const stillChecking = passports.some(p => studentsStore.checkingPassports.has(p))
-      const alreadyTracking = studentsStore.activeJob?.jobId === response.jobId
-
-      if (!alreadyTracking && stillChecking) {
-        studentsStore.activeJob = {
-          jobId: response.jobId,
-          status: response.status,
-          total: response.total,
-          createdAt: new Date().toISOString(),
-          progress: {
-            queued: response.total,
-            processing: 0,
-            completed: 0,
-            failed: 0,
-            cancelled: 0
-          }
-        }
-      }
-
-      return response
-    } catch (err) {
-      // Revert optimistic updates
-      for (const passport of passports) {
-        if (studentsStore.checkingPassports.get(passport) === 'queued') {
-          studentsStore.checkingPassports.delete(passport)
-        }
-      }
-      studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
-
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error('[Visa Check Queue] Failed to create job:', msg)
-      throw err
-    }
-  }
-
-  // Cancel job
-  async function cancelJob(jobId: string): Promise<void> {
-    try {
-      await apiFetch<JobCancelResponse>('/api/jobs/cancel', {
-        method: 'POST',
-        body: { jobId }
-      })
-      studentsStore.activeJob = null
-      studentsStore.checkingPassports = new Map()
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error('[Visa Check Queue] Failed to cancel job:', msg)
-      throw err
-    }
-  }
-
   /**
-   * Batch fast-path — checks students concurrently using a worker pool
-   * for maximum throughput without artificial delay.
+   * Batched Concurrent AutoCheck — Staggered Wave Dispatcher
+   *
+   * 1. Groups selected students into batches of 3.
+   * 2. Launches each batch every 200ms WITHOUT waiting for earlier batches to complete.
+   * 3. Each student independently transitions from 'checking' -> 'checked' / 'error'.
+   * 4. Updates student row immediately upon individual completion without full page reload.
    */
   async function checkMany(students: Student[]): Promise<{ completed: number, failed: number }> {
     if (students.length === 0) return { completed: 0, failed: 0 }
+
+    const BATCH_SIZE = 3
+    const BATCH_DELAY = 200
 
     studentsStore.sessionChanges = []
     studentsStore.isCheckingSession = true
@@ -162,72 +107,89 @@ export function useVisaCheck() {
       failed: 0
     }
 
-    // Immediately mark every student as "processing" for instant UI feedback
-    for (const student of students) {
-      studentsStore.checkingPassports.set(student.passport, 'processing')
-    }
-    studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
-
     let completedCount = 0
     let failedCount = 0
 
-    const queue = [...students]
-    const CONCURRENCY = 3
+    // Individual request handler
+    async function checkStudent(student: Student): Promise<void> {
+      const passport = student.passport
+      if (!passport) return
 
-    async function worker() {
-      while (queue.length > 0) {
-        const student = queue.shift()
-        if (!student) break
-        const passport = student.passport
+      // Duplicate-request protection
+      if (studentsStore.checkingPassports.has(passport)) {
+        return
+      }
 
-        let result: DirectCheckResponse | null = null
-        let lastErr: unknown = null
+      // 1. Immediately mark this student as checking
+      studentsStore.checkingPassports.set(passport, 'processing')
+      studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
-        // Try up to 2 attempts
-        for (let attempt = 1; attempt <= 2; attempt++) {
-          try {
-            result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
-              method: 'POST',
-              body: { passport }
-            })
-            if (result) break
-          } catch (err) {
-            lastErr = err
-            if (attempt === 1) {
-              await new Promise(r => setTimeout(r, 300))
-            }
+      let result: DirectCheckResponse | null = null
+      let lastErr: unknown = null
+
+      // Attempt direct check with fallback retry if needed
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
+            method: 'POST',
+            body: { passport }
+          })
+          if (result) break
+        } catch (err) {
+          lastErr = err
+          if (attempt === 1) {
+            await new Promise(r => setTimeout(r, 300))
           }
         }
+      }
 
-        if (result) {
-          studentsStore.patchStudent(passport, {
-            status: result.status,
-            applicationDate: result.applicationDate,
-            lastChecked: result.lastChecked,
-            rejectReason: result.rejectReason,
-            pdfUrl: result.pdfUrl
-          }, result.lastChecked)
-          completedCount++
-        } else {
-          failedCount++
-          const msg = lastErr instanceof Error ? lastErr.message : String(lastErr)
-          console.error(`[Visa Check Batch] Direct check failed for ${passport}:`, msg)
-        }
+      if (result) {
+        // 2. Update student row immediately in local reactive state
+        studentsStore.patchStudent(passport, {
+          status: result.status,
+          applicationDate: result.applicationDate,
+          lastChecked: result.lastChecked,
+          rejectReason: result.rejectReason,
+          pdfUrl: result.pdfUrl,
+          check_source: 'manual',
+          checkSource: 'manual'
+        }, result.lastChecked)
+        completedCount++
+      } else {
+        failedCount++
+        const msg = lastErr instanceof Error ? lastErr.message : String(lastErr)
+        console.error(`[Visa Check Batch] Check failed for ${passport}:`, msg)
+      }
 
-        studentsStore.batchCheckProgress.completed = completedCount + failedCount
-        studentsStore.batchCheckProgress.failed = failedCount
-        studentsStore.checkingPassports.delete(passport)
-        studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+      // 3. Update progress and clear checking state for this student
+      studentsStore.batchCheckProgress.completed = completedCount + failedCount
+      studentsStore.batchCheckProgress.failed = failedCount
+      studentsStore.checkingPassports.delete(passport)
+      studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+    }
 
-        await new Promise(r => setTimeout(r, 60))
+    // Staggered wave dispatcher: Launch batches of 3 every 200ms
+    // Do NOT await checkStudent() when launching the batch!
+    const allInFlightPromises: Promise<void>[] = []
+
+    for (let i = 0; i < students.length; i += BATCH_SIZE) {
+      const batch = students.slice(i, i + BATCH_SIZE)
+
+      // Launch batch concurrently
+      for (const student of batch) {
+        allInFlightPromises.push(checkStudent(student))
+      }
+
+      // Wait 200ms before launching next batch (if more batches remain)
+      if (i + BATCH_SIZE < students.length) {
+        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
       }
     }
 
-    const workerCount = Math.min(CONCURRENCY, students.length)
-    const workers = Array.from({ length: workerCount }, () => worker())
-    await Promise.all(workers)
+    // Await all in-flight requests to eventually settle
+    await Promise.allSettled(allInFlightPromises)
 
-    // Keep visible briefly so user sees 100% completion before sliding away
+    // Keep progress bar visible briefly before sliding away
     setTimeout(() => {
       studentsStore.batchCheckProgress.active = false
     }, 1400)
@@ -235,5 +197,30 @@ export function useVisaCheck() {
     return { completed: completedCount, failed: failedCount }
   }
 
-  return { checkOne, checkMany, createVisaCheckJob, cancelJob, checkingPassports, normalizeStatusForComparison }
+  // Legacy job management helpers if needed
+  async function createVisaCheckJob(passports: string[]): Promise<JobCreationResponse> {
+    const response = await apiFetch<JobCreationResponse>('/api/jobs', {
+      method: 'POST',
+      body: { passports }
+    })
+    return response
+  }
+
+  async function cancelJob(jobId: string): Promise<void> {
+    await apiFetch<JobCancelResponse>('/api/jobs/cancel', {
+      method: 'POST',
+      body: { jobId }
+    })
+    studentsStore.activeJob = null
+    studentsStore.checkingPassports = new Map()
+  }
+
+  return {
+    checkOne,
+    checkMany,
+    createVisaCheckJob,
+    cancelJob,
+    checkingPassports,
+    normalizeStatusForComparison
+  }
 }

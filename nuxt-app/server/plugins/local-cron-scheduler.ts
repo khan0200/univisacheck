@@ -76,119 +76,125 @@ export async function runLocal10MinAutoCheck() {
 
     console.log(`\n🚀 [Auto Check 10-Min] Starting auto-check for ${eligibleRows.length} selected student(s)...`)
 
-    const queue = [...eligibleRows] as Record<string, unknown>[]
-    const CONCURRENCY = 3
+    const BATCH_SIZE = 3
+    const BATCH_DELAY = 200
     let checkedCount = 0
     let failedCount = 0
 
-    async function worker() {
-      while (queue.length > 0) {
-        const student = queue.shift()
-        if (!student) break
+    async function checkStudent(student: Record<string, unknown>): Promise<void> {
+      const passport = String(student.passport || '').toUpperCase().trim()
+      const fullName = String(student.fullName || student.fullname || '')
+      const userId = Number(student.userId)
+      const oldStatus = String(student.status || 'Pending')
 
-        const passport = String(student.passport || '').toUpperCase().trim()
-        const fullName = String(student.fullName || student.fullname || '')
-        const userId = Number(student.userId)
-        const oldStatus = String(student.status || 'Pending')
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const directCheckFn: any = (directVisaCheck as any).checkVisaDirect
+        const liveResult = await directCheckFn(
+          passport,
+          fullName,
+          String(student.birthday || ''),
+          String(student.visaType || student.visa_type || 'Embassy'),
+          String(student.applicationNo || student.application_no || '')
+        )
 
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const directCheckFn: any = (directVisaCheck as any).checkVisaDirect
-          const liveResult = await directCheckFn(
-            passport,
-            fullName,
-            String(student.birthday || ''),
-            String(student.visaType || student.visa_type || 'Embassy'),
-            String(student.applicationNo || student.application_no || '')
-          )
+        const nowIso = new Date().toISOString()
+        const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
+        const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
+        const appDate = liveResult.latestDate || String(student.applicationDate || '')
 
-          const nowIso = new Date().toISOString()
-          const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
-          const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
-          const appDate = liveResult.latestDate || String(student.applicationDate || '')
+        await db.execute({
+          sql: `
+            UPDATE students
+            SET status = ?,
+                applicationDate = ?,
+                application_date = ?,
+                lastChecked = ?,
+                last_checked = ?,
+                rejectReason = ?,
+                pdfUrl = ?,
+                apiResponse = ?,
+                check_source = 'auto',
+                checkSource = 'auto'
+            WHERE passport = ? AND deletedAt IS NULL
+          `,
+          args: [
+            newStatus,
+            appDate,
+            appDate,
+            nowIso,
+            nowIso,
+            liveResult.rejectionReason || '',
+            liveResult.pdfUrl || '',
+            JSON.stringify(liveResult),
+            passport
+          ]
+        })
 
-          await db.execute({
-            sql: `
-              UPDATE students
-              SET status = ?,
-                  applicationDate = ?,
-                  application_date = ?,
-                  lastChecked = ?,
-                  last_checked = ?,
-                  rejectReason = ?,
-                  pdfUrl = ?,
-                  apiResponse = ?,
-                  check_source = 'auto',
-                  checkSource = 'auto'
-              WHERE passport = ? AND deletedAt IS NULL
-            `,
-            args: [
-              newStatus,
-              appDate,
-              appDate,
-              nowIso,
-              nowIso,
-              liveResult.rejectionReason || '',
-              liveResult.pdfUrl || '',
-              JSON.stringify(liveResult),
-              passport
-            ]
-          })
-
-          const updatedChanges = {
-            status: newStatus,
-            applicationDate: appDate,
-            lastChecked: nowIso,
-            rejectReason: liveResult.rejectionReason || '',
-            pdfUrl: liveResult.pdfUrl || '',
-            apiResponse: JSON.stringify(liveResult),
-            check_source: 'auto',
-            checkSource: 'auto'
-          }
-
-          // Realtime SSE push to browser
-          publishRealtime(userId, {
-            type: 'student.updated',
-            eventId: crypto.randomUUID(),
-            updatedAt: nowIso,
-            originClientId: 'cron-local',
-            passport,
-            changes: updatedChanges
-          }).catch(() => {})
-
-          if (statusChanged) {
-            sendTelegramNotification(userId, {
-              fullName,
-              passport,
-              studentId: String(student.studentId || student.student_id || ''),
-              visaType: String(student.visaType || student.visa_type || 'Embassy'),
-              applicationNo: String(student.applicationNo || student.application_no || ''),
-              birthday: String(student.birthday || ''),
-              oldStatus,
-              newStatus,
-              applicationDate: appDate,
-              rejectionReason: liveResult.rejectionReason || '',
-              previousRejectionReason: liveResult.previousRejectionReason || '',
-              invitingCompany: liveResult.invitingCompany || '',
-              entryDate: liveResult.entryDate || '',
-              pdfUrl: liveResult.pdfUrl || ''
-            }).catch(() => {})
-          }
-
-          checkedCount++
-          console.log(`  ✅ [${checkedCount}/${eligibleRows.length}] ${passport} (${fullName}): ${newStatus} (${appDate || 'no date'})`)
-        } catch (err: unknown) {
-          failedCount++
-          console.error(`  ❌ ${passport} (${fullName}) failed:`, err instanceof Error ? err.message : String(err))
+        const updatedChanges = {
+          status: newStatus,
+          applicationDate: appDate,
+          lastChecked: nowIso,
+          rejectReason: liveResult.rejectionReason || '',
+          pdfUrl: liveResult.pdfUrl || '',
+          apiResponse: JSON.stringify(liveResult),
+          check_source: 'auto',
+          checkSource: 'auto'
         }
 
-        await new Promise(r => setTimeout(r, 60))
+        // Realtime SSE push to browser
+        publishRealtime(userId, {
+          type: 'student.updated',
+          eventId: crypto.randomUUID(),
+          updatedAt: nowIso,
+          originClientId: 'cron-local',
+          passport,
+          changes: updatedChanges
+        }).catch(() => {})
+
+        if (statusChanged) {
+          sendTelegramNotification(userId, {
+            fullName,
+            passport,
+            studentId: String(student.studentId || student.student_id || ''),
+            visaType: String(student.visaType || student.visa_type || 'Embassy'),
+            applicationNo: String(student.applicationNo || student.application_no || ''),
+            birthday: String(student.birthday || ''),
+            oldStatus,
+            newStatus,
+            applicationDate: appDate,
+            rejectionReason: liveResult.rejectionReason || '',
+            previousRejectionReason: liveResult.previousRejectionReason || '',
+            invitingCompany: liveResult.invitingCompany || '',
+            entryDate: liveResult.entryDate || '',
+            pdfUrl: liveResult.pdfUrl || ''
+          }).catch(() => {})
+        }
+
+        checkedCount++
+        console.log(`  ✅ [${checkedCount}/${eligibleRows.length}] ${passport} (${fullName}): ${newStatus} (${appDate || 'no date'})`)
+      } catch (err: unknown) {
+        failedCount++
+        console.error(`  ❌ ${passport} (${fullName}) failed:`, err instanceof Error ? err.message : String(err))
       }
     }
 
-    const workerCount = Math.min(CONCURRENCY, queue.length)
-    const workers = Array.from({ length: workerCount }, () => worker())
-    await Promise.all(workers)
+    // Staggered wave dispatcher: Launch batches of 3 every 200ms without awaiting
+    const allPromises: Promise<void>[] = []
+
+    for (let i = 0; i < eligibleRows.length; i += BATCH_SIZE) {
+      const batch = eligibleRows.slice(i, i + BATCH_SIZE) as Record<string, unknown>[]
+
+      for (const student of batch) {
+        allPromises.push(checkStudent(student))
+      }
+
+      if (i + BATCH_SIZE < eligibleRows.length) {
+        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
+      }
+    }
+
+    await Promise.allSettled(allPromises)
 
     console.log(`🏁 [Auto Check 10-Min] Finished batch! Completed: ${checkedCount}, Failed: ${failedCount}\n`)
   } catch (err: unknown) {
