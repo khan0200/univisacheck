@@ -77,7 +77,9 @@ export const STUDENT_COLUMNS: DbColumn[] = [
   { name: 'coordinator', type: 'TEXT' },
   { name: 'b2b', type: 'TEXT' },
   { name: 'check_source', type: 'TEXT' },
-  { name: 'checkSource', type: 'TEXT' }
+  { name: 'checkSource', type: 'TEXT' },
+  { name: 'lastNotifiedStatus', type: 'TEXT DEFAULT NULL' },
+  { name: 'last_notified_status', type: 'TEXT DEFAULT NULL' }
 ]
 
 export const CREATE_JOBS_TABLE = `

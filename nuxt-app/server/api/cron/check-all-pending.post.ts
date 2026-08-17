@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
   // 2. Query ALL non-deleted students with non-final status (Pending, Application, Received, Under Review, etc.)
   const studentsRes = await db.execute({
-    sql: `SELECT passport, "userId", "fullName", fullname, birthday, "visaType", visa_type, "applicationNo", application_no, "studentId", student_id, "applicationDate", "lastChecked", status FROM students
+    sql: `SELECT passport, "userId", "fullName", fullname, birthday, "visaType", visa_type, "applicationNo", application_no, "studentId", student_id, "applicationDate", "lastChecked", status, "lastNotifiedStatus" FROM students
           WHERE deletedAt IS NULL
             AND (
               status IS NULL
@@ -93,6 +93,7 @@ export default defineEventHandler(async (event) => {
       const passport = String(student.passport || '').toUpperCase().trim()
       const userId = Number(student.userId)
       const oldStatus = String(student.status || 'Pending')
+      const lastNotifiedStatus = String(student.lastNotifiedStatus || '')
 
       try {
         const liveResult = await checkStudentVisaStatus(
@@ -105,7 +106,7 @@ export default defineEventHandler(async (event) => {
 
         const nowIso = new Date().toISOString()
         const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
-        const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
+        const shouldNotify = normalizeStatus(newStatus) !== normalizeStatus(lastNotifiedStatus)
         const appDate = liveResult.latestDate || String(student.applicationDate || '')
 
         await db.execute({
@@ -157,8 +158,13 @@ export default defineEventHandler(async (event) => {
           changes: updatedChanges
         }).catch(() => {})
 
-        // Telegram notification if status changed
-        if (statusChanged) {
+        // Telegram notification only when result differs from last-notified (persistent dedup)
+        if (shouldNotify) {
+          await db.execute({
+            sql: `UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND deletedAt IS NULL`,
+            args: [newStatus, newStatus, passport]
+          })
+
           sendTelegramNotification(userId, {
             fullName: String(student.fullName || student.fullname || ''),
             passport,

@@ -98,6 +98,10 @@ export async function initDb() {
     // Add check_source column to visa_check_jobs if missing
     await ensureColumn('visa_check_jobs', 'check_source', "TEXT DEFAULT 'manual'")
 
+    // Add lastNotifiedStatus columns if missing (persistent notification dedup)
+    await ensureColumn('students', '"lastNotifiedStatus"', 'TEXT DEFAULT NULL')
+    await ensureColumn('students', 'last_notified_status', 'TEXT DEFAULT NULL')
+
     // 6. Create unique index for telegram_id
     try {
       await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')

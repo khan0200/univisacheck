@@ -181,8 +181,9 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     entryDate: rawEntryDate
   } = payload
 
-  if (rawOldStatus && isSameStatus(rawOldStatus, rawNewStatus)) {
-    return { ok: true, skipped: 'No status bucket change' }
+  if (rawOldStatus && rawNewStatus && rawOldStatus === rawNewStatus) {
+    // Only skip exact string duplicates (caller already handles normalized dedup via lastNotifiedStatus)
+    return { ok: true, skipped: 'Identical status string — no change' }
   }
 
   const fullName = escapeTelegramText(rawFullName)

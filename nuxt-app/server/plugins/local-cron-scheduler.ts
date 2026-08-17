@@ -45,7 +45,7 @@ export async function runLocal10MinAutoCheck() {
     const db = await getTursoClient()
 
     const studentsRes = await db.execute({
-      sql: `SELECT passport, "userId", "fullName", fullname, birthday, "visaType", visa_type, "applicationNo", application_no, "studentId", student_id, "applicationDate", "lastChecked", status 
+      sql: `SELECT passport, "userId", "fullName", fullname, birthday, "visaType", visa_type, "applicationNo", application_no, "studentId", student_id, "applicationDate", "lastChecked", status, "lastNotifiedStatus"
             FROM students
             WHERE deletedAt IS NULL
               AND batchSelected = 1
@@ -86,6 +86,7 @@ export async function runLocal10MinAutoCheck() {
       const fullName = String(student.fullName || student.fullname || '')
       const userId = Number(student.userId)
       const oldStatus = String(student.status || 'Pending')
+      const lastNotifiedStatus = String(student.lastNotifiedStatus || '')
 
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -100,7 +101,7 @@ export async function runLocal10MinAutoCheck() {
 
         const nowIso = new Date().toISOString()
         const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
-        const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
+        const shouldNotify = normalizeStatus(newStatus) !== normalizeStatus(lastNotifiedStatus)
         const appDate = liveResult.latestDate || String(student.applicationDate || '')
 
         await db.execute({
@@ -152,7 +153,13 @@ export async function runLocal10MinAutoCheck() {
           changes: updatedChanges
         }).catch(() => {})
 
-        if (statusChanged) {
+        if (shouldNotify) {
+          // Atomically persist notified state BEFORE sending to prevent race duplicates
+          await db.execute({
+            sql: `UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND deletedAt IS NULL`,
+            args: [newStatus, newStatus, passport]
+          })
+
           sendTelegramNotification(userId, {
             fullName,
             passport,
