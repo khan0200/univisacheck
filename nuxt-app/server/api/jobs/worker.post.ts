@@ -3,7 +3,7 @@
  *
  * Optimized Serverless-compatible queue worker.
  * Establishes a global scheduler lock, claims tasks atomically,
- * dispatches check status requests every 500ms asynchronously (non-blocking),
+ * dispatches check status requests every 200ms asynchronously (non-blocking),
  * and handles database writes, Telegram, and realtime updates per student.
  */
 
@@ -20,6 +20,7 @@ interface WorkerTask {
   userId: number
   jobId: string
   createdAt: string
+  checkSource: string
 }
 
 interface WorkerStudent {
@@ -37,6 +38,11 @@ interface WorkerStudent {
   applicationDate?: string
   lastChecked?: string
 }
+
+// visa.go.kr starts timing out when too many lookups are in flight. Tasks are
+// still launched on a 200ms cadence, but this ceiling protects the portal and
+// keeps a slow response from turning the entire batch into timeouts.
+const MAX_CONCURRENT_PORTAL_CHECKS = 6
 
 // Normalize status matching utils/visa-status.ts
 function normalizeStatus(status: string): string {
@@ -139,6 +145,7 @@ async function executeWithRetry(
 // Async runner to perform scraping, DB writes, Telegram notification, and progress updates
 async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, event: H3Event) {
   const runnerId = `runner-${claimedTask.id}`
+  const taskStartedAt = performance.now()
   console.log(`[Task Runner] Starting task ${claimedTask.id} for passport ${claimedTask.passport}`)
 
   let success = false
@@ -172,6 +179,7 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
         }
       } else {
         // Query visa.go.kr (external HTTP call, not retried in database loop)
+        const portalStartedAt = performance.now()
         const liveResult = await checkStudentVisaStatus(
           claimedTask.passport,
           student.fullName || student.fullname || '',
@@ -179,19 +187,17 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
           student.visaType || student.visa_type || 'Embassy',
           student.applicationNo || student.application_no || ''
         )
+        const portalMs = performance.now() - portalStartedAt
 
         const nowIso = new Date().toISOString()
         newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
         const statusChanged = !isSameStatus(oldStatus, newStatus)
 
-        const checkSourceRes = await executeWithRetry(db, {
-          sql: 'SELECT check_source FROM visa_check_jobs WHERE id = ?',
-          args: [claimedTask.jobId]
-        })
-        const checkSource = checkSourceRes.rows[0] ? String(checkSourceRes.rows[0].check_source) : 'manual'
+        const checkSource = claimedTask.checkSource
 
         // Consolidate updates into ONE single database write with retry
         const appDate = liveResult.latestDate || student.applicationDate || ''
+        const dbWriteStartedAt = performance.now()
         await executeWithRetry(db, {
           sql: `
             UPDATE students
@@ -205,7 +211,7 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
                 apiResponse = ?,
                 check_source = ?,
                 checkSource = ?
-            WHERE passport = ? AND deletedAt IS NULL
+            WHERE passport = ? AND userId = ? AND deletedAt IS NULL
           `,
           args: [
             newStatus,
@@ -218,9 +224,11 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
             JSON.stringify(liveResult),
             checkSource,
             checkSource,
-            claimedTask.passport
+            claimedTask.passport,
+            claimedTask.userId
           ]
         })
+        const dbWriteMs = performance.now() - dbWriteStartedAt
 
         updatedChanges = {
           status: newStatus,
@@ -277,6 +285,7 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
         }
 
         success = true
+        console.log(`[Queue Task Timing] passport=${claimedTask.passport} portal=${Math.round(portalMs)}ms dbWrite=${Math.round(dbWriteMs)}ms total=${Math.round(performance.now() - taskStartedAt)}ms status=${newStatus}`)
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -294,28 +303,16 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
 
         // Send realtime event for student updated to all consultings that hold this passport
         if (Object.keys(updatedChanges).length > 0) {
-          const userRowsRes = await executeWithRetry(db, {
-            sql: 'SELECT DISTINCT userId FROM students WHERE passport = ? AND deletedAt IS NULL',
-            args: [claimedTask.passport]
+          await publishRealtime(claimedTask.userId, {
+            type: 'student.updated',
+            eventId: crypto.randomUUID(),
+            updatedAt: new Date().toISOString(),
+            originClientId: runnerId,
+            passport: claimedTask.passport,
+            changes: updatedChanges
+          }).catch((err) => {
+            console.error(`[Worker Realtime] Failed for userId ${claimedTask.userId}:`, err)
           })
-          const targetUserIds = new Set<number>([claimedTask.userId])
-          for (const row of userRowsRes.rows) {
-            const uid = Number((row as Record<string, unknown>).userId)
-            if (uid && !isNaN(uid)) targetUserIds.add(uid)
-          }
-
-          for (const targetUserId of targetUserIds) {
-            await publishRealtime(targetUserId, {
-              type: 'student.updated',
-              eventId: crypto.randomUUID(),
-              updatedAt: new Date().toISOString(),
-              originClientId: runnerId,
-              passport: claimedTask.passport,
-              changes: updatedChanges
-            }).catch((err) => {
-              console.error(`[Worker Realtime] Failed for userId ${targetUserId}:`, err)
-            })
-          }
         }
       } else {
         // Retry logic with backoff
@@ -327,12 +324,13 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
 
         if (attempts < 3) {
           const delaySeconds = 30 * Math.pow(2, attempts - 1) // 30s, 60s
+          const retryAt = new Date(Date.now() + (delaySeconds * 1000)).toISOString()
           console.log(`[Task Runner] Task ${claimedTask.id} backing off for ${delaySeconds}s...`)
           await executeWithRetry(db, {
             sql: `UPDATE visa_check_tasks
-                  SET status = 'queued', lockedAt = datetime('now', '+' + ? + ' seconds'), lockedBy = NULL, updatedAt = datetime('now')
+                  SET status = 'queued', lockedAt = ?, lockedBy = NULL, updatedAt = datetime('now')
                   WHERE id = ?`,
-            args: [delaySeconds, claimedTask.id]
+            args: [retryAt, claimedTask.id]
           })
         } else {
           await executeWithRetry(db, {
@@ -409,27 +407,64 @@ export default defineEventHandler(async (event) => {
 
   console.log(`[Queue Worker] Attempting start: ${workerId}`)
 
-  // 1. Recover stale tasks (locked > 5 minutes)
+  // 1. Recover stale tasks and clean up abandoned queues
   try {
+    // A. Clean up tasks belonging to inactive/cancelled jobs
+    await db.execute({
+      sql: `UPDATE visa_check_tasks
+            SET status = 'cancelled', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime('now')
+            WHERE status IN ('queued', 'processing')
+              AND jobId IN (
+                SELECT id FROM visa_check_jobs WHERE status NOT IN ('queued', 'processing')
+              )`
+    })
+
+    // B. Auto-cancel old stale jobs (> 2 hours old) still stuck in queued/processing
+    await db.execute({
+      sql: `UPDATE visa_check_jobs
+            SET status = 'cancelled', updatedAt = datetime('now')
+            WHERE status IN ('queued', 'processing')
+              AND createdAt < datetime('now', '-2 hours')`
+    })
+
+    // C. Cancel all tasks of those old stale jobs
+    await db.execute({
+      sql: `UPDATE visa_check_tasks
+            SET status = 'cancelled', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime('now')
+            WHERE status IN ('queued', 'processing')
+              AND createdAt < datetime('now', '-2 hours')`
+    })
+
+    // D. Recover stale processing tasks (locked > 5 minutes)
     const recoveredRes = await db.execute({
-      sql: `SELECT id, attempts FROM visa_check_tasks
-            WHERE status = 'processing' AND lockedAt < datetime('now', '-5 minutes')`
+      sql: `SELECT t.id, t.attempts, j.status as jobStatus FROM visa_check_tasks t
+            LEFT JOIN visa_check_jobs j ON j.id = t.jobId
+            WHERE t.status = 'processing' AND (t.lockedAt IS NULL OR t.lockedAt < datetime('now', '-5 minutes'))`
     })
 
     for (const row of recoveredRes.rows) {
       const taskId = String(row.id)
-      const attempts = Number(row.attempts)
+      const attempts = Number(row.attempts || 0)
+      const jobStatus = row.jobStatus ? String(row.jobStatus) : ''
+
+      if (!jobStatus || jobStatus === 'cancelled' || jobStatus === 'completed' || jobStatus === 'failed') {
+        await db.execute({
+          sql: `UPDATE visa_check_tasks SET status = 'cancelled', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime('now') WHERE id = ?`,
+          args: [taskId]
+        })
+        continue
+      }
 
       if (attempts >= 3) {
         console.log(`[Queue Worker] Failing stale task ${taskId} (attempts = ${attempts}).`)
         await db.execute({
-          sql: 'UPDATE visa_check_tasks SET status = \'failed\', error = \'Lease expired too many times\', updatedAt = datetime(\'now\') WHERE id = ?',
+          sql: `UPDATE visa_check_tasks SET status = 'failed', error = 'Lease expired too many times', updatedAt = datetime('now') WHERE id = ?`,
           args: [taskId]
         })
       } else {
         console.log(`[Queue Worker] Re-queueing stale task ${taskId} (attempts = ${attempts}).`)
         await db.execute({
-          sql: 'UPDATE visa_check_tasks SET status = \'queued\', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime(\'now\') WHERE id = ?',
+          sql: `UPDATE visa_check_tasks SET status = 'queued', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime('now') WHERE id = ?`,
           args: [taskId]
         })
       }
@@ -458,6 +493,22 @@ export default defineEventHandler(async (event) => {
       break
     }
 
+    // Maintain the staggered 200ms launch rate without overwhelming
+    // visa.go.kr. This is a global count because the scheduler lock ensures
+    // this is the only dispatcher instance claiming work.
+    const activeCountRes = await db.execute({
+      sql: `SELECT COUNT(*) as activeCount FROM visa_check_tasks t
+            INNER JOIN visa_check_jobs j ON j.id = t.jobId
+            WHERE t.status = 'processing'
+              AND j.status IN ('queued', 'processing')
+              AND t.lockedAt > datetime('now', '-5 minutes')`
+    })
+    const activeCount = Number(activeCountRes.rows[0]?.activeCount ?? 0)
+    if (activeCount >= MAX_CONCURRENT_PORTAL_CHECKS) {
+      await new Promise(resolve => setTimeout(resolve, 200))
+      continue
+    }
+
     // B. Claim next task atomically using a write transaction
     let claimedTask: WorkerTask | undefined
     const tx = await db.transaction('write')
@@ -465,8 +516,9 @@ export default defineEventHandler(async (event) => {
       // Select next task using fair scheduling
       const nextTaskRes = await tx.execute({
         sql: `
-          SELECT t.id, t.passport, t.userId, t.jobId, t.createdAt
+          SELECT t.id, t.passport, t.userId, t.jobId, t.createdAt, j.check_source
           FROM visa_check_tasks t
+          INNER JOIN visa_check_jobs j ON j.id = t.jobId
           LEFT JOIN (
             SELECT userId, COUNT(*) as userActiveCount
             FROM visa_check_tasks
@@ -474,6 +526,7 @@ export default defineEventHandler(async (event) => {
             GROUP BY userId
           ) active ON t.userId = active.userId
           WHERE t.status = 'queued'
+            AND j.status IN ('queued', 'processing')
             AND (t.lockedAt IS NULL OR t.lockedAt < datetime('now'))
             AND t.passport NOT IN (
               SELECT passport FROM visa_check_tasks
@@ -491,7 +544,8 @@ export default defineEventHandler(async (event) => {
           passport: String(task.passport),
           userId: Number(task.userId),
           jobId: String(task.jobId),
-          createdAt: String(task.createdAt)
+          createdAt: String(task.createdAt),
+          checkSource: String(task.check_source || 'manual')
         }
 
         // Lock task
@@ -531,7 +585,7 @@ export default defineEventHandler(async (event) => {
 
     // First, publish a realtime event to indicate that the check has started for this student
     // This allows the frontend to change the student row status to 'processing'
-    await publishRealtime(claimedTask.userId, {
+    publishRealtime(claimedTask.userId, {
       type: 'visa_check.started',
       jobId: claimedTask.jobId,
       studentId: claimedTask.passport
@@ -545,28 +599,36 @@ export default defineEventHandler(async (event) => {
     await new Promise(resolve => setTimeout(resolve, 200))
   }
 
-  // 4. Chain next worker execution if more tasks remain queued and eligible
+  // 4. Chain the next worker. Delayed retries also schedule their own wake-up,
+  // otherwise a failed task could remain queued forever with no new request.
   try {
     const queuedCountRes = await db.execute({
-      sql: `SELECT COUNT(*) as queuedCount FROM visa_check_tasks
-            WHERE status = 'queued' AND (lockedAt IS NULL OR lockedAt < datetime('now'))`
+      sql: `SELECT COUNT(*) as queuedCount,
+                   MIN(CASE WHEN t.lockedAt IS NOT NULL AND t.lockedAt > datetime('now') THEN t.lockedAt END) as nextLockedAt
+            FROM visa_check_tasks t
+            INNER JOIN visa_check_jobs j ON j.id = t.jobId
+            WHERE t.status = 'queued'
+              AND j.status IN ('queued', 'processing')`
     })
     const queuedCount = Number(queuedCountRes.rows[0]?.queuedCount ?? 0)
 
     if (queuedCount > 0) {
-      // If we are exiting because of the 45s loop timeout, we must release the lock so the chained worker can acquire it
-      if (Date.now() - workerStartTime >= 45000) {
-        console.log(`[Queue Worker] 45s execution limit reached. Releasing lock for handoff.`)
-        await releaseSchedulerLock(db, workerId)
-      }
+      await releaseSchedulerLock(db, workerId)
+
+      const nextLockedAt = String(queuedCountRes.rows[0]?.nextLockedAt || '')
+      const retryAtMs = Date.parse(nextLockedAt)
+      const delayMs = Number.isNaN(retryAtMs)
+        ? 0
+        : Math.min(Math.max(retryAtMs - Date.now() + 50, 0), 60_000)
 
       const port = process.env.PORT || '3000'
       const workerUrl = `http://127.0.0.1:${port}/api/jobs/worker`
 
-      console.log(`[Queue Worker] Chaining next worker execution. Queued count: ${queuedCount}`)
-      const triggerPromise = $fetch(workerUrl, {
-        method: 'POST'
-      }).catch((err: unknown) => {
+      console.log(`[Queue Worker] Chaining next worker execution. Queued count: ${queuedCount}, delay: ${delayMs}ms`)
+      const triggerPromise = (async () => {
+        if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs))
+        await $fetch(workerUrl, { method: 'POST' })
+      })().catch((err: unknown) => {
         console.error('[Queue Worker] Chained trigger failed:', err instanceof Error ? err.message : String(err))
       })
       event.waitUntil(triggerPromise)

@@ -49,6 +49,22 @@ export default defineEventHandler(async (event) => {
   try {
     const statements: { sql: string, args: (string | number | null)[] }[] = []
 
+    // A user can start a newer batch before an older one has finished. Keep
+    // only the newest request meaningful: cancel older queued/processing tasks so they
+    // cannot build an ever-growing backlog or overwrite fresh checks later.
+    statements.push({
+      sql: `UPDATE visa_check_tasks
+            SET status = 'cancelled', lockedAt = NULL, lockedBy = NULL, updatedAt = datetime('now')
+            WHERE userId = ? AND status IN ('queued', 'processing')`,
+      args: [userId]
+    })
+    statements.push({
+      sql: `UPDATE visa_check_jobs
+            SET status = 'cancelled', updatedAt = datetime('now')
+            WHERE userId = ? AND check_source = 'manual' AND status IN ('queued', 'processing')`,
+      args: [userId]
+    })
+
     // Insert Job
     statements.push({
       sql: `INSERT INTO visa_check_jobs (id, userId, total, status, check_source, createdAt, updatedAt)

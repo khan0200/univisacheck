@@ -124,6 +124,18 @@ export const CREATE_TASKS_JOBID_INDEX = `
 CREATE INDEX IF NOT EXISTS idx_visa_tasks_jobId ON visa_check_tasks("jobId");
 `
 
+export const CREATE_STUDENTS_USER_PASSPORT_INDEX = `
+CREATE INDEX IF NOT EXISTS idx_students_user_passport_active
+ON students("userId", passport)
+WHERE "deletedAt" IS NULL;
+`
+
+export const CREATE_STUDENTS_PASSPORT_INDEX = `
+CREATE INDEX IF NOT EXISTS idx_students_passport_active
+ON students(passport)
+WHERE "deletedAt" IS NULL;
+`
+
 export const CREATE_VISA_SESSIONS_TABLE = `
 CREATE TABLE IF NOT EXISTS visa_sessions (
     key TEXT PRIMARY KEY,

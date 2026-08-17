@@ -20,6 +20,7 @@ interface RealtimeConfig {
 interface RealtimeEvent {
   eventId: string
   originClientId: string
+  jobId?: string
   student?: Student
   passport?: string
   changes?: Partial<Student>
@@ -89,6 +90,36 @@ export function useRealtimeSync() {
       globalClientId = crypto.randomUUID()
     }
     return globalClientId
+  }
+
+  function applyVisaCheckProgress(ev: RealtimeEvent) {
+    const progress = ev.progress || { queued: 0, processing: 0, completed: 0, failed: 0, cancelled: 0 }
+    const total = ev.total || studentsStore.activeJob?.total || 0
+    const completed = progress.completed + progress.failed + progress.cancelled
+    const isFinished = ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled'
+
+    studentsStore.batchCheckProgress = {
+      active: total > 0,
+      total,
+      completed,
+      failed: progress.failed
+    }
+
+    if (isFinished) {
+      studentsStore.activeJob = null
+      studentsStore.checkingPassports = new Map()
+      setTimeout(() => {
+        studentsStore.batchCheckProgress.active = false
+      }, 1400)
+    } else {
+      studentsStore.activeJob = {
+        jobId: ev.jobId || '',
+        status: ev.status || 'processing',
+        total,
+        createdAt: studentsStore.activeJob?.createdAt || new Date().toISOString(),
+        progress
+      }
+    }
   }
 
   async function connect() {
@@ -203,12 +234,7 @@ export function useRealtimeSync() {
 
         channel.bind('visa_check.progress', (ev: RealtimeEvent) => {
           console.log('[Realtime Sync] Received visa check progress via Pusher:', ev)
-          if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
-            studentsStore.activeJob = null
-            studentsStore.checkingPassports = new Map()
-          } else {
-            studentsStore.activeJob = ev as unknown as typeof studentsStore.activeJob
-          }
+          applyVisaCheckProgress(ev)
         })
 
         channel.bind('visa_check.completed', (ev: RealtimeEvent) => {
@@ -344,12 +370,7 @@ export function useRealtimeSync() {
       try {
         const ev = JSON.parse(e.data) as RealtimeEvent
         console.log('[Realtime Sync] Received visa check progress via SSE:', ev)
-        if (ev.status === 'completed' || ev.status === 'failed' || ev.status === 'cancelled') {
-          studentsStore.activeJob = null
-          studentsStore.checkingPassports = new Map()
-        } else {
-          studentsStore.activeJob = ev as unknown as typeof studentsStore.activeJob
-        }
+        applyVisaCheckProgress(ev)
       } catch {
         // Parse error ignored
       }

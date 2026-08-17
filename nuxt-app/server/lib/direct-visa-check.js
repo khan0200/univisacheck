@@ -29,6 +29,16 @@ if (typeof dns.setDefaultResultOrder === 'function') {
 }
 
 const HOST = 'www.visa.go.kr'
+// Reuse TLS sockets between staggered queue tasks. The worker starts a new
+// lookup every 200ms, so a small shared pool avoids paying a TLS handshake for
+// every student while still limiting pressure on visa.go.kr.
+const visaAgent = new https.Agent({
+  keepAlive: true,
+  maxSockets: 6,
+  maxFreeSockets: 4,
+  timeout: 30_000,
+  scheduling: 'lifo'
+})
 let sessionCookies = null
 let sessionFetchedAt = 0
 const SESSION_TTL_MS = 10 * 60 * 1000 // 10 minutes
@@ -42,7 +52,7 @@ function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
       method,
       headers,
       family: 4,
-      agent: false, // Fresh clean TLS connection to avoid dead socket hangs
+      agent: visaAgent,
       timeout: timeoutMs
     }, (res) => {
       // Automatically refresh cookies from response

@@ -25,6 +25,7 @@ function normalizeStatus(status: string): string {
 }
 
 export default defineEventHandler(async (event) => {
+  const requestStartedAt = performance.now()
   // 1. Authenticate
   const authUser = await verifyToken(event)
   if (!authUser) apiError(401, 'Unauthorized')
@@ -53,6 +54,7 @@ export default defineEventHandler(async (event) => {
   // 4. Run visa check directly (synchronous — no queue)
   console.log(`[Direct Check] Checking passport ${passport} for userId ${userId}`)
   let liveResult
+  const visaStartedAt = performance.now()
   try {
     liveResult = await checkStudentVisaStatus(
       passport,
@@ -65,13 +67,15 @@ export default defineEventHandler(async (event) => {
     const errorObj = err as { statusCode?: number, message?: string, code?: string }
     if (errorObj.statusCode) throw err
     console.error(`[Direct Check] Network error checking passport ${passport}:`, errorObj.message || String(err))
-    
+
     // Persist lastChecked to DB so F5 refresh reflects the check attempt
     const nowIso = new Date().toISOString()
+    const dbWriteStartedAt = performance.now()
     await db.execute({
-      sql: `UPDATE students SET lastChecked = ?, last_checked = ? WHERE passport = ? AND deletedAt IS NULL`,
-      args: [nowIso, nowIso, passport]
-    }).catch((dbErr) => console.error('[Direct Check] DB update error on fallback:', dbErr))
+      sql: `UPDATE students SET lastChecked = ?, last_checked = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL`,
+      args: [nowIso, nowIso, passport, userId]
+    }).catch(dbErr => console.error('[Direct Check] DB update error on fallback:', dbErr))
+    console.warn(`[Direct Check Timing] passport=${passport} portal=${Math.round(performance.now() - visaStartedAt)}ms dbWrite=${Math.round(performance.now() - dbWriteStartedAt)}ms total=${Math.round(performance.now() - requestStartedAt)}ms failed=true`)
 
     return {
       passport,
@@ -87,11 +91,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const nowIso = new Date().toISOString()
+  const portalMs = performance.now() - visaStartedAt
   const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
   const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
   const appDate = liveResult.latestDate || String(student.applicationDate || '')
 
   // 5. Persist result to DB
+  const dbWriteStartedAt = performance.now()
   await db.execute({
     sql: `
       UPDATE students
@@ -105,7 +111,7 @@ export default defineEventHandler(async (event) => {
           apiResponse = ?,
           check_source = 'manual',
           checkSource = 'manual'
-      WHERE passport = ? AND deletedAt IS NULL
+      WHERE passport = ? AND userId = ? AND deletedAt IS NULL
     `,
     args: [
       newStatus,
@@ -116,9 +122,11 @@ export default defineEventHandler(async (event) => {
       liveResult.rejectionReason || '',
       liveResult.pdfUrl || '',
       JSON.stringify(liveResult),
-      passport
+      passport,
+      userId
     ]
   })
+  const dbWriteMs = performance.now() - dbWriteStartedAt
 
   // 6. Publish realtime update so all connected browsers refresh instantly
   const updatedChanges = {
@@ -132,28 +140,18 @@ export default defineEventHandler(async (event) => {
     checkSource: 'manual'
   }
 
-  const userRowsRes = await db.execute({
-    sql: 'SELECT DISTINCT userId FROM students WHERE passport = ? AND deletedAt IS NULL',
-    args: [passport]
+  const realtimeStartedAt = performance.now()
+  await publishRealtime(userId, {
+    type: 'student.updated',
+    eventId: crypto.randomUUID(),
+    updatedAt: nowIso,
+    originClientId: `direct-${passport}`,
+    passport,
+    changes: updatedChanges
+  }).catch((err) => {
+    console.error(`[Direct Realtime] Failed for userId ${userId}:`, err)
   })
-  const targetUserIds = new Set<number>([userId])
-  for (const row of userRowsRes.rows) {
-    const uid = Number((row as any).userId)
-    if (uid && !isNaN(uid)) targetUserIds.add(uid)
-  }
-
-  for (const targetUserId of targetUserIds) {
-    await publishRealtime(targetUserId, {
-      type: 'student.updated',
-      eventId: crypto.randomUUID(),
-      updatedAt: nowIso,
-      originClientId: `direct-${passport}`,
-      passport,
-      changes: updatedChanges
-    }).catch((err) => {
-      console.error(`[Direct Realtime] Failed for userId ${targetUserId}:`, err)
-    })
-  }
+  const realtimeMs = performance.now() - realtimeStartedAt
 
   // 7. Telegram notification if status changed
   if (statusChanged) {
@@ -178,7 +176,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 8. Return result immediately
-  console.log(`[Direct Check] Completed for ${passport}: ${oldStatus} → ${newStatus}`)
+  console.log(`[Direct Check Timing] passport=${passport} portal=${Math.round(portalMs)}ms dbWrite=${Math.round(dbWriteMs)}ms realtime=${Math.round(realtimeMs)}ms total=${Math.round(performance.now() - requestStartedAt)}ms status=${newStatus}`)
   return {
     passport,
     status: newStatus,

@@ -13,7 +13,6 @@
 
 import type { TursoDbClient } from './turso'
 import { publishToAllUsers } from './realtime-publisher'
-import { sendGlobalTelegramBroadcast } from './global-telegram'
 
 /** Normalize applicationDate to YYYY-MM-DD. Returns '' on failure. */
 function normalizeDate(raw: string): string {
@@ -115,16 +114,6 @@ export async function tryCreateProcessingNotification(
       console.error('[ProcessingNotifier] Web broadcast update failed:', err.message)
     })
 
-    // Edit existing Telegram messages for all linked subscribers
-    sendGlobalTelegramBroadcast({
-      notificationId,
-      applicationDate,
-      visaTypes: updatedVisaTypes,
-      message
-    }).catch((err: Error) => {
-      console.error('[ProcessingNotifier] Telegram edit broadcast failed:', err.message)
-    })
-
     return
   }
 
@@ -169,15 +158,5 @@ export async function tryCreateProcessingNotification(
   // Broadcast initial event to web cabinet
   publishToAllUsers(realtimePayload).catch((err: Error) => {
     console.error('[ProcessingNotifier] Initial web broadcast failed:', err.message)
-  })
-
-  // Send initial Telegram messages to all linked subscribers
-  sendGlobalTelegramBroadcast({
-    notificationId,
-    applicationDate,
-    visaTypes: initialVisaTypes,
-    message
-  }).catch((err: Error) => {
-    console.error('[ProcessingNotifier] Initial Telegram broadcast failed:', err.message)
   })
 }

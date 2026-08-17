@@ -185,24 +185,16 @@ async function handleBatchCheck() {
   }
   batchChecking.value = true
   try {
-    const { completed, failed } = await checkMany(list)
-    if (failed > 0 && completed === 0) {
-      toast.add({
-        title: 'Batch check failed',
-        description: 'Could not connect to visa portal. Please try again.',
-        color: 'error',
-        duration: 3500
-      })
-    } else if (failed > 0) {
-      toast.add({
-        title: 'Batch check finished with errors',
-        description: `Checked ${completed} student(s), but ${failed} failed to connect.`,
-        color: 'warning',
-        duration: 3500
-      })
-    }
+    const job = await checkMany(list)
+    if (job.total === 0) return
+    toast.add({
+      title: `Queued ${job.total} student(s)`,
+      description: 'Checks start every 200 ms and continue in the background.',
+      color: 'primary',
+      duration: 2500
+    })
   } catch {
-    toast.add({ title: 'Batch check failed. Please try again.', color: 'error', duration: 2500 })
+    toast.add({ title: 'Could not queue the batch check. Please try again.', color: 'error', duration: 2500 })
   } finally {
     batchChecking.value = false
   }
