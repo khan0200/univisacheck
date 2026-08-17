@@ -19,10 +19,10 @@ export default defineEventHandler(async (event) => {
 
   const db = await getTursoClient()
 
-  // 2. Fetch the oldest active job for the user
+  // 2. Fetch the oldest active manual job for the user (auto cron runs silently in background)
   const jobRes = await db.execute({
     sql: `SELECT id, total, status, createdAt FROM visa_check_jobs
-          WHERE userId = ? AND status IN ('queued', 'processing')
+          WHERE userId = ? AND status IN ('queued', 'processing') AND check_source = 'manual'
           ORDER BY createdAt ASC LIMIT 1`,
     args: [userId]
   })
