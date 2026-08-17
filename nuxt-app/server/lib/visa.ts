@@ -92,15 +92,30 @@ export async function checkStudentVisaStatus(
     const cleanedVisaType = visaType.trim()
     const cleanedAppNo = applicationNo.trim()
 
-    console.log(`[Visa Service] Querying visa.go.kr for ${cleanedPassport} (${cleanedName}) via ${cleanedVisaType}...`)
+    let result: any = null
+    let lastErr: any = null
 
-    const result = await checkVisaDirect(
-      cleanedPassport,
-      cleanedName,
-      cleanedBirthDate,
-      cleanedVisaType,
-      cleanedAppNo
-    )
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        result = await checkVisaDirect(
+          cleanedPassport,
+          cleanedName,
+          cleanedBirthDate,
+          cleanedVisaType,
+          cleanedAppNo
+        )
+        if (result) break
+      } catch (err: any) {
+        lastErr = err
+        if (attempt === 1) {
+          await new Promise(r => setTimeout(r, 250))
+        }
+      }
+    }
+
+    if (!result) {
+      throw lastErr || new Error('Direct visa check failed')
+    }
 
     let previousRejectionReason = ''
     if (result.records && result.records.length > 1) {

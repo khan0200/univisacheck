@@ -37,7 +37,7 @@ const httpsAgent = new https.Agent({
   timeout: 10000
 })
 
-function httpReq(method, path, headers, body = null, timeoutMs = 9000) {
+function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
