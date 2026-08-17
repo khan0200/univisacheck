@@ -172,7 +172,7 @@ export function useVisaCheck() {
     let failedCount = 0
 
     const queue = [...students]
-    const CONCURRENCY = 6
+    const CONCURRENCY = 3
 
     async function worker() {
       while (queue.length > 0) {
@@ -180,11 +180,26 @@ export function useVisaCheck() {
         if (!student) break
         const passport = student.passport
 
-        try {
-          const result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
-            method: 'POST',
-            body: { passport }
-          })
+        let result: DirectCheckResponse | null = null
+        let lastErr: unknown = null
+
+        // Try up to 2 attempts
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
+              method: 'POST',
+              body: { passport }
+            })
+            if (result) break
+          } catch (err) {
+            lastErr = err
+            if (attempt === 1) {
+              await new Promise(r => setTimeout(r, 300))
+            }
+          }
+        }
+
+        if (result) {
           studentsStore.patchStudent(passport, {
             status: result.status,
             applicationDate: result.applicationDate,
@@ -193,16 +208,18 @@ export function useVisaCheck() {
             pdfUrl: result.pdfUrl
           }, result.lastChecked)
           completedCount++
-        } catch (err) {
+        } else {
           failedCount++
-          const msg = err instanceof Error ? err.message : String(err)
+          const msg = lastErr instanceof Error ? lastErr.message : String(lastErr)
           console.error(`[Visa Check Batch] Direct check failed for ${passport}:`, msg)
-        } finally {
-          studentsStore.batchCheckProgress.completed = completedCount + failedCount
-          studentsStore.batchCheckProgress.failed = failedCount
-          studentsStore.checkingPassports.delete(passport)
-          studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
         }
+
+        studentsStore.batchCheckProgress.completed = completedCount + failedCount
+        studentsStore.batchCheckProgress.failed = failedCount
+        studentsStore.checkingPassports.delete(passport)
+        studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+
+        await new Promise(r => setTimeout(r, 60))
       }
     }
 

@@ -438,16 +438,17 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
       'Cookie': cookies
     }, body)
   } catch {
-    // On network error, try refreshing the session once
-    const freshCookies = await getSession(true)
+    // Retry once with 200ms pause with same session (avoid session thrashing storm)
+    await new Promise(resolve => setTimeout(resolve, 200))
     r = await httpReq('POST', '/openPage.do?MENU_ID=10301', {
-      'User-Agent': 'Mozilla/5.0 Chrome/124.0',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
       'Referer': 'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
       'Origin': 'https://www.visa.go.kr',
-      'Accept': 'text/html,*/*',
+      'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
+      'Accept-Language': 'en-US,en;q=0.9',
       'Content-Type': 'application/x-www-form-urlencoded',
       'Content-Length': String(Buffer.byteLength(body)),
-      'Cookie': freshCookies
+      'Cookie': cookies
     }, body)
   }
 
