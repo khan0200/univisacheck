@@ -155,6 +155,13 @@ export function useVisaCheck() {
     studentsStore.sessionChanges = []
     studentsStore.isCheckingSession = true
 
+    studentsStore.batchCheckProgress = {
+      active: true,
+      total: students.length,
+      completed: 0,
+      failed: 0
+    }
+
     // Immediately mark every student as "processing" for instant UI feedback
     for (const student of students) {
       studentsStore.checkingPassports.set(student.passport, 'processing')
@@ -191,6 +198,8 @@ export function useVisaCheck() {
           const msg = err instanceof Error ? err.message : String(err)
           console.error(`[Visa Check Batch] Direct check failed for ${passport}:`, msg)
         } finally {
+          studentsStore.batchCheckProgress.completed = completedCount + failedCount
+          studentsStore.batchCheckProgress.failed = failedCount
           studentsStore.checkingPassports.delete(passport)
           studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
         }
@@ -200,6 +209,11 @@ export function useVisaCheck() {
     const workerCount = Math.min(CONCURRENCY, students.length)
     const workers = Array.from({ length: workerCount }, () => worker())
     await Promise.all(workers)
+
+    // Keep visible briefly so user sees 100% completion before sliding away
+    setTimeout(() => {
+      studentsStore.batchCheckProgress.active = false
+    }, 1400)
 
     return { completed: completedCount, failed: failedCount }
   }

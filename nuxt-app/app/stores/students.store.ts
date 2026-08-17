@@ -27,6 +27,18 @@ export const useStudentsStore = defineStore('students', () => {
   const activeJob = ref<JobProgress | null>(null)
   const checkingPassports = ref<Map<string, 'queued' | 'processing'>>(new Map())
 
+  const batchCheckProgress = ref<{
+    active: boolean
+    total: number
+    completed: number
+    failed: number
+  }>({
+    active: false,
+    total: 0,
+    completed: 0,
+    failed: 0
+  })
+
   const sessionChanges = ref<{ fullName: string, oldStatus: string, newStatus: string }[]>([])
   const showReportModal = ref(false)
   const isCheckingSession = ref(false)
@@ -281,6 +293,7 @@ export const useStudentsStore = defineStore('students', () => {
     activeJob,
     loadActiveJob,
     checkingPassports,
+    batchCheckProgress,
     sessionChanges,
     showReportModal,
     isCheckingSession

@@ -48,5 +48,6 @@ useHead({
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <UiIosBatchProgressBar />
   </UApp>
 </template>
