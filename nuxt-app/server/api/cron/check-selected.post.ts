@@ -33,8 +33,7 @@ function getDaysSinceApplication(appDateStr: string): number {
 }
 
 export default defineEventHandler(async (event) => {
-  // ── [FROZEN] AUTO CHECK TEMPORARILY DISABLED TO PREVENT COMPUTE CONSUMPTION ──
-  const AUTO_CHECK_FROZEN = true
+  const AUTO_CHECK_FROZEN = false
   if (AUTO_CHECK_FROZEN) {
     return {
       success: true,
@@ -157,9 +156,8 @@ export default defineEventHandler(async (event) => {
 
   // 6. Trigger Worker
   if (createdJobs.length > 0) {
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-    const host = event.node.req.headers.host || 'localhost:3100'
-    const workerUrl = `${protocol}://${host}/api/jobs/worker`
+    const port = process.env.PORT || '3000'
+    const workerUrl = `http://127.0.0.1:${port}/api/jobs/worker`
 
     console.log(`[10-Min Cron] Enqueued ${eligibleRows.length} eligible selected student(s) across ${createdJobs.length} jobs. Triggering worker...`)
 
