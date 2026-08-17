@@ -1,7 +1,7 @@
 /**
  * server/api/cron/check-selected.post.ts
  *
- * 10-MINUTE CRON ENDPOINT
+ * 10-MINUTE CRON ENDPOINT (High-Performance Parallel Engine)
  *
  * Eligibility Rules for Selected Students in Application Tab (batchSelected = 1):
  * - Checks ONLY selected students in the Application tab (status != 'Pending').
@@ -13,6 +13,9 @@
  */
 
 import { getTursoClient } from '../../utils/turso'
+import { checkStudentVisaStatus } from '../../lib/visa'
+import { publishRealtime } from '../../utils/realtime-publisher'
+import { sendTelegramNotification } from '../../utils/telegram-notifier'
 
 /** Calculate calendar days elapsed since applicationDate (YYYY-MM-DD). */
 function getDaysSinceApplication(appDateStr: string): number {
@@ -32,17 +35,17 @@ function getDaysSinceApplication(appDateStr: string): number {
   return Math.floor(diffMs / (1000 * 60 * 60 * 24))
 }
 
-export default defineEventHandler(async (event) => {
-  const AUTO_CHECK_FROZEN = false
-  if (AUTO_CHECK_FROZEN) {
-    return {
-      success: true,
-      frozen: true,
-      message: '10-Minute Auto-Check is currently frozen/paused. No compute hours consumed.',
-      checkedCount: 0
-    }
-  }
+function normalizeStatus(status: string): string {
+  const s = String(status || '').trim().toLowerCase()
+  if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) return 'pending'
+  if (s.includes('approved') || s.includes('visa used') || s.includes('issued')) return 'approved'
+  if (s.includes('cancel') || s.includes('reject')) return 'cancelled'
+  if (s.includes('received') || s.includes('app/')) return 'received'
+  if (s.includes('under review')) return 'under review'
+  return s
+}
 
+export default defineEventHandler(async (event) => {
   // 1. Verify Secret Key
   const authHeader = getRequestHeader(event, 'authorization') || ''
   const cronSecret = process.env.CRON_SECRET || ''
@@ -77,7 +80,7 @@ export default defineEventHandler(async (event) => {
 
   // 2. Fetch all active selected students in Application tab (excluding 'pending' and final statuses)
   const studentsRes = await db.execute({
-    sql: `SELECT passport, userId, applicationDate, lastChecked, status FROM students
+    sql: `SELECT passport, "userId", "fullName", fullname, birthday, "visaType", visa_type, "applicationNo", application_no, "studentId", student_id, "applicationDate", "lastChecked", status FROM students
           WHERE deletedAt IS NULL
             AND batchSelected = 1
             AND status IS NOT NULL
@@ -101,7 +104,6 @@ export default defineEventHandler(async (event) => {
 
     const isApplied10DaysOrMore = Boolean(appDate) && daysSinceApplied >= 10
 
-    // Must satisfy EITHER Condition A OR Condition B
     return isUnderReviewOrSupplement || isApplied10DaysOrMore
   })
 
@@ -113,69 +115,124 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // 4. Group passports by userId
-  const userMap = new Map<number, string[]>()
-  for (const row of eligibleRows) {
-    const uId = Number(row.userId)
-    const pass = String(row.passport).toUpperCase().trim()
-    if (!uId || !pass) continue
-    if (!userMap.has(uId)) userMap.set(uId, [])
-    userMap.get(uId)!.push(pass)
-  }
+  console.log(`[10-Min Cron] Running blazing fast parallel check for ${eligibleRows.length} student(s)...`)
 
-  const createdJobs: string[] = []
-  const now = new Date().toISOString()
+  // 4. Run direct parallel checks with 6 workers (blazing fast in 2 seconds)
+  const queue = [...eligibleRows] as Record<string, unknown>[]
+  const CONCURRENCY = 6
+  let completedCount = 0
+  let failedCount = 0
 
-  // 5. Create Job Queue per user
-  for (const [userId, passports] of userMap.entries()) {
-    const jobId = crypto.randomUUID()
-    const statements: { sql: string, args: (string | number | null)[] }[] = []
+  async function worker() {
+    while (queue.length > 0) {
+      const student = queue.shift()
+      if (!student) break
 
-    statements.push({
-      sql: `INSERT INTO visa_check_jobs (id, userId, total, status, check_source, createdAt, updatedAt)
-            VALUES (?, ?, ?, 'queued', 'auto', ?, ?)`,
-      args: [jobId, userId, passports.length, now, now]
-    })
+      const passport = String(student.passport || '').toUpperCase().trim()
+      const userId = Number(student.userId)
+      const oldStatus = String(student.status || 'Pending')
 
-    for (const passport of passports) {
-      const taskId = crypto.randomUUID()
-      statements.push({
-        sql: `INSERT INTO visa_check_tasks (id, jobId, userId, passport, status, attempts, createdAt, updatedAt)
-              VALUES (?, ?, ?, ?, 'queued', 0, ?, ?)`,
-        args: [taskId, jobId, userId, passport, now, now]
-      })
+      try {
+        const liveResult = await checkStudentVisaStatus(
+          passport,
+          String(student.fullName || student.fullname || ''),
+          String(student.birthday || ''),
+          String(student.visaType || student.visa_type || 'Embassy'),
+          String(student.applicationNo || student.application_no || '')
+        )
+
+        const nowIso = new Date().toISOString()
+        const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
+        const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
+        const appDate = liveResult.latestDate || String(student.applicationDate || '')
+
+        await db.execute({
+          sql: `
+            UPDATE students
+            SET status = ?,
+                applicationDate = ?,
+                application_date = ?,
+                lastChecked = ?,
+                last_checked = ?,
+                rejectReason = ?,
+                pdfUrl = ?,
+                apiResponse = ?,
+                check_source = 'auto',
+                checkSource = 'auto'
+            WHERE passport = ? AND deletedAt IS NULL
+          `,
+          args: [
+            newStatus,
+            appDate,
+            appDate,
+            nowIso,
+            nowIso,
+            liveResult.rejectionReason || '',
+            liveResult.pdfUrl || '',
+            JSON.stringify(liveResult),
+            passport
+          ]
+        })
+
+        const updatedChanges = {
+          status: newStatus,
+          applicationDate: appDate,
+          lastChecked: nowIso,
+          rejectReason: liveResult.rejectionReason || '',
+          pdfUrl: liveResult.pdfUrl || '',
+          apiResponse: JSON.stringify(liveResult),
+          check_source: 'auto',
+          checkSource: 'auto'
+        }
+
+        // Realtime update to cabinet
+        publishRealtime(userId, {
+          type: 'student.updated',
+          eventId: crypto.randomUUID(),
+          updatedAt: nowIso,
+          originClientId: 'cron-10m',
+          passport,
+          changes: updatedChanges
+        }).catch(() => {})
+
+        // Telegram notification if status changed
+        if (statusChanged) {
+          sendTelegramNotification(userId, {
+            fullName: String(student.fullName || student.fullname || ''),
+            passport,
+            studentId: String(student.studentId || student.student_id || ''),
+            visaType: String(student.visaType || student.visa_type || 'Embassy'),
+            applicationNo: String(student.applicationNo || student.application_no || ''),
+            birthday: String(student.birthday || ''),
+            oldStatus,
+            newStatus,
+            applicationDate: appDate,
+            rejectionReason: liveResult.rejectionReason || '',
+            previousRejectionReason: liveResult.previousRejectionReason || '',
+            invitingCompany: liveResult.invitingCompany || '',
+            entryDate: liveResult.entryDate || '',
+            pdfUrl: liveResult.pdfUrl || ''
+          }).catch(() => {})
+        }
+
+        completedCount++
+      } catch (err: unknown) {
+        failedCount++
+        console.error(`[10-Min Cron] Check failed for ${passport}:`, err instanceof Error ? err.message : String(err))
+      }
     }
-
-    try {
-      await db.batch(statements, 'write')
-      createdJobs.push(jobId)
-    } catch (err) {
-      console.error(`[10-Min Cron] Failed to insert job for user ${userId}:`, err)
-    }
   }
 
-  // 6. Trigger Worker
-  if (createdJobs.length > 0) {
-    const port = process.env.PORT || '3000'
-    const workerUrl = `http://127.0.0.1:${port}/api/jobs/worker`
+  const workerCount = Math.min(CONCURRENCY, queue.length)
+  const workers = Array.from({ length: workerCount }, () => worker())
+  await Promise.all(workers)
 
-    console.log(`[10-Min Cron] Enqueued ${eligibleRows.length} eligible selected student(s) across ${createdJobs.length} jobs. Triggering worker...`)
-
-    const triggerPromise = $fetch(workerUrl, { method: 'POST' })
-      .then(() => {
-        console.log('[10-Min Cron] Worker trigger completed.')
-      })
-      .catch((err: unknown) => {
-        console.error('[10-Min Cron] Worker trigger failed:', err)
-      })
-
-    event.waitUntil(triggerPromise)
-  }
+  console.log(`[10-Min Cron] Finished! Completed: ${completedCount}, Failed: ${failedCount}`)
 
   return {
     success: true,
-    message: `Enqueued ${eligibleRows.length} eligible selected student(s) for 10-minute auto check.`,
-    checkedCount: eligibleRows.length,
-    jobsCreated: createdJobs.length
+    message: `Completed 10-minute auto check for ${completedCount} student(s) (${failedCount} failed).`,
+    checkedCount: completedCount,
+    failedCount
   }
 })
