@@ -185,14 +185,7 @@ async function handleBatchCheck() {
   }
   batchChecking.value = true
   try {
-    const job = await checkMany(list)
-    if (job.total === 0) return
-    toast.add({
-      title: `Queued ${job.total} student(s)`,
-      description: 'Checks start every 200 ms and continue in the background.',
-      color: 'primary',
-      duration: 2500
-    })
+    await checkMany(list)
   } catch {
     toast.add({ title: 'Could not queue the batch check. Please try again.', color: 'error', duration: 2500 })
   } finally {
