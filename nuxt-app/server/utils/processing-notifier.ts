@@ -11,7 +11,7 @@
  * - If notification exists and visaType is already recorded: does nothing.
  */
 
-import type { Client } from '@libsql/client'
+import type { TursoDbClient } from './turso'
 import { publishToAllUsers } from './realtime-publisher'
 import { sendGlobalTelegramBroadcast } from './global-telegram'
 
@@ -48,7 +48,7 @@ function buildMessage(applicationDate: string): string {
  * Safe for concurrent callers across multiple Vercel instances.
  */
 export async function tryCreateProcessingNotification(
-  db: Client,
+  db: TursoDbClient,
   rawApplicationDate: string,
   rawVisaType: string,
   triggeredByUserId: number,

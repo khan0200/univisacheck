@@ -12,28 +12,30 @@
 
 import type { StudentRealtimeEvent } from './realtime-types'
 
-type SSEWriter = (event: any) => void
+type SSEWriter = (event: StudentRealtimeEvent) => void
 
 // Use globalThis to avoid duplicate instances of EventBus due to Vite/Nuxt module reloading
 const GLOBAL_CONNECTIONS_KEY = Symbol.for('event-bus.connections')
+const globalObj = globalThis as unknown as Record<symbol, Map<number, Set<SSEWriter>>>
 if (!(GLOBAL_CONNECTIONS_KEY in globalThis)) {
-  (globalThis as any)[GLOBAL_CONNECTIONS_KEY] = new Map<number, Set<SSEWriter>>()
+  globalObj[GLOBAL_CONNECTIONS_KEY] = new Map<number, Set<SSEWriter>>()
 }
-const connections: Map<number, Set<SSEWriter>> = (globalThis as any)[GLOBAL_CONNECTIONS_KEY]
+const connections: Map<number, Set<SSEWriter>> = globalObj[GLOBAL_CONNECTIONS_KEY]!
 
 /**
  * Publish an event to all active SSE connections for `userId`.
  * Safe to call even if no connections exist yet.
  */
-function publish(userId: number, event: any): void {
+function publish(userId: number, event: StudentRealtimeEvent): void {
   const writers = connections.get(userId)
   console.log(`[EventBus] Publishing event to userId: ${userId}, eventType: ${event.type}, active subscribers: ${writers ? writers.size : 0}`)
   if (!writers || writers.size === 0) return
   for (const write of writers) {
     try {
       write(event)
-    } catch (err: any) {
-      console.error(`[EventBus] Failed to write event to subscriber for userId ${userId}:`, err.message)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`[EventBus] Failed to write event to subscriber for userId ${userId}:`, msg)
     }
   }
 }
@@ -67,4 +69,3 @@ function size(): number {
 }
 
 export const EventBus = { publish, subscribe, size }
-

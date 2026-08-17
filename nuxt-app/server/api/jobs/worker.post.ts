@@ -7,9 +7,8 @@
  * and handles database writes, Telegram, and realtime updates per student.
  */
 
-import type { Client } from '@libsql/client'
 import type { H3Event } from 'h3'
-import { getTursoClient } from '../../utils/turso'
+import { getTursoClient, type TursoDbClient, type QueryResult } from '../../utils/turso'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
 import { sendTelegramNotification } from '../../utils/telegram-notifier'
@@ -56,7 +55,7 @@ function isSameStatus(status1: string, status2: string): boolean {
 }
 
 // Helper: Try to acquire scheduler lock
-async function acquireSchedulerLock(db: Client, workerId: string): Promise<boolean> {
+async function acquireSchedulerLock(db: TursoDbClient, workerId: string): Promise<boolean> {
   const now = Date.now()
   const expiryTime = now - 5000 // 5 seconds expiry
 
@@ -96,7 +95,7 @@ async function acquireSchedulerLock(db: Client, workerId: string): Promise<boole
 }
 
 // Helper: Renew scheduler lock
-async function renewSchedulerLock(db: Client, workerId: string): Promise<boolean> {
+async function renewSchedulerLock(db: TursoDbClient, workerId: string): Promise<boolean> {
   const now = Date.now()
   const res = await db.execute({
     sql: `UPDATE visa_scheduler_lock SET locked_at = ? WHERE id = 'global' AND locked_by = ?`,
@@ -106,7 +105,7 @@ async function renewSchedulerLock(db: Client, workerId: string): Promise<boolean
 }
 
 // Helper: Release scheduler lock
-async function releaseSchedulerLock(db: Client, workerId: string) {
+async function releaseSchedulerLock(db: TursoDbClient, workerId: string) {
   try {
     await db.execute({
       sql: `UPDATE visa_scheduler_lock SET locked_by = '', locked_at = 0 WHERE id = 'global' AND locked_by = ?`,
@@ -119,11 +118,11 @@ async function releaseSchedulerLock(db: Client, workerId: string) {
 
 // Helper: Database execute with retry for resilience
 async function executeWithRetry(
-  db: Client,
-  stmt: { sql: string, args?: (string | number | boolean | null)[] },
+  db: TursoDbClient,
+  stmt: { sql: string, args?: unknown[] },
   retries = 3,
   delay = 100
-): Promise<import('@libsql/client').ResultSet> {
+): Promise<QueryResult> {
   for (let i = 0; i < retries; i++) {
     try {
       return await db.execute(stmt)
@@ -138,7 +137,7 @@ async function executeWithRetry(
 }
 
 // Async runner to perform scraping, DB writes, Telegram notification, and progress updates
-async function runVisaCheckTask(db: Client, claimedTask: WorkerTask, event: H3Event) {
+async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, event: H3Event) {
   const runnerId = `runner-${claimedTask.id}`
   console.log(`[Task Runner] Starting task ${claimedTask.id} for passport ${claimedTask.passport}`)
 

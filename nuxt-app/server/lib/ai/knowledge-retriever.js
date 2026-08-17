@@ -22,9 +22,13 @@ function stemUzbek(word) {
 
 class KnowledgeRetriever {
   async retrieve(intent, keywords = [], originalMessage = '') {
-    // Parse message into clean search words with Uzbek stemming
-    const words = originalMessage.split(/[^\wа-яёўқғҳa-z0-9%']+/i)
-      .map(w => w.trim().toLowerCase())
+    // Parse message and passed keywords into clean search words with Uzbek stemming
+    const rawWords = [
+      ...originalMessage.split(/[^\wа-яёўқғҳa-z0-9%']+/i),
+      ...(Array.isArray(keywords) ? keywords : [])
+    ]
+    const words = rawWords
+      .map(w => String(w).trim().toLowerCase())
       .filter(w => w.length > 3)
       .map(w => stemUzbek(w))
 

@@ -9,6 +9,7 @@
 import Pusher from 'pusher'
 import { EventBus } from './event-bus'
 import { getTursoClient } from './turso'
+import type { StudentRealtimeEvent } from './realtime-types'
 
 let pusherClient: Pusher | null = null
 
@@ -38,7 +39,7 @@ function getPusherClient(): Pusher | null {
 /**
  * Publishes a realtime event to a user's subscription channel.
  */
-export async function publishRealtime(userId: number, event: { type: string, [key: string]: unknown }): Promise<void> {
+export async function publishRealtime(userId: number, event: StudentRealtimeEvent): Promise<void> {
   const pusher = getPusherClient()
   if (pusher) {
     try {
@@ -62,7 +63,7 @@ export async function publishRealtime(userId: number, event: { type: string, [ke
  * Queries the users table for every registered user and publishes to each.
  * Used for global announcements like visa_processing_started.
  */
-export async function publishToAllUsers(event: { type: string, [key: string]: unknown }): Promise<void> {
+export async function publishToAllUsers(event: StudentRealtimeEvent): Promise<void> {
   try {
     const db = await getTursoClient()
     const result = await db.execute('SELECT id FROM users')

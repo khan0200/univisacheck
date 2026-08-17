@@ -74,9 +74,40 @@ export interface VisaProcessingStartedEvent {
   createdAt: string
 }
 
+export interface VisaCheckStartedEvent {
+  type: 'visa_check.started'
+  jobId?: string
+  studentId?: string
+  [key: string]: unknown
+}
+
+export interface VisaCheckProgressEvent {
+  type: 'visa_check.progress'
+  jobId: string
+  total: number
+  status: string
+  progress: Record<string, number>
+  [key: string]: unknown
+}
+
+export interface VisaCheckCompletedEvent {
+  type: 'visa_check.completed'
+  jobId?: string
+  studentId?: string
+  result?: {
+    status?: string
+    lastChecked?: string
+    [key: string]: unknown
+  }
+  [key: string]: unknown
+}
+
 export type StudentRealtimeEvent
   = | StudentCreatedEvent
     | StudentUpdatedEvent
     | StudentDeletedEvent
     | StudentRestoredEvent
     | VisaProcessingStartedEvent
+    | VisaCheckStartedEvent
+    | VisaCheckProgressEvent
+    | VisaCheckCompletedEvent

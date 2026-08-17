@@ -15,7 +15,9 @@ async function loadLocalConfig() {
       const mod = await import(pathToFileURL(configPath).href)
       cached = { ...(mod.default || mod) }
     }
-  } catch {}
+  } catch {
+    // Ignore error if turso.config.js is not present
+  }
 
   // 2. Parse .env files directly from disk to ensure secrets are always available
   const envPaths = [
@@ -41,7 +43,9 @@ async function loadLocalConfig() {
             if (!cached[key] && val) cached[key] = val
           }
         }
-      } catch {}
+      } catch {
+        // Ignore unreadable env files
+      }
     }
   }
 

@@ -22,7 +22,7 @@ function normalizeStatus(status: unknown): string {
   return s
 }
 
-function isSameStatus(status1: unknown, status2: unknown): boolean {
+function _isSameStatus(status1: unknown, status2: unknown): boolean {
   return normalizeStatus(status1) === normalizeStatus(status2)
 }
 

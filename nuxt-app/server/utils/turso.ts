@@ -82,8 +82,8 @@ export function transformSql(sql: string): string {
     })
   }
 
-  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\+([^'"]+)['"]\)/gi, "(CURRENT_TIMESTAMP + INTERVAL '$1')")
-  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\-([^'"]+)['"]\)/gi, "(CURRENT_TIMESTAMP - INTERVAL '$1')")
+  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\+([^'"]+)['"]\)/gi, '(CURRENT_TIMESTAMP + INTERVAL \'$1\')')
+  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]-([^'"]+)['"]\)/gi, '(CURRENT_TIMESTAMP - INTERVAL \'$1\')')
   result = result.replace(/datetime\(['"]now['"]\)/gi, 'CURRENT_TIMESTAMP')
 
   // Auto-quote camelCase column names for PostgreSQL

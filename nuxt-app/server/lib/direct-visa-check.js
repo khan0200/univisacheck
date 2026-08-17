@@ -22,7 +22,6 @@
 import https from 'node:https'
 import dns from 'node:dns'
 import querystring from 'node:querystring'
-import { getTursoClient } from '../utils/turso.ts'
 
 // Ensure Node resolves IPv4 addresses first to avoid socket hangs on government servers
 if (typeof dns.setDefaultResultOrder === 'function') {
@@ -33,15 +32,6 @@ const HOST = 'www.visa.go.kr'
 let sessionCookies = null
 let sessionFetchedAt = 0
 const SESSION_TTL_MS = 10 * 60 * 1000 // 10 minutes
-
-// High-performance Keep-Alive HTTPS Agent to reuse TLS connections to Korea
-const httpsAgent = new https.Agent({
-  keepAlive: true,
-  keepAliveMsecs: 60000,
-  maxSockets: 50,
-  maxFreeSockets: 25,
-  timeout: 15000
-})
 
 function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
   return new Promise((resolve, reject) => {

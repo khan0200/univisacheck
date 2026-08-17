@@ -43,7 +43,7 @@ export async function sendGlobalTelegramBroadcast(payload: GlobalTelegramPayload
   const db = await getTursoClient()
 
   // 1. Query subscribers from cabinet_subscribers table
-  let subscribers: { telegram_id: number }[] = []
+  let subscribers: { telegram_id: number }[]
   try {
     const subRes = await db.execute('SELECT DISTINCT telegram_id FROM cabinet_subscribers')
     subscribers = subRes.rows.map(r => ({ telegram_id: Number(r.telegram_id) }))

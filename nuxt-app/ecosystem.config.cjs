@@ -1,9 +1,12 @@
-const path = require('path');
+const path = require('path')
+
 try {
-  const dotenv = require('dotenv');
-  dotenv.config({ path: path.join(__dirname, '.env') });
-  dotenv.config({ path: path.join(__dirname, '..', '.env') });
-} catch {}
+  const dotenv = require('dotenv')
+  dotenv.config({ path: path.join(__dirname, '.env') })
+  dotenv.config({ path: path.join(__dirname, '..', '.env') })
+} catch {
+  // Ignore missing dotenv
+}
 
 module.exports = {
   apps: [
@@ -28,4 +31,4 @@ module.exports = {
       }
     }
   ]
-};
+}

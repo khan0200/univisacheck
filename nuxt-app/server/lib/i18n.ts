@@ -187,7 +187,9 @@ export async function getLang(telegramId: number): Promise<Lang> {
       const data = JSON.parse((bsRes.rows[0]!.data as string) || '{}')
       if (data._lang === 'en') return 'en'
     }
-  } catch (_) {}
+  } catch {
+    // Default to uz on error
+  }
   return 'uz'
 }
 
@@ -225,7 +227,8 @@ export async function setLang(telegramId: number, lang: Lang): Promise<void> {
                   ON CONFLICT(telegram_id) DO UPDATE SET data = excluded.data`,
       args: [telegramId, JSON.stringify(existing)]
     })
-  } catch (err: any) {
-    console.error('[i18n] setLang error:', err.message)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[i18n] setLang error:', msg)
   }
 }

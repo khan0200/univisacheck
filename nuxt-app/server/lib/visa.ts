@@ -264,7 +264,7 @@ export async function downloadStudentVisaPdf(
   }
 
   // Send POST to print servlet to download the PDF
-  let printParams: Record<string, string> = {}
+  let printParams: Record<string, string>
   let printPath = '/biz/ap/ev/selectElectronicVisaPrint3.do'
 
   if (isRegional) {

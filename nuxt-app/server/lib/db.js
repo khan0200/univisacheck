@@ -52,7 +52,7 @@ function transformSql(sql) {
 
   if (/INSERT\s+OR\s+REPLACE\s+INTO/i.test(result)) {
     result = result.replace(/INSERT\s+OR\s+REPLACE\s+INTO\s+([a-zA-Z0-9_]+)\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)/i, (_match, table, cols, vals) => {
-      const colList = cols.split(',').map((c) => c.trim())
+      const colList = cols.split(',').map(c => c.trim())
       const lowerTable = table.toLowerCase()
       let pKey = 'id'
       if (lowerTable === 'visa_sessions') {
@@ -72,13 +72,13 @@ function transformSql(sql) {
       } else if (lowerTable === 'visa_scheduler_lock') {
         pKey = 'id'
       }
-      const updateSet = colList.map((c) => `${c} = EXCLUDED.${c}`).join(', ')
+      const updateSet = colList.map(c => `${c} = EXCLUDED.${c}`).join(', ')
       return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT (${pKey}) DO UPDATE SET ${updateSet}`
     })
   }
 
-  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\+([^'"]+)['"]\)/gi, "(CURRENT_TIMESTAMP + INTERVAL '$1')")
-  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\-([^'"]+)['"]\)/gi, "(CURRENT_TIMESTAMP - INTERVAL '$1')")
+  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\+([^'"]+)['"]\)/gi, '(CURRENT_TIMESTAMP + INTERVAL \'$1\')')
+  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]-([^'"]+)['"]\)/gi, '(CURRENT_TIMESTAMP - INTERVAL \'$1\')')
   result = result.replace(/datetime\(['"]now['"]\)/gi, 'CURRENT_TIMESTAMP')
 
   // Auto-quote camelCase column names for PostgreSQL

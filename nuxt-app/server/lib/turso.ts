@@ -69,7 +69,7 @@ export async function initDb() {
     const ensureColumn = async (table: string, colName: string, colType: string) => {
       try {
         await db.execute(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${colName} ${colType}`)
-      } catch (e: any) {
+      } catch {
         // Fallback for SQLite or systems where ADD COLUMN IF NOT EXISTS differs
         try {
           await db.execute(`ALTER TABLE ${table} ADD COLUMN ${colName} ${colType}`)
@@ -93,10 +93,10 @@ export async function initDb() {
     await db.execute(CREATE_CABINET_SUBSCRIBERS_TABLE)
 
     // 5. Add lang column to cabinet_subscribers
-    await ensureColumn('cabinet_subscribers', 'lang', "TEXT DEFAULT 'uz'")
+    await ensureColumn('cabinet_subscribers', 'lang', 'TEXT DEFAULT \'uz\'')
 
     // Add check_source column to visa_check_jobs if missing
-    await ensureColumn('visa_check_jobs', 'check_source', "TEXT DEFAULT 'manual'")
+    await ensureColumn('visa_check_jobs', 'check_source', 'TEXT DEFAULT \'manual\'')
 
     // Add lastNotifiedStatus columns if missing (persistent notification dedup)
     await ensureColumn('students', '"lastNotifiedStatus"', 'TEXT DEFAULT NULL')
@@ -105,12 +105,16 @@ export async function initDb() {
     // 6. Create unique index for telegram_id
     try {
       await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')
-    } catch {}
+    } catch {
+      // Ignore if index already exists
+    }
 
     // 7. Deduplicate settings_universities
     try {
       await db.execute('DELETE FROM settings_universities WHERE id NOT IN (SELECT min(id) FROM settings_universities GROUP BY name)')
-    } catch {}
+    } catch {
+      // Ignore deduplication error
+    }
 
     console.log('[DB] Database schema and migrations completed successfully.')
   } catch (err: unknown) {
