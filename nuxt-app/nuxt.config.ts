@@ -35,6 +35,8 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    openaiApiKey: process.env.OPENAI_API_KEY || '',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || ''
     }

@@ -15,9 +15,10 @@ const PHONE_PATTERN = /(?:\+?\d[\d\s\-()]{6,}\d)/
 
 export default defineEventHandler(async (event) => {
   try {
+    const config = useRuntimeConfig(event)
     const localConfig = await loadLocalConfig()
-    let openaiKey = process.env.OPENAI_API_KEY || ''
-    let geminiKey = process.env.GEMINI_API_KEY || ''
+    let openaiKey = config.openaiApiKey || process.env.OPENAI_API_KEY || ''
+    let geminiKey = config.geminiApiKey || process.env.GEMINI_API_KEY || ''
     if (localConfig.OPENAI_API_KEY) openaiKey = localConfig.OPENAI_API_KEY
     if (localConfig.GEMINI_API_KEY) geminiKey = localConfig.GEMINI_API_KEY
 
