@@ -1,12 +1,15 @@
 /**
  * server/plugins/local-cron-scheduler.ts
  *
- * Local development cron scheduler for Nitro server.
- * Ensures both 10-minute and 6-hour auto-checks run automatically on localhost:3100
- * without relying on external cloud triggers during local development.
+ * In-process auto-check scheduler for local development & standalone runtime.
+ * Automatically checks eligible selected students every 10 minutes and logs
+ * clear, real-time progress in the terminal.
  */
 
 import { getTursoClient } from '../utils/turso'
+import * as directVisaCheck from '../lib/direct-visa-check'
+import { publishRealtime } from '../utils/realtime-publisher'
+import { sendTelegramNotification } from '../utils/telegram-notifier'
 
 /** Calculate calendar days elapsed since applicationDate (YYYY-MM-DD). */
 function getDaysSinceApplication(appDateStr: string): number {
@@ -26,41 +29,24 @@ function getDaysSinceApplication(appDateStr: string): number {
   return Math.floor(diffMs / (1000 * 60 * 60 * 24))
 }
 
-/** Calculate minutes elapsed since lastChecked timestamp. */
-function getMinutesSinceLastChecked(lastCheckedStr: string): number {
-  if (!lastCheckedStr) return Infinity
-  const checkedDate = new Date(lastCheckedStr)
-  if (isNaN(checkedDate.getTime())) return Infinity
-  const diffMs = Date.now() - checkedDate.getTime()
-  return Math.floor(diffMs / (1000 * 60))
+function normalizeStatus(status: string): string {
+  const s = String(status || '').trim().toLowerCase()
+  if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) return 'pending'
+  if (s.includes('approved') || s.includes('visa used') || s.includes('issued')) return 'approved'
+  if (s.includes('cancel') || s.includes('reject')) return 'cancelled'
+  if (s.includes('received') || s.includes('app/')) return 'received'
+  if (s.includes('under review')) return 'under review'
+  return s
 }
 
 /** 10-Minute Auto Check: Priority for selected students in Application tab */
-async function runLocal10MinAutoCheck() {
+export async function runLocal10MinAutoCheck() {
   try {
-    // Apply Korean Standard Time (KST) night-mode check:
-    // - 09:00 to 21:00 KST: Run every 10 minutes (always)
-    // - 21:00 to 08:59 KST: Run every 3 hours (at 21:00, 00:00, 03:00, 06:00 KST)
-    const kstDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }))
-    const kstHour = kstDate.getHours()
-    const kstMinute = kstDate.getMinutes()
-
-    const isDaytime = kstHour >= 9 && kstHour < 21
-
-    if (!isDaytime) {
-      const isNightCheckHour = kstHour === 21 || kstHour === 0 || kstHour === 3 || kstHour === 6
-      const isTriggerSlot = isNightCheckHour && kstMinute < 10
-
-      if (!isTriggerSlot) {
-        console.log(`[Local Scheduler] Skipping 10-min check during KST night mode (current KST: ${String(kstHour).padStart(2, '0')}:${String(kstMinute).padStart(2, '0')}).`)
-        return
-      }
-    }
-
     const db = await getTursoClient()
 
     const studentsRes = await db.execute({
-      sql: `SELECT passport, userId, applicationDate, lastChecked, status FROM students
+      sql: `SELECT passport, "userId", "fullName", fullname, birthday, "visaType", visa_type, "applicationNo", application_no, "studentId", student_id, "applicationDate", "lastChecked", status 
+            FROM students
             WHERE deletedAt IS NULL
               AND batchSelected = 1
               AND status IS NOT NULL
@@ -71,7 +57,6 @@ async function runLocal10MinAutoCheck() {
     const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
       const appDate = String(row.applicationDate || '')
       const statusRaw = String(row.status || '').toLowerCase()
-
       const daysSinceApplied = getDaysSinceApplication(appDate)
 
       const isUnderReview = statusRaw.includes('under review')
@@ -85,137 +70,143 @@ async function runLocal10MinAutoCheck() {
     })
 
     if (eligibleRows.length === 0) {
-      console.log('[Local Scheduler] 10-Min Auto-Check: No selected Application tab students match rules.')
+      console.log('⏰ [Auto Check 10-Min] 0 eligible students found (all checked recently or <10 days).')
       return
     }
 
-    const userMap = new Map<number, string[]>()
-    for (const row of eligibleRows) {
-      const uId = Number(row.userId)
-      const pass = String(row.passport).toUpperCase().trim()
-      if (!uId || !pass) continue
-      if (!userMap.has(uId)) userMap.set(uId, [])
-      userMap.get(uId)!.push(pass)
-    }
+    console.log(`\n🚀 [Auto Check 10-Min] Starting auto-check for ${eligibleRows.length} selected student(s)...`)
 
-    const createdJobs: string[] = []
-    const now = new Date().toISOString()
+    const queue = [...eligibleRows] as Record<string, unknown>[]
+    const CONCURRENCY = 3
+    let checkedCount = 0
+    let failedCount = 0
 
-    for (const [userId, passports] of userMap.entries()) {
-      const jobId = crypto.randomUUID()
-      const statements: { sql: string, args: (string | number | null)[] }[] = []
+    async function worker() {
+      while (queue.length > 0) {
+        const student = queue.shift()
+        if (!student) break
 
-      statements.push({
-        sql: `INSERT INTO visa_check_jobs (id, userId, total, status, check_source, createdAt, updatedAt)
-              VALUES (?, ?, ?, 'queued', 'auto', ?, ?)`,
-        args: [jobId, userId, passports.length, now, now]
-      })
+        const passport = String(student.passport || '').toUpperCase().trim()
+        const fullName = String(student.fullName || student.fullname || '')
+        const userId = Number(student.userId)
+        const oldStatus = String(student.status || 'Pending')
 
-      for (const passport of passports) {
-        const taskId = crypto.randomUUID()
-        statements.push({
-          sql: `INSERT INTO visa_check_tasks (id, jobId, userId, passport, status, attempts, createdAt, updatedAt)
-                VALUES (?, ?, ?, ?, 'queued', 0, ?, ?)`,
-          args: [taskId, jobId, userId, passport, now, now]
-        })
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const directCheckFn: any = (directVisaCheck as any).checkVisaDirect
+          const liveResult = await directCheckFn(
+            passport,
+            fullName,
+            String(student.birthday || ''),
+            String(student.visaType || student.visa_type || 'Embassy'),
+            String(student.applicationNo || student.application_no || '')
+          )
+
+          const nowIso = new Date().toISOString()
+          const newStatus = liveResult.found ? liveResult.latestStatus : oldStatus
+          const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
+          const appDate = liveResult.latestDate || String(student.applicationDate || '')
+
+          await db.execute({
+            sql: `
+              UPDATE students
+              SET status = ?,
+                  applicationDate = ?,
+                  application_date = ?,
+                  lastChecked = ?,
+                  last_checked = ?,
+                  rejectReason = ?,
+                  pdfUrl = ?,
+                  apiResponse = ?,
+                  check_source = 'auto',
+                  checkSource = 'auto'
+              WHERE passport = ? AND deletedAt IS NULL
+            `,
+            args: [
+              newStatus,
+              appDate,
+              appDate,
+              nowIso,
+              nowIso,
+              liveResult.rejectionReason || '',
+              liveResult.pdfUrl || '',
+              JSON.stringify(liveResult),
+              passport
+            ]
+          })
+
+          const updatedChanges = {
+            status: newStatus,
+            applicationDate: appDate,
+            lastChecked: nowIso,
+            rejectReason: liveResult.rejectionReason || '',
+            pdfUrl: liveResult.pdfUrl || '',
+            apiResponse: JSON.stringify(liveResult),
+            check_source: 'auto',
+            checkSource: 'auto'
+          }
+
+          // Realtime SSE push to browser
+          publishRealtime(userId, {
+            type: 'student.updated',
+            eventId: crypto.randomUUID(),
+            updatedAt: nowIso,
+            originClientId: 'cron-local',
+            passport,
+            changes: updatedChanges
+          }).catch(() => {})
+
+          if (statusChanged) {
+            sendTelegramNotification(userId, {
+              fullName,
+              passport,
+              studentId: String(student.studentId || student.student_id || ''),
+              visaType: String(student.visaType || student.visa_type || 'Embassy'),
+              applicationNo: String(student.applicationNo || student.application_no || ''),
+              birthday: String(student.birthday || ''),
+              oldStatus,
+              newStatus,
+              applicationDate: appDate,
+              rejectionReason: liveResult.rejectionReason || '',
+              previousRejectionReason: liveResult.previousRejectionReason || '',
+              invitingCompany: liveResult.invitingCompany || '',
+              entryDate: liveResult.entryDate || '',
+              pdfUrl: liveResult.pdfUrl || ''
+            }).catch(() => {})
+          }
+
+          checkedCount++
+          console.log(`  ✅ [${checkedCount}/${eligibleRows.length}] ${passport} (${fullName}): ${newStatus} (${appDate || 'no date'})`)
+        } catch (err: unknown) {
+          failedCount++
+          console.error(`  ❌ ${passport} (${fullName}) failed:`, err instanceof Error ? err.message : String(err))
+        }
+
+        await new Promise(r => setTimeout(r, 60))
       }
-
-      await db.batch(statements, 'write')
-      createdJobs.push(jobId)
     }
 
-    console.log(`[Local Scheduler] 10-Min Auto-Check: Created ${createdJobs.length} job(s) for ${eligibleRows.length} selected student(s). Triggering worker...`)
+    const workerCount = Math.min(CONCURRENCY, queue.length)
+    const workers = Array.from({ length: workerCount }, () => worker())
+    await Promise.all(workers)
 
-    const workerUrl = 'http://localhost:3100/api/jobs/worker'
-    $fetch(workerUrl, { method: 'POST' })
-      .then(() => console.log('[Local Scheduler] Worker completed 10-min batch.'))
-      .catch((err: unknown) => console.error('[Local Scheduler] Worker trigger failed:', err instanceof Error ? err.message : String(err)))
+    console.log(`🏁 [Auto Check 10-Min] Finished batch! Completed: ${checkedCount}, Failed: ${failedCount}\n`)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('[Local Scheduler] Error running local 10-min check:', msg)
-  }
-}
-
-/** 6-Hour Auto Check: All Pending and Application tab students (>10 mins lastChecked) */
-async function runLocal6HourAutoCheck() {
-  try {
-    const db = await getTursoClient()
-
-    const studentsRes = await db.execute({
-      sql: `SELECT passport, userId, lastChecked, status FROM students
-            WHERE deletedAt IS NULL
-              AND (
-                status IS NULL
-                OR LOWER(status) NOT IN ('approved', 'visa used', 'cancelled', 'rejected', 'passport returned')
-              )`,
-      args: []
-    })
-
-    const eligibleRows = studentsRes.rows.filter((row: Record<string, unknown>) => {
-      const lastChecked = String(row.lastChecked || '')
-      const minutesSinceChecked = getMinutesSinceLastChecked(lastChecked)
-
-      if (minutesSinceChecked < 10) {
-        return false
-      }
-
-      return true
-    })
-
-    if (eligibleRows.length === 0) {
-      console.log('[Local Scheduler] 6-Hour Auto-Check: All students checked within last 10 mins. Skipped.')
-      return
-    }
-
-    const userMap = new Map<number, string[]>()
-    for (const row of eligibleRows) {
-      const uId = Number(row.userId)
-      const pass = String(row.passport).toUpperCase().trim()
-      if (!uId || !pass) continue
-      if (!userMap.has(uId)) userMap.set(uId, [])
-      userMap.get(uId)!.push(pass)
-    }
-
-    const createdJobs: string[] = []
-    const now = new Date().toISOString()
-
-    for (const [userId, passports] of userMap.entries()) {
-      const jobId = crypto.randomUUID()
-      const statements: { sql: string, args: (string | number | null)[] }[] = []
-
-      statements.push({
-        sql: `INSERT INTO visa_check_jobs (id, userId, total, status, check_source, createdAt, updatedAt)
-              VALUES (?, ?, ?, 'queued', 'auto', ?, ?)`,
-        args: [jobId, userId, passports.length, now, now]
-      })
-
-      for (const passport of passports) {
-        const taskId = crypto.randomUUID()
-        statements.push({
-          sql: `INSERT INTO visa_check_tasks (id, jobId, userId, passport, status, attempts, createdAt, updatedAt)
-                VALUES (?, ?, ?, ?, 'queued', 0, ?, ?)`,
-          args: [taskId, jobId, userId, passport, now, now]
-        })
-      }
-
-      await db.batch(statements, 'write')
-      createdJobs.push(jobId)
-    }
-
-    console.log(`[Local Scheduler] 6-Hour Auto-Check: Created ${createdJobs.length} job(s) for ${eligibleRows.length} student(s). Triggering worker...`)
-
-    const workerUrl = 'http://localhost:3100/api/jobs/worker'
-    $fetch(workerUrl, { method: 'POST' })
-      .then(() => console.log('[Local Scheduler] Worker completed 6-hour batch.'))
-      .catch((err: unknown) => console.error('[Local Scheduler] Worker trigger failed:', err instanceof Error ? err.message : String(err)))
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[Local Scheduler] Error running local 6-hour check:', msg)
+    console.error('[Auto Check 10-Min] Scheduler error:', msg)
   }
 }
 
 export default defineNitroPlugin(() => {
-  // ── [FROZEN] LOCAL AUTO CHECK SCHEDULER PAUSED ──
-  // Auto-check is currently frozen/disabled. Re-enable when ready.
-  return
+  console.log('⚡ [Auto Check Scheduler] Initialized in background.')
+
+  // Run initial auto-check 10 seconds after server boots
+  setTimeout(() => {
+    runLocal10MinAutoCheck().catch(console.error)
+  }, 10000)
+
+  // Run every 10 minutes (600,000 ms)
+  setInterval(() => {
+    runLocal10MinAutoCheck().catch(console.error)
+  }, 10 * 60 * 1000)
 })
