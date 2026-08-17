@@ -119,17 +119,11 @@ onMounted(() => {
     updateContainerTop()
     window.addEventListener('resize', updateContainerTop)
   }
-  updateAutoCheckCountdown()
-  autoCheckTimer = setInterval(updateAutoCheckCountdown, 1000)
 })
 
 onBeforeUnmount(() => {
   if (!props.disableVirtualScroll) {
     window.removeEventListener('resize', updateContainerTop)
-  }
-  if (autoCheckTimer) {
-    clearInterval(autoCheckTimer)
-    autoCheckTimer = null
   }
 })
 
@@ -311,20 +305,7 @@ watch([() => props.students, () => props.currentFilter], () => {
         <thead class="sticky top-0 z-10 bg-neutral-100/90 dark:bg-[#111928] backdrop-blur">
           <tr class="border-b border-neutral-300 dark:border-white/20 text-left text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] dark:text-neutral-300">
             <th class="px-3 py-1.5 min-w-[250px]">
-              <div class="flex items-center gap-2">
-                <span>Name</span>
-                <span
-                  class="inline-flex items-center gap-1.5 text-[0.7rem] font-medium tracking-normal normal-case text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300/80 dark:border-emerald-700/60 px-2 py-0.5 rounded-md shrink-0"
-                  title="Automated visa check runs every 10 minutes"
-                >
-                  <UIcon
-                    name="i-lucide-clock"
-                    class="size-3 shrink-0 animate-pulse text-emerald-600 dark:text-emerald-400"
-                  />
-                  <span class="font-semibold text-neutral-600 dark:text-neutral-300">Auto Check:</span>
-                  <span class="font-mono font-bold text-emerald-700 dark:text-emerald-300">{{ formattedAutoCheckTimer }}</span>
-                </span>
-              </div>
+              Name
             </th>
             <th class="px-3 py-1.5 w-32">
               Passport
