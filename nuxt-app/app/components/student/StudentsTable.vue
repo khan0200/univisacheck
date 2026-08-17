@@ -50,28 +50,6 @@ function onRowClick(student: Student, event: MouseEvent) {
   emit('details', student)
 }
 
-// ─── 10-MINUTE AUTO-CHECK COUNTDOWN ───
-const autoCheckRemainingSeconds = ref(600)
-let autoCheckTimer: ReturnType<typeof setInterval> | null = null
-
-function updateAutoCheckCountdown() {
-  const now = new Date()
-  const minutes = now.getMinutes()
-  const seconds = now.getSeconds()
-  const secondsInCycle = (minutes % 10) * 60 + seconds
-  const remaining = 600 - secondsInCycle
-  autoCheckRemainingSeconds.value = remaining <= 0 ? 600 : remaining
-}
-
-const formattedAutoCheckTimer = computed(() => {
-  const totalSec = autoCheckRemainingSeconds.value
-  const m = Math.floor(totalSec / 60)
-  const s = totalSec % 60
-  const mm = String(m).padStart(2, '0')
-  const ss = String(s).padStart(2, '0')
-  return `${mm}:${ss}`
-})
-
 // ─── VIRTUAL SCROLL LOGIC ───
 const containerRef = ref<HTMLElement | null>(null)
 const containerTop = ref(300)
@@ -274,19 +252,9 @@ watch([() => props.students, () => props.currentFilter], () => {
           </span>
           <span
             v-else
-            class="flex flex-col items-start gap-1"
+            class="text-xs text-[var(--color-text-secondary)]"
           >
             <span>Checked: {{ formatTimestampCompact(student.lastChecked) }}</span>
-            <span
-              v-if="student.check_source === 'auto' || student.checkSource === 'auto'"
-              class="flex items-center gap-1.5 mt-0.5"
-            >
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75" />
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500" />
-              </span>
-              <span class="text-[10px] font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wider">Auto</span>
-            </span>
           </span>
         </div>
 
@@ -530,19 +498,9 @@ watch([() => props.students, () => props.currentFilter], () => {
               </span>
               <span
                 v-else
-                class="flex flex-col items-start gap-1"
+                class="text-xs text-[var(--color-text-secondary)]"
               >
                 <span>{{ formatTimestampCompact(student.lastChecked) }}</span>
-                <span
-                  v-if="student.check_source === 'auto' || student.checkSource === 'auto'"
-                  class="flex items-center gap-1.5 mt-0.5"
-                >
-                  <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75" />
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500" />
-                  </span>
-                  <span class="text-[10px] font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wider">Auto</span>
-                </span>
               </span>
             </td>
             <td
