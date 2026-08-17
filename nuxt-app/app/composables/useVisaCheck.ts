@@ -84,52 +84,90 @@ export function useVisaCheck() {
   }
 
   /**
-   * Queue a batch on the server. The queue dispatches one task every 200ms
-   * without waiting for earlier visa.go.kr responses, and survives navigation
-   * or a browser disconnect.
+   * Batched Concurrent AutoCheck — High-Performance Staggered Direct Wave Dispatcher
+   *
+   * - Launches students directly via /api/jobs/direct in staggered waves of 4.
+   * - 150ms stagger between launching waves without waiting for in-flight requests.
+   * - Each student row updates immediately in local reactive state as soon as their check resolves (~500ms).
+   * - Live Activity / Dynamic Island progress bar tracks completed/failed counts in real time.
+   * - No server queue insertion, no database locking, no `queued` delay.
    */
-  async function checkMany(students: Student[]): Promise<JobCreationResponse> {
-    const passports = [...new Set(
-      students
-        .map(student => student.passport?.toUpperCase().trim())
-        .filter((passport): passport is string => Boolean(passport))
-    )].filter(passport => !studentsStore.checkingPassports.has(passport))
-
-    if (passports.length === 0) {
-      return { jobId: '', status: 'empty', total: 0 }
-    }
+  async function checkMany(students: Student[]): Promise<{ completed: number, failed: number }> {
+    const list = students.filter(s => s.passport && !studentsStore.checkingPassports.has(s.passport))
+    if (list.length === 0) return { completed: 0, failed: 0 }
 
     studentsStore.sessionChanges = []
     studentsStore.isCheckingSession = true
     studentsStore.batchCheckProgress = {
       active: true,
-      total: passports.length,
+      total: list.length,
       completed: 0,
       failed: 0
     }
 
-    let job: JobCreationResponse
-    try {
-      job = await createVisaCheckJob(passports)
-    } catch (err) {
-      studentsStore.isCheckingSession = false
-      studentsStore.batchCheckProgress.active = false
-      throw err
-    }
-    studentsStore.activeJob = {
-      jobId: job.jobId,
-      status: job.status,
-      total: job.total,
-      createdAt: new Date().toISOString(),
-      progress: { queued: job.total, processing: 0, completed: 0, failed: 0, cancelled: 0 }
-    }
+    let completedCount = 0
+    let failedCount = 0
 
-    for (const passport of passports) {
-      studentsStore.checkingPassports.set(passport, 'queued')
+    // Mark all as processing immediately (NO 'queued' status!)
+    for (const student of list) {
+      studentsStore.checkingPassports.set(student.passport, 'processing')
     }
     studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
-    return job
+    async function checkStudent(student: Student): Promise<void> {
+      const passport = student.passport
+      if (!passport) return
+
+      try {
+        const result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
+          method: 'POST',
+          body: { passport }
+        })
+
+        studentsStore.patchStudent(passport, {
+          status: result.status,
+          applicationDate: result.applicationDate,
+          lastChecked: result.lastChecked,
+          rejectReason: result.rejectReason,
+          pdfUrl: result.pdfUrl,
+          check_source: 'manual',
+          checkSource: 'manual'
+        }, result.lastChecked)
+        completedCount++
+      } catch (err) {
+        failedCount++
+        const msg = err instanceof Error ? err.message : String(err)
+        console.error(`[Visa Check Batch] Check failed for ${passport}:`, msg)
+      } finally {
+        studentsStore.batchCheckProgress.completed = completedCount + failedCount
+        studentsStore.batchCheckProgress.failed = failedCount
+        studentsStore.checkingPassports.delete(passport)
+        studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+      }
+    }
+
+    const BATCH_SIZE = 4
+    const BATCH_DELAY = 150
+    const allInFlightPromises: Promise<void>[] = []
+
+    for (let i = 0; i < list.length; i += BATCH_SIZE) {
+      const batch = list.slice(i, i + BATCH_SIZE)
+      for (const s of batch) {
+        allInFlightPromises.push(checkStudent(s))
+      }
+      if (i + BATCH_SIZE < list.length) {
+        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
+      }
+    }
+
+    await Promise.allSettled(allInFlightPromises)
+
+    setTimeout(() => {
+      studentsStore.batchCheckProgress.active = false
+      studentsStore.isCheckingSession = false
+    }, 1400)
+
+    return { completed: completedCount, failed: failedCount }
   }
 
   // Legacy job management helpers if needed
