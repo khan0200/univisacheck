@@ -79,9 +79,9 @@ export default defineEventHandler(async (event) => {
 
   console.log(`[6-Hour Cron] Running blazing fast parallel check for ${eligibleRows.length} student(s)...`)
 
-  // 4. Run direct parallel checks with 6 workers
+  // 4. Run direct parallel checks with 4 workers and gentle pacing
   const queue = [...eligibleRows] as Record<string, unknown>[]
-  const CONCURRENCY = 6
+  const CONCURRENCY = 4
   let completedCount = 0
   let failedCount = 0
 
@@ -182,6 +182,8 @@ export default defineEventHandler(async (event) => {
         failedCount++
         console.error(`[6-Hour Cron] Check failed for ${passport}:`, err instanceof Error ? err.message : String(err))
       }
+
+      await new Promise(r => setTimeout(r, 60))
     }
   }
 

@@ -37,7 +37,7 @@ const httpsAgent = new https.Agent({
   timeout: 10000
 })
 
-function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
+function httpReq(method, path, headers, body = null, timeoutMs = 10000) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
@@ -45,7 +45,7 @@ function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
       path,
       method,
       headers,
-      agent: httpsAgent,
+      agent: false, // Fresh clean TLS connection to avoid dead socket hangs
       timeout: timeoutMs
     }, (res) => {
       const chunks = []
