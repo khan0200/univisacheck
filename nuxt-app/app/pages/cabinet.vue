@@ -175,7 +175,7 @@ async function handleBatchCheck() {
     } else {
       toast.add({
         title: 'No eligible students to check',
-        description: 'Selected students applied 10 or fewer days ago and are not Under Review or Supplement Needed.',
+        description: 'Selected students applied fewer than 10 days ago and are not Under Review or Supplement Needed.',
         color: 'warning',
         duration: 3500
       })

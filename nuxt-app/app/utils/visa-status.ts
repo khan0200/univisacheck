@@ -322,8 +322,8 @@ export function isSupplementStatus(statusValue: string | undefined | null): bool
  * Determines whether a selected student in the Application tab is eligible for bulk checking:
  * 1. Under Review — highest priority (always check, regardless of applied date).
  * 2. Supplement Needed — highest priority (always check, regardless of applied date).
- * 3. Applied date > 10 days ago — check.
- * 4. Applied date <= 10 days ago — do not check.
+ * 3. Applied date >= 10 days ago — check.
+ * 4. Applied date < 10 days ago — do not check.
  */
 export function isEligibleForApplicationCheck(student: { status?: string | null, applicationDate?: string | null }): boolean {
   if (isUnderReviewStatus(student.status)) {
@@ -335,7 +335,7 @@ export function isEligibleForApplicationCheck(student: { status?: string | null,
   }
 
   const days = getDaysSinceApplication(student.applicationDate)
-  if (days > 10) {
+  if (days >= 10) {
     return true
   }
 
