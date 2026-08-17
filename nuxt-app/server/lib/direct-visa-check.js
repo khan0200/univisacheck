@@ -38,8 +38,8 @@ const SESSION_TTL_MS = 10 * 60 * 1000 // 10 minutes
 const httpsAgent = new https.Agent({
   keepAlive: true,
   keepAliveMsecs: 60000,
-  maxSockets: 30,
-  maxFreeSockets: 15,
+  maxSockets: 50,
+  maxFreeSockets: 25,
   timeout: 15000
 })
 
@@ -50,11 +50,21 @@ function httpReq(method, path, headers, body = null, timeoutMs = 15000) {
       port: 443,
       path,
       method,
-      headers,
+      headers: {
+        ...headers,
+        'Connection': 'keep-alive'
+      },
       family: 4,
-      agent: false, // Fresh clean TLS connection to avoid dead socket hangs
+      agent: httpsAgent,
       timeout: timeoutMs
     }, (res) => {
+      // Automatically refresh cookies from response
+      const setCookie = res.headers['set-cookie']
+      if (setCookie && setCookie.length > 0) {
+        sessionCookies = setCookie.map(c => c.split(';')[0]).join('; ')
+        sessionFetchedAt = Date.now()
+      }
+
       const chunks = []
       res.on('data', c => chunks.push(c))
       res.on('end', () => resolve({
@@ -74,74 +84,12 @@ function httpReq(method, path, headers, body = null, timeoutMs = 15000) {
   })
 }
 
-let pendingSessionPromise = null
-
 async function getSession(force = false) {
   const now = Date.now()
   if (!force && sessionCookies && (now - sessionFetchedAt) < SESSION_TTL_MS) {
     return sessionCookies
   }
-
-  // Prevent multiple concurrent requests from spamming new session fetches (single-flight mutex)
-  if (pendingSessionPromise) {
-    return pendingSessionPromise
-  }
-
-  pendingSessionPromise = (async () => {
-    try {
-      // 1. Try reading from DB if local is expired
-      if (!force) {
-        try {
-          const db = await getTursoClient()
-          const res = await db.execute({
-            sql: 'SELECT cookies, "fetchedAt" FROM visa_sessions WHERE key = \'current\'',
-            args: []
-          })
-          if (res.rows.length > 0) {
-            const row = res.rows[0]
-            const fetchedAtNum = Number(row.fetchedAt || row.fetchedat || 0)
-            if (row.cookies && (now - fetchedAtNum) < SESSION_TTL_MS) {
-              sessionCookies = row.cookies
-              sessionFetchedAt = fetchedAtNum
-              return row.cookies
-            }
-          }
-        } catch {
-          // continue to live fetch
-        }
-      }
-
-      // 2. Fetch fresh session from visa.go.kr
-      console.log('[Session DB] Fetching new session from visa.go.kr...')
-      const r = await httpReq('GET', '/openPage.do?MENU_ID=10301', {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
-        'Accept-Language': 'en-US,en;q=0.9'
-      })
-      const newCookies = (r.headers['set-cookie'] || []).map(c => c.split(';')[0]).join('; ')
-      if (!newCookies) {
-        if (sessionCookies) return sessionCookies
-        throw new Error('Failed to obtain JSESSIONID from visa.go.kr')
-      }
-
-      sessionCookies = newCookies
-      sessionFetchedAt = now
-
-      // Save to DB asynchronously (fire-and-forget so we don't block the request)
-      getTursoClient().then((db) => {
-        db.execute({
-          sql: 'INSERT OR REPLACE INTO visa_sessions (key, cookies, "fetchedAt") VALUES (\'current\', ?, ?)',
-          args: [newCookies, now]
-        }).catch(err => console.error('[Session DB] Async save error:', err.message))
-      }).catch(() => {})
-
-      return newCookies
-    } finally {
-      pendingSessionPromise = null
-    }
-  })()
-
-  return pendingSessionPromise
+  return sessionCookies || ''
 }
 
 function stripTags(s) {
@@ -430,33 +378,26 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     }
   }
 
-  const body = querystring.stringify(bodyParams)
+  const reqHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Referer': 'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
+    'Origin': 'https://www.visa.go.kr',
+    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Length': String(Buffer.byteLength(body)),
+    'Connection': 'keep-alive'
+  }
+  if (cookies) {
+    reqHeaders['Cookie'] = cookies
+  }
 
   let r
   try {
-    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
-      'Referer': 'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
-      'Origin': 'https://www.visa.go.kr',
-      'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': String(Buffer.byteLength(body)),
-      'Cookie': cookies
-    }, body)
+    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 15000)
   } catch {
-    // Retry once with 200ms pause with same session (avoid session thrashing storm)
     await new Promise(resolve => setTimeout(resolve, 200))
-    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
-      'Referer': 'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
-      'Origin': 'https://www.visa.go.kr',
-      'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': String(Buffer.byteLength(body)),
-      'Cookie': cookies
-    }, body)
+    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 15000)
   }
 
   // ── Detect result count ───────────────────────────────────────────────────

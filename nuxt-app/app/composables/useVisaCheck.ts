@@ -86,15 +86,14 @@ export function useVisaCheck() {
   /**
    * Batched Concurrent AutoCheck — High-Performance Concurrency Worker Pool
    *
-   * - Runs up to 3 concurrent workers.
-   * - As soon as a student completes, their table row updates immediately and the next student is processed.
-   * - Live Activity / Dynamic Island pill tracks realtime progress accurately.
-   * - Completely prevents socket exhaustion and visa.go.kr rate limiting.
+   * - Runs 4 concurrent workers.
+   * - Keep-Alive connection reuse ensures ~500ms checks per student.
+   * - Table rows and the Live Activity / Dynamic Island pill update in real-time.
    */
   async function checkMany(students: Student[]): Promise<{ completed: number, failed: number }> {
     if (students.length === 0) return { completed: 0, failed: 0 }
 
-    const CONCURRENCY = 3
+    const CONCURRENCY = 4
 
     studentsStore.sessionChanges = []
     studentsStore.isCheckingSession = true
@@ -123,26 +122,12 @@ export function useVisaCheck() {
       studentsStore.checkingPassports.set(passport, 'processing')
       studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
-      let result: DirectCheckResponse | null = null
-      let lastErr: unknown = null
+      try {
+        const result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
+          method: 'POST',
+          body: { passport }
+        })
 
-      // Attempt direct check with fallback retry if needed
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-          result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
-            method: 'POST',
-            body: { passport }
-          })
-          if (result) break
-        } catch (err) {
-          lastErr = err
-          if (attempt === 1) {
-            await new Promise(r => setTimeout(r, 400))
-          }
-        }
-      }
-
-      if (result) {
         // 2. Update student row immediately in local reactive state
         studentsStore.patchStudent(passport, {
           status: result.status,
@@ -154,17 +139,17 @@ export function useVisaCheck() {
           checkSource: 'manual'
         }, result.lastChecked)
         completedCount++
-      } else {
+      } catch (err) {
         failedCount++
-        const msg = lastErr instanceof Error ? lastErr.message : String(lastErr)
+        const msg = err instanceof Error ? err.message : String(err)
         console.error(`[Visa Check Batch] Check failed for ${passport}:`, msg)
+      } finally {
+        // 3. Update progress and clear checking state for this student
+        studentsStore.batchCheckProgress.completed = completedCount + failedCount
+        studentsStore.batchCheckProgress.failed = failedCount
+        studentsStore.checkingPassports.delete(passport)
+        studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
       }
-
-      // 3. Update progress and clear checking state for this student
-      studentsStore.batchCheckProgress.completed = completedCount + failedCount
-      studentsStore.batchCheckProgress.failed = failedCount
-      studentsStore.checkingPassports.delete(passport)
-      studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
     }
 
     // Controlled Concurrency Worker Pool
@@ -176,8 +161,6 @@ export function useVisaCheck() {
         const student = students[studentIndex]
         if (student) {
           await checkStudent(student)
-          // Brief 100ms pacing between successive queries from the same worker
-          await new Promise(resolve => setTimeout(resolve, 100))
         }
       }
     }
