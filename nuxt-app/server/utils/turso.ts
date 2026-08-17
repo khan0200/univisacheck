@@ -55,6 +55,17 @@ export function transformSql(sql: string): string {
     result = result.replace('INSERT OR IGNORE INTO', 'INSERT INTO') + ' ON CONFLICT DO NOTHING'
   }
 
+  if (/INSERT\s+OR\s+REPLACE\s+INTO/i.test(result)) {
+    result = result.replace(/INSERT\s+OR\s+REPLACE\s+INTO\s+([a-zA-Z0-9_]+)\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)/i, (_match, table, cols, vals) => {
+      const colList = cols.split(',').map((c: string) => c.trim())
+      const pKey = table.toLowerCase() === 'visa_sessions' ? 'key'
+        : table.toLowerCase() === 'students' ? '"userId", passport'
+        : 'id'
+      const updateSet = colList.map((c: string) => `${c} = EXCLUDED.${c}`).join(', ')
+      return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT (${pKey}) DO UPDATE SET ${updateSet}`
+    })
+  }
+
   result = result.replace(/datetime\(['"]now['"]\)/gi, 'CURRENT_TIMESTAMP')
 
   // Auto-quote camelCase column names for PostgreSQL
@@ -133,6 +144,9 @@ async function executePgStatement(p: pg.Pool | pg.PoolClient, stmt: string | Sql
       values.push((rawArgs as Record<string, unknown>)[name])
       return `$${paramIndex++}`
     })
+    sql = transformSql(sql)
+  } else {
+    sql = transformSql(sql)
   }
 
   // If INSERT statement without RETURNING clause, add RETURNING id if possible
