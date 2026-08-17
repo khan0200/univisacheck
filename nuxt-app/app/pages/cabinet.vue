@@ -34,7 +34,8 @@ const sortMenuItems = computed(() => [
   [
     { label: 'University', icon: studentsStore.sortBy === 'university' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('university') },
     { label: 'Tariff', icon: studentsStore.sortBy === 'tariff' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('tariff') },
-    { label: 'Date', icon: studentsStore.sortBy === 'applicationDate' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('applicationDate') }
+    { label: 'Date', icon: studentsStore.sortBy === 'applicationDate' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('applicationDate') },
+    { label: 'Under review', icon: studentsStore.sortBy === 'underReview' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('underReview') }
   ]
 ])
 function openEditModal(student: Student) {

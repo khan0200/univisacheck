@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Student, StatusFilter, VisaTypeFilter } from '~/types/student'
-import { bucketForStatus, displayStatusText } from '~/utils/visa-status'
+import { bucketForStatus, displayStatusText, isUnderReviewStatus, isSupplementStatus } from '~/utils/visa-status'
 
 export const useStudentsStore = defineStore('students', () => {
   const students = ref<Student[]>([])
@@ -8,7 +8,7 @@ export const useStudentsStore = defineStore('students', () => {
   const currentFilter = ref<StatusFilter>('pending')
   const visaTypeFilter = ref<VisaTypeFilter>('all')
   const searchQuery = ref('')
-  const sortBy = ref<'university' | 'tariff' | 'applicationDate'>('university')
+  const sortBy = ref<'university' | 'tariff' | 'applicationDate' | 'underReview'>('university')
 
   interface JobProgress {
     jobId: string
@@ -96,12 +96,16 @@ export const useStudentsStore = defineStore('students', () => {
 
   const filteredStudents = computed(() => {
     const filterVal = currentFilter.value
-    const filtered = matchingSearch.value.filter(s => bucketForStatus(s.status) === filterVal)
+    let filtered = matchingSearch.value.filter(s => bucketForStatus(s.status) === filterVal)
+
+    if (sortBy.value === 'underReview') {
+      filtered = filtered.filter(s => isUnderReviewStatus(s.status) || isSupplementStatus(s.status))
+    }
 
     return [...filtered].sort((a, b) => {
       if (filterVal === 'application') {
-        const isUnderReviewA = displayStatusText(a.status) === 'Under Review'
-        const isUnderReviewB = displayStatusText(b.status) === 'Under Review'
+        const isUnderReviewA = displayStatusText(a.status) === 'Under Review' || isUnderReviewStatus(a.status)
+        const isUnderReviewB = displayStatusText(b.status) === 'Under Review' || isUnderReviewStatus(b.status)
         if (isUnderReviewA && !isUnderReviewB) return -1
         if (!isUnderReviewA && isUnderReviewB) return 1
       }
@@ -121,6 +125,7 @@ export const useStudentsStore = defineStore('students', () => {
     if (sort === 'university') return filteredStudents.value.some(s => !!s.university)
     if (sort === 'tariff') return filteredStudents.value.some(s => !!s.tariff)
     if (sort === 'applicationDate') return filteredStudents.value.some(s => !!s.applicationDate)
+    if (sort === 'underReview') return filteredStudents.value.some(s => isUnderReviewStatus(s.status) || isSupplementStatus(s.status))
     return false
   })
 
@@ -137,6 +142,13 @@ export const useStudentsStore = defineStore('students', () => {
       if (sort === 'university') key = student.university?.trim() || ''
       else if (sort === 'tariff') key = student.tariff?.trim() || ''
       else if (sort === 'applicationDate') key = student.applicationDate?.trim() || ''
+      else if (sort === 'underReview') {
+        if (isSupplementStatus(student.status)) {
+          key = 'Supplement Needed'
+        } else if (isUnderReviewStatus(student.status)) {
+          key = 'Under Review'
+        }
+      }
 
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(student)
@@ -144,6 +156,12 @@ export const useStudentsStore = defineStore('students', () => {
     // Sort groups
     return [...map.entries()]
       .sort(([a], [b]) => {
+        if (sort === 'underReview') {
+          if (a === 'Under Review') return -1
+          if (b === 'Under Review') return 1
+          if (a === 'Supplement Needed') return -1
+          if (b === 'Supplement Needed') return 1
+        }
         if (a === '') return 1
         if (b === '') return -1
         return a.localeCompare(b)
@@ -209,7 +227,7 @@ export const useStudentsStore = defineStore('students', () => {
     visaTypeFilter.value = filter
   }
 
-  function setSortBy(field: 'university' | 'tariff' | 'applicationDate') {
+  function setSortBy(field: 'university' | 'tariff' | 'applicationDate' | 'underReview') {
     sortBy.value = field
   }
 

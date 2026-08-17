@@ -36,6 +36,7 @@ export function displayStatusText(statusValue: string | undefined | null): strin
   if (status.includes('visa used')) return 'Visa Used'
   if (status.includes('approved')) return 'Approved'
   if (status.includes('cancel') || status.includes('reject')) return 'Cancelled'
+  if (isSupplementStatus(status)) return 'Supplement Needed'
   if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) return 'Pending'
   if (status.includes('received') || status.includes('app/')) return 'Received'
   if (status.includes('under review') || status.includes('심사중') || status.includes('심사 중') || status.includes('처리중') || status.includes('처리 중')) return 'Under Review'
@@ -47,6 +48,7 @@ export function statusBadgeColor(statusValue: string | undefined | null): 'succe
   const status = (statusValue || '').toLowerCase()
   if (status.includes('approved') || status.includes('visa used')) return 'success'
   if (status.includes('cancel') || status.includes('reject')) return 'error'
+  if (isSupplementStatus(status)) return 'warning'
   if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) return 'neutral'
   if (status.includes('received') || status.includes('app/')) return 'warning'
   return 'primary'

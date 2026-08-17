@@ -23,6 +23,15 @@ const emit = defineEmits<{
 const isOpen = ref(true)
 const displayName = computed(() => props.groupName || 'No Group')
 const groupIsChecking = computed(() => props.students.some(s => props.checkingPassports.has(s.passport)))
+
+const groupIcon = computed(() => {
+  const name = props.groupName.toLowerCase()
+  if (name.includes('under review')) return 'i-lucide-eye'
+  if (name.includes('supplement')) return 'i-lucide-alert-circle'
+  if (/^\d{4}[-./]\d{1,2}/.test(props.groupName)) return 'i-lucide-calendar'
+  if (name === 'standard' || name === 'vip' || name === 'premium') return 'i-lucide-tag'
+  return 'i-lucide-landmark'
+})
 </script>
 
 <template>
@@ -37,7 +46,7 @@ const groupIsChecking = computed(() => props.students.some(s => props.checkingPa
         @click="isOpen = !isOpen"
       >
         <UIcon
-          name="i-lucide-landmark"
+          :name="groupIcon"
           class="flex-shrink-0 size-3.5 text-white"
         />
         <span class="font-semibold text-white text-xs truncate tracking-wide">
