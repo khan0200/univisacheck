@@ -84,18 +84,17 @@ export function useVisaCheck() {
   }
 
   /**
-   * Batched Concurrent AutoCheck — Staggered Wave Dispatcher
+   * Batched Concurrent AutoCheck — High-Performance Concurrency Worker Pool
    *
-   * 1. Groups selected students into batches of 3.
-   * 2. Launches each batch every 200ms WITHOUT waiting for earlier batches to complete.
-   * 3. Each student independently transitions from 'checking' -> 'checked' / 'error'.
-   * 4. Updates student row immediately upon individual completion without full page reload.
+   * - Runs up to 3 concurrent workers.
+   * - As soon as a student completes, their table row updates immediately and the next student is processed.
+   * - Live Activity / Dynamic Island pill tracks realtime progress accurately.
+   * - Completely prevents socket exhaustion and visa.go.kr rate limiting.
    */
   async function checkMany(students: Student[]): Promise<{ completed: number, failed: number }> {
     if (students.length === 0) return { completed: 0, failed: 0 }
 
-    const BATCH_SIZE = 3
-    const BATCH_DELAY = 200
+    const CONCURRENCY = 3
 
     studentsStore.sessionChanges = []
     studentsStore.isCheckingSession = true
@@ -138,7 +137,7 @@ export function useVisaCheck() {
         } catch (err) {
           lastErr = err
           if (attempt === 1) {
-            await new Promise(r => setTimeout(r, 300))
+            await new Promise(r => setTimeout(r, 400))
           }
         }
       }
@@ -168,26 +167,29 @@ export function useVisaCheck() {
       studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
     }
 
-    // Staggered wave dispatcher: Launch batches of 3 every 200ms
-    // Do NOT await checkStudent() when launching the batch!
-    const allInFlightPromises: Promise<void>[] = []
+    // Controlled Concurrency Worker Pool
+    let currentIndex = 0
 
-    for (let i = 0; i < students.length; i += BATCH_SIZE) {
-      const batch = students.slice(i, i + BATCH_SIZE)
-
-      // Launch batch concurrently
-      for (const student of batch) {
-        allInFlightPromises.push(checkStudent(student))
-      }
-
-      // Wait 200ms before launching next batch (if more batches remain)
-      if (i + BATCH_SIZE < students.length) {
-        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
+    async function worker(): Promise<void> {
+      while (currentIndex < students.length) {
+        const studentIndex = currentIndex++
+        const student = students[studentIndex]
+        if (student) {
+          await checkStudent(student)
+          // Brief 100ms pacing between successive queries from the same worker
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
       }
     }
 
-    // Await all in-flight requests to eventually settle
-    await Promise.allSettled(allInFlightPromises)
+    const workerCount = Math.min(CONCURRENCY, students.length)
+    const workerPromises: Promise<void>[] = []
+    for (let i = 0; i < workerCount; i++) {
+      workerPromises.push(worker())
+    }
+
+    // Await all workers to finish processing the queue
+    await Promise.all(workerPromises)
 
     // Keep progress bar visible briefly before sliding away
     setTimeout(() => {

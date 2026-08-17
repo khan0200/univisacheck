@@ -243,6 +243,8 @@ export async function downloadStudentVisaPdf(
     port: 443,
     path: '/openPage.do?MENU_ID=10301',
     method: 'POST',
+    family: 4,
+    timeout: 15000,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
       'Referer': 'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
@@ -263,6 +265,7 @@ export async function downloadStudentVisaPdf(
       res.on('data', c => chunks.push(c))
       res.on('end', () => resolve({ statusCode: res.statusCode, headers: res.headers }))
     })
+    req.on('timeout', () => req.destroy(new Error('visa.go.kr connection timed out')))
     req.on('error', reject)
     req.write(checkBody)
     req.end()
@@ -308,6 +311,8 @@ export async function downloadStudentVisaPdf(
     port: 443,
     path: printPath,
     method: 'POST',
+    family: 4,
+    timeout: 20000,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
       'Referer': 'https://www.visa.go.kr/openPage.do?MENU_ID=10301',

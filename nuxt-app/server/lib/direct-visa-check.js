@@ -20,8 +20,14 @@
  */
 
 import https from 'node:https'
+import dns from 'node:dns'
 import querystring from 'node:querystring'
 import { getTursoClient } from '../utils/turso.ts'
+
+// Ensure Node resolves IPv4 addresses first to avoid socket hangs on government servers
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first')
+}
 
 const HOST = 'www.visa.go.kr'
 let sessionCookies = null
@@ -34,10 +40,10 @@ const httpsAgent = new https.Agent({
   keepAliveMsecs: 60000,
   maxSockets: 30,
   maxFreeSockets: 15,
-  timeout: 10000
+  timeout: 15000
 })
 
-function httpReq(method, path, headers, body = null, timeoutMs = 10000) {
+function httpReq(method, path, headers, body = null, timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
@@ -45,6 +51,7 @@ function httpReq(method, path, headers, body = null, timeoutMs = 10000) {
       path,
       method,
       headers,
+      family: 4,
       agent: false, // Fresh clean TLS connection to avoid dead socket hangs
       timeout: timeoutMs
     }, (res) => {

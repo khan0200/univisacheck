@@ -64,12 +64,21 @@ export default defineEventHandler(async (event) => {
   } catch (err: unknown) {
     const errorObj = err as { statusCode?: number, message?: string, code?: string }
     if (errorObj.statusCode) throw err
-    const isTimeout = errorObj.code === 'ETIMEDOUT' || errorObj.code === 'ECONNRESET' || errorObj.code === 'ENOTFOUND' || (errorObj.message && errorObj.message.includes('ETIMEDOUT'))
     console.error(`[Direct Check] Network error checking passport ${passport}:`, errorObj.message || String(err))
-    if (isTimeout) {
-      apiError(504, 'Official visa portal (visa.go.kr) connection timed out. Please try again in a few moments.')
+    
+    // Return graceful fallback response so client batch never crashes with 502
+    const nowIso = new Date().toISOString()
+    return {
+      passport,
+      status: oldStatus,
+      applicationDate: String(student.applicationDate || student.application_date || ''),
+      lastChecked: nowIso,
+      rejectReason: String(student.rejectReason || ''),
+      pdfUrl: String(student.pdfUrl || ''),
+      statusChanged: false,
+      oldStatus,
+      error: errorObj.message || 'Failed to connect to visa portal'
     }
-    apiError(502, `Failed to connect to visa portal: ${errorObj.message || 'Unknown network error'}`)
   }
 
   const nowIso = new Date().toISOString()
