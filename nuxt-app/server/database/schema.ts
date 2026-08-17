@@ -100,10 +100,10 @@ CREATE TABLE IF NOT EXISTS visa_check_tasks (
     passport TEXT NOT NULL,
     status TEXT NOT NULL,
     attempts INTEGER DEFAULT 0,
-    "lockedAt" TEXT,
+    "lockedAt" TIMESTAMPTZ,
     "lockedBy" TEXT,
-    "startedAt" TEXT,
-    "completedAt" TEXT,
+    "startedAt" TIMESTAMPTZ,
+    "completedAt" TIMESTAMPTZ,
     error TEXT,
     "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP

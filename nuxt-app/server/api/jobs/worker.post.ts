@@ -561,9 +561,8 @@ export default defineEventHandler(async (event) => {
         await releaseSchedulerLock(db, workerId)
       }
 
-      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-      const host = event.node.req.headers.host || 'localhost:3100'
-      const workerUrl = `${protocol}://${host}/api/jobs/worker`
+      const port = process.env.PORT || '3000'
+      const workerUrl = `http://127.0.0.1:${port}/api/jobs/worker`
 
       console.log(`[Queue Worker] Chaining next worker execution. Queued count: ${queuedCount}`)
       const triggerPromise = $fetch(workerUrl, {
