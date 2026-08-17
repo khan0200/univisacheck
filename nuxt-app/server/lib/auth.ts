@@ -72,22 +72,6 @@ export async function connectUser(
       username: user.username
     })
 
-    // Ensure cabinet_subscribers table exists
-    await db.execute({
-      sql: `CREATE TABLE IF NOT EXISTS cabinet_subscribers (
-                id               INTEGER PRIMARY KEY AUTOINCREMENT,
-                cabinet_id       INTEGER NOT NULL,
-                telegram_id      INTEGER NOT NULL,
-                telegram_username TEXT,
-                first_name       TEXT,
-                last_name        TEXT,
-                session          TEXT,
-                connected_at     TEXT DEFAULT (datetime('now')),
-                UNIQUE(telegram_id)
-            )`,
-      args: []
-    })
-
     // INSERT OR REPLACE: if this telegram_id was linked elsewhere, re-assign it.
     // Multiple different telegram_ids can share the same cabinet_id.
     await db.execute({

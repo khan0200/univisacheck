@@ -2,7 +2,8 @@ import { Client } from 'ssh2';
 
 const conn = new Client();
 
-const command = process.argv.slice(2).join(' ') || 'whoami && pm2 status && curl -I http://127.0.0.1:3000';
+const rawCommand = process.argv.slice(2).join(' ') || 'whoami && pm2 status && curl -I http://127.0.0.1:3000';
+const command = `export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/www/server/nvm/versions/node/v24.19.0/bin:$PATH; ${rawCommand}`;
 
 conn.on('ready', () => {
   console.log(`[SSH] Connected to VPS. Running: "${command}"\n`);

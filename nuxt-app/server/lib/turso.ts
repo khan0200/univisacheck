@@ -65,53 +65,50 @@ export async function initDb() {
     await db.execute(CREATE_ADMISSIONS_UNIVERSITY_INDEX)
     await db.execute(CREATE_ADMISSIONS_CREATED_AT_INDEX)
 
-    // 2. Add columns to users table
-    const userColsInfo = await db.execute('PRAGMA table_info(users)')
-    const existingUserCols = userColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
-    for (const col of USER_COLUMNS) {
-      if (!existingUserCols.includes(col.name.toLowerCase())) {
-        console.log(`[Turso] Altering users: adding column ${col.name} (${col.type})`)
-        await db.execute(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type}`)
+    // Helper to safely add column if not exists
+    const ensureColumn = async (table: string, colName: string, colType: string) => {
+      try {
+        await db.execute(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${colName} ${colType}`)
+      } catch (e: any) {
+        // Fallback for SQLite or systems where ADD COLUMN IF NOT EXISTS differs
+        try {
+          await db.execute(`ALTER TABLE ${table} ADD COLUMN ${colName} ${colType}`)
+        } catch {
+          // Column already exists or error ignored
+        }
       }
     }
 
+    // 2. Add columns to users table
+    for (const col of USER_COLUMNS) {
+      await ensureColumn('users', col.name, col.type)
+    }
+
     // 3. Add columns to students table
-    const studentColsInfo = await db.execute('PRAGMA table_info(students)')
-    const existingStudentCols = studentColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
     for (const col of STUDENT_COLUMNS) {
-      if (!existingStudentCols.includes(col.name.toLowerCase())) {
-        console.log(`[Turso] Altering students: adding column ${col.name} (${col.type})`)
-        await db.execute(`ALTER TABLE students ADD COLUMN ${col.name} ${col.type}`)
-      }
+      await ensureColumn('students', col.name, col.type)
     }
 
     // 4. Create cabinet_subscribers table (multi-subscriber support)
     await db.execute(CREATE_CABINET_SUBSCRIBERS_TABLE)
 
-    // 5. Add lang column to cabinet_subscribers (language preference per subscriber)
-    const csColsInfo = await db.execute('PRAGMA table_info(cabinet_subscribers)')
-    const existingCsCols = csColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
-    if (!existingCsCols.includes('lang')) {
-      console.log('[Turso] Altering cabinet_subscribers: adding column lang TEXT DEFAULT \'uz\'')
-      await db.execute('ALTER TABLE cabinet_subscribers ADD COLUMN lang TEXT DEFAULT \'uz\'')
-    }
+    // 5. Add lang column to cabinet_subscribers
+    await ensureColumn('cabinet_subscribers', 'lang', "TEXT DEFAULT 'uz'")
 
     // Add check_source column to visa_check_jobs if missing
-    const jobsColsInfo = await db.execute('PRAGMA table_info(visa_check_jobs)')
-    const existingJobsCols = jobsColsInfo.rows.map((r: Record<string, unknown>) => String(r.name).toLowerCase())
-    if (!existingJobsCols.includes('check_source')) {
-      console.log('[Turso] Altering visa_check_jobs: adding column check_source TEXT DEFAULT \'manual\'')
-      await db.execute('ALTER TABLE visa_check_jobs ADD COLUMN check_source TEXT DEFAULT \'manual\'')
-    }
+    await ensureColumn('visa_check_jobs', 'check_source', "TEXT DEFAULT 'manual'")
 
-    // 6. Create unique index for telegram_id to enforce uniqueness in SQLite
-    await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')
+    // 6. Create unique index for telegram_id
+    try {
+      await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')
+    } catch {}
 
-    // 7. Deduplicate settings_universities to prepare for making it global
-    console.log('[Turso] Deduplicating settings_universities table...')
-    await db.execute('DELETE FROM settings_universities WHERE id NOT IN (SELECT min(id) FROM settings_universities GROUP BY name)')
+    // 7. Deduplicate settings_universities
+    try {
+      await db.execute('DELETE FROM settings_universities WHERE id NOT IN (SELECT min(id) FROM settings_universities GROUP BY name)')
+    } catch {}
 
-    console.log('[Turso] Database schema and migrations completed successfully.')
+    console.log('[DB] Database schema and migrations completed successfully.')
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[Turso] Database initialization error:', msg)

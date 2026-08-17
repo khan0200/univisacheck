@@ -58,17 +58,32 @@ export function transformSql(sql: string): string {
   if (/INSERT\s+OR\s+REPLACE\s+INTO/i.test(result)) {
     result = result.replace(/INSERT\s+OR\s+REPLACE\s+INTO\s+([a-zA-Z0-9_]+)\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)/i, (_match, table, cols, vals) => {
       const colList = cols.split(',').map((c: string) => c.trim())
+      const lowerTable = table.toLowerCase()
       let pKey = 'id'
-      if (table.toLowerCase() === 'visa_sessions') {
+      if (lowerTable === 'visa_sessions') {
         pKey = 'key'
-      } else if (table.toLowerCase() === 'students') {
+      } else if (lowerTable === 'students') {
         pKey = '"userId", passport'
+      } else if (lowerTable === 'bot_sessions') {
+        pKey = 'telegram_id'
+      } else if (lowerTable === 'cabinet_subscribers') {
+        pKey = 'telegram_id'
+      } else if (lowerTable === 'bot_manual_refreshes') {
+        pKey = 'passport'
+      } else if (lowerTable === 'telegram_notification_messages') {
+        pKey = 'notification_id, telegram_id'
+      } else if (lowerTable === 'visa_processing_notifications') {
+        pKey = 'type, application_date'
+      } else if (lowerTable === 'visa_scheduler_lock') {
+        pKey = 'id'
       }
       const updateSet = colList.map((c: string) => `${c} = EXCLUDED.${c}`).join(', ')
       return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT (${pKey}) DO UPDATE SET ${updateSet}`
     })
   }
 
+  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\+([^'"]+)['"]\)/gi, "(CURRENT_TIMESTAMP + INTERVAL '$1')")
+  result = result.replace(/datetime\(['"]now['"]\s*,\s*['"]\-([^'"]+)['"]\)/gi, "(CURRENT_TIMESTAMP - INTERVAL '$1')")
   result = result.replace(/datetime\(['"]now['"]\)/gi, 'CURRENT_TIMESTAMP')
 
   // Auto-quote camelCase column names for PostgreSQL
