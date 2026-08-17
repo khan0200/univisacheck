@@ -1,8 +1,8 @@
-import pg from 'pg'
-import { createClient, type Client as LibSqlClient, type InStatement, type InArgs } from '@libsql/client'
 import { existsSync } from 'node:fs'
-import { pathToFileURL } from 'node:url'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { createClient, type Client as LibSqlClient, type InArgs, type InStatement } from '@libsql/client'
+import pg from 'pg'
 
 const { Pool } = pg
 
@@ -58,9 +58,12 @@ export function transformSql(sql: string): string {
   if (/INSERT\s+OR\s+REPLACE\s+INTO/i.test(result)) {
     result = result.replace(/INSERT\s+OR\s+REPLACE\s+INTO\s+([a-zA-Z0-9_]+)\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)/i, (_match, table, cols, vals) => {
       const colList = cols.split(',').map((c: string) => c.trim())
-      const pKey = table.toLowerCase() === 'visa_sessions' ? 'key'
-        : table.toLowerCase() === 'students' ? '"userId", passport'
-        : 'id'
+      let pKey = 'id'
+      if (table.toLowerCase() === 'visa_sessions') {
+        pKey = 'key'
+      } else if (table.toLowerCase() === 'students') {
+        pKey = '"userId", passport'
+      }
       const updateSet = colList.map((c: string) => `${c} = EXCLUDED.${c}`).join(', ')
       return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT (${pKey}) DO UPDATE SET ${updateSet}`
     })
@@ -76,7 +79,7 @@ export function transformSql(sql: string): string {
 
 export interface SqlStatement {
   sql: string
-  args?: any[] | Record<string, any>
+  args?: unknown[] | Record<string, unknown>
 }
 
 export interface QueryResult<T = Record<string, unknown>> {
@@ -129,11 +132,11 @@ export async function getDatabasePool(): Promise<pg.Pool> {
   return pool
 }
 
-async function executePgStatement(p: pg.Pool | pg.PoolClient, stmt: string | SqlStatement | InStatement, argsParam?: any): Promise<QueryResult> {
+async function executePgStatement(p: pg.Pool | pg.PoolClient, stmt: string | SqlStatement | InStatement, argsParam?: unknown): Promise<QueryResult> {
   let sql = typeof stmt === 'string' ? stmt : stmt.sql
   const rawArgs = typeof stmt === 'string' ? (argsParam || []) : (stmt.args || argsParam || [])
 
-  let values: any[] = []
+  let values: unknown[] = []
   if (Array.isArray(rawArgs)) {
     values = rawArgs
     sql = transformSql(sql)
@@ -155,12 +158,13 @@ async function executePgStatement(p: pg.Pool | pg.PoolClient, stmt: string | Sql
     sql = `${sql} RETURNING id`
   }
 
-  let res: any
+  let res: pg.QueryResult
   try {
     res = await p.query(sql, values)
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorObj = err as { message?: string }
     // If RETURNING id failed because table has no id column, retry without RETURNING id
-    if (isInsert && err.message?.includes('column "id" does not exist')) {
+    if (isInsert && errorObj.message?.includes('column "id" does not exist')) {
       const cleanSql = sql.replace(/\s+RETURNING id\s*$/i, '')
       res = await p.query(cleanSql, values)
     } else {
@@ -168,22 +172,22 @@ async function executePgStatement(p: pg.Pool | pg.PoolClient, stmt: string | Sql
     }
   }
 
-  const rows = res.rows || []
-  const lastInsertRowid = rows.length > 0 && rows[0].id !== undefined ? Number(rows[0].id) : undefined
+  const rows = (res.rows || []) as Record<string, unknown>[]
+  const lastInsertRowid = rows.length > 0 && rows[0]?.id !== undefined ? Number(rows[0].id) : undefined
 
   return {
     rows,
-    columns: res.fields ? res.fields.map((f: any) => f.name) : [],
+    columns: res.fields ? res.fields.map(f => f.name) : [],
     rowsAffected: res.rowCount || 0,
     lastInsertRowid
   }
 }
 
 export interface TursoDbClient {
-  execute: (stmt: string | SqlStatement | InStatement, args?: any) => Promise<QueryResult>
+  execute: (stmt: string | SqlStatement | InStatement, args?: unknown) => Promise<QueryResult>
   batch: (stmts: (string | SqlStatement | InStatement)[]) => Promise<QueryResult[]>
   transaction: (mode?: 'write' | 'read' | 'deferred') => Promise<{
-    execute: (stmt: string | SqlStatement | InStatement, args?: any) => Promise<QueryResult>
+    execute: (stmt: string | SqlStatement | InStatement, args?: unknown) => Promise<QueryResult>
     commit: () => Promise<void>
     rollback: () => Promise<void>
     close: () => Promise<void>
@@ -199,13 +203,13 @@ export async function getTursoClient(): Promise<TursoDbClient> {
   )
 
   const makeLibSqlWrapper = (client: LibSqlClient): TursoDbClient => ({
-    execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+    execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
       const inStmt: InStatement = typeof stmt === 'string'
         ? { sql: stmt, args: (args as InArgs) || [] }
         : (stmt as InStatement)
       const res = await client.execute(inStmt)
       return {
-        rows: (res.rows as any) || [],
+        rows: (res.rows as unknown as Record<string, unknown>[]) || [],
         columns: res.columns || [],
         rowsAffected: res.rowsAffected || 0,
         lastInsertRowid: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : undefined
@@ -214,7 +218,7 @@ export async function getTursoClient(): Promise<TursoDbClient> {
     batch: async (stmts: (string | SqlStatement | InStatement)[]): Promise<QueryResult[]> => {
       const res = await client.batch(stmts as InStatement[])
       return res.map(r => ({
-        rows: (r.rows as any) || [],
+        rows: (r.rows as unknown as Record<string, unknown>[]) || [],
         columns: r.columns || [],
         rowsAffected: r.rowsAffected || 0,
         lastInsertRowid: r.lastInsertRowid !== undefined ? Number(r.lastInsertRowid) : undefined
@@ -223,13 +227,13 @@ export async function getTursoClient(): Promise<TursoDbClient> {
     transaction: async (mode?: 'write' | 'read' | 'deferred') => {
       const tx = await client.transaction(mode || 'write')
       return {
-        execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+        execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
           const inStmt: InStatement = typeof stmt === 'string'
             ? { sql: stmt, args: (args as InArgs) || [] }
             : (stmt as InStatement)
           const res = await tx.execute(inStmt)
           return {
-            rows: (res.rows as any) || [],
+            rows: (res.rows as unknown as Record<string, unknown>[]) || [],
             columns: res.columns || [],
             rowsAffected: res.rowsAffected || 0,
             lastInsertRowid: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : undefined
@@ -250,12 +254,13 @@ export async function getTursoClient(): Promise<TursoDbClient> {
   try {
     const p = await getDatabasePool()
     return {
-      execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+      execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
         try {
           return await executePgStatement(p, stmt, args)
-        } catch (err: any) {
-          if (err.code === 'ECONNREFUSED' || err.message?.includes('ECONNREFUSED') || err.message?.includes('timeout')) {
-            console.warn('[DB] PostgreSQL connection failed. Falling back to Turso LibSQL...', err.message)
+        } catch (err: unknown) {
+          const errorObj = err as { code?: string, message?: string }
+          if (errorObj.code === 'ECONNREFUSED' || errorObj.message?.includes('ECONNREFUSED') || errorObj.message?.includes('timeout')) {
+            console.warn('[DB] PostgreSQL connection failed. Falling back to Turso LibSQL...', errorObj.message)
             useLibSqlFallback = true
             const fallback = await getLibSqlClient()
             return makeLibSqlWrapper(fallback).execute(stmt, args)
@@ -281,9 +286,10 @@ export async function getTursoClient(): Promise<TursoDbClient> {
           } finally {
             client.release()
           }
-        } catch (err: any) {
-          if (err.code === 'ECONNREFUSED' || err.message?.includes('ECONNREFUSED') || err.message?.includes('timeout')) {
-            console.warn('[DB] PostgreSQL batch failed. Falling back to Turso LibSQL...', err.message)
+        } catch (err: unknown) {
+          const errorObj = err as { code?: string, message?: string }
+          if (errorObj.code === 'ECONNREFUSED' || errorObj.message?.includes('ECONNREFUSED') || errorObj.message?.includes('timeout')) {
+            console.warn('[DB] PostgreSQL batch failed. Falling back to Turso LibSQL...', errorObj.message)
             useLibSqlFallback = true
             const fallback = await getLibSqlClient()
             return makeLibSqlWrapper(fallback).batch(stmts)
@@ -296,7 +302,7 @@ export async function getTursoClient(): Promise<TursoDbClient> {
         await client.query('BEGIN')
         let closed = false
         return {
-          execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+          execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
             return await executePgStatement(client, stmt, args)
           },
           commit: async () => {
@@ -315,15 +321,16 @@ export async function getTursoClient(): Promise<TursoDbClient> {
           },
           close: async () => {
             if (!closed) {
-              client.release()
+              await client.release()
               closed = true
             }
           }
         }
       }
     }
-  } catch (err: any) {
-    console.warn('[DB] Could not initialize PostgreSQL pool. Falling back to Turso LibSQL...', err.message)
+  } catch (err: unknown) {
+    const errorObj = err as { message?: string }
+    console.warn('[DB] Could not initialize PostgreSQL pool. Falling back to Turso LibSQL...', errorObj.message)
     useLibSqlFallback = true
     const fallback = await getLibSqlClient()
     return makeLibSqlWrapper(fallback)
