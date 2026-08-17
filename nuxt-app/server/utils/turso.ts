@@ -200,7 +200,7 @@ async function executePgStatement(p: pg.Pool | pg.PoolClient, stmt: string | Sql
 
 export interface TursoDbClient {
   execute: (stmt: string | SqlStatement | InStatement, args?: unknown) => Promise<QueryResult>
-  batch: (stmts: (string | SqlStatement | InStatement)[]) => Promise<QueryResult[]>
+  batch: (stmts: (string | SqlStatement | InStatement)[], mode?: 'write' | 'read' | 'deferred') => Promise<QueryResult[]>
   transaction: (mode?: 'write' | 'read' | 'deferred') => Promise<{
     execute: (stmt: string | SqlStatement | InStatement, args?: unknown) => Promise<QueryResult>
     commit: () => Promise<void>
@@ -230,8 +230,8 @@ export async function getTursoClient(): Promise<TursoDbClient> {
         lastInsertRowid: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : undefined
       }
     },
-    batch: async (stmts: (string | SqlStatement | InStatement)[]): Promise<QueryResult[]> => {
-      const res = await client.batch(stmts as InStatement[])
+    batch: async (stmts: (string | SqlStatement | InStatement)[], mode?: 'write' | 'read' | 'deferred'): Promise<QueryResult[]> => {
+      const res = await client.batch(stmts as InStatement[], mode)
       return res.map(r => ({
         rows: (r.rows as unknown as Record<string, unknown>[]) || [],
         columns: r.columns || [],
@@ -283,7 +283,7 @@ export async function getTursoClient(): Promise<TursoDbClient> {
           throw err
         }
       },
-      batch: async (stmts: (string | SqlStatement | InStatement)[]): Promise<QueryResult[]> => {
+      batch: async (stmts: (string | SqlStatement | InStatement)[], _mode?: 'write' | 'read' | 'deferred'): Promise<QueryResult[]> => {
         try {
           const client = await p.connect()
           try {
