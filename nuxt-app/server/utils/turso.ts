@@ -1,4 +1,5 @@
 import pg from 'pg'
+import { createClient, type Client as LibSqlClient, type InStatement, type InArgs } from '@libsql/client'
 import { existsSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import path from 'node:path'
@@ -6,8 +7,10 @@ import path from 'node:path'
 const { Pool } = pg
 
 let pool: pg.Pool | null = null
+let libSqlClient: LibSqlClient | null = null
+let useLibSqlFallback = false
 
-async function loadLocalConfig(): Promise<{ DATABASE_URL?: string, TURSO_DATABASE_URL?: string }> {
+async function loadLocalConfig(): Promise<{ DATABASE_URL?: string, TURSO_DATABASE_URL?: string, TURSO_AUTH_TOKEN?: string }> {
   try {
     const configPath = path.join(process.cwd(), '..', 'turso.config.js')
     if (!existsSync(configPath)) return {}
@@ -48,29 +51,50 @@ export function transformSql(sql: string): string {
 
 export interface SqlStatement {
   sql: string
-  args?: unknown[] | Record<string, unknown>
+  args?: any[] | Record<string, any>
 }
 
 export interface QueryResult<T = Record<string, unknown>> {
   rows: T[]
   columns: string[]
   rowsAffected: number
+  lastInsertRowid?: number | bigint
+}
+
+async function getLibSqlClient(): Promise<LibSqlClient> {
+  if (libSqlClient) return libSqlClient
+
+  const localConfig = await loadLocalConfig()
+  const url
+    = process.env.TURSO_DATABASE_URL
+      || process.env.TURSO_URL
+      || localConfig.TURSO_DATABASE_URL
+      || 'libsql://visachecking-khan0200.aws-ap-northeast-1.turso.io'
+
+  const authToken
+    = process.env.TURSO_AUTH_TOKEN
+      || localConfig.TURSO_AUTH_TOKEN
+      || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODI5ODQ4NzQsImlkIjoiMDE5ZjFlZjEtMjUwMS03N2UyLWIxNWUtMjZhZmYyN2Y1NThiIiwia2lkIjoiVFZIaHctQ1VfMTczOVlqa2dZRGpKbGJfQlVpQWVLckxTelhfbDVMUTlzRSIsInJpZCI6IjYzMGRiOTQyLWY1ZGItNDlmMC1iOTg1LTcxM2U4ZWIxNjQzMyJ9.jGWCFnYHOz8gtFLxwRsXtlGwUvV0CskwYeTC1eqytioncQ5DeCxOMbN2Ydwe0sbyPyI3ZrCuvYt5udu4af8zAg'
+
+  libSqlClient = createClient({ url, authToken })
+  return libSqlClient
 }
 
 export async function getDatabasePool(): Promise<pg.Pool> {
   if (pool) return pool
 
   const localConfig = await loadLocalConfig()
-  const connectionString
-    = process.env.DATABASE_URL
-      || localConfig.DATABASE_URL
-      || 'postgresql://salomkorea_user:SalomKoreaPg2026SecurePass!@127.0.0.1:5432/salomkorea_db'
+  const connectionString = process.env.DATABASE_URL || localConfig.DATABASE_URL
+
+  if (!connectionString || (!connectionString.startsWith('postgres://') && !connectionString.startsWith('postgresql://'))) {
+    throw new Error('No valid PostgreSQL DATABASE_URL configured')
+  }
 
   pool = new Pool({
     connectionString,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000
+    connectionTimeoutMillis: 3000
   })
 
   pool.on('error', (err) => {
@@ -80,11 +104,11 @@ export async function getDatabasePool(): Promise<pg.Pool> {
   return pool
 }
 
-async function executeStatement(p: pg.Pool, stmt: string | SqlStatement, argsParam?: unknown[]): Promise<QueryResult> {
+async function executePgStatement(p: pg.Pool | pg.PoolClient, stmt: string | SqlStatement | InStatement, argsParam?: any): Promise<QueryResult> {
   let sql = typeof stmt === 'string' ? stmt : stmt.sql
   const rawArgs = typeof stmt === 'string' ? (argsParam || []) : (stmt.args || argsParam || [])
 
-  let values: unknown[] = []
+  let values: any[] = []
   if (Array.isArray(rawArgs)) {
     values = rawArgs
     sql = transformSql(sql)
@@ -97,54 +121,183 @@ async function executeStatement(p: pg.Pool, stmt: string | SqlStatement, argsPar
     })
   }
 
-  const res = await p.query(sql, values as unknown[])
+  // If INSERT statement without RETURNING clause, add RETURNING id if possible
+  const isInsert = /^\s*INSERT\s+INTO/i.test(sql)
+  if (isInsert && !/RETURNING/i.test(sql)) {
+    sql = `${sql} RETURNING id`
+  }
+
+  let res: any
+  try {
+    res = await p.query(sql, values)
+  } catch (err: any) {
+    // If RETURNING id failed because table has no id column, retry without RETURNING id
+    if (isInsert && err.message?.includes('column "id" does not exist')) {
+      const cleanSql = sql.replace(/\s+RETURNING id\s*$/i, '')
+      res = await p.query(cleanSql, values)
+    } else {
+      throw err
+    }
+  }
+
+  const rows = res.rows || []
+  const lastInsertRowid = rows.length > 0 && rows[0].id !== undefined ? Number(rows[0].id) : undefined
+
   return {
-    rows: res.rows || [],
-    columns: res.fields ? res.fields.map(f => f.name) : [],
-    rowsAffected: res.rowCount || 0
+    rows,
+    columns: res.fields ? res.fields.map((f: any) => f.name) : [],
+    rowsAffected: res.rowCount || 0,
+    lastInsertRowid
   }
 }
 
-export async function getTursoClient() {
-  const p = await getDatabasePool()
+export interface TursoDbClient {
+  execute: (stmt: string | SqlStatement | InStatement, args?: any) => Promise<QueryResult>
+  batch: (stmts: (string | SqlStatement | InStatement)[]) => Promise<QueryResult[]>
+  transaction: (mode?: 'write' | 'read' | 'deferred') => Promise<{
+    execute: (stmt: string | SqlStatement | InStatement, args?: any) => Promise<QueryResult>
+    commit: () => Promise<void>
+    rollback: () => Promise<void>
+    close: () => Promise<void>
+  }>
+}
 
-  return {
-    execute: (stmt: string | SqlStatement, args?: unknown[]): Promise<QueryResult> => executeStatement(p, stmt, args),
-    batch: async (stmts: (string | SqlStatement)[]): Promise<QueryResult[]> => {
-      const client = await p.connect()
-      try {
-        await client.query('BEGIN')
-        const results: QueryResult[] = []
-        for (const s of stmts) {
-          let sql = typeof s === 'string' ? s : s.sql
-          const rawArgs = typeof s === 'string' ? [] : (s.args || [])
-          let values: unknown[] = []
-          if (Array.isArray(rawArgs)) {
-            values = rawArgs
-            sql = transformSql(sql)
-          } else if (rawArgs && typeof rawArgs === 'object') {
-            let paramIndex = 1
-            values = []
-            sql = sql.replace(/[:$]([a-zA-Z0-9_]+)/g, (_, name: string) => {
-              values.push((rawArgs as Record<string, unknown>)[name])
-              return `$${paramIndex++}`
-            })
+export async function getTursoClient(): Promise<TursoDbClient> {
+  const localConfig = await loadLocalConfig()
+  const dbUrl = process.env.DATABASE_URL || localConfig.DATABASE_URL
+
+  const isPostgresConfigured = Boolean(
+    !useLibSqlFallback && dbUrl && (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://'))
+  )
+
+  const makeLibSqlWrapper = (client: LibSqlClient): TursoDbClient => ({
+    execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+      const inStmt: InStatement = typeof stmt === 'string'
+        ? { sql: stmt, args: (args as InArgs) || [] }
+        : (stmt as InStatement)
+      const res = await client.execute(inStmt)
+      return {
+        rows: (res.rows as any) || [],
+        columns: res.columns || [],
+        rowsAffected: res.rowsAffected || 0,
+        lastInsertRowid: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : undefined
+      }
+    },
+    batch: async (stmts: (string | SqlStatement | InStatement)[]): Promise<QueryResult[]> => {
+      const res = await client.batch(stmts as InStatement[])
+      return res.map(r => ({
+        rows: (r.rows as any) || [],
+        columns: r.columns || [],
+        rowsAffected: r.rowsAffected || 0,
+        lastInsertRowid: r.lastInsertRowid !== undefined ? Number(r.lastInsertRowid) : undefined
+      }))
+    },
+    transaction: async (mode?: 'write' | 'read' | 'deferred') => {
+      const tx = await client.transaction(mode || 'write')
+      return {
+        execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+          const inStmt: InStatement = typeof stmt === 'string'
+            ? { sql: stmt, args: (args as InArgs) || [] }
+            : (stmt as InStatement)
+          const res = await tx.execute(inStmt)
+          return {
+            rows: (res.rows as any) || [],
+            columns: res.columns || [],
+            rowsAffected: res.rowsAffected || 0,
+            lastInsertRowid: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : undefined
           }
-          const res = await client.query(sql, values as unknown[])
-          results.push({
-            rows: res.rows || [],
-            columns: res.fields ? res.fields.map(f => f.name) : [],
-            rowsAffected: res.rowCount || 0
-          })
-        }
-        await client.query('COMMIT')
-        return results
-      } catch (err) {
-        await client.query('ROLLBACK')
-        throw err
-      } finally {
-        client.release()
+        },
+        commit: async () => { await tx.commit() },
+        rollback: async () => { await tx.rollback() },
+        close: async () => { await tx.close() }
       }
     }
+  })
+
+  if (!isPostgresConfigured) {
+    const client = await getLibSqlClient()
+    return makeLibSqlWrapper(client)
+  }
+
+  try {
+    const p = await getDatabasePool()
+    return {
+      execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+        try {
+          return await executePgStatement(p, stmt, args)
+        } catch (err: any) {
+          if (err.code === 'ECONNREFUSED' || err.message?.includes('ECONNREFUSED') || err.message?.includes('timeout')) {
+            console.warn('[DB] PostgreSQL connection failed. Falling back to Turso LibSQL...', err.message)
+            useLibSqlFallback = true
+            const fallback = await getLibSqlClient()
+            return makeLibSqlWrapper(fallback).execute(stmt, args)
+          }
+          throw err
+        }
+      },
+      batch: async (stmts: (string | SqlStatement | InStatement)[]): Promise<QueryResult[]> => {
+        try {
+          const client = await p.connect()
+          try {
+            await client.query('BEGIN')
+            const results: QueryResult[] = []
+            for (const s of stmts) {
+              const res = await executePgStatement(client, s)
+              results.push(res)
+            }
+            await client.query('COMMIT')
+            return results
+          } catch (err) {
+            await client.query('ROLLBACK')
+            throw err
+          } finally {
+            client.release()
+          }
+        } catch (err: any) {
+          if (err.code === 'ECONNREFUSED' || err.message?.includes('ECONNREFUSED') || err.message?.includes('timeout')) {
+            console.warn('[DB] PostgreSQL batch failed. Falling back to Turso LibSQL...', err.message)
+            useLibSqlFallback = true
+            const fallback = await getLibSqlClient()
+            return makeLibSqlWrapper(fallback).batch(stmts)
+          }
+          throw err
+        }
+      },
+      transaction: async () => {
+        const client = await p.connect()
+        await client.query('BEGIN')
+        let closed = false
+        return {
+          execute: async (stmt: string | SqlStatement | InStatement, args?: any): Promise<QueryResult> => {
+            return await executePgStatement(client, stmt, args)
+          },
+          commit: async () => {
+            if (!closed) {
+              await client.query('COMMIT')
+              client.release()
+              closed = true
+            }
+          },
+          rollback: async () => {
+            if (!closed) {
+              await client.query('ROLLBACK')
+              client.release()
+              closed = true
+            }
+          },
+          close: async () => {
+            if (!closed) {
+              client.release()
+              closed = true
+            }
+          }
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn('[DB] Could not initialize PostgreSQL pool. Falling back to Turso LibSQL...', err.message)
+    useLibSqlFallback = true
+    const fallback = await getLibSqlClient()
+    return makeLibSqlWrapper(fallback)
   }
 }

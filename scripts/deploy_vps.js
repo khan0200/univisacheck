@@ -11,7 +11,8 @@ cd /www/wwwroot/salomkorea/nuxt-app && npm install
 echo "=== 3. Building Nuxt production app ==="
 npm run build
 echo "=== 4. Reloading PM2 ==="
-pm2 reload salomkorea || pm2 start .output/server/index.mjs --name "salomkorea"
+pm2 delete salomkorea || true
+pm2 start ecosystem.config.cjs
 pm2 save
 echo "=== DEPLOYMENT COMPLETED SUCCESSFULLY! ==="
 `;
