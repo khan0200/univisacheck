@@ -66,8 +66,13 @@ export default defineEventHandler(async (event) => {
     if (errorObj.statusCode) throw err
     console.error(`[Direct Check] Network error checking passport ${passport}:`, errorObj.message || String(err))
     
-    // Return graceful fallback response so client batch never crashes with 502
+    // Persist lastChecked to DB so F5 refresh reflects the check attempt
     const nowIso = new Date().toISOString()
+    await db.execute({
+      sql: `UPDATE students SET lastChecked = ?, last_checked = ? WHERE passport = ? AND deletedAt IS NULL`,
+      args: [nowIso, nowIso, passport]
+    }).catch((dbErr) => console.error('[Direct Check] DB update error on fallback:', dbErr))
+
     return {
       passport,
       status: oldStatus,

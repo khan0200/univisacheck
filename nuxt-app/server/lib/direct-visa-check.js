@@ -43,19 +43,16 @@ const httpsAgent = new https.Agent({
   timeout: 15000
 })
 
-function httpReq(method, path, headers, body = null, timeoutMs = 15000) {
+function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
       port: 443,
       path,
       method,
-      headers: {
-        ...headers,
-        'Connection': 'keep-alive'
-      },
+      headers,
       family: 4,
-      agent: httpsAgent,
+      agent: false, // Fresh clean TLS connection to avoid dead socket hangs
       timeout: timeoutMs
     }, (res) => {
       // Automatically refresh cookies from response
@@ -93,7 +90,7 @@ async function getSession(force = false) {
 }
 
 function stripTags(s) {
-  return s.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  return String(s || '').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
 const KOREAN_STATUS_MAP = [
@@ -378,6 +375,8 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     }
   }
 
+  const body = querystring.stringify(bodyParams)
+
   const reqHeaders = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
     'Referer': 'https://www.visa.go.kr/openPage.do?MENU_ID=10301',
@@ -385,8 +384,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
     'Accept-Language': 'en-US,en;q=0.9',
     'Content-Type': 'application/x-www-form-urlencoded',
-    'Content-Length': String(Buffer.byteLength(body)),
-    'Connection': 'keep-alive'
+    'Content-Length': String(Buffer.byteLength(body))
   }
   if (cookies) {
     reqHeaders['Cookie'] = cookies
