@@ -21,6 +21,15 @@ async function loadLocalConfig(): Promise<{ DATABASE_URL?: string, TURSO_DATABAS
   }
 }
 
+const CAMEL_IDENTIFIERS = [
+  'userId', 'fullName', 'studentId', 'applicationDate', 'lastChecked',
+  'rejectReason', 'pdfUrl', 'apiResponse', 'batchSelected',
+  'batchSelectedUpdatedAt', 'createdAt', 'visaType', 'applicationNo',
+  'deletedAt', 'checkSource', 'updatedAt', 'jobId', 'lockedAt',
+  'lockedBy', 'startedAt', 'completedAt', 'fetchedAt'
+]
+const CAMEL_REGEX = new RegExp(`(?<!["'a-zA-Z0-9_])(${CAMEL_IDENTIFIERS.join('|')})(?!["'a-zA-Z0-9_])`, 'g')
+
 export function transformSql(sql: string): string {
   let paramIndex = 1
   let inSingleQuote = false
@@ -45,6 +54,11 @@ export function transformSql(sql: string): string {
   if (result.includes('INSERT OR IGNORE INTO')) {
     result = result.replace('INSERT OR IGNORE INTO', 'INSERT INTO') + ' ON CONFLICT DO NOTHING'
   }
+
+  result = result.replace(/datetime\(['"]now['"]\)/gi, 'CURRENT_TIMESTAMP')
+
+  // Auto-quote camelCase column names for PostgreSQL
+  result = result.replace(CAMEL_REGEX, '"$1"')
 
   return result
 }

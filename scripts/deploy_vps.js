@@ -8,6 +8,8 @@ echo "=== 1. Pulling latest changes from GitHub ==="
 cd /www/wwwroot/salomkorea && git fetch origin master && git reset --hard origin/master
 echo "=== 2. Installing dependencies ==="
 cd /www/wwwroot/salomkorea/nuxt-app && npm install
+echo "=== 2.5 Syncing all data to PostgreSQL ==="
+node scripts/migrate_all_postgres.js
 echo "=== 3. Building Nuxt production app ==="
 npm run build
 echo "=== 4. Reloading PM2 ==="
