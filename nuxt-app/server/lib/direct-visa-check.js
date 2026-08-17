@@ -28,107 +28,113 @@ let sessionCookies = null
 let sessionFetchedAt = 0
 const SESSION_TTL_MS = 10 * 60 * 1000 // 10 minutes
 
-function httpReq(method, path, headers, body = null) {
+// High-performance Keep-Alive HTTPS Agent to reuse TLS connections to Korea
+const httpsAgent = new https.Agent({
+  keepAlive: true,
+  keepAliveMsecs: 60000,
+  maxSockets: 30,
+  maxFreeSockets: 15,
+  timeout: 10000
+})
+
+function httpReq(method, path, headers, body = null, timeoutMs = 9000) {
   return new Promise((resolve, reject) => {
-    const r = https.request({ hostname: HOST, port: 443, path, method, headers }, (res) => {
+    const req = https.request({
+      hostname: HOST,
+      port: 443,
+      path,
+      method,
+      headers,
+      agent: httpsAgent,
+      timeout: timeoutMs
+    }, (res) => {
       const chunks = []
       res.on('data', c => chunks.push(c))
-      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks).toString('utf8') }))
+      res.on('end', () => resolve({
+        status: res.statusCode,
+        headers: res.headers,
+        body: Buffer.concat(chunks).toString('utf8')
+      }))
     })
-    r.on('error', reject)
-    if (body) r.write(body)
-    r.end()
+
+    req.on('timeout', () => {
+      req.destroy(new Error(`Request to ${HOST}${path} timed out after ${timeoutMs}ms`))
+    })
+
+    req.on('error', reject)
+    if (body) req.write(body)
+    req.end()
   })
 }
 
+let pendingSessionPromise = null
+
 async function getSession(force = false) {
   const now = Date.now()
-  let db
-  try {
-    db = await getTursoClient()
-  } catch (e) {
-    console.error('[Session DB] Failed to load Turso client, falling back to memory:', e.message)
-  }
-
-  if (!db) {
-    if (!force && sessionCookies && (now - sessionFetchedAt) < SESSION_TTL_MS) {
-      return sessionCookies
-    }
-    const r = await httpReq('GET', '/openPage.do?MENU_ID=10301', {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
-      'Accept-Language': 'en-US,en;q=0.9'
-    })
-    sessionCookies = (r.headers['set-cookie'] || []).map(c => c.split(';')[0]).join('; ')
-    sessionFetchedAt = now
+  if (!force && sessionCookies && (now - sessionFetchedAt) < SESSION_TTL_MS) {
     return sessionCookies
   }
 
-  // Read from DB first
-  let dbSession = null
-  try {
-    const res = await db.execute({
-      sql: 'SELECT cookies, fetchedAt FROM visa_sessions WHERE key = \'current\'',
-      args: []
-    })
-    if (res.rows.length > 0) {
-      dbSession = res.rows[0]
-    }
-  } catch (e) {
-    console.error('[Session DB] Failed to read session:', e.message)
+  // Prevent multiple concurrent requests from spamming new session fetches (single-flight mutex)
+  if (pendingSessionPromise) {
+    return pendingSessionPromise
   }
 
-  if (!force && dbSession && dbSession.cookies && (now - Number(dbSession.fetchedAt)) < SESSION_TTL_MS) {
-    sessionCookies = dbSession.cookies
-    sessionFetchedAt = Number(dbSession.fetchedAt)
-    return dbSession.cookies
-  }
-
-  // Atomic claim/refresh via transaction
-  const tx = await db.transaction('write')
-  try {
-    const res = await tx.execute({
-      sql: 'SELECT cookies, fetchedAt FROM visa_sessions WHERE key = \'current\'',
-      args: []
-    })
-    const row = res.rows[0]
-    if (!force && row && row.cookies && (now - Number(row.fetchedAt)) < SESSION_TTL_MS) {
-      await tx.commit()
-      sessionCookies = row.cookies
-      sessionFetchedAt = Number(row.fetchedAt)
-      return row.cookies
-    }
-
-    // We fetch new cookies
-    console.log('[Session DB] Fetching new session from visa.go.kr...')
-    const r = await httpReq('GET', '/openPage.do?MENU_ID=10301', {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
-      'Accept-Language': 'en-US,en;q=0.9'
-    })
-    const newCookies = (r.headers['set-cookie'] || []).map(c => c.split(';')[0]).join('; ')
-
-    await tx.execute({
-      sql: 'INSERT OR REPLACE INTO visa_sessions (key, cookies, fetchedAt) VALUES (\'current\', ?, ?)',
-      args: [newCookies, now]
-    })
-    await tx.commit()
-    sessionCookies = newCookies
-    sessionFetchedAt = now
-    return newCookies
-  } catch (err) {
+  pendingSessionPromise = (async () => {
     try {
-      await tx.rollback()
-    } catch {
-      // ignore rollback failure
+      // 1. Try reading from DB if local is expired
+      if (!force) {
+        try {
+          const db = await getTursoClient()
+          const res = await db.execute({
+            sql: 'SELECT cookies, "fetchedAt" FROM visa_sessions WHERE key = \'current\'',
+            args: []
+          })
+          if (res.rows.length > 0) {
+            const row = res.rows[0]
+            const fetchedAtNum = Number(row.fetchedAt || row.fetchedat || 0)
+            if (row.cookies && (now - fetchedAtNum) < SESSION_TTL_MS) {
+              sessionCookies = row.cookies
+              sessionFetchedAt = fetchedAtNum
+              return row.cookies
+            }
+          }
+        } catch {
+          // continue to live fetch
+        }
+      }
+
+      // 2. Fetch fresh session from visa.go.kr
+      console.log('[Session DB] Fetching new session from visa.go.kr...')
+      const r = await httpReq('GET', '/openPage.do?MENU_ID=10301', {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
+        'Accept-Language': 'en-US,en;q=0.9'
+      })
+      const newCookies = (r.headers['set-cookie'] || []).map(c => c.split(';')[0]).join('; ')
+      if (!newCookies) {
+        if (sessionCookies) return sessionCookies
+        throw new Error('Failed to obtain JSESSIONID from visa.go.kr')
+      }
+
+      sessionCookies = newCookies
+      sessionFetchedAt = now
+
+      // Save to DB asynchronously (fire-and-forget so we don't block the request)
+      getTursoClient().then((db) => {
+        db.execute({
+          sql: 'INSERT OR REPLACE INTO visa_sessions (key, cookies, "fetchedAt") VALUES (\'current\', ?, ?)',
+          args: [newCookies, now]
+        }).catch(err => console.error('[Session DB] Async save error:', err.message))
+      }).catch(() => {})
+
+      return newCookies
+    } finally {
+      pendingSessionPromise = null
     }
-    console.error('[Session DB] Transaction failed, falling back to local memory:', err)
-    if (dbSession && dbSession.cookies) {
-      return dbSession.cookies
-    }
-    if (sessionCookies) return sessionCookies
-    throw err
-  }
+  })()
+
+  return pendingSessionPromise
 }
 
 function stripTags(s) {

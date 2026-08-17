@@ -146,9 +146,8 @@ export function useVisaCheck() {
   }
 
   /**
-   * Batch fast-path — fires /api/jobs/direct for every student,
-   * staggered 300 ms apart, while keeping active UI state until
-   * all concurrent checks complete.
+   * Batch fast-path — checks students concurrently using a worker pool
+   * for maximum throughput without artificial delay.
    */
   async function checkMany(students: Student[]): Promise<{ completed: number, failed: number }> {
     if (students.length === 0) return { completed: 0, failed: 0 }
@@ -165,38 +164,42 @@ export function useVisaCheck() {
     let completedCount = 0
     let failedCount = 0
 
-    // Fire direct checks with 300 ms stagger and await all results
-    const checkPromises = students.map((student, i) => {
-      const passport = student.passport
-      return new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          try {
-            const result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
-              method: 'POST',
-              body: { passport }
-            })
-            studentsStore.patchStudent(passport, {
-              status: result.status,
-              applicationDate: result.applicationDate,
-              lastChecked: result.lastChecked,
-              rejectReason: result.rejectReason,
-              pdfUrl: result.pdfUrl
-            }, result.lastChecked)
-            completedCount++
-          } catch (err) {
-            failedCount++
-            const msg = err instanceof Error ? err.message : String(err)
-            console.error(`[Visa Check Batch] Direct check failed for ${passport}:`, msg)
-          } finally {
-            studentsStore.checkingPassports.delete(passport)
-            studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
-            resolve()
-          }
-        }, i * 300)
-      })
-    })
+    const queue = [...students]
+    const CONCURRENCY = 6
 
-    await Promise.all(checkPromises)
+    async function worker() {
+      while (queue.length > 0) {
+        const student = queue.shift()
+        if (!student) break
+        const passport = student.passport
+
+        try {
+          const result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
+            method: 'POST',
+            body: { passport }
+          })
+          studentsStore.patchStudent(passport, {
+            status: result.status,
+            applicationDate: result.applicationDate,
+            lastChecked: result.lastChecked,
+            rejectReason: result.rejectReason,
+            pdfUrl: result.pdfUrl
+          }, result.lastChecked)
+          completedCount++
+        } catch (err) {
+          failedCount++
+          const msg = err instanceof Error ? err.message : String(err)
+          console.error(`[Visa Check Batch] Direct check failed for ${passport}:`, msg)
+        } finally {
+          studentsStore.checkingPassports.delete(passport)
+          studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+        }
+      }
+    }
+
+    const workerCount = Math.min(CONCURRENCY, students.length)
+    const workers = Array.from({ length: workerCount }, () => worker())
+    await Promise.all(workers)
 
     return { completed: completedCount, failed: failedCount }
   }
