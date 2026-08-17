@@ -110,7 +110,7 @@ async function main() {
     // 3. Reset sequences
     try {
       await pgClient.query(`SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1), true)`)
-    } catch (err: unknown) {
+    } catch (err) {
       console.warn('Sequence reset notice:', err instanceof Error ? err.message : String(err))
     }
 
