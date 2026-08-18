@@ -8,7 +8,7 @@ export const useStudentsStore = defineStore('students', () => {
   const currentFilter = ref<StatusFilter>('pending')
   const visaTypeFilter = ref<VisaTypeFilter>('all')
   const searchQuery = ref('')
-  const sortBy = ref<'university' | 'tariff' | 'applicationDate' | 'underReview'>('university')
+  const sortBy = ref<'university' | 'tariff' | 'applicationDate' | 'underReview' | 'selected'>('university')
 
   interface JobProgress {
     jobId: string
@@ -103,6 +103,12 @@ export const useStudentsStore = defineStore('students', () => {
     }
 
     return [...filtered].sort((a, b) => {
+      if (sortBy.value === 'selected') {
+        const aSel = a.batchSelected ? 1 : 0
+        const bSel = b.batchSelected ? 1 : 0
+        if (aSel !== bSel) return bSel - aSel
+      }
+
       if (filterVal === 'application') {
         const isUnderReviewA = displayStatusText(a.status) === 'Under Review' || isUnderReviewStatus(a.status)
         const isUnderReviewB = displayStatusText(b.status) === 'Under Review' || isUnderReviewStatus(b.status)
@@ -231,7 +237,7 @@ export const useStudentsStore = defineStore('students', () => {
     visaTypeFilter.value = filter
   }
 
-  function setSortBy(field: 'university' | 'tariff' | 'applicationDate' | 'underReview') {
+  function setSortBy(field: 'university' | 'tariff' | 'applicationDate' | 'underReview' | 'selected') {
     sortBy.value = field
   }
 

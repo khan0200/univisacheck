@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
-import { useWindowScroll, useWindowSize } from '@vueuse/core'
+import { useWindowScroll, useWindowSize, useNow } from '@vueuse/core'
 import type { Student } from '~/types/student'
 import { formatTimestampCompact } from '~/utils/format'
 import { getCancellationReason, getStatusDate } from '~/utils/visa-status'
+
+const now = useNow({ interval: 10_000 })
 
 const props = defineProps<{
   students: Student[]
@@ -248,7 +250,7 @@ watch([() => props.students, () => props.currentFilter], () => {
             v-else
             class="text-xs text-[var(--color-text-secondary)]"
           >
-            <span>Checked: {{ formatTimestampCompact(student.lastChecked) }}</span>
+            <span>Checked: {{ formatTimestampCompact(student.lastChecked, now) }}</span>
           </span>
         </div>
 
@@ -481,7 +483,7 @@ watch([() => props.students, () => props.currentFilter], () => {
                 v-else
                 class="text-xs text-[var(--color-text-secondary)]"
               >
-                <span>{{ formatTimestampCompact(student.lastChecked) }}</span>
+                <span>{{ formatTimestampCompact(student.lastChecked, now) }}</span>
               </span>
             </td>
             <td

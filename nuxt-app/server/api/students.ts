@@ -71,7 +71,7 @@ async function fetchStudentPayload(
 /** Publish an event after a successful DB write. Never throws. */
 async function publishEvent(userId: number, realtimeEvent: StudentRealtimeEvent) {
   try {
-    await publishRealtime(userId, realtimeEvent as unknown as Record<string, unknown> & { type: string })
+    await publishRealtime(userId, realtimeEvent)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[Students API] Realtime publish failed:', msg)
