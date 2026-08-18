@@ -27,6 +27,7 @@ const groupIsChecking = computed(() => props.students.some(s => props.checkingPa
 const groupIcon = computed(() => {
   const name = props.groupName.toLowerCase()
   if (name.includes('under review')) return 'i-lucide-eye'
+  if (name.includes('supplement submitted') || name.includes('supplement completed')) return 'i-lucide-file-check'
   if (name.includes('supplement')) return 'i-lucide-alert-circle'
   if (/^\d{4}[-./]\d{1,2}/.test(props.groupName)) return 'i-lucide-calendar'
   if (name === 'standard' || name === 'vip' || name === 'premium') return 'i-lucide-tag'

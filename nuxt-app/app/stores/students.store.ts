@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Student, StatusFilter, VisaTypeFilter } from '~/types/student'
-import { bucketForStatus, displayStatusText, isUnderReviewStatus, isSupplementStatus } from '~/utils/visa-status'
+import { bucketForStatus, displayStatusText, isUnderReviewStatus, isSupplementStatus, isSupplementSubmittedStatus } from '~/utils/visa-status'
 
 export const useStudentsStore = defineStore('students', () => {
   const students = ref<Student[]>([])
@@ -143,7 +143,9 @@ export const useStudentsStore = defineStore('students', () => {
       else if (sort === 'tariff') key = student.tariff?.trim() || ''
       else if (sort === 'applicationDate') key = student.applicationDate?.trim() || ''
       else if (sort === 'underReview') {
-        if (isSupplementStatus(student.status)) {
+        if (isSupplementSubmittedStatus(student.status)) {
+          key = 'Supplement Submitted'
+        } else if (isSupplementStatus(student.status)) {
           key = 'Supplement Needed'
         } else if (isUnderReviewStatus(student.status)) {
           key = 'Under Review'
@@ -157,10 +159,12 @@ export const useStudentsStore = defineStore('students', () => {
     return [...map.entries()]
       .sort(([a], [b]) => {
         if (sort === 'underReview') {
-          if (a === 'Under Review') return -1
-          if (b === 'Under Review') return 1
           if (a === 'Supplement Needed') return -1
           if (b === 'Supplement Needed') return 1
+          if (a === 'Supplement Submitted') return -1
+          if (b === 'Supplement Submitted') return 1
+          if (a === 'Under Review') return -1
+          if (b === 'Under Review') return 1
         }
         if (a === '') return 1
         if (b === '') return -1

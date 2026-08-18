@@ -9,6 +9,10 @@ export const STATUS_CONFIG: Record<string, StatusConfig> = {
   'REJECTED': { cls: 'rejected', icon: 'x', label: 'Rejected' },
   'CANCELLED': { cls: 'cancelled', icon: 'x', label: 'Cancelled' },
   'RETURNED': { cls: 'cancelled', icon: 'x', label: 'Returned' },
+  'SUPPLEMENT SUBMITTED': { cls: 'review', icon: 'check', label: 'Supplement Submitted' },
+  'SUPPLEMENT COMPLETED': { cls: 'review', icon: 'check', label: 'Supplement Submitted' },
+  'SUPPLEMENT NEEDED': { cls: 'pending', icon: 'clock', label: 'Supplement Needed' },
+  'SUPPLEMENT REQUESTED': { cls: 'pending', icon: 'clock', label: 'Supplement Needed' },
   'PENDING SUPPLEMENT': { cls: 'pending', icon: 'clock', label: 'Supplement Needed' },
   'EXPIRED': { cls: 'rejected', icon: 'clock', label: 'Expired' },
   'UNKNOWN': { cls: 'pending', icon: 'clock', label: 'Unknown' },
@@ -25,6 +29,10 @@ export const REAL_STATUSES = [
   'REJECTED',
   'CANCELLED',
   'RETURNED',
+  'SUPPLEMENT SUBMITTED',
+  'SUPPLEMENT COMPLETED',
+  'SUPPLEMENT NEEDED',
+  'SUPPLEMENT REQUESTED',
   'PENDING SUPPLEMENT',
   'EXPIRED'
 ]

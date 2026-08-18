@@ -101,7 +101,8 @@ const KOREAN_STATUS_MAP = [
   { keywords: ['심사중', '처리중', '심사 중', '처리 중'], status: 'UNDER REVIEW' },
   { keywords: ['취소'], status: 'CANCELLED' },
   { keywords: ['반려'], status: 'RETURNED' },
-  { keywords: ['보완'], status: 'PENDING SUPPLEMENT' },
+  { keywords: ['보완완료', '보완제출', '보완접수'], status: 'SUPPLEMENT SUBMITTED' },
+  { keywords: ['보완요청', '보완요구', '보완'], status: 'SUPPLEMENT NEEDED' },
   { keywords: ['기한만료'], status: 'EXPIRED' }
 ]
 
@@ -215,7 +216,7 @@ function parseResult1_1(html) {
     }
 
     const parsedStatus = parseKoreanStatus(statusKor)
-    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED' || parsedStatus === 'PENDING SUPPLEMENT'
+    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED' || parsedStatus.includes('SUPPLEMENT')
 
     results.push({
       applicationDate: appl_dates[i] || '',
@@ -313,7 +314,7 @@ function parseResult3_2(html) {
     }
 
     const parsedStatus = parseKoreanStatus(statusKor)
-    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED' || parsedStatus === 'PENDING SUPPLEMENT'
+    const isReject = parsedStatus === 'REJECTED' || parsedStatus === 'CANCELLED' || parsedStatus === 'RETURNED' || parsedStatus.includes('SUPPLEMENT')
 
     results.push({
       applicationDate: appl_dates[i] || '',

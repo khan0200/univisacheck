@@ -30,6 +30,8 @@ function getStatusEmoji(status: unknown): string {
   const normalized = String(status || '').toLowerCase()
   if (normalized.includes('approved') || normalized.includes('visa used')) return '🟢'
   if (normalized.includes('cancel') || normalized.includes('reject')) return '🔴'
+  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료')) return '📝'
+  if (normalized.includes('supplement') || normalized.includes('보완')) return '⚠️'
   if (normalized.includes('received') || normalized.includes('app/')) return 'orange' // Or emoji
   if (normalized.includes('under review')) return '🔵'
   return '🔷'
@@ -48,6 +50,12 @@ function getStatusDescription(status: unknown, lang = 'uz'): string {
   }
   if (normalized.includes('cancel') || normalized.includes('reject')) {
     return lang === 'en' ? 'Your application was rejected.' : 'Arizangiz rad etildi.'
+  }
+  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료')) {
+    return lang === 'en' ? '📝 Supplementary documents have been submitted and are under review.' : '📝 Qo\'shimcha hujjatlar topshirildi va ko\'rib chiqilmoqda.'
+  }
+  if (normalized.includes('supplement') || normalized.includes('보완')) {
+    return lang === 'en' ? '⚠️ Additional documents required (Supplement Needed).' : '⚠️ Qo\'shimcha hujjatlar talab qilinmoqda (Qo\'shimcha hujjat kerak).'
   }
   if (normalized.includes('received') || normalized.includes('app/')) {
     return lang === 'en' ? '⏳ Your application is being processed.' : '⏳ Arizangiz jarayonda.'
