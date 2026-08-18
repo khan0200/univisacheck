@@ -67,6 +67,11 @@ function formatDaysAgo(dateStr: string): string {
   return dateStr
 }
 
+const { getStats } = useVisaModeStats()
+const modeStats = computed(() => getStats(props.visaType))
+const averageDays = computed(() => modeStats.value.avgDays)
+const approvalRate = computed(() => modeStats.value.approvalRate)
+
 const cells = computed(() => {
   const r = props.result
   const appDate = r.applicationDate || '—'
@@ -83,7 +88,7 @@ const cells = computed(() => {
   if (r.visaExpiry) list.push({ label: 'Expiry Date', value: r.visaExpiry })
   if (r.invitingCompany) list.push({ label: 'Inviting Company', value: r.invitingCompany })
   if (purpose !== '—' && purpose !== '' && purpose !== r.statusOfResidence) list.push({ label: 'Purpose', value: purpose })
-  list.push({ label: 'Visa Mode', value: props.visaType })
+  list.push({ label: 'Visa Mode', value: `${props.visaType} (${approvalRate.value}% Approval Rate)` })
   return list
 })
 
@@ -128,17 +133,16 @@ const isProcessingStatus = computed(() => {
   )
 })
 
-const AVERAGE_VISA_DAYS = 19
-
 const remainingDaysText = computed(() => {
+  const avg = averageDays.value
   const appDateStr = props.result.applicationDate
   if (!appDateStr) {
-    return `Result expected in approx. ${AVERAGE_VISA_DAYS} days`
+    return `Result expected in approx. ${avg} days`
   }
 
   const match = appDateStr.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/)
   if (!match || !match[1] || !match[2] || !match[3]) {
-    return `Result expected in approx. ${AVERAGE_VISA_DAYS} days`
+    return `Result expected in approx. ${avg} days`
   }
 
   const appYear = parseInt(match[1], 10)
@@ -152,7 +156,7 @@ const remainingDaysText = computed(() => {
   const diffTime = today.getTime() - appDate.getTime()
   const elapsedDays = Math.floor(diffTime / (1000 * 3600 * 24))
 
-  const remaining = AVERAGE_VISA_DAYS - elapsedDays
+  const remaining = avg - elapsedDays
 
   if (remaining > 1) {
     return `Result expected in approx. ${remaining} days`
@@ -211,7 +215,7 @@ const remainingDaysText = computed(() => {
             </span>
           </div>
           <p class="text-2xl sm:text-[28px] font-black text-blue-700 dark:text-blue-300 tracking-tight leading-none mt-2">
-            ~{{ AVERAGE_VISA_DAYS }} Days
+            ~{{ averageDays }} Days
           </p>
         </div>
 

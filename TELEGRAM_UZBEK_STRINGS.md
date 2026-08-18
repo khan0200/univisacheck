@@ -135,6 +135,7 @@ NEW: agar siz shunchaki vizani tekshirmoqchi bo'lsangiz, konsalting kabinetiga k
 |---|---|
 | `visa_type_embassy` | `Elchixona orqali` |
 | `visa_type_evisa` | `Elektron (E-Visa)` |
+| `visa_type_regional` | `Regional viza` |
 | `tab_pending` | `⏳ Kutilmoqda` |
 | `tab_application` | `📄 Arizalar` |
 | `tab_cancelled` | `❌ Rad etildi` |

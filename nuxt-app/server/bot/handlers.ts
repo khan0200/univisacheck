@@ -115,37 +115,53 @@ export async function handleTextMessage(ctx: Context) {
     try {
       let dbRes = await db.execute({
         sql: `
-                    SELECT fullname, birthday, visa_type
-                    FROM students
-                    WHERE passport = ? AND deletedAt IS NULL
-                    ORDER BY createdAt DESC
-                    LIMIT 1
-                `,
+          SELECT 
+            COALESCE(NULLIF("fullName", ''), fullname, '') as "fullName",
+            birthday,
+            COALESCE(NULLIF("visaType", ''), visa_type, 'Embassy') as "visaType",
+            COALESCE(NULLIF("applicationNo", ''), application_no, '') as "applicationNo"
+          FROM students
+          WHERE passport = ? AND deletedAt IS NULL
+          ORDER BY createdAt DESC
+          LIMIT 1
+        `,
         args: [passport]
       })
 
-      if (dbRes.rows.length === 0) {
+      if (dbRes.rows.length === 0 || !dbRes.rows[0]?.fullName) {
         dbRes = await db.execute({
           sql: `
-                        SELECT fullname, birthday, visa_type
-                        FROM bot_manual_refreshes
-                        WHERE passport = ?
-                        LIMIT 1
-                    `,
+            SELECT 
+              fullname as "fullName",
+              birthday,
+              visa_type as "visaType",
+              application_no as "applicationNo"
+            FROM bot_manual_refreshes
+            WHERE passport = ?
+            LIMIT 1
+          `,
           args: [passport]
         })
       }
 
       if (dbRes.rows.length > 0) {
-        const row = dbRes.rows[0] as any
-        const dbName = row.fullname || row.fullName || ''
-        const dbDob = row.birthday || ''
+        const row = dbRes.rows[0] as Record<string, unknown>
+        const dbName = String(row.fullName || row.fullname || '').trim()
+        const dbDob = String(row.birthday || '').trim()
+        const dbAppNo = String(row.applicationNo || row.application_no || '').trim()
+        const dbVisaType = String(row.visaType || row.visa_type || '').trim()
+        const effectiveVisaType = visaType || dbVisaType || 'Embassy'
 
         if (dbName && dbDob) {
           await setSessionState(telegramId, 'awaiting_check_autofill_choice', {
-            visaType,
+            visaType: effectiveVisaType,
             passport,
-            autofill: { fullName: dbName, birthday: dbDob }
+            autofill: {
+              fullName: dbName,
+              birthday: dbDob,
+              applicationNo: dbAppNo,
+              visaType: dbVisaType || effectiveVisaType
+            }
           })
 
           await ctx.reply(
@@ -154,7 +170,7 @@ export async function handleTextMessage(ctx: Context) {
               parse_mode: 'Markdown',
               reply_markup: {
                 inline_keyboard: [
-                  [{ text: `${dbName}`, callback_data: 'autofill:yes' }],
+                  [{ text: `👤 ${dbName}`, callback_data: 'autofill:yes' }],
                   [{ text: t('autofill_manual_btn', lang), callback_data: 'autofill:no' }]
                 ]
               }
@@ -384,16 +400,18 @@ export async function handleCallbackQuery(ctx: Context) {
 
     if (choice === 'yes') {
       const { passport, visaType, autofill } = session.data
+      const effectiveVisaType = visaType || autofill?.visaType || 'Embassy'
 
       await setSessionState(telegramId, 'awaiting_check_autofill_confirm', {
         passport,
-        visaType,
+        visaType: effectiveVisaType,
         fullName: autofill.fullName,
-        birthday: autofill.birthday
+        birthday: autofill.birthday,
+        applicationNo: autofill.applicationNo || ''
       })
 
       await ctx.reply(
-        t('autofill_confirm', lang, { name: autofill.fullName, dob: autofill.birthday, visaType }),
+        t('autofill_confirm', lang, { name: autofill.fullName, dob: autofill.birthday, visaType: effectiveVisaType }),
         {
           parse_mode: 'Markdown',
           reply_markup: {
@@ -443,6 +461,7 @@ export async function handleCallbackQuery(ctx: Context) {
           })
         }
       } else {
+        // For E-Visa and Regional mode: always require user to enter the Application Number
         await setSessionState(telegramId, 'awaiting_check_appno', { visaType, passport, fullName, birthday })
         await ctx.reply(t('check_appno_prompt', lang), {
           parse_mode: 'Markdown',
