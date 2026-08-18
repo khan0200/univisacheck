@@ -51,24 +51,7 @@ export default defineEventHandler(async (event) => {
   const student = studentRes.rows[0] as unknown as Record<string, unknown>
   const oldStatus = String(student.status || 'Pending')
 
-  // 3.1. Smart recent check cache (skip redundant external calls within 60s unless forced)
-  const lastCheckedMs = student.lastChecked ? Date.parse(String(student.lastChecked)) : 0
-  const isRecentlyChecked = !body.force && lastCheckedMs && (Date.now() - lastCheckedMs < 60_000)
-  if (isRecentlyChecked && student.status && student.status !== 'Pending') {
-    return {
-      passport,
-      status: oldStatus,
-      applicationDate: String(student.applicationDate || student.application_date || ''),
-      lastChecked: String(student.lastChecked),
-      rejectReason: String(student.rejectReason || ''),
-      pdfUrl: String(student.pdfUrl || ''),
-      statusChanged: false,
-      oldStatus,
-      cached: true
-    }
-  }
-
-  // 4. Run visa check directly (synchronous — fast-fail in 6.5s)
+  // 4. Run visa check directly (synchronous — live portal check)
   console.log(`[Direct Check] Checking passport ${passport} for userId ${userId}`)
   let liveResult
   const visaStartedAt = performance.now()
