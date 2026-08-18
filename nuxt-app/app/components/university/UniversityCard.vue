@@ -8,22 +8,40 @@ const emit = defineEmits<{ open: [university: University] }>()
 const imgError = ref(false)
 
 const programBadges = computed(() => programBadgesFor(props.university))
+
+const normalizedImg = computed(() => {
+  const img = props.university.img
+  if (!img) return ''
+  return img.startsWith('/') || img.startsWith('http') ? img : `/${img}`
+})
+
+const webpSrc = computed(() => {
+  if (!normalizedImg.value || normalizedImg.value.startsWith('http')) return ''
+  return normalizedImg.value.replace(/\.png$/, '.webp')
+})
 </script>
 
 <template>
   <div class="group flex flex-col rounded-xl overflow-hidden bg-white dark:bg-[var(--color-card-dark)] border border-[var(--color-border)] dark:border-white/[0.08] hover:shadow-lg hover:-translate-y-0.5 transition-all">
     <div class="relative h-40 bg-neutral-100 dark:bg-white/5 overflow-hidden">
-      <img
-        v-if="!imgError"
-        :src="university.img"
-        :alt="university.name"
-        class="w-full h-full object-cover"
-        loading="lazy"
-        @error="imgError = true"
-      >
+      <picture v-if="normalizedImg && !imgError">
+        <source
+          v-if="webpSrc"
+          :srcset="webpSrc"
+          type="image/webp"
+        >
+        <img
+          :src="normalizedImg"
+          :alt="university.name"
+          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          @error="imgError = true"
+        >
+      </picture>
       <div
         v-else
-        class="w-full h-full flex items-center justify-center"
+        class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-white/5 dark:to-white/10"
       >
         <UIcon
           name="i-lucide-landmark"

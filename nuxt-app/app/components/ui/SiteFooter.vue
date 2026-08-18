@@ -13,11 +13,17 @@ const links = [
   <footer class="border-t border-[var(--color-border)] dark:border-white/[0.08] mt-8">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
       <div class="flex items-center gap-2.5">
-        <img
-          src="/logo.png"
-          alt="SalomKorea"
-          class="h-8 w-8 rounded-lg object-contain"
-        >
+        <picture>
+          <source srcset="/logo.webp" type="image/webp">
+          <img
+            src="/logo.png"
+            alt="SalomKorea"
+            class="h-8 w-8 rounded-lg object-contain"
+            width="32"
+            height="32"
+            loading="lazy"
+          >
+        </picture>
         <span class="font-semibold text-sm text-[var(--color-text-primary)] dark:text-white">SalomKorea</span>
       </div>
       <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">

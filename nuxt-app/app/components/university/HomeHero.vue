@@ -72,12 +72,20 @@ const infoStrip = [
         </div>
 
         <div class="relative">
-          <div class="rounded-3xl overflow-hidden shadow-xl border border-[var(--color-border)] dark:border-white/[0.08]">
-            <img
-              src="/hero_banner.png"
-              alt="Study in Korea"
-              class="w-full h-auto object-cover"
-            >
+          <div class="rounded-3xl overflow-hidden shadow-xl border border-[var(--color-border)] dark:border-white/[0.08] aspect-square sm:aspect-[4/3] lg:aspect-square bg-neutral-100 dark:bg-white/5">
+            <picture>
+              <source srcset="/hero_banner.webp" type="image/webp">
+              <img
+                src="/hero_banner.png"
+                alt="Study in Korea"
+                class="w-full h-full object-cover"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                width="1024"
+                height="1024"
+              >
+            </picture>
           </div>
           <a
             href="#universitetlar"

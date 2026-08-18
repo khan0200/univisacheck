@@ -45,6 +45,17 @@ const bankChecklist = computed(() => {
     { label: `Qabuldan keyingi 1 kunlik KDB bank hujjati (${u.kdb1DayAfterAdmission || '—'})`, included: Boolean(u.kdb1DayAfterAdmission) }
   ]
 })
+
+const normalizedImg = computed(() => {
+  const img = props.university?.img
+  if (!img) return ''
+  return img.startsWith('/') || img.startsWith('http') ? img : `/${img}`
+})
+
+const webpSrc = computed(() => {
+  if (!normalizedImg.value || normalizedImg.value.startsWith('http')) return ''
+  return normalizedImg.value.replace(/\.png$/, '.webp')
+})
 </script>
 
 <template>
@@ -59,16 +70,23 @@ const bankChecklist = computed(() => {
         class="max-h-[85vh] overflow-y-auto"
       >
         <div class="relative h-56 sm:h-64 bg-neutral-100 dark:bg-white/5">
-          <img
-            v-if="!imgError"
-            :src="props.university.img"
-            :alt="props.university.name"
-            class="w-full h-full object-cover"
-            @error="imgError = true"
-          >
+          <picture v-if="normalizedImg && !imgError">
+            <source
+              v-if="webpSrc"
+              :srcset="webpSrc"
+              type="image/webp"
+            >
+            <img
+              :src="normalizedImg"
+              :alt="props.university.name"
+              class="w-full h-full object-cover"
+              decoding="async"
+              @error="imgError = true"
+            >
+          </picture>
           <div
             v-else
-            class="w-full h-full flex items-center justify-center"
+            class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-white/5 dark:to-white/10"
           >
             <UIcon
               name="i-lucide-landmark"

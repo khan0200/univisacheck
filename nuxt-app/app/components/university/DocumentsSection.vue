@@ -36,11 +36,16 @@ const embassyPreview = embassyDocs.slice(0, 4)
           </p>
         </div>
       </div>
-      <img
-        src="/docs.png"
-        alt="Documents"
-        class="hidden lg:block h-24 w-auto object-contain"
-      >
+      <picture class="hidden lg:block">
+        <source srcset="/docs.webp" type="image/webp">
+        <img
+          src="/docs.png"
+          alt="Documents"
+          class="h-24 w-auto object-contain"
+          loading="lazy"
+          decoding="async"
+        >
+      </picture>
     </div>
 
     <div class="grid sm:grid-cols-2 gap-4 sm:gap-5">

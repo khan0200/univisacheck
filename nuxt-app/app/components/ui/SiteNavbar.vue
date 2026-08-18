@@ -45,11 +45,16 @@ onUnmounted(() => document.removeEventListener('keydown', onEscape))
         to="/"
         class="flex items-center gap-2"
       >
-        <img
-          src="/logo.png"
-          alt="SalomKorea"
-          class="h-9 w-9 rounded-lg object-contain"
-        >
+        <picture>
+          <source srcset="/logo.webp" type="image/webp">
+          <img
+            src="/logo.png"
+            alt="SalomKorea"
+            class="h-9 w-9 rounded-lg object-contain"
+            width="36"
+            height="36"
+          >
+        </picture>
         <span class="font-bold text-[15px] tracking-tight text-[var(--color-text-primary)] dark:text-white">Salom<span class="text-primary-600 dark:text-secondary-300">Korea</span></span>
       </NuxtLink>
 
