@@ -2,9 +2,9 @@
  * server/api/jobs/direct.post.ts
  *
  * Fast-path single-student visa check.
- * Runs the visa.go.kr query synchronously in the same request (no queue),
+ * Runs the visa.go.kr query synchronously in the same request (fast-fail, no queue lag),
  * persists the result to the DB, and publishes a realtime event.
- * Used by the single-row "Check" button in the cabinet for instant feedback.
+ * Used by the single-row "Check" button and the batched auto-check wave dispatcher.
  */
 
 import { getTursoClient } from '../../utils/turso'
@@ -51,7 +51,24 @@ export default defineEventHandler(async (event) => {
   const student = studentRes.rows[0] as unknown as Record<string, unknown>
   const oldStatus = String(student.status || 'Pending')
 
-  // 4. Run visa check directly (synchronous — no queue)
+  // 3.1. Smart recent check cache (skip redundant external calls within 60s unless forced)
+  const lastCheckedMs = student.lastChecked ? Date.parse(String(student.lastChecked)) : 0
+  const isRecentlyChecked = !body.force && lastCheckedMs && (Date.now() - lastCheckedMs < 60_000)
+  if (isRecentlyChecked && student.status && student.status !== 'Pending') {
+    return {
+      passport,
+      status: oldStatus,
+      applicationDate: String(student.applicationDate || student.application_date || ''),
+      lastChecked: String(student.lastChecked),
+      rejectReason: String(student.rejectReason || ''),
+      pdfUrl: String(student.pdfUrl || ''),
+      statusChanged: false,
+      oldStatus,
+      cached: true
+    }
+  }
+
+  // 4. Run visa check directly (synchronous — fast-fail in 6.5s)
   console.log(`[Direct Check] Checking passport ${passport} for userId ${userId}`)
   let liveResult
   const visaStartedAt = performance.now()

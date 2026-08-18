@@ -42,7 +42,7 @@ interface WorkerStudent {
 // visa.go.kr starts timing out when too many lookups are in flight. Tasks are
 // still launched on a 200ms cadence, but this ceiling protects the portal and
 // keeps a slow response from turning the entire batch into timeouts.
-const MAX_CONCURRENT_PORTAL_CHECKS = 6
+const MAX_CONCURRENT_PORTAL_CHECKS = 8
 
 // Normalize status matching utils/visa-status.ts
 function normalizeStatus(status: string): string {

@@ -29,21 +29,17 @@ if (typeof dns.setDefaultResultOrder === 'function') {
 }
 
 const HOST = 'www.visa.go.kr'
-// Reuse TLS sockets between staggered queue tasks. The worker starts a new
-// lookup every 200ms, so a small shared pool avoids paying a TLS handshake for
-// every student while still limiting pressure on visa.go.kr.
+// High-performance shared HTTPS agent with keep-alive socket pooling.
+// Reuses TLS sockets to avoid paying a ~900ms TLS handshake on every student lookup.
 const visaAgent = new https.Agent({
   keepAlive: true,
-  maxSockets: 6,
-  maxFreeSockets: 4,
-  timeout: 30_000,
+  maxSockets: 10,
+  maxFreeSockets: 6,
+  timeout: 20_000,
   scheduling: 'lifo'
 })
-let sessionCookies = null
-let sessionFetchedAt = 0
-const SESSION_TTL_MS = 10 * 60 * 1000 // 10 minutes
 
-function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
+function httpReq(method, path, headers, body = null, timeoutMs = 6500) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
@@ -55,13 +51,6 @@ function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
       agent: visaAgent,
       timeout: timeoutMs
     }, (res) => {
-      // Automatically refresh cookies from response
-      const setCookie = res.headers['set-cookie']
-      if (setCookie && setCookie.length > 0) {
-        sessionCookies = setCookie.map(c => c.split(';')[0]).join('; ')
-        sessionFetchedAt = Date.now()
-      }
-
       const chunks = []
       res.on('data', c => chunks.push(c))
       res.on('end', () => resolve({
@@ -81,12 +70,8 @@ function httpReq(method, path, headers, body = null, timeoutMs = 12000) {
   })
 }
 
-async function getSession(force = false) {
-  const now = Date.now()
-  if (!force && sessionCookies && (now - sessionFetchedAt) < SESSION_TTL_MS) {
-    return sessionCookies
-  }
-  return sessionCookies || ''
+async function getSession(_force = false) {
+  return ''
 }
 
 function stripTags(s) {
@@ -391,13 +376,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     reqHeaders['Cookie'] = cookies
   }
 
-  let r
-  try {
-    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 15000)
-  } catch {
-    await new Promise(resolve => setTimeout(resolve, 200))
-    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 15000)
-  }
+  const r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 6500)
 
   // ── Detect result count ───────────────────────────────────────────────────
   // visa.go.kr embeds JS like: if ("3" == 0) { /* no results block */ }
