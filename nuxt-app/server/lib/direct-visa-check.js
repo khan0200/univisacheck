@@ -70,7 +70,7 @@ function httpReq(method, path, headers, body = null, timeoutMs = 6500) {
   })
 }
 
-async function getSession(_force = false) {
+async function getSession() {
   return ''
 }
 
