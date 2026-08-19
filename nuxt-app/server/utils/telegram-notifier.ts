@@ -28,6 +28,18 @@ function isSameStatus(status1: unknown, status2: unknown): boolean {
   return normalizeStatus(status1) === normalizeStatus(status2)
 }
 
+function formatStatusDisplay(status: unknown): string {
+  const norm = normalizeStatus(status)
+  if (norm === 'approved') return 'APPROVED'
+  if (norm === 'cancelled') return 'REJECTED'
+  if (norm === 'supplement submitted') return 'SUPPLEMENT SUBMITTED'
+  if (norm === 'supplement needed') return 'SUPPLEMENT NEEDED'
+  if (norm === 'received') return 'RECEIVED'
+  if (norm === 'under review') return 'UNDER REVIEW'
+  if (norm === 'pending') return 'PENDING'
+  return String(status || 'PENDING').toUpperCase()
+}
+
 function getStatusEmoji(status: unknown): string {
   const normalized = String(status || '').toLowerCase()
   if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued') || normalized.includes('허가') || normalized.includes('발급')) return '🟢'
@@ -247,7 +259,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
       ...((visaType === 'E-Visa' || visaType === 'Regional') && invitingCompany ? [`${labels.partner} ${invitingCompany}`] : []),
       ...((visaType === 'E-Visa' || visaType === 'Regional') && applicationNo ? [`${labels.appNo} ${applicationNo}`] : []),
       `${labels.submitted} ${applicationDate || 'N/A'}`,
-      `${labels.status} ${emoji} ${newStatus.toUpperCase()}`,
+      `${labels.status} ${emoji} ${formatStatusDisplay(newStatus)}`,
       ...(isApprovedNotif && rawEntryDate && rawEntryDate !== applicationDate ? [`${labels.givenDate} ${escapeTelegramText(rawEntryDate)}`] : []),
       '',
       `${labels.checked} ${checkedStr}`, '',

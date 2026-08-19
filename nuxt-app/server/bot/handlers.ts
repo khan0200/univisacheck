@@ -9,8 +9,8 @@ import { InputFile } from 'grammy'
 import { connectUser, disconnectUser, getUserByTelegramId } from '../lib/auth'
 import { checkStudentVisaStatus, downloadStudentVisaPdf } from '../lib/visa'
 import { getSessionState, setSessionState, clearSessionState, handleCabinetMenu } from './commands'
-import { getMainMenuKeyboard, mainMenuKeyboard, getCancelKeyboard, getVisaTypeKeyboard, getSettingsKeyboard } from './keyboards'
-import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked, isSameStatus } from '../lib/cabinet'
+import { getMainMenuKeyboard, mainMenuKeyboard, getCancelKeyboard, getSettingsKeyboard } from './keyboards'
+import { getStatusEmoji, getStatusDescription, refreshStudent, formatStudentCard, getStudentsByTelegramId, formatLastChecked, isSameStatus, formatStatusDisplay, cleanVisaTypeCode } from '../lib/cabinet'
 import { getLang, setLang, t, type Lang } from '../lib/i18n'
 import db from '../lib/turso'
 
@@ -179,8 +179,8 @@ export async function handleTextMessage(ctx: Context) {
           return
         }
       }
-    } catch (dbErr: any) {
-      console.error('[Autofill DB Search Error]:', dbErr.message)
+    } catch (dbErr: unknown) {
+      console.error('[Autofill DB Search Error]:', dbErr instanceof Error ? dbErr.message : String(dbErr))
     }
 
     await setSessionState(telegramId, 'awaiting_check_name', { visaType, passport })
@@ -221,9 +221,10 @@ export async function handleTextMessage(ctx: Context) {
         const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '')
         await clearSessionState(telegramId)
         await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday, telegramId)
-      } catch (err: any) {
+      } catch (err: unknown) {
         await clearSessionState(telegramId)
-        await ctx.reply(t('check_error', lang, { error: err.message }), {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        await ctx.reply(t('check_error', lang, { error: errMsg }), {
           reply_markup: await getMenuKeyboard(telegramId)
         })
       }
@@ -250,9 +251,10 @@ export async function handleTextMessage(ctx: Context) {
       const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, visaType, text)
       await clearSessionState(telegramId)
       await displayCheckResult(ctx, checkRes, passport, visaType, text, fullName, birthday, telegramId)
-    } catch (err: any) {
+    } catch (err: unknown) {
       await clearSessionState(telegramId)
-      await ctx.reply(t('check_error', lang, { error: err.message }), {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      await ctx.reply(t('check_error', lang, { error: errMsg }), {
         reply_markup: await getMenuKeyboard(telegramId)
       })
     }
@@ -456,9 +458,10 @@ export async function handleCallbackQuery(ctx: Context) {
           const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, 'Embassy', '')
           await clearSessionState(telegramId)
           await displayCheckResult(ctx, checkRes, passport, 'Embassy', '', fullName, birthday, telegramId)
-        } catch (err: any) {
+        } catch (err: unknown) {
           await clearSessionState(telegramId)
-          await ctx.reply(t('check_error', lang, { error: err.message }), {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          await ctx.reply(t('check_error', lang, { error: errMsg }), {
             reply_markup: await getMenuKeyboard(telegramId)
           })
         }
@@ -551,12 +554,12 @@ export async function handleCallbackQuery(ctx: Context) {
       })
 
       if (crmRes.rows.length > 0) {
-        const row = crmRes.rows[0] as any
-        fullName = row.fullName || row.fullname || ''
-        birthday = row.birthday || ''
-        visaType = row.visaType || row.visa_type || 'Embassy'
-        applicationNo = row.applicationNo || row.application_no || ''
-        pdfUrl = row.pdfUrl || ''
+        const row = crmRes.rows[0] as Record<string, unknown>
+        fullName = String(row.fullName || row.fullname || '')
+        birthday = String(row.birthday || '')
+        visaType = String(row.visaType || row.visa_type || 'Embassy')
+        applicationNo = String(row.applicationNo || row.application_no || '')
+        pdfUrl = String(row.pdfUrl || '')
       } else {
         const manualRes = await db.execute({
           sql: 'SELECT * FROM bot_manual_refreshes WHERE passport = ? LIMIT 1',
@@ -564,11 +567,11 @@ export async function handleCallbackQuery(ctx: Context) {
         })
 
         if (manualRes.rows.length > 0) {
-          const row = manualRes.rows[0] as any
-          fullName = row.fullname || ''
-          birthday = row.birthday || ''
-          visaType = row.visa_type || 'Embassy'
-          applicationNo = row.application_no || ''
+          const row = manualRes.rows[0] as Record<string, unknown>
+          fullName = String(row.fullname || '')
+          birthday = String(row.birthday || '')
+          visaType = String(row.visa_type || 'Embassy')
+          applicationNo = String(row.application_no || '')
         }
       }
 
@@ -586,9 +589,10 @@ export async function handleCallbackQuery(ctx: Context) {
         caption: t('pdf_caption', lang, { passport, name: fullName }),
         parse_mode: 'Markdown'
       })
-    } catch (err: any) {
+    } catch (err: unknown) {
       await ctx.api.deleteMessage(ctx.chat!.id, progressMsg.message_id).catch(() => {})
-      await ctx.reply(t('pdf_error', lang, { error: err.message }))
+      const errMsg = err instanceof Error ? err.message : String(err)
+      await ctx.reply(t('pdf_error', lang, { error: errMsg }))
     }
     return
   }
@@ -613,11 +617,11 @@ export async function handleCallbackQuery(ctx: Context) {
         return
       }
 
-      const row = res.rows[0] as any
-      const fullName = row.fullname
-      const birthday = row.birthday
-      const visaType = row.visa_type
-      const applicationNo = row.application_no || ''
+      const row = res.rows[0] as Record<string, unknown>
+      const fullName = String(row.fullname || '')
+      const birthday = String(row.birthday || '')
+      const visaType = String(row.visa_type || 'Embassy')
+      const applicationNo = String(row.application_no || '')
 
       const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, visaType, applicationNo)
 
@@ -635,17 +639,31 @@ export async function handleCallbackQuery(ctx: Context) {
       const isApproved = ['approved', 'visa used', 'issued'].some(s => checkRes.latestStatus.toLowerCase().includes(s))
       const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa'
 
-      const checkedStr = formatLastChecked(new Date().toISOString())
+      const rawResidence = cleanVisaTypeCode(checkRes.statusOfResidence || checkRes.visaKind || '')
+      const rawTypeClean = cleanVisaTypeCode(visaType || '')
+
+      let displayVisaType = 'Embassy'
+      if (rawResidence) {
+        displayVisaType = rawResidence
+      } else if (rawTypeClean && !['EMBASSY', 'E-VISA', 'REGIONAL'].includes(rawTypeClean.toUpperCase())) {
+        displayVisaType = rawTypeClean
+      } else if (visaType) {
+        displayVisaType = visaType
+      }
+
+      const isEVisaOrRegional = visaType === 'E-Visa' || visaType === 'Regional'
+
+      const checkedStr = formatLastChecked(new Date().toISOString(), lang)
       const resultText
         = `${t('notif_title', lang)}\n\n`
           + `👤 ${fullName.toUpperCase()}\n`
           + `🛂 ${passport.toUpperCase()}\n`
           + `🎂 ${birthday}\n\n`
-          + `${t('notif_visa_type', lang)} ${checkRes.statusOfResidence || checkRes.visaKind || visaType}\n`
-          + (visaType === 'E-Visa' || visaType === 'Regional' ? `${t('notif_partner', lang)} ${checkRes.invitingCompany || t('notif_na', lang)}\n` : '')
-          + (visaType === 'E-Visa' || visaType === 'Regional' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '')
+          + `${t('notif_visa_type', lang)} ${displayVisaType}\n`
+          + (isEVisaOrRegional && checkRes.invitingCompany ? `${t('notif_partner', lang)} ${checkRes.invitingCompany}\n` : '')
+          + (isEVisaOrRegional && applicationNo ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '')
           + `${t('notif_submitted', lang)} ${checkRes.latestDate || t('notif_na', lang)}\n`
-          + `${t('notif_status', lang)} ${emoji} ${checkRes.latestStatus.toUpperCase()}\n`
+          + `${t('notif_status', lang)} ${emoji} ${formatStatusDisplay(checkRes.latestStatus)}\n`
           + ((isApproved && checkRes.entryDate && checkRes.entryDate !== checkRes.latestDate) ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Viza berilgan sana:'} ${checkRes.entryDate}\n` : '')
           + `\n${t('notif_checked', lang)} ${checkedStr}\n\n`
           + `${t('notif_result', lang)} ${desc}\n`
@@ -653,7 +671,7 @@ export async function handleCallbackQuery(ctx: Context) {
           + (checkRes.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${checkRes.previousRejectionReason}\n` : '')
           + (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${checkRes.pdfUrl})\n` : '')
 
-      const oldStatus = row.status || 'Pending'
+      const oldStatus = String(row.status || 'Pending')
       const changed = !isSameStatus(oldStatus, checkRes.latestStatus)
 
       const inlineKeyboard = {
@@ -687,10 +705,11 @@ export async function handleCallbackQuery(ctx: Context) {
       } else {
         await ctx.answerCallbackQuery().catch(() => {})
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       await ctx.answerCallbackQuery().catch(() => {})
       await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
-      await ctx.reply(t('check_error', lang, { error: err.message }))
+      const errMsg = err instanceof Error ? err.message : String(err)
+      await ctx.reply(t('check_error', lang, { error: errMsg }))
     }
     return
   }
@@ -738,7 +757,7 @@ export async function handleCallbackQuery(ctx: Context) {
       })
 
       if (existing.rows.length > 0) {
-        const row = existing.rows[0] as any
+        const row = existing.rows[0] as Record<string, unknown>
         if (!row.deletedAt) {
           await db.execute({
             sql: `UPDATE students SET
@@ -786,9 +805,10 @@ export async function handleCallbackQuery(ctx: Context) {
       }
 
       await clearSessionState(telegramId)
-    } catch (err: any) {
-      console.error('[Save to Cabinet Error]:', err.message)
-      await ctx.reply(t('save_error', lang, { error: err.message }))
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      console.error('[Save to Cabinet Error]:', errMsg)
+      await ctx.reply(t('save_error', lang, { error: errMsg }))
     }
     return
   }
@@ -797,9 +817,22 @@ export async function handleCallbackQuery(ctx: Context) {
 /**
  * Helper to display the manual visa check result back to the user.
  */
+interface CheckResultDisplayPayload {
+  found?: boolean
+  latestStatus?: string
+  latestDate?: string
+  statusOfResidence?: string
+  visaKind?: string
+  invitingCompany?: string
+  rejectionReason?: string
+  previousRejectionReason?: string
+  pdfUrl?: string
+  entryDate?: string
+}
+
 async function displayCheckResult(
   ctx: Context,
-  result: any,
+  result: CheckResultDisplayPayload,
   passport: string,
   visaType: string,
   applicationNo: string,
@@ -830,8 +863,8 @@ async function displayCheckResult(
         applicationNo
       ]
     })
-  } catch (err: any) {
-    console.error('[Manual Check Database Save Error]:', err.message)
+  } catch (err: unknown) {
+    console.error('[Manual Check Database Save Error]:', err instanceof Error ? err.message : String(err))
   }
 
   let isCabinetConnected = false
@@ -854,8 +887,8 @@ async function displayCheckResult(
           }
         })
       }
-    } catch (err: any) {
-      console.error('[Cabinet Save Check Error]:', err.message)
+    } catch (err: unknown) {
+      console.error('[Cabinet Save Check Error]:', err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -883,28 +916,42 @@ async function displayCheckResult(
     return
   }
 
-  const emoji = getStatusEmoji(result.latestStatus)
-  const desc = getStatusDescription(result.latestStatus)
-  const isApproved = ['approved', 'visa used', 'issued'].some(s => result.latestStatus.toLowerCase().includes(s))
+  const emoji = getStatusEmoji(result.latestStatus || '')
+  const desc = getStatusDescription(result.latestStatus || '')
+  const isApproved = ['approved', 'visa used', 'issued'].some(s => (result.latestStatus || '').toLowerCase().includes(s))
   const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa'
 
-  const checkedStr = formatLastChecked(new Date().toISOString())
+  const rawResidence = cleanVisaTypeCode(result.statusOfResidence || result.visaKind || '')
+  const rawTypeClean = cleanVisaTypeCode(visaType || '')
+
+  let displayVisaType = 'Embassy'
+  if (rawResidence) {
+    displayVisaType = rawResidence
+  } else if (rawTypeClean && !['EMBASSY', 'E-VISA', 'REGIONAL'].includes(rawTypeClean.toUpperCase())) {
+    displayVisaType = rawTypeClean
+  } else if (visaType) {
+    displayVisaType = visaType
+  }
+
+  const isEVisaOrRegional = visaType === 'E-Visa' || visaType === 'Regional'
+
+  const checkedStr = formatLastChecked(new Date().toISOString(), lang)
   const resultText
     = `${t('notif_title', lang)}\n\n`
       + `👤 ${fullName.toUpperCase()}\n`
       + `🛂 ${passport.toUpperCase()}\n`
       + `🎂 ${birthday}\n\n`
-      + `${t('notif_visa_type', lang)} ${result.statusOfResidence || result.visaKind || visaType}\n`
-      + (visaType === 'E-Visa' ? `${t('notif_partner', lang)} ${result.invitingCompany || t('notif_na', lang)}\n` : '')
-      + (visaType === 'E-Visa' ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '')
+      + `${t('notif_visa_type', lang)} ${displayVisaType}\n`
+      + (isEVisaOrRegional && result.invitingCompany ? `${t('notif_partner', lang)} ${result.invitingCompany}\n` : '')
+      + (isEVisaOrRegional && applicationNo ? `${t('notif_app_no', lang)} ${applicationNo}\n` : '')
       + `${t('notif_submitted', lang)} ${result.latestDate || t('notif_na', lang)}\n`
-      + `${t('notif_status', lang)} ${emoji} ${result.latestStatus.toUpperCase()}\n`
+      + `${t('notif_status', lang)} ${emoji} ${formatStatusDisplay(result.latestStatus || '')}\n`
       + ((isApproved && result.entryDate && result.entryDate !== result.latestDate) ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Viza berilgan sana:'} ${result.entryDate}\n` : '')
-        + `\n${t('notif_checked', lang)} ${checkedStr}\n\n`
-        + `${t('notif_result', lang)} ${desc}\n`
-        + (result.rejectionReason ? `\n${t('notif_reason', lang)} ${result.rejectionReason}\n` : '')
-        + (result.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${result.previousRejectionReason}\n` : '')
-        + (result.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${result.pdfUrl})\n` : '')
+      + `\n${t('notif_checked', lang)} ${checkedStr}\n\n`
+      + `${t('notif_result', lang)} ${desc}\n`
+      + (result.rejectionReason ? `\n${t('notif_reason', lang)} ${result.rejectionReason}\n` : '')
+      + (result.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${result.previousRejectionReason}\n` : '')
+      + (result.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${result.pdfUrl})\n` : '')
 
   const inlineKeyboard = {
     inline_keyboard: canDownloadPdf

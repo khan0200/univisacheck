@@ -180,6 +180,28 @@ export function formatLastChecked(dateString: string, lang: 'uz' | 'en' = 'uz'):
   }
 }
 
+export function cleanVisaTypeCode(raw: string): string {
+  if (!raw) return ''
+  const str = String(raw).trim()
+  const match = str.match(/([A-Z]-\d+(?:-\d+)?)/i)
+  if (match && match[1]) {
+    return match[1].toUpperCase()
+  }
+  return str
+}
+
+export function formatStatusDisplay(status: string): string {
+  const norm = normalizeStatus(status)
+  if (norm === 'approved') return 'APPROVED'
+  if (norm === 'cancelled') return 'REJECTED'
+  if (norm === 'supplement submitted') return 'SUPPLEMENT SUBMITTED'
+  if (norm === 'supplement needed') return 'SUPPLEMENT NEEDED'
+  if (norm === 'received') return 'RECEIVED'
+  if (norm === 'under review') return 'UNDER REVIEW'
+  if (norm === 'pending') return 'PENDING'
+  return (status || 'PENDING').toUpperCase()
+}
+
 /**
  * Formats a Telegram student card message.
  */
@@ -199,7 +221,20 @@ export function formatStudentCard(student: Student, _isUpdate: boolean = false, 
   const rawGivenDate = parsedApi.entryDate || ''
   const isApproved = ['APPROVED', 'USED', 'ISSUED'].some(s => (student.status || '').toUpperCase().includes(s))
   const visaGivenDate = (isApproved && rawGivenDate && rawGivenDate !== student.applicationDate) ? rawGivenDate : ''
-  const statusOfResidence = parsedApi.statusOfResidence || parsedApi.visaKind || student.visaType || 'Embassy'
+
+  const rawResidence = cleanVisaTypeCode(parsedApi.statusOfResidence || parsedApi.visaKind || '')
+  const rawTypeClean = cleanVisaTypeCode(student.visaType || '')
+
+  let displayVisaType = 'Embassy'
+  if (rawResidence) {
+    displayVisaType = rawResidence
+  } else if (rawTypeClean && !['EMBASSY', 'E-VISA', 'REGIONAL'].includes(rawTypeClean.toUpperCase())) {
+    displayVisaType = rawTypeClean
+  } else if (student.visaType) {
+    displayVisaType = student.visaType
+  }
+
+  const isEVisaOrRegional = student.visaType === 'E-Visa' || student.visaType === 'Regional'
   const prevReason = parsedApi.previousRejectionReason || ''
 
   const labels = {
@@ -226,11 +261,11 @@ export function formatStudentCard(student: Student, _isUpdate: boolean = false, 
     `🛂 ${student.passport.toUpperCase()}`,
     `🎂 ${student.birthday}`,
     ``,
-    `${labels.visaLbl} ${student.visaType === 'E-Visa' ? 'E-Visa' : statusOfResidence}`,
-    ...(student.visaType === 'E-Visa' && partner ? [`${labels.partner} ${partner}`] : []),
-    ...(student.visaType === 'E-Visa' && student.applicationNo ? [`${labels.appNo} ${student.applicationNo}`] : []),
+    `${labels.visaLbl} ${displayVisaType}`,
+    ...(isEVisaOrRegional && partner ? [`${labels.partner} ${partner}`] : []),
+    ...(isEVisaOrRegional && student.applicationNo ? [`${labels.appNo} ${student.applicationNo}`] : []),
     `${labels.submitted} ${student.applicationDate || labels.na}`,
-    `${labels.status} ${emoji} ${student.status.toUpperCase()}`,
+    `${labels.status} ${emoji} ${formatStatusDisplay(student.status)}`,
     ...(visaGivenDate ? [`${labels.givenDate} ${visaGivenDate}`] : []),
     ``,
     `${labels.checked} ${checkedStr}`,
