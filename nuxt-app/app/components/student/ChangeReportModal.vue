@@ -116,7 +116,11 @@ function handleOpenUpdate(val: boolean) {
             <span class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">O'zgargan</span>
             <div class="flex items-center gap-1.5 mt-1">
               <span class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ studentsStore.sessionChanges.length }}</span>
-              <UIcon v-if="studentsStore.sessionChanges.length > 0" name="i-lucide-arrow-up-right" class="size-4 text-emerald-500" />
+              <UIcon
+                v-if="studentsStore.sessionChanges.length > 0"
+                name="i-lucide-arrow-up-right"
+                class="size-4 text-emerald-500"
+              />
             </div>
           </div>
 
@@ -144,7 +148,11 @@ function handleOpenUpdate(val: boolean) {
               >
                 {{ studentsStore.sessionNoAnswers.length }}
               </span>
-              <UIcon v-if="studentsStore.sessionNoAnswers.length > 0" name="i-lucide-wifi-off" class="size-4 text-rose-500" />
+              <UIcon
+                v-if="studentsStore.sessionNoAnswers.length > 0"
+                name="i-lucide-wifi-off"
+                class="size-4 text-rose-500"
+              />
             </div>
           </div>
         </div>
@@ -159,7 +167,10 @@ function handleOpenUpdate(val: boolean) {
               : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5'"
             @click="activeTab = 'changes'"
           >
-            <UIcon name="i-lucide-sparkles" class="size-3.5" />
+            <UIcon
+              name="i-lucide-sparkles"
+              class="size-3.5"
+            />
             <span>Viza o'zgarishlari</span>
             <span
               class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
@@ -177,7 +188,10 @@ function handleOpenUpdate(val: boolean) {
               : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5'"
             @click="activeTab = 'no-answers'"
           >
-            <UIcon name="i-lucide-alert-circle" class="size-3.5" />
+            <UIcon
+              name="i-lucide-alert-circle"
+              class="size-3.5"
+            />
             <span>Javob olinmaganlar</span>
             <span
               class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
@@ -189,12 +203,18 @@ function handleOpenUpdate(val: boolean) {
         </div>
 
         <!-- TAB CONTENT: Status Changes -->
-        <div v-if="activeTab === 'changes'" class="space-y-3 max-h-[46vh] overflow-y-auto pr-1">
+        <div
+          v-if="activeTab === 'changes'"
+          class="space-y-3 max-h-[46vh] overflow-y-auto pr-1"
+        >
           <div
             v-if="studentsStore.sessionChanges.length === 0"
             class="py-8 text-center space-y-2 border border-dashed border-neutral-200 dark:border-white/10 rounded-xl bg-neutral-50/50 dark:bg-white/[0.01]"
           >
-            <UIcon name="i-lucide-check-circle-2" class="size-8 text-neutral-400 mx-auto" />
+            <UIcon
+              name="i-lucide-check-circle-2"
+              class="size-8 text-neutral-400 mx-auto"
+            />
             <p class="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
               Ushbu tekshiruvda viza statuslarida yangi o'zgarish qayd etilmadi.
             </p>
@@ -225,6 +245,16 @@ function handleOpenUpdate(val: boolean) {
                   class="size-4 text-rose-500 shrink-0"
                 />
                 <UIcon
+                  v-else-if="statusBadgeColor(change.newStatus) === 'warning'"
+                  name="i-lucide-alert-circle"
+                  class="size-4 text-warning-500 shrink-0"
+                />
+                <UIcon
+                  v-else-if="statusBadgeColor(change.newStatus) === 'primary'"
+                  name="i-lucide-file-check"
+                  class="size-4 text-primary-500 shrink-0"
+                />
+                <UIcon
                   v-else
                   name="i-lucide-refresh-cw"
                   class="size-4 text-blue-500 shrink-0"
@@ -233,7 +263,10 @@ function handleOpenUpdate(val: boolean) {
                   {{ change.fullName }}
                 </span>
               </div>
-              <p v-if="change.passport" class="text-[11px] font-mono text-neutral-500 dark:text-neutral-400 pl-6">
+              <p
+                v-if="change.passport"
+                class="text-[11px] font-mono text-neutral-500 dark:text-neutral-400 pl-6"
+              >
                 {{ change.passport }}
               </p>
             </div>
@@ -246,7 +279,10 @@ function handleOpenUpdate(val: boolean) {
               </span>
 
               <!-- Transition Arrow -->
-              <UIcon name="i-lucide-arrow-right" class="size-3.5 text-neutral-400 shrink-0" />
+              <UIcon
+                name="i-lucide-arrow-right"
+                class="size-3.5 text-neutral-400 shrink-0"
+              />
 
               <!-- New Status -->
               <span
@@ -266,12 +302,18 @@ function handleOpenUpdate(val: boolean) {
         </div>
 
         <!-- TAB CONTENT: No Answer / Timed Out -->
-        <div v-if="activeTab === 'no-answers'" class="space-y-3 max-h-[46vh] overflow-y-auto pr-1">
+        <div
+          v-if="activeTab === 'no-answers'"
+          class="space-y-3 max-h-[46vh] overflow-y-auto pr-1"
+        >
           <div
             v-if="studentsStore.sessionNoAnswers.length === 0"
             class="py-8 text-center space-y-2 border border-dashed border-emerald-500/20 rounded-xl bg-emerald-500/5"
           >
-            <UIcon name="i-lucide-shield-check" class="size-8 text-emerald-500 mx-auto" />
+            <UIcon
+              name="i-lucide-shield-check"
+              class="size-8 text-emerald-500 mx-auto"
+            />
             <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
               Barcha tanlangan talabalarning viza ma'lumotlari portal orqali muvaffaqiyatli olindi!
             </p>
@@ -285,7 +327,10 @@ function handleOpenUpdate(val: boolean) {
             <!-- Student Details -->
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-wifi-off" class="size-4 text-rose-500 shrink-0" />
+                <UIcon
+                  name="i-lucide-wifi-off"
+                  class="size-4 text-rose-500 shrink-0"
+                />
                 <span class="font-bold text-neutral-900 dark:text-neutral-100 text-sm">
                   {{ noAns.fullName }}
                 </span>
@@ -294,7 +339,10 @@ function handleOpenUpdate(val: boolean) {
                 </span>
               </div>
               <p class="text-xs text-rose-600 dark:text-rose-400 pl-6 flex items-center gap-1.5">
-                <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
+                <UIcon
+                  name="i-lucide-clock"
+                  class="size-3 shrink-0"
+                />
                 <span>10s timeout bo'ldi — 1 marta qayta tekshirildi, lekin javob bermadi</span>
               </p>
             </div>

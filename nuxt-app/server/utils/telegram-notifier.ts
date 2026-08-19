@@ -15,52 +15,52 @@ function escapeTelegramText(value: unknown): string {
 function normalizeStatus(status: unknown): string {
   const s = String(status || '').trim().toLowerCase()
   if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) return 'pending'
-  if (s.includes('approved') || s.includes('visa used') || s.includes('issued')) return 'approved'
-  if (s.includes('cancel') || s.includes('reject')) return 'cancelled'
-  if (s.includes('received') || s.includes('app/')) return 'received'
-  if (s.includes('under review')) return 'under review'
+  if (s.includes('approved') || s.includes('visa used') || s.includes('issued') || s.includes('tasdiqlangan') || s.includes('ishlatilgan') || s.includes('허가') || s.includes('발급') || s.includes('사용완료')) return 'approved'
+  if (s.includes('cancel') || s.includes('reject') || s.includes('bekor') || s.includes('rad') || s.includes('불허') || s.includes('취소') || s.includes('반려') || s.includes('returned')) return 'cancelled'
+  if (s.includes('supplement submitted') || s.includes('supplement completed') || s.includes('보완완료') || s.includes('보완제출') || s.includes('보완접수')) return 'supplement submitted'
+  if (s.includes('supplement') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) return 'supplement needed'
+  if (s.includes('received') || s.includes('app/') || s.includes('qabul') || s.includes('접수') || s.includes('신청')) return 'received'
+  if (s.includes('under review') || s.includes('ko\'rib') || s.includes('tayyorlanish') || s.includes('심사중') || s.includes('심사 중') || s.includes('처리중') || s.includes('처리 중')) return 'under review'
   return s
 }
 
-function _isSameStatus(status1: unknown, status2: unknown): boolean {
+function isSameStatus(status1: unknown, status2: unknown): boolean {
   return normalizeStatus(status1) === normalizeStatus(status2)
 }
 
 function getStatusEmoji(status: unknown): string {
   const normalized = String(status || '').toLowerCase()
-  if (normalized.includes('approved') || normalized.includes('visa used')) return '🟢'
-  if (normalized.includes('cancel') || normalized.includes('reject')) return '🔴'
-  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료')) return '📝'
-  if (normalized.includes('supplement') || normalized.includes('보완')) return '⚠️'
-  if (normalized.includes('received') || normalized.includes('app/')) return 'orange' // Or emoji
-  if (normalized.includes('under review')) return '🔵'
+  if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued') || normalized.includes('허가') || normalized.includes('발급')) return '🟢'
+  if (normalized.includes('cancel') || normalized.includes('reject') || normalized.includes('불허') || normalized.includes('취소')) return '🔴'
+  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료') || normalized.includes('보완제출') || normalized.includes('보완접수')) return '📝'
+  if (normalized.includes('supplement') || normalized.includes('보완') || normalized.includes('qo\'shimcha') || normalized.includes('asking')) return '⚠️'
+  if (normalized.includes('received') || normalized.includes('app/') || normalized.includes('접수') || normalized.includes('신청')) return '🟠'
+  if (normalized.includes('under review') || normalized.includes('심사중') || normalized.includes('심사 중') || normalized.includes('처리중') || normalized.includes('처리 중')) return '🔵'
   return '🔷'
 }
 
 function getStatusEmojiFormatted(status: unknown): string {
-  const emoji = getStatusEmoji(status)
-  if (emoji === 'orange') return '' // standard emoji
-  return emoji
+  return getStatusEmoji(status)
 }
 
 function getStatusDescription(status: unknown, lang = 'uz'): string {
   const normalized = String(status || '').toLowerCase()
-  if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued')) {
+  if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued') || normalized.includes('허가') || normalized.includes('발급')) {
     return lang === 'en' ? 'Congratulations 🎉' : 'Tabriklaymiz 🎉'
   }
-  if (normalized.includes('cancel') || normalized.includes('reject')) {
+  if (normalized.includes('cancel') || normalized.includes('reject') || normalized.includes('불허') || normalized.includes('취소')) {
     return lang === 'en' ? 'Your application was rejected.' : 'Arizangiz rad etildi.'
   }
-  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료')) {
+  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료') || normalized.includes('보완제출') || normalized.includes('보완접수')) {
     return lang === 'en' ? '📝 Supplementary documents have been submitted and are under review.' : '📝 Qo\'shimcha hujjatlar topshirildi va ko\'rib chiqilmoqda.'
   }
-  if (normalized.includes('supplement') || normalized.includes('보완')) {
+  if (normalized.includes('supplement') || normalized.includes('보완') || normalized.includes('qo\'shimcha') || normalized.includes('asking')) {
     return lang === 'en' ? '⚠️ Additional documents required (Supplement Needed).' : '⚠️ Qo\'shimcha hujjatlar talab qilinmoqda (Qo\'shimcha hujjat kerak).'
   }
-  if (normalized.includes('received') || normalized.includes('app/')) {
+  if (normalized.includes('received') || normalized.includes('app/') || normalized.includes('접수') || normalized.includes('신청')) {
     return lang === 'en' ? '⏳ Your application is being processed.' : '⏳ Arizangiz jarayonda.'
   }
-  if (normalized.includes('under review')) {
+  if (normalized.includes('under review') || normalized.includes('심사중') || normalized.includes('심사 중') || normalized.includes('처리중') || normalized.includes('처리 중')) {
     return lang === 'en' ? '🔎 Under review.' : '🔎 Ko\'rib chiqilmoqda.'
   }
   return lang === 'en' ? 'Status updated.' : 'Status yangilandi.'
@@ -189,9 +189,8 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     entryDate: rawEntryDate
   } = payload
 
-  if (rawOldStatus && rawNewStatus && rawOldStatus === rawNewStatus) {
-    // Only skip exact string duplicates (caller already handles normalized dedup via lastNotifiedStatus)
-    return { ok: true, skipped: 'Identical status string — no change' }
+  if (rawOldStatus && rawNewStatus && isSameStatus(rawOldStatus, rawNewStatus)) {
+    return { ok: true, skipped: 'Normalized status unchanged — no change' }
   }
 
   const fullName = escapeTelegramText(rawFullName)

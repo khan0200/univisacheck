@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Student, StatusFilter, VisaTypeFilter } from '~/types/student'
-import { bucketForStatus, displayStatusText, isUnderReviewStatus, isSupplementStatus, isSupplementSubmittedStatus } from '~/utils/visa-status'
+import { bucketForStatus, displayStatusText, isUnderReviewStatus, isSupplementStatus, isSupplementSubmittedStatus, normalizeStatusForComparison } from '~/utils/visa-status'
 
 export const useStudentsStore = defineStore('students', () => {
   const students = ref<Student[]>([])
@@ -274,7 +274,7 @@ export const useStudentsStore = defineStore('students', () => {
     const oldStatus = target.status
     const newStatus = changes.status
 
-    if (newStatus && oldStatus !== newStatus) {
+    if (newStatus && normalizeStatusForComparison(oldStatus) !== normalizeStatusForComparison(newStatus)) {
       if (isCheckingSession.value) {
         // Prevent duplicate entries for the same student
         const exists = sessionChanges.value.some(c => c.passport === target.passport || c.fullName === target.fullName)

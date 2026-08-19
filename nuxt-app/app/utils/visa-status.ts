@@ -235,8 +235,10 @@ export function normalizeStatusForComparison(status: string | undefined | null):
   if (!str || str === 'pending' || str === 'unknown' || str.includes('error')) return 'pending'
   if (str.includes('approved') || str.includes('visa used') || str.includes('issued')) return 'approved'
   if (str.includes('cancel') || str.includes('reject')) return 'cancelled'
+  if (isSupplementSubmittedStatus(str)) return 'supplement submitted'
+  if (isSupplementNeededStatus(str) || isSupplementStatus(str)) return 'supplement needed'
   if (str.includes('received') || str.includes('app/')) return 'received'
-  if (str.includes('under review')) return 'under review'
+  if (isUnderReviewStatus(str)) return 'under review'
   return str
 }
 
