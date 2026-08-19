@@ -881,7 +881,7 @@
     "tuition": "4,373,800 - 5,939,800 KRW / semestr",
     "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 59+",
     "visaStatus": "Standart Tekshiruv",
-    "visaDetails": "BAKALAVR UCHUN Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "visaDetails": "Bakalavr uchun standart viza tekshiruvi tartibi amal qiladi (elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish talab etiladi). Magistratura E-Visa bosqichida esa elchixonaga ota-ona daromadi va 1 oylik KDB ko'chirmasi TALAB ETILMAYDI.",
     "kdb1DayAfterAdmission": "$16,000 USD (20,000,000 KRW)",
     "description": "Gachon Gyeonggi viloyati Seongnam shahrida joylashgan nufuzli universitet bo'lib, Seul metrosiga bevosita ulangan. Tibbiyot va muhandislik sohalarida yetakchi o'rinda turadi.",
     "englishTrackMajors": [
@@ -992,7 +992,7 @@
     "tuition": "2,016,000 – 2,779,000 KRW / semestr",
     "language": "TOPIK 3+ | IELTS 5.5+",
     "visaStatus": "Standart Tekshiruv",
-    "visaDetails": "Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "visaDetails": "Bakalavr uchun standart viza tekshiruvi tartibi amal qiladi (elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish talab etiladi). Magistratura E-Visa bosqichida esa elchixonaga ota-ona daromadi va 1 oylik KDB ko'chirmasi TALAB ETILMAYDI.",
     "description": "Jeonbuk National University — Janubiy Koreyaning Jeonju shahrida joylashgan yetakchi milliy davlat universiteti (1947-yil). Arzon kontrakt narxlari (2.0M - 2.7M KRW), keng kampus va saxiy 2026 Fall grant dasturlariga ega.",
     "englishTrackMajors": [
       "International Studies",
@@ -1405,7 +1405,7 @@
     "tuition": "1,797,000 - 2,539,000 KRW / semestr",
     "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+",
     "visaStatus": "Standart Tekshiruv",
-    "visaDetails": "Universitet 1% lik emas BAKALAVR UCHUN (Standart Akkreditatsiyalangan Davlat Milliy Universiteti). Elchixona viza bosqichida 1-Oylik KDB bank ko'chirmasi ($13,000 USD / KRW 16,000,000) hamda Ota-ona daromad manbai ma'lumotnomasi TALAB ETILADI.",
+    "visaDetails": "Bakalavr uchun standart viza tekshiruvi tartibi amal qiladi (elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish talab etiladi). Magistratura E-Visa bosqichida esa elchixonaga ota-ona daromadi va 1 oylik KDB ko'chirmasi TALAB ETILMAYDI.",
     "kdb1DayAfterAdmission": "$13,000 USD (KRW 16,000,000)",
     "description": "1947-yilda tashkil etilgan yirik Davlat Milliy Universiteti (KNU). Chuncheon (Seuldan 1 soat) va Samcheok kampuslarida 110 dan ortiq yo'nalishlar, arzon kontrakt (1.79 mln KRW dan) va TOPIK 5+ bilan 100% grant taklif etadi.",
     "englishTrackMajors": [
@@ -1463,17 +1463,17 @@
     "programs": "95+",
     "appFee": "65,000 KRW",
     "badge1": "Medical Leader",
-    "badge2": "Private University",
+    "badge2": "Regional University",
     "badge1Class": "badge-blue",
     "brandColor": "#1c3d5a",
     "statusTag": "📜 Akkreditatsiyaga ega",
     "is1Percent": false,
     "tuition": "3,673,800 - 4,773,800 KRW / semestr",
     "language": "TOPIK 3+ yoki IELTS 5.5+",
-    "visaStatus": "Standart Tekshiruv",
-    "visaDetails": "Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "visaStatus": "Regional Viza",
+    "visaDetails": "Regional viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
     "kdb1DayAfterAdmission": "$13,000 USD",
-    "description": "Hallym University Gangwon viloyatining Chuncheon shahrida joylashgan nufuzli xususiy universitet. Tibbiyot, media va biznes yo'nalishlarida kuchli ta'lim dasturlariga ega.",
+    "description": "Hallym University Gangwon viloyatining Chuncheon shahrida joylashgan nufuzli xususiy universitet. Tibbiyot, media va biznes yo'nalishlarida kuchli ta'lim dasturlariga ega. Regional viza doirasida ota-ona daromad manbai va 1-oylik KDB bank ko'chirmasi talab etilmaydi.",
     "englishTrackMajors": [
       "Global Business"
     ],
@@ -1658,7 +1658,7 @@
     "tuition": "2,800,000 - 3,700,000 KRW / semestr",
     "language": "TOPIK 3+ | IELTS 6.0+",
     "visaStatus": "Standart Tekshiruv",
-    "visaDetails": "BAKALAVR UCHUN Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai ma'lumotnomasi va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "visaDetails": "Bakalavr uchun standart viza tekshiruvi tartibi amal qiladi (elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish talab etiladi). Magistratura E-Visa bosqichida esa elchixonaga ota-ona daromadi va 1 oylik KDB ko'chirmasi TALAB ETILMAYDI.",
     "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
     "description": "Busan shahrida joylashgan nufuzli xususiy universitet. Kompyuter Dasturlash, Biznes hamda Mehmonxona boshqaruvi yo'nalishlarida ingliz va koreys tili dasturlarini taklif etadi. Bakalavr bosqichida darslar haftasiga 4 kun tashkil etiladi.",
     "englishTrackMajors": [
@@ -1707,7 +1707,7 @@
     "tuition": "3,857,000 - 4,450,600 KRW / semestr",
     "language": "TOPIK 3+ | IELTS 5.5+ | TOEFL 71+ | New TEPS 327+",
     "visaStatus": "Standart Tekshiruv",
-    "visaDetails": "BAKALAVR UCHUN Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI.",
+    "visaDetails": "Bakalavr uchun standart viza tekshiruvi tartibi amal qiladi (elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish talab etiladi). Magistratura E-Visa bosqichida esa elchixonaga ota-ona daromadi va 1 oylik KDB ko'chirmasi TALAB ETILMAYDI.",
     "kdb1DayAfterAdmission": "$13,000 USD",
     "description": "Dong-A Universiteti Busanning eng nufuzli xususiy universitetlaridan biridir. Bumin, Seunghak va Gudeok shaharchalarida joylashgan bo'lib, biznes, muhandislik va tibbiyot yo'nalishlarida kuchli ta'lim beradi.",
     "englishTrackMajors": [
@@ -2062,12 +2062,14 @@
     "language": "TOPIK 3+ yoki IELTS 5.5+",
     "visaStatus": "Magistr E-Viza",
     "visaDetails": "Magistr E-Viza tartibi amal qiladi. Elchixonaga ota-ona daromadi va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
-    "kdb1DayAfterAdmission": "$13,000 USD",
+    "kdb1DayAfterAdmission": "$18,000 USD",
     "description": "Anyang Universiteti 1948-yilda tashkil topgan nufuzli xususiy universitetdir. Seul aglomeratsiyasining Anyang shahrida joylashgan bo'lib, global biznes, raqamli kontentlar va muhandislik sohalarida yuqori sifatli ta'lim beradi.",
-    "englishTrackMajors": [
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [],
+    "englishTrackMasters": [
       "Business Administration"
     ],
-    "koreanTrackMajors": [
+    "koreanTrackMasters": [
       "K-Contents and Business"
     ],
     "scholarships": [
@@ -2234,7 +2236,7 @@
     "founded": "1994",
     "programs": "70+",
     "badge1": "Magistr E-Viza",
-    "badge2": "Haftada 1 kun",
+    "badge2": "",
     "badge1Class": "badge-gold",
     "brandColor": "#1a365d",
     "statusTag": "⚡ Magistr E-Viza Imkoniyati",
@@ -2243,14 +2245,16 @@
     "appFee": "50,000 KRW",
     "language": "IELTS 5.5+ yoki TOPIK 3+",
     "visaStatus": "Magistr E-Viza",
-    "visaDetails": "Magistratura E-Visa imkoniyati amal qiladi. Haftada 1 kunlik darslar. Elchixonaga ota-ona daromad manbai va KDB bank ko'chirmasi topshirish TALAB ETILMAYDI.",
+    "visaDetails": "Magistratura E-Visa tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 1 oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI (faqat qabuldan so'ng 1 kunlik KDB ko'chirmasi topshiriladi).",
     "kdb1DayAfterAdmission": "$13,000 USD (16,000,000 KRW)",
     "description": "Cheonan shahrida joylashgan Magistratura E-Visa dasturi. Global Hospitality and Management. IELTS 5.5+ yoki TOPIK 3 bilan 25% semestr chegirmasi (2,437,500 KRW).",
-    "englishTrackMajors": [
+    "englishTrackMajors": [],
+    "koreanTrackMajors": [],
+    "englishTrackMasters": [
       "Global Hospitality Management",
       "International Business"
     ],
-    "koreanTrackMajors": [
+    "koreanTrackMasters": [
       "Global Hospitality Management",
       "International Business"
     ],
@@ -2721,7 +2725,7 @@
     "location": "GUNSAN (JEOLLABUK-DO)",
     "address": "📍 608 Kunjang-daero, Seongsan-myeon, Gunsan-si, Jeollabuk-do, South Korea",
     "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVeXbDXSnOe0tHcBXtT4vjWsyurEDxh5gsjKhsOhzoP_osGDI9CngmBWA&s=10",
-    "qsRank": "Kollej (Regional Hudud)",
+    "qsRank": "Kollej",
     "founded": "1994",
     "programs": "35+",
     "appFee": "50,000 KRW",
@@ -2866,17 +2870,17 @@
     "programs": "50+",
     "appFee": "0 KRW",
     "badge1": "Licensed Uni",
-    "badge2": "1-2 Days Lesson a Week",
+    "badge2": "Regional University",
     "badge1Class": "badge-blue",
     "brandColor": "#1d3557",
     "statusTag": "📜 Akkreditatsiyaga ega",
     "is1Percent": false,
     "tuition": "$2,500 - $3,400 / semestr (Asl kontrakt)",
     "language": "IELTS 5.5 | TOPIK 3",
-    "visaStatus": "Standart Tekshiruv",
-    "visaDetails": "Standart viza tekshiruvi. Elchixonaga ota-ona yillik daromadi ma'lumotnomasi va $13,000 USD (16,000,000 KRW) miqdoridagi 1 oylik KDB bank ko'chirmasi topshirish talab etiladi.",
-    "kdb1DayAfterAdmission": "$13,000 USD (1 oylik KDB)",
-    "description": "Eumseong shahrida joylashgan universitet. Haftasiga faqat 1-2 kunlik moslashuvchan o'qish tizimi mavjud. Kirish uchun intervyudan o'tish talab etiladi. Ariza topshirish to'lovi (App Fee) mavjud emas.",
+    "visaStatus": "Regional Viza",
+    "visaDetails": "Standart tekshiruvda ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi kerak. Regional tartibda esa kerak emas.",
+    "kdb1DayAfterAdmission": "$13,000 USD",
+    "description": "Eumseong shahrida joylashgan universitet. Regional dastur mavjud. Standart tekshiruvda ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi kerak, Regional tartibda esa kerak emas.",
     "englishTrackMajors": [
       "Business Administration",
       "Hotel Management",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { University } from '~/types/university'
-import { programBadgesFor } from '~/composables/useUniversities'
+import { programBadgesFor, isRegional, hasMasterEvisa, hasBachelorProgram } from '~/composables/useUniversities'
 
 const props = defineProps<{ open: boolean, university: University | null }>()
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
@@ -16,10 +16,14 @@ const TABS: { v: 'info' | 'majors' | 'grants', l: string }[] = [
   { v: 'grants', l: 'Imtiyozlar' }
 ]
 
+const hasDualVisaTracks = computed(() => Boolean(props.university && hasBachelorProgram(props.university) && hasMasterEvisa(props.university)))
+const visaTrack = ref<'bachelor' | 'master-evisa'>('bachelor')
+
 watch(() => props.open, (open) => {
   if (open) {
     tab.value = 'info'
     imgError.value = false
+    visaTrack.value = (props.university && !hasBachelorProgram(props.university) && hasMasterEvisa(props.university)) ? 'master-evisa' : 'bachelor'
   }
 })
 
@@ -36,12 +40,56 @@ const parseMajor = (majorStr: string) => {
   return { name: majorStr, detail: '' }
 }
 
+const isExempt = computed(() => {
+  const u = props.university
+  if (!u) return false
+  if (hasDualVisaTracks.value) {
+    return visaTrack.value === 'master-evisa'
+  }
+  return Boolean(
+    u.is1Percent ||
+    isRegional(u) ||
+    u.name === 'Anyang University' ||
+    u.name === 'Namseoul University' ||
+    hasMasterEvisa(u) ||
+    u.visaStatus?.toLowerCase().includes('e-viza') ||
+    u.visaDetails?.toLowerCase().includes('talab etilmaydi')
+  )
+})
+
+const activeVisaStatus = computed(() => {
+  const u = props.university
+  if (!u) return ''
+  if (hasDualVisaTracks.value) {
+    return visaTrack.value === 'master-evisa' ? 'Magistr E-Viza' : 'Standart Tekshiruv'
+  }
+  if (u.name === 'Namseoul University') return 'Magistr E-Viza'
+  if (isRegional(u) && (u.visaStatus === 'Standart Tekshiruv' || !u.visaStatus)) return 'Regional Viza'
+  return u.visaStatus || 'Standart Tekshiruv'
+})
+
+const activeVisaDetails = computed(() => {
+  const u = props.university
+  if (!u) return ''
+  if (hasDualVisaTracks.value) {
+    if (visaTrack.value === 'master-evisa') {
+      return "Magistratura E-Visa tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 1 oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI (faqat qabuldan so'ng 1 kunlik KDB ko'chirmasi topshiriladi)."
+    } else {
+      return "BAKALAVR UCHUN Standart viza tekshiruvi tartibi. Elchixonaga ota-ona daromad manbai va 31 kunlik KDB ko'chirmasi topshirish TALAB ETILADI."
+    }
+  }
+  if (isRegional(u) && u.visaDetails.includes('TALAB ETILADI')) {
+    return "Regional viza tartibi amal qiladi. Elchixonaga ota-ona daromad manbai va 1-oylik KDB bank ko'chirmasi topshirish TALAB ETILMAYDI."
+  }
+  return u.visaDetails
+})
+
 const bankChecklist = computed(() => {
   const u = props.university
   if (!u) return []
   return [
-    { label: 'Ota-ona daromad manbai hujjati', included: !u.is1Percent },
-    { label: '1 oylik KDB bank ko\'chirmasi', included: !u.is1Percent },
+    { label: 'Ota-ona daromad manbai hujjati', included: !isExempt.value },
+    { label: '1 oylik KDB bank ko\'chirmasi', included: !isExempt.value },
     { label: `Qabuldan keyingi 1 kunlik KDB bank hujjati (${u.kdb1DayAfterAdmission || '—'})`, included: Boolean(u.kdb1DayAfterAdmission) }
   ]
 })
@@ -209,18 +257,41 @@ const webpSrc = computed(() => {
               <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-2">
                 Viza &amp; Bank Shartlari
               </p>
+
+              <div
+                v-if="hasDualVisaTracks"
+                class="flex items-center gap-1.5 p-1 rounded-lg bg-neutral-100 dark:bg-white/5 mb-3"
+              >
+                <button
+                  type="button"
+                  class="flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all"
+                  :class="visaTrack === 'bachelor' ? 'bg-white dark:bg-primary-900 text-primary-900 dark:text-white shadow-sm' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'"
+                  @click="visaTrack = 'bachelor'"
+                >
+                  Bakalavr (Standart)
+                </button>
+                <button
+                  type="button"
+                  class="flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all"
+                  :class="visaTrack === 'master-evisa' ? 'bg-primary-900 text-white shadow-sm' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'"
+                  @click="visaTrack = 'master-evisa'"
+                >
+                  Magistratura (E-Visa)
+                </button>
+              </div>
+
               <UBadge
-                :color="props.university.is1Percent ? 'success' : 'warning'"
+                :color="props.university.is1Percent ? 'success' : isRegional(props.university) ? 'info' : (activeVisaStatus.includes('E-Viza') ? 'primary' : 'warning')"
                 variant="solid"
                 class="mb-2"
               >
-                {{ props.university.visaStatus }}
+                {{ activeVisaStatus }}
               </UBadge>
               <p
-                v-if="props.university.visaDetails"
+                v-if="activeVisaDetails"
                 class="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-3"
               >
-                {{ props.university.visaDetails }}
+                {{ activeVisaDetails }}
               </p>
               <div class="space-y-1.5">
                 <div
@@ -234,6 +305,33 @@ const webpSrc = computed(() => {
                     class="size-4 shrink-0"
                   />
                   <span :class="item.included ? 'text-[var(--color-text-primary)] dark:text-white' : 'text-[var(--color-text-secondary)] line-through'">{{ item.label }}</span>
+                </div>
+              </div>
+              <div
+                v-if="hasDualVisaTracks && visaTrack === 'bachelor'"
+                class="flex items-start gap-2 p-2.5 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 text-blue-900 dark:text-blue-200 text-xs leading-relaxed mt-2.5"
+              >
+                <UIcon
+                  name="i-lucide-info"
+                  class="size-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
+                />
+                <p>
+                  <strong>Magistr E-Visa uchun:</strong> Ota-ona daromad manbai va 1 oylik KDB bank ko'chirmasi <u>kerak emas</u>. Yuqoridagi "Magistratura (E-Visa)" tugmasi orqali shartlarni ko'rishingiz mumkin.
+                </p>
+              </div>
+              <div
+                v-if="props.university.name === 'Far East University'"
+                class="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs leading-relaxed mt-3"
+              >
+                <UIcon
+                  name="i-lucide-alert-triangle"
+                  class="size-4.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+                />
+                <div>
+                  <p class="font-bold text-[12px] mb-0.5 text-amber-950 dark:text-amber-100">
+                    Muhim ogohlantirish:
+                  </p>
+                  <p>Standart tekshiruvda ota-ona daromadi va 31 kunlik KDB bank ko'chirmasi kerak. Regional tartibda esa kerak emas.</p>
                 </div>
               </div>
             </div>

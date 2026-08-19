@@ -61,7 +61,8 @@ export default defineEventHandler(async (event) => {
   })
 
   const now = Date.now()
-  if (cachedResponse && now < cacheExpiresAt) {
+  const query = getQuery(event)
+  if (!import.meta.dev && cachedResponse && now < cacheExpiresAt && !query.fresh) {
     return cachedResponse
   }
 

@@ -76,9 +76,10 @@ const COLLEGE_UNIVERSITIES = new Set([
 ])
 
 /** Universities confirmed to carry a "Regional" designation. */
-const REGIONAL_UNIVERSITIES = new Set([
+export const REGIONAL_UNIVERSITIES = new Set([
   'Dong-Eui Institute of Technology',
-  'Hallym University'
+  'Hallym University',
+  'Far East University'
 ])
 
 /** Universities excluded from the catalog entirely (not to be shown as cards). */
@@ -102,15 +103,16 @@ const EXCLUDED_UNIVERSITIES = new Set([
   'Ulsan National Institute of Science and Technology (UNIST)'
 ])
 
-function hasMasterProgram(u: University): boolean {
+export function hasMasterProgram(u: University): boolean {
   return MASTER_UNIVERSITIES.has(u.name)
 }
 
-function hasMasterEvisa(u: University): boolean {
+export function hasMasterEvisa(u: University): boolean {
   return MASTER_EVISA_UNIVERSITIES.has(u.name)
 }
 
-function hasBachelorProgram(u: University): boolean {
+export function hasBachelorProgram(u: University): boolean {
+  if (isCollege(u) || u.name === 'Anyang University' || u.name === 'Namseoul University') return false
   return Boolean((u.majors && u.majors.length) || (u.englishTrackMajors && u.englishTrackMajors.length) || (u.koreanTrackMajors && u.koreanTrackMajors.length))
 }
 
@@ -119,8 +121,13 @@ function isCollege(u: University): boolean {
   return COLLEGE_PATTERN.test(u.type || '') || COLLEGE_PATTERN.test(u.badge1 || '') || COLLEGE_PATTERN.test(u.statusTag || '')
 }
 
-function isRegional(u: University): boolean {
-  return REGIONAL_UNIVERSITIES.has(u.name)
+export function isRegional(u?: University | null): boolean {
+  if (!u) return false
+  if (u.name === 'Kunjang University') return false
+  if (REGIONAL_UNIVERSITIES.has(u.name)) return true
+  if (u.visaStatus && /regional/i.test(u.visaStatus)) return true
+  if (u.badge2 && /regional/i.test(u.badge2)) return true
+  return false
 }
 
 function isLanguageCourse(u: University): boolean {
@@ -157,6 +164,9 @@ export interface ProgramBadge {
 /** Program-type chips shown on a UniversityCard, derived from the same rules as the catalog filters. */
 export function programBadgesFor(u: University): ProgramBadge[] {
   const badges: ProgramBadge[] = []
+  if (u.name === 'Namseoul University') {
+    return [{ key: 'master-evisa', label: 'Magistr E-Viza', class: 'bg-primary-900 text-white' }]
+  }
   if (u.is1Percent) badges.push({ key: '1percent', label: '1% TOP', class: 'bg-secondary-600 text-primary-950' })
   if (hasBachelorProgram(u)) badges.push({ key: 'bachelor', label: 'Bachelor', class: 'bg-blue-600 text-white' })
   if (hasMasterProgram(u)) badges.push({ key: 'master', label: 'Magistr', class: 'bg-violet-600 text-white' })
