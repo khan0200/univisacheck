@@ -33,13 +33,14 @@ const HOST = 'www.visa.go.kr'
 // Reuses TLS sockets to avoid paying a ~900ms TLS handshake on every student lookup.
 const visaAgent = new https.Agent({
   keepAlive: true,
-  maxSockets: 10,
-  maxFreeSockets: 6,
-  timeout: 20_000,
+  maxSockets: 50,
+  maxFreeSockets: 20,
+  timeout: 10_000,
+  keepAliveMsecs: 15_000,
   scheduling: 'lifo'
 })
 
-function httpReq(method, path, headers, body = null, timeoutMs = 10000) {
+function httpReq(method, path, headers, body = null, timeoutMs = 8000) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
@@ -70,8 +71,46 @@ function httpReq(method, path, headers, body = null, timeoutMs = 10000) {
   })
 }
 
-async function getSession() {
-  return ''
+let cachedSessionCookies = ''
+let sessionFetchedAt = 0
+let sessionFetchPromise = null
+const SESSION_TTL_MS = 10 * 60 * 1000 // 10 minutes
+
+async function getSession(force = false) {
+  const now = Date.now()
+  if (!force && cachedSessionCookies && (now - sessionFetchedAt) < SESSION_TTL_MS) {
+    return cachedSessionCookies
+  }
+
+  // Deduplicate concurrent session fetches — only make 1 HTTP GET at a time
+  if (sessionFetchPromise) {
+    return sessionFetchPromise
+  }
+
+  sessionFetchPromise = (async () => {
+    try {
+      const r = await httpReq('GET', '/openPage.do?MENU_ID=10301', {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+      }, null, 8000)
+
+      const setCookies = r.headers['set-cookie'] || []
+      if (Array.isArray(setCookies) && setCookies.length > 0) {
+        cachedSessionCookies = setCookies.map(c => c.split(';')[0]).join('; ')
+        sessionFetchedAt = Date.now()
+        console.log(`[Direct] Session cookies warmed up successfully (${setCookies.length} cookies)`)
+      }
+      return cachedSessionCookies
+    } catch (err) {
+      console.warn('[Direct] Failed to obtain session cookies, proceeding without session:', err.message)
+      return cachedSessionCookies || ''
+    } finally {
+      sessionFetchPromise = null
+    }
+  })()
+
+  return sessionFetchPromise
 }
 
 function stripTags(s) {
@@ -376,9 +415,17 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     reqHeaders['Cookie'] = cookies
   }
 
-  const r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 10000)
-
-  // ── Detect result count ───────────────────────────────────────────────────
+  let r
+  try {
+    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 8000)
+  } catch (err) {
+    console.warn(`[Direct] ${passport} initial query failed (${err.message}). Retrying with fresh session...`)
+    cookies = await getSession(true)
+    if (cookies) {
+      reqHeaders['Cookie'] = cookies
+    }
+    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 8000)
+  }
   // visa.go.kr embeds JS like: if ("3" == 0) { /* no results block */ }
   // When countMatch is null the regex didn't match — DON'T assume 0.
   // Instead fall through to the parser and let it decide.
