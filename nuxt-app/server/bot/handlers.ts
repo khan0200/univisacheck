@@ -301,17 +301,12 @@ export async function handleCallbackQuery(ctx: Context) {
     const passport = callbackData.split(':')[1]!
     const cardMessage = ctx.callbackQuery?.message
 
-    if (cardMessage) {
-      await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {})
-    }
-
     const statusMsg = await ctx.reply(t('refreshing', lang), { parse_mode: 'Markdown' })
 
     const res = await refreshStudent(telegramId, passport)
 
-    await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
-
     if (!res.success) {
+      await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
       await ctx.answerCallbackQuery().catch(() => {})
       await ctx.reply(t('refresh_error', lang, { error: res.error || '' }))
       return
@@ -335,6 +330,12 @@ export async function handleCallbackQuery(ctx: Context) {
 
       await ctx.reply(cardText, { reply_markup: inlineKeyboard })
 
+      // Delete status message and old card only AFTER new card is delivered
+      await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
+      if (cardMessage) {
+        await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {})
+      }
+
       if (!res.changed) {
         await ctx.answerCallbackQuery({
           text: t('no_change', lang, { name: res.student.fullName.toUpperCase() }),
@@ -344,6 +345,7 @@ export async function handleCallbackQuery(ctx: Context) {
         await ctx.answerCallbackQuery().catch(() => {})
       }
     } else {
+      await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
       await ctx.answerCallbackQuery().catch(() => {})
     }
     return
@@ -596,10 +598,6 @@ export async function handleCallbackQuery(ctx: Context) {
     const passport = callbackData.split(':')[1]!.toUpperCase().trim()
     const cardMessage = ctx.callbackQuery?.message
 
-    if (cardMessage) {
-      await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {})
-    }
-
     const statusMsg = await ctx.reply(t('refreshing', lang), { parse_mode: 'Markdown' })
 
     try {
@@ -609,8 +607,8 @@ export async function handleCallbackQuery(ctx: Context) {
       })
 
       if (res.rows.length === 0) {
-        await ctx.answerCallbackQuery().catch(() => {})
         await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
+        await ctx.answerCallbackQuery().catch(() => {})
         await ctx.reply(t('passport_not_found', lang))
         return
       }
@@ -623,9 +621,8 @@ export async function handleCallbackQuery(ctx: Context) {
 
       const checkRes = await checkStudentVisaStatus(passport, fullName, birthday, visaType, applicationNo)
 
-      await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
-
       if (!checkRes.found || (checkRes.latestStatus || '').toUpperCase() === 'UNKNOWN') {
+        await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
         await ctx.answerCallbackQuery().catch(() => {})
         await ctx.reply(t('no_result', lang), {
           reply_markup: await getMenuKeyboard(telegramId)
@@ -650,11 +647,11 @@ export async function handleCallbackQuery(ctx: Context) {
           + `${t('notif_submitted', lang)} ${checkRes.latestDate || t('notif_na', lang)}\n`
           + `${t('notif_status', lang)} ${emoji} ${checkRes.latestStatus.toUpperCase()}\n`
           + ((isApproved && checkRes.entryDate && checkRes.entryDate !== checkRes.latestDate) ? `${lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Viza berilgan sana:'} ${checkRes.entryDate}\n` : '')
-                + `\n${t('notif_checked', lang)} ${checkedStr}\n\n`
-                + `${t('notif_result', lang)} ${desc}\n`
-                + (checkRes.rejectionReason ? `\n${t('notif_reason', lang)} ${checkRes.rejectionReason}\n` : '')
-                + (checkRes.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${checkRes.previousRejectionReason}\n` : '')
-                + (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${checkRes.pdfUrl})\n` : '')
+          + `\n${t('notif_checked', lang)} ${checkedStr}\n\n`
+          + `${t('notif_result', lang)} ${desc}\n`
+          + (checkRes.rejectionReason ? `\n${t('notif_reason', lang)} ${checkRes.rejectionReason}\n` : '')
+          + (checkRes.previousRejectionReason ? `\n${t('notif_prev_reason', lang)} ${checkRes.previousRejectionReason}\n` : '')
+          + (checkRes.pdfUrl && canDownloadPdf ? `\n📄 [${t('notif_pdf_link', lang)}](${checkRes.pdfUrl})\n` : '')
 
       const oldStatus = row.status || 'Pending'
       const changed = !isSameStatus(oldStatus, checkRes.latestStatus)
@@ -675,6 +672,12 @@ export async function handleCallbackQuery(ctx: Context) {
         reply_markup: inlineKeyboard,
         link_preview_options: { is_disabled: true }
       })
+
+      // Delete checking status message and old card only AFTER new card is delivered
+      await ctx.api.deleteMessage(ctx.chat!.id, statusMsg.message_id).catch(() => {})
+      if (cardMessage) {
+        await ctx.api.deleteMessage(ctx.chat!.id, cardMessage.message_id).catch(() => {})
+      }
 
       if (!changed) {
         await ctx.answerCallbackQuery({

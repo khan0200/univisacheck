@@ -39,7 +39,7 @@ const visaAgent = new https.Agent({
   scheduling: 'lifo'
 })
 
-function httpReq(method, path, headers, body = null, timeoutMs = 6500) {
+function httpReq(method, path, headers, body = null, timeoutMs = 10000) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
@@ -376,7 +376,7 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
     reqHeaders['Cookie'] = cookies
   }
 
-  const r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 6500)
+  const r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 10000)
 
   // ── Detect result count ───────────────────────────────────────────────────
   // visa.go.kr embeds JS like: if ("3" == 0) { /* no results block */ }
