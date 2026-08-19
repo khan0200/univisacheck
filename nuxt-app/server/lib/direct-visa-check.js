@@ -92,7 +92,7 @@ async function getSession(force = false) {
       const r = await httpReq('GET', '/openPage.do?MENU_ID=10301', {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Language': 'en-US,en;q=0.9'
       }, null, 8000)
 
       const setCookies = r.headers['set-cookie'] || []
@@ -126,7 +126,7 @@ const KOREAN_STATUS_MAP = [
   { keywords: ['취소'], status: 'CANCELLED' },
   { keywords: ['반려'], status: 'RETURNED' },
   { keywords: ['보완완료', '보완제출', '보완접수'], status: 'SUPPLEMENT SUBMITTED' },
-  { keywords: ['보완요청', '보완요구', '보완'], status: 'SUPPLEMENT NEEDED' },
+  { keywords: ['보완대기', '보완요청', '보완요구', '보완'], status: 'SUPPLEMENT NEEDED' },
   { keywords: ['기한만료'], status: 'EXPIRED' }
 ]
 

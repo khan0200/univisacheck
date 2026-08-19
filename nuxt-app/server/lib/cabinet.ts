@@ -71,7 +71,7 @@ export function normalizeStatus(status: string): string {
   if (s.includes('supplement submitted') || s.includes('supplement completed') || s.includes('보완완료') || s.includes('보완제출') || s.includes('보완접수')) {
     return 'supplement submitted'
   }
-  if (s.includes('supplement') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) {
+  if (s.includes('pending supplement') || s.includes('supplement') || s.includes('보완대기') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) {
     return 'supplement needed'
   }
   if (s.includes('received') || s.includes('app/') || s.includes('qabul') || s.includes('접수') || s.includes('신청')) {

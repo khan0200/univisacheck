@@ -332,6 +332,7 @@ export function isSupplementNeededStatus(statusValue: string | undefined | null)
     || s.includes('pending supplement')
     || s.includes('보완요청')
     || s.includes('보완요구')
+    || s.includes('보완대기')
 }
 
 export function isSupplementStatus(statusValue: string | undefined | null): boolean {

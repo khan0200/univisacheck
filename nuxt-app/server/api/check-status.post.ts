@@ -11,7 +11,7 @@ function normalizeStatus(status: string): string {
   if (s.includes('approved') || s.includes('visa used') || s.includes('issued') || s.includes('tasdiqlangan') || s.includes('ishlatilgan') || s.includes('허가') || s.includes('발급') || s.includes('사용완료')) return 'approved'
   if (s.includes('cancel') || s.includes('reject') || s.includes('bekor') || s.includes('rad') || s.includes('불허') || s.includes('취소') || s.includes('반려') || s.includes('returned')) return 'cancelled'
   if (s.includes('supplement submitted') || s.includes('supplement completed') || s.includes('보완완료') || s.includes('보완제출') || s.includes('보완접수')) return 'supplement submitted'
-  if (s.includes('supplement') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) return 'supplement needed'
+  if (s.includes('pending supplement') || s.includes('supplement') || s.includes('보완대기') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) return 'supplement needed'
   if (s.includes('received') || s.includes('app/') || s.includes('qabul') || s.includes('접수') || s.includes('신청')) return 'received'
   if (s.includes('under review') || s.includes('ko\'rib') || s.includes('tayyorlanish') || s.includes('심사중') || s.includes('심사 중') || s.includes('처리중') || s.includes('처리 중')) return 'under review'
   return s
