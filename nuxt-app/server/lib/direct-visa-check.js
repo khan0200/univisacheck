@@ -361,7 +361,7 @@ function parseResult3_2(html) {
  * @returns {Object} { found: boolean, records: Array, latestStatus: string, latestDate: string, ... }
  */
 async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embassy', applicationNo = '') {
-  const cookies = await getSession()
+  let cookies = await getSession()
   const isEVisa = (visaType === 'E-Visa') && applicationNo
   const isRegional = (visaType === 'Regional') && applicationNo
 
