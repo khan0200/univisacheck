@@ -4,17 +4,10 @@ import { displayStatusText, statusBadgeColor } from '~/utils/visa-status'
 const studentsStore = useStudentsStore()
 const { checkMany } = useVisaCheck()
 
-const open = computed({
-  get: () => studentsStore.showReportModal,
-  set: (val) => {
-    studentsStore.showReportModal = val
-  }
-})
-
 const activeTab = ref<'changes' | 'no-answers'>('changes')
 
 // Watch when modal opens to pick the best active tab
-watch(open, (isOpen) => {
+watch(() => studentsStore.showReportModal, (isOpen) => {
   if (isOpen) {
     if (studentsStore.sessionChanges.length > 0) {
       activeTab.value = 'changes'
@@ -44,20 +37,36 @@ async function handleRetryNoAnswers() {
   }
 }
 
-function close() {
+function closeAndHardRefresh() {
+  if (isRetrying.value) return
   studentsStore.showReportModal = false
   studentsStore.sessionChanges = []
   studentsStore.sessionNoAnswers = []
+
+  if (typeof window !== 'undefined') {
+    window.location.href = '/cabinet'
+    window.location.reload()
+  }
+}
+
+function handleOpenUpdate(val: boolean) {
+  if (!val) {
+    if (!isRetrying.value && studentsStore.showReportModal) {
+      closeAndHardRefresh()
+    }
+  } else {
+    studentsStore.showReportModal = true
+  }
 }
 </script>
 
 <template>
   <UModal
-    :open="open"
+    :open="studentsStore.showReportModal"
     :ui="{
       content: 'sm:max-w-2xl border border-neutral-200 dark:border-white/10 rounded-2xl shadow-2xl bg-white dark:bg-[#121824] overflow-hidden'
     }"
-    @update:open="open = $event"
+    @update:open="handleOpenUpdate"
   >
     <template #body>
       <div class="space-y-6">
@@ -82,6 +91,16 @@ function close() {
               </p>
             </div>
           </div>
+
+          <UButton
+            icon="i-lucide-x"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            class="rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 -mr-2 -mt-2 cursor-pointer"
+            aria-label="Yopish"
+            @click="closeAndHardRefresh"
+          />
         </div>
 
         <!-- Summary KPI Metric Cards -->
@@ -311,8 +330,8 @@ function close() {
         <UButton
           color="primary"
           size="lg"
-          class="px-6 text-white font-semibold rounded-xl shadow-lg transition-all"
-          @click="close"
+          class="px-6 text-white font-semibold rounded-xl shadow-lg transition-all cursor-pointer"
+          @click="closeAndHardRefresh"
         >
           Tushunarli
         </UButton>
