@@ -39,7 +39,14 @@ export const useStudentsStore = defineStore('students', () => {
     failed: 0
   })
 
-  const sessionChanges = ref<{ fullName: string, oldStatus: string, newStatus: string }[]>([])
+  const sessionChanges = ref<{ fullName: string, passport?: string, oldStatus: string, newStatus: string }[]>([])
+  const sessionNoAnswers = ref<{ fullName: string, passport: string, reason?: string }[]>([])
+  const sessionSummary = ref<{ total: number, changed: number, unchanged: number, noAnswer: number }>({
+    total: 0,
+    changed: 0,
+    unchanged: 0,
+    noAnswer: 0
+  })
   const showReportModal = ref(false)
   const isCheckingSession = ref(false)
 
@@ -269,11 +276,16 @@ export const useStudentsStore = defineStore('students', () => {
 
     if (newStatus && oldStatus !== newStatus) {
       if (isCheckingSession.value) {
-        sessionChanges.value.push({
-          fullName: target.fullName,
-          oldStatus,
-          newStatus
-        })
+        // Prevent duplicate entries for the same student
+        const exists = sessionChanges.value.some(c => c.passport === target.passport || c.fullName === target.fullName)
+        if (!exists) {
+          sessionChanges.value.push({
+            fullName: target.fullName,
+            passport: target.passport,
+            oldStatus,
+            newStatus
+          })
+        }
       }
     }
 
@@ -293,9 +305,6 @@ export const useStudentsStore = defineStore('students', () => {
   watch(() => checkingPassports.value.size, (newSize, oldSize) => {
     if (isCheckingSession.value && oldSize > 0 && newSize === 0) {
       isCheckingSession.value = false
-      if (sessionChanges.value.length > 0) {
-        showReportModal.value = true
-      }
     }
   })
 
@@ -323,6 +332,8 @@ export const useStudentsStore = defineStore('students', () => {
     checkingPassports,
     batchCheckProgress,
     sessionChanges,
+    sessionNoAnswers,
+    sessionSummary,
     showReportModal,
     isCheckingSession
   }

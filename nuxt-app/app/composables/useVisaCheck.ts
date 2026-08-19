@@ -31,6 +31,8 @@ interface DirectCheckResponse {
   pdfUrl: string
   statusChanged: boolean
   oldStatus: string
+  success?: boolean
+  error?: string
 }
 
 export function useVisaCheck() {
@@ -51,6 +53,7 @@ export function useVisaCheck() {
     }
 
     studentsStore.sessionChanges = []
+    studentsStore.sessionNoAnswers = []
     studentsStore.isCheckingSession = true
 
     // Set individual student state to checking immediately
@@ -63,40 +66,61 @@ export function useVisaCheck() {
         body: { passport }
       })
 
-      // Update student row immediately in local reactive state without page refresh
-      studentsStore.patchStudent(passport, {
-        status: result.status,
-        applicationDate: result.applicationDate,
-        lastChecked: result.lastChecked,
-        rejectReason: result.rejectReason,
-        pdfUrl: result.pdfUrl,
-        check_source: 'manual',
-        checkSource: 'manual'
-      }, result.lastChecked)
+      if (result.error || result.success === false) {
+        studentsStore.sessionNoAnswers = [{
+          fullName: student.fullName || student.passport,
+          passport: student.passport,
+          reason: result.error || 'Serverdan javob olinmadi'
+        }]
+      } else {
+        // Update student row immediately in local reactive state without page refresh
+        studentsStore.patchStudent(passport, {
+          status: result.status,
+          applicationDate: result.applicationDate,
+          lastChecked: result.lastChecked,
+          rejectReason: result.rejectReason,
+          pdfUrl: result.pdfUrl,
+          check_source: 'manual',
+          checkSource: 'manual'
+        }, result.lastChecked)
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error(`[Visa Check Direct] Failed for ${passport}:`, msg)
+      studentsStore.sessionNoAnswers = [{
+        fullName: student.fullName || student.passport,
+        passport: student.passport,
+        reason: msg
+      }]
     } finally {
       // Remove checking state
       studentsStore.checkingPassports.delete(passport)
       studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+      studentsStore.isCheckingSession = false
     }
   }
 
   /**
-   * Batched Concurrent AutoCheck — High-Performance Staggered Direct Wave Dispatcher
+   * Batched Concurrent AutoCheck — 10-Student Chunked Dispatcher with 1x Auto-Retry
    *
-   * - Launches students directly via /api/jobs/direct in staggered waves of 4.
-   * - 150ms stagger between launching waves without waiting for in-flight requests.
-   * - Each student row updates immediately in local reactive state as soon as their check resolves (~500ms).
-   * - Live Activity / Dynamic Island progress bar tracks completed/failed counts in real time.
-   * - No server queue insertion, no database locking, no `queued` delay.
+   * 1. Sends students in chunks of 10 concurrently.
+   * 2. Waits for Chunk 1 to complete before sending Chunk 2.
+   * 3. Collects any students that returned "No Answer" / Timeout / Network error.
+   * 4. Automatically retries all failed students ONCE.
+   * 5. Compiles session report (Status Changes + No Answer / Unreachable) and opens summary modal.
    */
   async function checkMany(students: Student[]): Promise<{ completed: number, failed: number }> {
     const list = students.filter(s => s.passport && !studentsStore.checkingPassports.has(s.passport))
     if (list.length === 0) return { completed: 0, failed: 0 }
 
     studentsStore.sessionChanges = []
+    studentsStore.sessionNoAnswers = []
+    studentsStore.sessionSummary = {
+      total: list.length,
+      changed: 0,
+      unchanged: 0,
+      noAnswer: 0
+    }
     studentsStore.isCheckingSession = true
     studentsStore.batchCheckProgress = {
       active: true,
@@ -105,24 +129,25 @@ export function useVisaCheck() {
       failed: 0
     }
 
-    let completedCount = 0
-    let failedCount = 0
-
-    // Mark all as processing immediately (NO 'queued' status!)
+    // Mark all as processing in reactive state
     for (const student of list) {
       studentsStore.checkingPassports.set(student.passport, 'processing')
     }
     studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
 
-    async function checkStudent(student: Student): Promise<void> {
+    async function checkStudentDirect(student: Student): Promise<{ success: boolean, error?: string }> {
       const passport = student.passport
-      if (!passport) return
+      if (!passport) return { success: false, error: 'Missing passport' }
 
       try {
         const result = await apiFetch<DirectCheckResponse>('/api/jobs/direct', {
           method: 'POST',
           body: { passport }
         })
+
+        if (result.error || result.success === false) {
+          return { success: false, error: result.error || 'Serverdan javob olinmadi (Timeout)' }
+        }
 
         studentsStore.patchStudent(passport, {
           status: result.status,
@@ -133,41 +158,117 @@ export function useVisaCheck() {
           check_source: 'manual',
           checkSource: 'manual'
         }, result.lastChecked)
-        completedCount++
+
+        return { success: true }
       } catch (err) {
-        failedCount++
         const msg = err instanceof Error ? err.message : String(err)
-        console.error(`[Visa Check Batch] Check failed for ${passport}:`, msg)
-      } finally {
-        studentsStore.batchCheckProgress.completed = completedCount + failedCount
-        studentsStore.batchCheckProgress.failed = failedCount
-        studentsStore.checkingPassports.delete(passport)
-        studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+        console.error(`[Visa Check Batch] Error for ${passport}:`, msg)
+        return { success: false, error: msg }
       }
     }
 
-    const BATCH_SIZE = 4
-    const BATCH_DELAY = 150
-    const allInFlightPromises: Promise<void>[] = []
+    const CHUNK_SIZE = 10
+    const STAGGER_DELAY = 150 // 150ms delay between student dispatches
+    const firstPassFailed: { student: Student, reason?: string }[] = []
+    let completedCount = 0
 
-    for (let i = 0; i < list.length; i += BATCH_SIZE) {
-      const batch = list.slice(i, i + BATCH_SIZE)
-      for (const s of batch) {
-        allInFlightPromises.push(checkStudent(s))
+    // --- PASS 1: Chunked batches of 10 students with 150ms stagger ---
+    for (let i = 0; i < list.length; i += CHUNK_SIZE) {
+      const chunk = list.slice(i, i + CHUNK_SIZE)
+      const inFlightPromises: Promise<void>[] = []
+
+      for (let j = 0; j < chunk.length; j++) {
+        const student = chunk[j]!
+        inFlightPromises.push(
+          (async () => {
+            const res = await checkStudentDirect(student)
+            if (res.success) {
+              completedCount++
+            } else {
+              firstPassFailed.push({ student, reason: res.error })
+            }
+            studentsStore.batchCheckProgress.completed = completedCount
+            studentsStore.batchCheckProgress.failed = firstPassFailed.length
+          })()
+        )
+
+        // Stagger dispatch by 150ms between each student in the chunk
+        if (j < chunk.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, STAGGER_DELAY))
+        }
       }
-      if (i + BATCH_SIZE < list.length) {
-        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
+
+      // Wait for all in-flight checks in this chunk of 10 to resolve before starting next chunk
+      await Promise.allSettled(inFlightPromises)
+    }
+
+    // --- PASS 2: 1x Automatic Retry for Failed / No-Answer Students ---
+    const stillFailed: { student: Student, reason?: string }[] = []
+    if (firstPassFailed.length > 0) {
+      // Brief grace pause before retry
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      for (let i = 0; i < firstPassFailed.length; i += CHUNK_SIZE) {
+        const retryChunk = firstPassFailed.slice(i, i + CHUNK_SIZE)
+        const retryInFlightPromises: Promise<void>[] = []
+
+        for (let j = 0; j < retryChunk.length; j++) {
+          const { student } = retryChunk[j]!
+          retryInFlightPromises.push(
+            (async () => {
+              const res = await checkStudentDirect(student)
+              if (res.success) {
+                completedCount++
+                studentsStore.batchCheckProgress.completed = completedCount
+                studentsStore.batchCheckProgress.failed = Math.max(0, studentsStore.batchCheckProgress.failed - 1)
+              } else {
+                stillFailed.push({ student, reason: res.error })
+              }
+            })()
+          )
+
+          // Stagger retry dispatches by 150ms
+          if (j < retryChunk.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, STAGGER_DELAY))
+          }
+        }
+
+        await Promise.allSettled(retryInFlightPromises)
       }
     }
 
-    await Promise.allSettled(allInFlightPromises)
+    // Clean up checking indicators
+    for (const student of list) {
+      studentsStore.checkingPassports.delete(student.passport)
+    }
+    studentsStore.checkingPassports = new Map(studentsStore.checkingPassports)
+
+    // Store final unresolved no-answers
+    studentsStore.sessionNoAnswers = stillFailed.map(f => ({
+      fullName: f.student.fullName || f.student.passport,
+      passport: f.student.passport,
+      reason: f.reason || 'Serverdan javob olinmadi'
+    }))
+
+    const changedCount = studentsStore.sessionChanges.length
+    const noAnswerCount = stillFailed.length
+    const unchangedCount = Math.max(0, completedCount - changedCount)
+
+    studentsStore.sessionSummary = {
+      total: list.length,
+      changed: changedCount,
+      unchanged: unchangedCount,
+      noAnswer: noAnswerCount
+    }
 
     setTimeout(() => {
       studentsStore.batchCheckProgress.active = false
       studentsStore.isCheckingSession = false
-    }, 1400)
+      // Automatically open report summary modal at the end of the batch check
+      studentsStore.showReportModal = true
+    }, 600)
 
-    return { completed: completedCount, failed: failedCount }
+    return { completed: completedCount, failed: noAnswerCount }
   }
 
   // Legacy job management helpers if needed

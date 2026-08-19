@@ -80,7 +80,8 @@ export default defineEventHandler(async (event) => {
       pdfUrl: String(student.pdfUrl || ''),
       statusChanged: false,
       oldStatus,
-      error: errorObj.message || 'Failed to connect to visa portal'
+      error: errorObj.message || 'Failed to connect to visa portal',
+      success: false
     }
   }
 
@@ -179,6 +180,7 @@ export default defineEventHandler(async (event) => {
     rejectReason: liveResult.rejectionReason || '',
     pdfUrl: liveResult.pdfUrl || '',
     statusChanged,
-    oldStatus
+    oldStatus,
+    success: true
   }
 })
