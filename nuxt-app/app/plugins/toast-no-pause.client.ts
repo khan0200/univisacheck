@@ -1,16 +1,11 @@
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(() => {
   if (import.meta.client) {
-    window.addEventListener(
+    document.addEventListener(
       'toast.viewportPause',
       (e) => {
+        e.stopImmediatePropagation()
         e.stopPropagation()
-      },
-      true
-    )
-    window.addEventListener(
-      'toast.viewportResume',
-      (e) => {
-        e.stopPropagation()
+        e.preventDefault()
       },
       true
     )

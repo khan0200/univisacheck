@@ -44,7 +44,7 @@ useHead({
 </script>
 
 <template>
-  <UApp>
+  <UApp :toaster="{ duration: 3000, expand: true }">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

@@ -92,6 +92,9 @@ export default defineAppConfig({
         content: 'rounded-md'
       }
     },
+    toaster: {
+      duration: 3000
+    },
     toast: {
       slots: {
         root: 'relative group overflow-hidden shadow-xl rounded-xl p-4 flex gap-3 border transition-all duration-200',
