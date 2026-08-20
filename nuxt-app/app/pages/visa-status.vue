@@ -68,9 +68,40 @@ function handleDobInput(e: Event) {
   userEdited.dob = true
 }
 
+let spaceWarningTimer: NodeJS.Timeout | null = null
+const spaceWarning = ref(false)
+
+function showSpaceWarning() {
+  spaceWarning.value = true
+  if (spaceWarningTimer) clearTimeout(spaceWarningTimer)
+  spaceWarningTimer = setTimeout(() => {
+    spaceWarning.value = false
+  }, 3000)
+}
+
+function handleNameKeydown(e: KeyboardEvent) {
+  if (e.key === 'Enter') {
+    handleSearch()
+    return
+  }
+  if (e.key === ' ' || e.code === 'Space') {
+    const input = e.target as HTMLInputElement
+    const val = input.value
+    const selStart = input.selectionStart || 0
+    if (selStart === 0 || val.slice(selStart - 1, selStart) === ' ') {
+      e.preventDefault()
+      showSpaceWarning()
+    }
+  }
+}
+
 function handleNameInput(e: Event) {
   const input = e.target as HTMLInputElement
-  const formatted = formatNameInput(input.value)
+  const raw = input.value
+  if (/\s{2,}/.test(raw) || /^\s+/.test(raw)) {
+    showSpaceWarning()
+  }
+  const formatted = formatNameInput(raw)
   form.name = formatted
   if (input.value !== formatted) {
     input.value = formatted
@@ -255,8 +286,18 @@ async function handleSearch() {
               autocomplete="off"
               autocapitalize="characters"
               @input="handleNameInput"
-              @keydown.enter="handleSearch"
+              @keydown="handleNameKeydown"
             />
+            <p
+              v-if="spaceWarning"
+              class="text-xs text-amber-600 dark:text-amber-400 mt-1.5 flex items-center gap-1 font-medium transition-all"
+            >
+              <UIcon
+                name="i-lucide-triangle-alert"
+                class="size-3.5 shrink-0 text-amber-500"
+              />
+              Double space is not allowed. Extra space removed.
+            </p>
           </UFormField>
 
           <UFormField label="Date of Birth">
