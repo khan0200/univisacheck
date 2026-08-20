@@ -6,6 +6,8 @@
 
 import db from './turso'
 import { checkStudentVisaStatus } from './visa'
+import { isSameStatus, toDbStatus, getStatusEmoji, getStatusDescription, getDisplayStatus } from '../utils/visa-status'
+import { publishRealtime } from '../utils/realtime-publisher'
 
 export interface Student {
   passport: string
@@ -57,81 +59,14 @@ interface ParsedApiResponse {
   previousRejectionReason?: string
 }
 
-export function normalizeStatus(status: string): string {
-  const s = String(status || '').trim().toLowerCase()
-  if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) {
-    return 'pending'
-  }
-  if (s.includes('approved') || s.includes('visa used') || s.includes('issued') || s.includes('tasdiqlangan') || s.includes('ishlatilgan') || s.includes('허가') || s.includes('발급') || s.includes('사용완료')) {
-    return 'approved'
-  }
-  if (s.includes('cancel') || s.includes('reject') || s.includes('bekor') || s.includes('rad') || s.includes('불허') || s.includes('취소') || s.includes('반려') || s.includes('returned')) {
-    return 'cancelled'
-  }
-  if (s.includes('supplement submitted') || s.includes('supplement completed') || s.includes('보완완료') || s.includes('보완제출') || s.includes('보완접수')) {
-    return 'supplement submitted'
-  }
-  if (s.includes('pending supplement') || s.includes('supplement') || s.includes('보완대기') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) {
-    return 'supplement needed'
-  }
-  if (s.includes('received') || s.includes('app/') || s.includes('qabul') || s.includes('접수') || s.includes('신청')) {
-    return 'received'
-  }
-  if (s.includes('under review') || s.includes('ko\'rib') || s.includes('tayyorlanish') || s.includes('심사중') || s.includes('심사 중') || s.includes('처리중') || s.includes('처리 중')) {
-    return 'under review'
-  }
-  return s
-}
+export { isSameStatus }
 
-export function isSameStatus(status1: string, status2: string): boolean {
-  return normalizeStatus(status1) === normalizeStatus(status2)
-}
 
-export function getStatusEmoji(status: string): string {
-  const normalized = String(status || '').toLowerCase()
-  if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued') || normalized.includes('허가') || normalized.includes('발급')) {
-    return '🟢'
-  }
-  if (normalized.includes('cancel') || normalized.includes('reject') || normalized.includes('불허') || normalized.includes('취소')) {
-    return '🔴'
-  }
-  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료') || normalized.includes('보완제출') || normalized.includes('보완접수')) {
-    return '📝'
-  }
-  if (normalized.includes('supplement') || normalized.includes('보완') || normalized.includes('qo\'shimcha') || normalized.includes('asking')) {
-    return '⚠️'
-  }
-  if (normalized.includes('received') || normalized.includes('app/') || normalized.includes('접수') || normalized.includes('신청')) {
-    return '🟠'
-  }
-  if (normalized.includes('under review') || normalized.includes('심사중') || normalized.includes('심사 중') || normalized.includes('처리중') || normalized.includes('처리 중')) {
-    return '🔵'
-  }
-  return '🔷'
-}
+export { getStatusEmoji }
 
-export function getStatusDescription(status: string, lang: 'uz' | 'en' = 'uz'): string {
-  const normalized = String(status || '').toLowerCase()
-  if (normalized.includes('approved') || normalized.includes('visa used') || normalized.includes('issued') || normalized.includes('허가') || normalized.includes('발급')) {
-    return lang === 'en' ? 'Congratulations 🎉' : 'Tabriklaymiz 🎉'
-  }
-  if (normalized.includes('cancel') || normalized.includes('reject') || normalized.includes('불허') || normalized.includes('취소')) {
-    return lang === 'en' ? 'Your application was rejected.' : 'Arizangiz rad etildi.'
-  }
-  if (normalized.includes('supplement submitted') || normalized.includes('supplement completed') || normalized.includes('보완완료') || normalized.includes('보완제출') || normalized.includes('보완접수')) {
-    return lang === 'en' ? '📝 Supplementary documents have been submitted and are under review.' : '📝 Qo\'shimcha hujjatlar topshirildi va ko\'rib chiqilmoqda.'
-  }
-  if (normalized.includes('supplement') || normalized.includes('보완') || normalized.includes('qo\'shimcha') || normalized.includes('asking')) {
-    return lang === 'en' ? '⚠️ Additional documents required (Supplement Needed).' : '⚠️ Qo\'shimcha hujjatlar talab qilinmoqda (Qo\'shimcha hujjat kerak).'
-  }
-  if (normalized.includes('received') || normalized.includes('app/') || normalized.includes('접수') || normalized.includes('신청')) {
-    return lang === 'en' ? '⏳ Your application is being processed.' : '⏳ Arizangiz jarayonda.'
-  }
-  if (normalized.includes('under review') || normalized.includes('심사중') || normalized.includes('심사 중') || normalized.includes('처리중') || normalized.includes('처리 중')) {
-    return lang === 'en' ? '🔎 Under review.' : '🔎 Ko\'rib chiqilmoqda.'
-  }
-  return lang === 'en' ? 'Status updated.' : 'Status yangilandi.'
-}
+
+export { getStatusDescription }
+
 
 /**
  * Formats a Telegram student card message.
@@ -191,16 +126,9 @@ export function cleanVisaTypeCode(raw: string): string {
 }
 
 export function formatStatusDisplay(status: string): string {
-  const norm = normalizeStatus(status)
-  if (norm === 'approved') return 'APPROVED'
-  if (norm === 'cancelled') return 'REJECTED'
-  if (norm === 'supplement submitted') return 'SUPPLEMENT SUBMITTED'
-  if (norm === 'supplement needed') return 'SUPPLEMENT NEEDED'
-  if (norm === 'received') return 'RECEIVED'
-  if (norm === 'under review') return 'UNDER REVIEW'
-  if (norm === 'pending') return 'PENDING'
-  return (status || 'PENDING').toUpperCase()
+  return getDisplayStatus(status)
 }
+
 
 /**
  * Formats a Telegram student card message.
@@ -383,7 +311,9 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
     }
 
     const oldStatus = student.status
-    const newStatus = liveStatus.latestStatus
+    // Normalize to canonical form before writing to DB
+    // Ensures 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' all stored identically
+    const newStatus = toDbStatus(liveStatus.latestStatus)
     const changed = !isSameStatus(oldStatus, newStatus)
     const now = new Date().toISOString()
 

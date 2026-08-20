@@ -4,18 +4,7 @@ import { apiError } from '../utils/api-error'
 import { publishRealtime } from '../utils/realtime-publisher'
 import { sendTelegramNotification } from '../utils/telegram-notifier'
 import { tryCreateProcessingNotification } from '../utils/processing-notifier'
-
-function normalizeStatus(status: string): string {
-  const s = String(status || '').trim().toLowerCase()
-  if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) return 'pending'
-  if (s.includes('approved') || s.includes('visa used') || s.includes('issued') || s.includes('tasdiqlangan') || s.includes('ishlatilgan') || s.includes('허가') || s.includes('발급') || s.includes('사용완료')) return 'approved'
-  if (s.includes('cancel') || s.includes('reject') || s.includes('bekor') || s.includes('rad') || s.includes('불허') || s.includes('취소') || s.includes('반려') || s.includes('returned')) return 'cancelled'
-  if (s.includes('supplement submitted') || s.includes('supplement completed') || s.includes('보완완료') || s.includes('보완제출') || s.includes('보완접수')) return 'supplement submitted'
-  if (s.includes('pending supplement') || s.includes('supplement') || s.includes('보완대기') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) return 'supplement needed'
-  if (s.includes('received') || s.includes('app/') || s.includes('qabul') || s.includes('접수') || s.includes('신청')) return 'received'
-  if (s.includes('under review') || s.includes('ko\'rib') || s.includes('tayyorlanish') || s.includes('심사중') || s.includes('심사 중') || s.includes('처리중') || s.includes('처리 중')) return 'under review'
-  return s
-}
+import { isSameStatus, toDbStatus } from '../utils/visa-status'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -64,9 +53,9 @@ export default defineEventHandler(async (event) => {
       // Student exists in DB: Update student record(s) with live result
       const nowIso = new Date().toISOString()
       const firstStudent = studentRes.rows[0] as unknown as Record<string, unknown>
-      const oldStatus = String(firstStudent.status || 'Pending')
-      const newStatus = direct.found ? direct.latestStatus : oldStatus
-      const statusChanged = normalizeStatus(oldStatus) !== normalizeStatus(newStatus)
+      const rawNewStatus = direct.found ? direct.latestStatus : ''
+      // Normalize to canonical DB form — 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' → 'SUPPLEMENT_NEEDED'
+      const newStatus = rawNewStatus ? toDbStatus(rawNewStatus) : String(firstStudent.status || 'PENDING')
       const appDate = direct.latestDate || String(firstStudent.applicationDate || '')
 
       await db.execute({
@@ -109,13 +98,18 @@ export default defineEventHandler(async (event) => {
         checkSource: 'manual'
       }
 
-      const targetUserIds = new Set<number>()
+      // Build per-row lookup: userId → that student's old status
+      // This fixes the multi-account bug where only firstStudent.status was used
+      // for all users, causing false positives when one account already had the new status.
+      const userOldStatus = new Map<number, string>()
       for (const row of studentRes.rows) {
         const uid = Number((row as Record<string, unknown>).userId)
-        if (uid && !isNaN(uid)) targetUserIds.add(uid)
+        if (uid && !isNaN(uid)) {
+          userOldStatus.set(uid, String((row as Record<string, unknown>).status || 'PENDING'))
+        }
       }
 
-      for (const targetUserId of targetUserIds) {
+      for (const [targetUserId, oldStatusForUser] of userOldStatus) {
         publishRealtime(targetUserId, {
           type: 'student.updated',
           eventId: crypto.randomUUID(),
@@ -127,7 +121,8 @@ export default defineEventHandler(async (event) => {
           console.error(`[Check Status Realtime] Failed for userId ${targetUserId}:`, err)
         })
 
-        if (statusChanged) {
+        // Only notify if THIS user's student status actually changed (per-user comparison)
+        if (!isSameStatus(oldStatusForUser, newStatus)) {
           sendTelegramNotification(targetUserId, {
             fullName: String(firstStudent.fullName || firstStudent.fullname || fullName),
             passport,
@@ -135,7 +130,7 @@ export default defineEventHandler(async (event) => {
             visaType: String(firstStudent.visaType || firstStudent.visa_type || visaType),
             applicationNo: String(firstStudent.applicationNo || firstStudent.application_no || applicationNo),
             birthday: String(firstStudent.birthday || birthDate),
-            oldStatus,
+            oldStatus: oldStatusForUser,
             newStatus,
             applicationDate: appDate,
             rejectionReason: direct.rejectionReason || '',

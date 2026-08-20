@@ -7,64 +7,18 @@
  */
 
 import { getTursoClient } from './turso'
+import { isSameStatus, getDisplayStatus, getStatusEmoji as getStatusEmojiFromUtils, getStatusDescription } from './visa-status'
 
 function escapeTelegramText(value: unknown): string {
   return String(value || '').replace(/[<>&]/g, '')
 }
 
-function normalizeStatus(status: unknown): string {
-  const s = String(status || '').trim().toLowerCase()
-  if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) return 'pending'
-  if (s.includes('approved') || s.includes('visa used') || s.includes('issued') || s.includes('tasdiqlangan') || s.includes('ishlatilgan') || s.includes('허가') || s.includes('발급') || s.includes('사용완료')) return 'approved'
-  if (s.includes('cancel') || s.includes('reject') || s.includes('bekor') || s.includes('rad') || s.includes('불허') || s.includes('취소') || s.includes('반려') || s.includes('returned')) return 'cancelled'
-  if (s.includes('supplement submitted') || s.includes('supplement completed') || s.includes('보완완료') || s.includes('보완제출') || s.includes('보완접수')) return 'supplement submitted'
-  // 'pending supplement', '보완대기' and all other supplement-family variants → same bucket
-  if (s.includes('pending supplement') || s.includes('supplement') || s.includes('보완대기') || s.includes('보완') || s.includes('qo\'shimcha') || s.includes('asking')) return 'supplement needed'
-  if (s.includes('received') || s.includes('app/') || s.includes('qabul') || s.includes('접수') || s.includes('신청')) return 'received'
-  if (s.includes('under review') || s.includes('ko\'rib') || s.includes('tayyorlanish') || s.includes('심사중') || s.includes('심사 중') || s.includes('처리중') || s.includes('처리 중')) return 'under review'
-  return s
-}
-
-function isSameStatus(status1: unknown, status2: unknown): boolean {
-  return normalizeStatus(status1) === normalizeStatus(status2)
+function getStatusEmojiFormatted(status: unknown): string {
+  return getStatusEmojiFromUtils(status)
 }
 
 function formatStatusDisplay(status: unknown): string {
-  const norm = normalizeStatus(status)
-  if (norm === 'approved') return 'APPROVED'
-  if (norm === 'cancelled') return 'REJECTED'
-  if (norm === 'supplement submitted') return 'SUPPLEMENT SUBMITTED'
-  if (norm === 'supplement needed') return 'SUPPLEMENT NEEDED'
-  if (norm === 'received') return 'RECEIVED'
-  if (norm === 'under review') return 'UNDER REVIEW'
-  if (norm === 'pending') return 'PENDING'
-  return String(status || 'PENDING').toUpperCase()
-}
-
-function getStatusEmoji(status: unknown): string {
-  const n = normalizeStatus(status)
-  if (n === 'approved') return '🟢'
-  if (n === 'cancelled') return '🔴'
-  if (n === 'supplement submitted') return '📝'
-  if (n === 'supplement needed') return '⚠️'
-  if (n === 'received') return '🟠'
-  if (n === 'under review') return '🔵'
-  return '🔷'
-}
-
-function getStatusEmojiFormatted(status: unknown): string {
-  return getStatusEmoji(status)
-}
-
-function getStatusDescription(status: unknown, lang = 'uz'): string {
-  const n = normalizeStatus(status)
-  if (n === 'approved') return lang === 'en' ? 'Congratulations 🎉' : 'Tabriklaymiz 🎉'
-  if (n === 'cancelled') return lang === 'en' ? 'Your application was rejected.' : 'Arizangiz rad etildi.'
-  if (n === 'supplement submitted') return lang === 'en' ? '📝 Supplementary documents have been submitted and are under review.' : 'Qo\'shimcha hujjatlar topshirildi va ko\'rib chiqilmoqda.'
-  if (n === 'supplement needed') return lang === 'en' ? '⚠️ Additional documents required (Supplement Needed).' : 'Qo\'shimcha hujjatlar talab qilinmoqda (Qo\'shimcha hujjat kerak).'
-  if (n === 'received') return lang === 'en' ? '⏳ Your application is being processed.' : '⏳ Arizangiz jarayonda.'
-  if (n === 'under review') return lang === 'en' ? '🔎 Under review.' : 'Ko\'rib chiqilmoqda.'
-  return lang === 'en' ? 'Status updated.' : 'Status yangilandi.'
+  return getDisplayStatus(status)
 }
 
 function formatLastChecked(dateString: string, lang = 'uz'): string {
@@ -105,6 +59,7 @@ function cleanVisaTypeCode(raw: string): string {
   }
   return str
 }
+
 
 export interface TelegramNotificationPayload {
   fullName: string
