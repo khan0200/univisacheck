@@ -21,7 +21,7 @@ function formatStatusDisplay(status: unknown): string {
   return getDisplayStatus(status)
 }
 
-function formatLastChecked(dateString: string, lang = 'uz'): string {
+function formatLastChecked(dateString: string, lang: 'uz' | 'en' = 'uz'): string {
   const today = lang === 'en' ? 'Today' : 'Bugun'
   if (!dateString) return lang === 'en' ? 'Never' : 'Hech qachon'
   const date = new Date(dateString)
@@ -217,7 +217,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa'
   const nowIso = new Date().toISOString()
 
-  function buildMessage(lang: string): string {
+  function buildMessage(lang: 'uz' | 'en' = 'uz'): string {
     const desc = getStatusDescription(newStatus, lang)
     const checkedStr = formatLastChecked(nowIso, lang)
     const isApprovedNotif = ['APPROVED', 'USED', 'ISSUED'].some(s => newStatus.toUpperCase().includes(s))
@@ -253,7 +253,7 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     ].join('\n')
   }
 
-  function buildMarkup(lang: string) {
+  function buildMarkup(lang: 'uz' | 'en' = 'uz') {
     const refreshBtn = lang === 'en' ? '🔄 Refresh' : '🔄 Yangilash'
     const pdfBtn = lang === 'en' ? '📥 Visa (pdf)' : '📥 Viza (pdf)'
     return {
@@ -269,9 +269,10 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   }
 
   const results = await Promise.allSettled(
-    subscribers.map(({ telegram_id: chatId, lang }) => {
-      const msgText = buildMessage(lang || 'uz')
-      const reply_markup = buildMarkup(lang || 'uz')
+    subscribers.map(({ telegram_id: chatId, lang: subLang }) => {
+      const lang: 'uz' | 'en' = subLang === 'en' ? 'en' : 'uz'
+      const msgText = buildMessage(lang)
+      const reply_markup = buildMarkup(lang)
       return fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

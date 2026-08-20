@@ -34,17 +34,25 @@ const emit = defineEmits<{
 }>()
 
 const levelLabels: Record<string, { text: string, class: string }> = {
-  'BACHELOR': { text: 'BAKALAVR', class: 'bg-primary-900 text-white' },
-  'MASTERS': { text: 'MAGISTRATURA', class: 'bg-purple-700 text-white' },
-  'MASTER NO CERTIFICATE': { text: 'MAGISTR (SERTIFIKATSIZ)', class: 'bg-indigo-700 text-white' },
-  'COLLEGE': { text: 'KOLLEJ', class: 'bg-teal-700 text-white' },
-  'LANGUAGE COURSE': { text: 'TIL KURSI', class: 'bg-amber-600 text-white' }
+  'BACHELOR': { text: 'BACHELOR', class: 'bg-primary-900 text-white' },
+  'MASTERS': { text: 'MASTER', class: 'bg-purple-700 text-white' },
+  'MASTER NO CERTIFICATE': { text: 'MASTER (NO CERT)', class: 'bg-indigo-700 text-white' },
+  'COLLEGE': { text: 'COLLEGE', class: 'bg-teal-700 text-white' },
+  'LANGUAGE COURSE': { text: 'LANGUAGE COURSE', class: 'bg-amber-600 text-white' }
 }
 
 function getEducationLevelInfo(lvl?: string | null) {
-  if (!lvl) return { text: 'BAKALAVR', class: 'bg-primary-900 text-white' }
+  if (!lvl) return { text: 'BACHELOR', class: 'bg-primary-900 text-white' }
   const upper = lvl.toUpperCase()
   return levelLabels[upper] || { text: upper, class: 'bg-primary-900 text-white' }
+}
+
+function formatUniType(type: string): string {
+  const t = (type || '').toLowerCase()
+  if (t.includes('1%')) return '1% University'
+  if (t.includes('davlat') || t.includes('national') || t.includes('public')) return 'National University'
+  if (t.includes('xususiy') || t.includes('private')) return 'Private University'
+  return type
 }
 
 function getRoundBadgeClass(roundNum: number | string) {
@@ -66,17 +74,46 @@ function getRoundBadgeClass(roundNum: number | string) {
 function formatDate(dateStr?: string | null) {
   if (!dateStr) return '-'
   try {
-    const parts = dateStr.split('-')
-    if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
-      const months = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek']
-      const day = parseInt(parts[2], 10)
-      const monthIdx = parseInt(parts[1], 10) - 1
-      const month = months[monthIdx] || parts[1]
-      return `${day}-${month}, ${parts[0]}`
+    const d = new Date(dateStr)
+    if (!isNaN(d.getTime())) {
+      if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+        return dateStr.slice(0, 10)
+      }
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    const parts = dateStr.split(/[-/.]/)
+    const p0 = parts[0] || ''
+    const p1 = parts[1] || ''
+    const p2 = parts[2] || ''
+    if (p0 && p1 && p2) {
+      const year = p0.length === 4 ? p0 : p2
+      const month = String(p1).padStart(2, '0')
+      const day = String(p0.length === 4 ? p2 : p0).padStart(2, '0')
+      return `${year}-${month}-${day}`
     }
     return dateStr
   } catch {
     return dateStr
+  }
+}
+function isNewAdmission(item?: SupabaseAdmission | null): boolean {
+  if (!item) return false
+  try {
+    const createdMs = item.created_at ? new Date(item.created_at).getTime() : 0
+    const updatedMs = item.updated_at ? new Date(item.updated_at).getTime() : 0
+    const latestMs = Math.max(
+      isNaN(createdMs) ? 0 : createdMs,
+      isNaN(updatedMs) ? 0 : updatedMs
+    )
+    if (!latestMs) return false
+    const nowMs = Date.now()
+    const diffDays = (nowMs - latestMs) / (1000 * 60 * 60 * 24)
+    return diffDays >= 0 && diffDays <= 3
+  } catch {
+    return false
   }
 }
 </script>
@@ -84,7 +121,7 @@ function formatDate(dateStr?: string | null) {
 <template>
   <UModal
     :open="props.open"
-    title="Qabul sanalari va muddatlari"
+    title="Admission Schedule & Details"
     :ui="{ content: 'sm:max-w-2xl rounded-3xl' }"
     @update:open="emit('update:open', $event)"
   >
@@ -103,9 +140,17 @@ function formatDate(dateStr?: string | null) {
               />
             </div>
             <div class="min-w-0">
-              <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white uppercase truncate">
-                {{ props.admission.university_name }}
-              </h3>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white uppercase truncate">
+                  {{ props.admission.university_name }}
+                </h3>
+                <span
+                  v-if="isNewAdmission(props.admission)"
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-extrabold uppercase tracking-wider bg-rose-600 text-white shadow-2xs shrink-0"
+                >
+                  NEW
+                </span>
+              </div>
               <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
                 <span
                   class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase"
@@ -124,7 +169,7 @@ function formatDate(dateStr?: string | null) {
                   :key="ut"
                   class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary-50 dark:bg-primary-950/40 text-primary-800 dark:text-secondary-300 border border-primary-200/60 dark:border-primary-800/40 uppercase"
                 >
-                  {{ ut }}
+                  {{ formatUniType(ut) }}
                 </span>
               </div>
             </div>
@@ -143,17 +188,20 @@ function formatDate(dateStr?: string | null) {
                 name="i-lucide-clock"
                 class="size-3.5"
               />
-              Qabul Kutilmoqda
+              Admission Expected
             </div>
             <div class="text-sm sm:text-base font-bold text-amber-950 dark:text-amber-100">
-              Kutilayotgan muddat:
-              <span v-if="props.admission.expected_date_range?.from || props.admission.expected_date_range?.to">
+              Expected period:
+              <span
+                v-if="props.admission.expected_date_range?.from || props.admission.expected_date_range?.to"
+                class="font-mono"
+              >
                 {{ formatDate(props.admission.expected_date_range?.from) }} — {{ formatDate(props.admission.expected_date_range?.to) }}
               </span>
-              <span v-else>Sanalar tez orada e'lon qilinadi</span>
+              <span v-else>Dates to be announced soon</span>
             </div>
             <p class="text-xs text-amber-800 dark:text-amber-300">
-              Universitet tomonidan rasmiy muddatlar tasdiqlanishi bilan yangilanadi.
+              Will be updated once officially confirmed by the university.
             </p>
           </div>
 
@@ -177,97 +225,97 @@ function formatDate(dateStr?: string | null) {
                     R{{ round.roundNumber || (idx + 1) }}
                   </span>
                   <span class="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-                    Qabul Sanalari
+                    Admission Dates
                   </span>
                 </div>
               </div>
 
               <!-- 4 Step Date Grid -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                <!-- 1. Onlayn Ariza -->
+                <!-- 1. Online Application -->
                 <div class="p-3 rounded-xl bg-white dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/[0.06] space-y-1">
                   <div class="flex items-center gap-1.5 text-[10.5px] font-bold text-primary-900 dark:text-secondary-300 uppercase tracking-wider">
                     <UIcon
                       name="i-lucide-calendar"
                       class="size-3.5"
                     />
-                    Onlayn Ariza Topshirish
+                    Online Application
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
                     <span v-if="round.onlineApplicationFrom && round.onlineApplicationTo">
                       {{ formatDate(round.onlineApplicationFrom) }} — {{ formatDate(round.onlineApplicationTo) }}
                     </span>
                     <span
                       v-else
-                      class="text-slate-400 font-normal italic"
+                      class="text-slate-400 font-normal italic font-sans"
                     >
-                      Belgilanmagan
+                      Not specified
                     </span>
                   </div>
                 </div>
 
-                <!-- 2. Hujjat Topshirish -->
+                <!-- 2. Document Submission -->
                 <div class="p-3 rounded-xl bg-white dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/[0.06] space-y-1">
                   <div class="flex items-center gap-1.5 text-[10.5px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">
                     <UIcon
                       name="i-lucide-file-text"
                       class="size-3.5"
                     />
-                    Hujjat Topshirish
+                    Document Submission
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
                     <span v-if="round.documentSubmission">
                       {{ formatDate(round.documentSubmission) }}
                     </span>
                     <span
                       v-else
-                      class="text-slate-400 font-normal italic"
+                      class="text-slate-400 font-normal italic font-sans"
                     >
-                      Belgilanmagan
+                      Not specified
                     </span>
                   </div>
                 </div>
 
-                <!-- 3. Suhbat -->
+                <!-- 3. Interview -->
                 <div class="p-3 rounded-xl bg-white dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/[0.06] space-y-1">
                   <div class="flex items-center gap-1.5 text-[10.5px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">
                     <UIcon
                       name="i-lucide-message-square"
                       class="size-3.5"
                     />
-                    Suhbat Kuni
+                    Interview Date
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
                     <span v-if="round.interview">
                       {{ formatDate(round.interview) }}
                     </span>
                     <span
                       v-else
-                      class="text-slate-400 font-normal italic"
+                      class="text-slate-400 font-normal italic font-sans"
                     >
-                      Belgilanmagan
+                      Not specified
                     </span>
                   </div>
                 </div>
 
-                <!-- 4. Natija / E'lon -->
+                <!-- 4. Announcement / Result -->
                 <div class="p-3 rounded-xl bg-white dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/[0.06] space-y-1">
                   <div class="flex items-center gap-1.5 text-[10.5px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
                     <UIcon
                       name="i-lucide-bell"
                       class="size-3.5"
                     />
-                    Natija (E'lon)
+                    Announcement (Result)
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
                     <span v-if="round.announcement">
                       {{ formatDate(round.announcement) }}
                     </span>
                     <span
                       v-else
-                      class="text-slate-400 font-normal italic"
+                      class="text-slate-400 font-normal italic font-sans"
                     >
-                      Belgilanmagan
+                      Not specified
                     </span>
                   </div>
                 </div>
@@ -280,7 +328,7 @@ function formatDate(dateStr?: string | null) {
             v-else
             class="p-6 text-center text-xs text-slate-400 italic border border-dashed border-slate-200 dark:border-white/[0.1] rounded-2xl"
           >
-            Ariza muddatlari belgilanmagan
+            Application dates not specified
           </div>
         </div>
       </div>
@@ -293,7 +341,7 @@ function formatDate(dateStr?: string | null) {
           class="px-5 py-2 rounded-xl font-bold bg-primary-900 hover:bg-primary-800 text-white text-xs shadow-xs transition-all cursor-pointer"
           @click="emit('update:open', false)"
         >
-          Yopish
+          Close
         </button>
       </div>
     </template>

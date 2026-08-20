@@ -12,20 +12,20 @@ const selectedLevel = ref('all')
 const selectedStatus = ref('all')
 
 const levelFilters = [
-  { value: 'all', label: 'Barcha dasturlar' },
-  { value: 'BACHELOR', label: 'Bakalavr' },
-  { value: 'MASTERS', label: 'Magistratura' },
-  { value: 'MASTER NO CERTIFICATE', label: 'Sertifikatsiz Magistr' },
-  { value: 'COLLEGE', label: 'Kollej' },
-  { value: 'LANGUAGE COURSE', label: 'Til kursi' }
+  { value: 'all', label: 'All programs' },
+  { value: 'BACHELOR', label: 'Bachelor' },
+  { value: 'MASTERS', label: 'Master' },
+  { value: 'MASTER NO CERTIFICATE', label: 'Master (No Certificate)' },
+  { value: 'COLLEGE', label: 'College' },
+  { value: 'LANGUAGE COURSE', label: 'Language Course' }
 ]
 
 const statusFilters = [
-  { value: 'all', label: 'Barchasi' },
-  { value: 'ongoing', label: '🟢 Faol qabul' },
-  { value: 'soon', label: '⏳ Tez kunda' },
-  { value: 'expected', label: '📅 Kutilmoqda' },
-  { value: 'outdated', label: '⚪ Tugagan' }
+  { value: 'all', label: 'All' },
+  { value: 'ongoing', label: '🟢 Active' },
+  { value: 'soon', label: '⏳ Soon' },
+  { value: 'expected', label: '📅 Upcoming' },
+  { value: 'outdated', label: '⚪ Closed' }
 ]
 
 // Modal state
@@ -45,27 +45,36 @@ const { data: response, pending } = await useFetch<AdmissionsApiResponse>('/api/
 const rawAdmissions = computed(() => response.value?.data || [])
 
 const levelLabels: Record<string, { text: string, class: string }> = {
-  'BACHELOR': { text: 'Bakalavr', class: 'bg-primary-900 text-white font-bold border-primary-800' },
-  'MASTERS': { text: 'Magistratura', class: 'bg-purple-700 text-white font-bold border-purple-800' },
-  'MASTER NO CERTIFICATE': { text: 'Magistr (Sertifikatsiz)', class: 'bg-indigo-700 text-white font-bold border-indigo-800' },
-  'COLLEGE': { text: 'Kollej', class: 'bg-teal-700 text-white font-bold border-teal-800' },
-  'LANGUAGE COURSE': { text: 'Til kursi', class: 'bg-amber-600 text-white font-bold border-amber-700' }
+  'BACHELOR': { text: 'Bachelor', class: 'bg-primary-900 text-white font-bold border-primary-800' },
+  'MASTERS': { text: 'Master', class: 'bg-purple-700 text-white font-bold border-purple-800' },
+  'MASTER NO CERTIFICATE': { text: 'Master (No Cert)', class: 'bg-indigo-700 text-white font-bold border-indigo-800' },
+  'COLLEGE': { text: 'College', class: 'bg-teal-700 text-white font-bold border-teal-800' },
+  'LANGUAGE COURSE': { text: 'Language Course', class: 'bg-amber-600 text-white font-bold border-amber-700' }
 }
 
 function getLevelBadge(level?: string | null) {
-  if (!level) return { text: 'Dastur', class: 'bg-primary-900 text-white font-bold border-primary-800' }
+  if (!level) return { text: 'Program', class: 'bg-primary-900 text-white font-bold border-primary-800' }
   const upper = level.toUpperCase()
   return levelLabels[upper] || { text: level, class: 'bg-primary-900 text-white font-bold border-primary-800' }
 }
 
+function formatUniType(type: string): string {
+  const t = (type || '').toLowerCase()
+  if (t.includes('1%')) return '1% University'
+  if (t.includes('davlat') || t.includes('national') || t.includes('public')) return 'National University'
+  if (t.includes('xususiy') || t.includes('private')) return 'Private University'
+  return type
+}
+
 function getUniTypeBadge(type: string) {
-  if (type.includes('1%')) {
+  const t = (type || '').toLowerCase()
+  if (t.includes('1%')) {
     return 'bg-primary-900 text-white font-bold'
   }
-  if (type.includes('Davlat')) {
+  if (t.includes('davlat') || t.includes('national') || t.includes('public')) {
     return 'bg-teal-800 text-white font-bold'
   }
-  if (type.includes('Xususiy')) {
+  if (t.includes('xususiy') || t.includes('private')) {
     return 'bg-slate-700 text-white font-bold'
   }
   return 'bg-blue-800 text-white font-bold'
@@ -97,7 +106,7 @@ function getAdmissionStatus(item: Admission) {
     return {
       type: 'expected',
       priority: 4,
-      label: 'Kutilmoqda',
+      label: 'Upcoming',
       badgeClass: 'bg-amber-500 text-white font-bold shadow-xs',
       dotClass: 'bg-white',
       sortTimestamp: expTime
@@ -109,7 +118,7 @@ function getAdmissionStatus(item: Admission) {
     return {
       type: 'outdated',
       priority: 5,
-      label: 'Tugagan',
+      label: 'Closed',
       badgeClass: 'bg-slate-500 text-white font-bold shadow-xs',
       dotClass: 'bg-white',
       sortTimestamp: 0
@@ -151,55 +160,85 @@ function getAdmissionStatus(item: Admission) {
     }
   }
 
-  // 1. Faol qabul (deadline yaqin qolganlar eng tepada)
+  // 1. Active admission (nearest closing deadline first)
   if (activeEndMs !== Infinity) {
     return {
       type: 'ongoing',
       priority: 1,
-      label: 'Faol qabul',
+      label: 'Active',
       badgeClass: 'bg-emerald-600 text-white font-bold shadow-xs',
       dotClass: 'bg-white animate-pulse',
       sortTimestamp: activeEndMs
     }
   }
 
-  // 2. X kunda ochiladi / Tez kunda (eng yaqinda ochiladigani tepada)
+  // 2. After X days / Soon (nearest opening date first)
   if (soonStartMs !== Infinity) {
     return {
       type: 'soon',
       priority: 2,
-      label: daysSoon <= 10 ? `${daysSoon} kunda ochiladi` : 'Tez kunda',
+      label: daysSoon <= 10 ? (daysSoon === 1 ? 'After 1 day' : `After ${daysSoon} days`) : 'Soon',
       badgeClass: 'bg-blue-600 text-white font-bold shadow-xs',
       dotClass: 'bg-white',
       sortTimestamp: soonStartMs
     }
   }
 
-  // 3. Tugagan
+  // 3. Closed
   return {
     type: 'outdated',
     priority: 5,
-    label: 'Tugagan',
+    label: 'Closed',
     badgeClass: 'bg-slate-500 text-white font-bold shadow-xs',
     dotClass: 'bg-white',
     sortTimestamp: latestPastEndMs !== -Infinity ? latestPastEndMs : 0
   }
 }
 
-function formatDate(dateStr?: string | null) {
+function formatDate(dateStr?: string | null): string {
   if (!dateStr) return ''
   try {
-    const parts = dateStr.split('-')
-    if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
-      const months = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek']
-      const day = parseInt(parts[2], 10)
-      const monthIdx = parseInt(parts[1], 10) - 1
-      const month = months[monthIdx] || parts[1]
-      return `${day}-${month}, ${parts[0]}`
+    const d = new Date(dateStr)
+    if (!isNaN(d.getTime())) {
+      if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+        return dateStr.slice(0, 10)
+      }
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    const parts = dateStr.split(/[-/.]/)
+    const p0 = parts[0] || ''
+    const p1 = parts[1] || ''
+    const p2 = parts[2] || ''
+    if (p0 && p1 && p2) {
+      const year = p0.length === 4 ? p0 : p2
+      const month = p1.padStart(2, '0')
+      const day = (p0.length === 4 ? p2 : p0).padStart(2, '0')
+      return `${year}-${month}-${day}`
     }
     return dateStr
   } catch {
-    return dateStr
+    return dateStr || ''
+  }
+}
+
+function isNewAdmission(item?: Admission | null): boolean {
+  if (!item) return false
+  try {
+    const createdMs = item.created_at ? new Date(item.created_at).getTime() : 0
+    const updatedMs = item.updated_at ? new Date(item.updated_at).getTime() : 0
+    const latestMs = Math.max(
+      isNaN(createdMs) ? 0 : createdMs,
+      isNaN(updatedMs) ? 0 : updatedMs
+    )
+    if (!latestMs) return false
+    const nowMs = Date.now()
+    const diffDays = (nowMs - latestMs) / (1000 * 60 * 60 * 24)
+    return diffDays >= 0 && diffDays <= 3
+  } catch {
+    return false
   }
 }
 
@@ -222,9 +261,10 @@ const filteredAdmissions = computed(() => {
     list = list.filter((item) => {
       const uniName = (item.university_name || '').toLowerCase()
       const eduLevel = (item.education_level || '').toLowerCase()
+      const levelText = (getLevelBadge(item.education_level).text || '').toLowerCase()
       const period = (item.admission_period || '').toLowerCase()
-      const types = (item.university_types || []).join(' ').toLowerCase()
-      return uniName.includes(query) || eduLevel.includes(query) || period.includes(query) || types.includes(query)
+      const types = (item.university_types || []).map(formatUniType).join(' ').toLowerCase()
+      return uniName.includes(query) || eduLevel.includes(query) || levelText.includes(query) || period.includes(query) || types.includes(query)
     })
   }
 
@@ -238,22 +278,19 @@ const filteredAdmissions = computed(() => {
 
   // Sort by priority then by nearest date
   return [...list].sort((a, b) => {
-    // 1. Priority order: Ongoing (1) > Soon/X kunda ochiladi (2) > Expected (4) > Outdated (5)
+    // 1. Priority order: Ongoing (1) > Soon/After X days (2) > Upcoming (4) > Closed (5)
     if (a.statusInfo.priority !== b.statusInfo.priority) {
       return a.statusInfo.priority - b.statusInfo.priority
     }
 
     // 2. Nearest date ordering within each category:
-    // Ongoing (1): sort by nearest deadline (closing date) ascending
-    // Soon (2): sort by nearest opening date ascending (e.g. 2 kunda ochiladi before 17 kunda)
-    // Expected (4): sort by expected date ascending
     if (a.statusInfo.priority === 1 || a.statusInfo.priority === 2 || a.statusInfo.priority === 4) {
       if (a.statusInfo.sortTimestamp !== b.statusInfo.sortTimestamp) {
         return a.statusInfo.sortTimestamp - b.statusInfo.sortTimestamp
       }
     }
 
-    // Outdated (5): sort by most recently ended descending
+    // Closed (5): sort by most recently ended descending
     if (a.statusInfo.priority === 5) {
       if (a.statusInfo.sortTimestamp !== b.statusInfo.sortTimestamp) {
         return b.statusInfo.sortTimestamp - a.statusInfo.sortTimestamp
@@ -278,7 +315,7 @@ const filteredAdmissions = computed(() => {
           name="i-lucide-graduation-cap"
           class="size-4 text-primary-700 dark:text-secondary-400"
         />
-        <span>Rasmiy Qabul Taqvim Jadvali</span>
+        <span>Official Admission Schedule</span>
       </div>
 
       <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
@@ -286,7 +323,7 @@ const filteredAdmissions = computed(() => {
       </h2>
 
       <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
-        Janubiy Koreya universitetlariga bakalavr, magistratura va til kurslariga rasmiy qabul muddatlari, bosqichlar va arizalar taqvimi.
+        Official admission deadlines, application rounds, and schedules for South Korean universities: Bachelor, Master, and Language courses.
       </p>
     </div>
 
@@ -298,7 +335,7 @@ const filteredAdmissions = computed(() => {
           <UInput
             v-model="searchQuery"
             icon="i-lucide-search"
-            placeholder="Universitet nomi yoki dastur bo'yicha qidirish (masalan: Korea, Bakalavr)..."
+            placeholder="Search by university name or program (e.g. Korea, Bachelor)..."
             size="lg"
             class="w-full"
           />
@@ -335,7 +372,7 @@ const filteredAdmissions = computed(() => {
         </div>
 
         <div class="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">
-          Ko'rsatilmoqda: <span class="text-primary-900 dark:text-secondary-300">{{ filteredAdmissions.length }} ta</span> qabul
+          Showing: <span class="text-primary-900 dark:text-secondary-300">{{ filteredAdmissions.length }}</span> {{ filteredAdmissions.length === 1 ? 'admission' : 'admissions' }}
         </div>
       </div>
     </div>
@@ -359,8 +396,8 @@ const filteredAdmissions = computed(() => {
     >
       <UiEmptyState
         icon="i-lucide-search"
-        title="Qabul e'loni topilmadi"
-        description="Qidiruv so'zini yoki tanlangan filtrlarni o'zgartirib ko'ring."
+        title="No admissions found"
+        description="Try adjusting your search query or selected filters."
       />
     </div>
 
@@ -377,19 +414,19 @@ const filteredAdmissions = computed(() => {
                 #
               </th>
               <th class="px-4 py-3.5 min-w-[280px]">
-                Universitet
+                University
               </th>
               <th class="px-4 py-3.5 min-w-[170px]">
-                Dastur / Semestr
+                Program / Semester
               </th>
               <th class="px-4 py-3.5 min-w-[250px]">
-                Qabul Muddati
+                Admission Period
               </th>
               <th class="px-4 py-3.5 min-w-[140px] text-center">
-                Holat
+                Status
               </th>
               <th class="px-4 py-3.5 w-24 text-center">
-                Batafsil
+                Details
               </th>
             </tr>
           </thead>
@@ -417,8 +454,16 @@ const filteredAdmissions = computed(() => {
                   </div>
 
                   <div class="space-y-1.5 min-w-0">
-                    <div class="font-bold text-[13.5px] text-slate-900 dark:text-white leading-snug uppercase tracking-tight group-hover:text-primary-800 dark:group-hover:text-secondary-300 transition-colors">
-                      {{ item.university_name }}
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="font-bold text-[13.5px] text-slate-900 dark:text-white leading-snug uppercase tracking-tight group-hover:text-primary-800 dark:group-hover:text-secondary-300 transition-colors">
+                        {{ item.university_name }}
+                      </span>
+                      <span
+                        v-if="isNewAdmission(item)"
+                        class="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-extrabold uppercase tracking-wider bg-rose-600 text-white shadow-2xs shrink-0"
+                      >
+                        NEW
+                      </span>
                     </div>
 
                     <!-- Badges Row -->
@@ -429,10 +474,10 @@ const filteredAdmissions = computed(() => {
                       <span
                         v-for="ut in item.university_types"
                         :key="ut"
-                        class="px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider"
+                        class="px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-semibold"
                         :class="getUniTypeBadge(ut)"
                       >
-                        {{ ut }}
+                        {{ formatUniType(ut) }}
                       </span>
                     </div>
                   </div>
@@ -474,7 +519,6 @@ const filteredAdmissions = computed(() => {
                     class="flex items-center gap-1.5 flex-wrap"
                   >
                     <span
-                      v-if="item.rounds.length > 1"
                       :class="getRoundBadgeClass(round.roundNumber || (rIdx + 1))"
                       class="px-2 py-0.5 rounded-full font-bold text-[10.5px] tracking-wide shrink-0 shadow-2xs"
                     >
@@ -482,7 +526,7 @@ const filteredAdmissions = computed(() => {
                     </span>
                     <span
                       v-if="round.onlineApplicationFrom && round.onlineApplicationTo"
-                      class="font-semibold text-slate-900 dark:text-white"
+                      class="font-semibold text-slate-900 dark:text-white font-mono text-[11.5px]"
                     >
                       {{ formatDate(round.onlineApplicationFrom) }} — {{ formatDate(round.onlineApplicationTo) }}
                     </span>
@@ -490,7 +534,7 @@ const filteredAdmissions = computed(() => {
                       v-else
                       class="text-slate-400 italic"
                     >
-                      Muddat belgilanmagan
+                      No dates specified
                     </span>
                   </div>
                 </div>
@@ -502,7 +546,7 @@ const filteredAdmissions = computed(() => {
                 >
                   <div
                     v-if="item.expected_date_range?.from || item.expected_date_range?.to"
-                    class="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5"
+                    class="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5 font-mono text-[11.5px]"
                   >
                     <UIcon
                       name="i-lucide-clock"
@@ -514,7 +558,7 @@ const filteredAdmissions = computed(() => {
                     v-else
                     class="text-[11px] text-amber-600 dark:text-amber-400 italic"
                   >
-                    Sanalar tez orada e'lon qilinadi
+                    Dates to be announced soon
                   </div>
                 </div>
 
@@ -523,7 +567,7 @@ const filteredAdmissions = computed(() => {
                   v-else
                   class="text-[11px] text-slate-400 italic"
                 >
-                  Muddat kiritilmagan
+                  No dates available
                 </div>
               </td>
 
@@ -546,8 +590,8 @@ const filteredAdmissions = computed(() => {
                 <button
                   type="button"
                   class="inline-flex items-center justify-center size-8 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 group-hover:bg-primary-900 group-hover:text-white transition-all cursor-pointer shadow-2xs"
-                  title="Batafsil ko'rish"
-                  aria-label="Batafsil ko'rish"
+                  title="View details"
+                  aria-label="View details"
                   @click.stop="openDetails(item)"
                 >
                   <UIcon
