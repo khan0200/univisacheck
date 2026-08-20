@@ -7,7 +7,7 @@
  */
 
 import { getTursoClient } from './turso'
-import { isSameStatus, getDisplayStatus, getStatusEmoji as getStatusEmojiFromUtils, getStatusDescription } from './visa-status'
+import { isSameStatus, getDisplayStatus, getStatusEmoji as getStatusEmojiFromUtils, getStatusDescription, toDbStatus } from './visa-status'
 
 function escapeTelegramText(value: unknown): string {
   return String(value || '').replace(/[<>&]/g, '')
@@ -59,7 +59,6 @@ function cleanVisaTypeCode(raw: string): string {
   }
   return str
 }
-
 
 export interface TelegramNotificationPayload {
   fullName: string
@@ -116,8 +115,8 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   }
 
   // 2. Validate ownership of student and check last_notified_status
-  let currentDbStatus = ''
-  let lastNotifiedStatus = ''
+  let currentDbStatus: string
+  let lastNotifiedStatus: string
   try {
     const studentResult = await db.execute({
       sql: 'SELECT passport, status, "lastNotifiedStatus", last_notified_status FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
@@ -179,9 +178,10 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     console.log(`[Telegram Notifier] Skipping — initial baseline discovery for ${rawPassport} (${rawNewStatus}), not a status change transition`)
     // Record baseline status as last notified so future checks know the baseline
     try {
+      const canonicalStatus = toDbStatus(rawNewStatus)
       await db.execute({
         sql: 'UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
-        args: [rawNewStatus, rawNewStatus, rawPassport, userId]
+        args: [canonicalStatus, canonicalStatus, rawPassport, userId]
       })
     } catch {
       // Non-critical
@@ -259,11 +259,13 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     return {
       inline_keyboard: canDownloadPdf
         ? [
-            [{ text: refreshBtn, callback_data: `refresh:${passport}` }],
-            [{ text: pdfBtn, callback_data: `download_pdf:${passport}` }]
+            [
+              { text: refreshBtn, callback_data: `check:${passport}` },
+              { text: pdfBtn, callback_data: `download:${passport}` }
+            ]
           ]
         : [
-            [{ text: refreshBtn, callback_data: `refresh:${passport}` }]
+            [{ text: refreshBtn, callback_data: `check:${passport}` }]
           ]
     }
   }
@@ -290,9 +292,10 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   const successfulSends = results.filter(r => r.status === 'fulfilled' && (r.value as { ok?: boolean })?.ok)
   if (successfulSends.length > 0) {
     try {
+      const canonicalStatus = toDbStatus(rawNewStatus)
       await db.execute({
         sql: 'UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
-        args: [newStatus, newStatus, passport, userId]
+        args: [canonicalStatus, canonicalStatus, passport, userId]
       })
     } catch (err: unknown) {
       console.error('[Telegram Notifier] Failed to update lastNotifiedStatus in DB:', err instanceof Error ? err.message : String(err))

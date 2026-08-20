@@ -1,4 +1,4 @@
-﻿/**
+/**
  * server/utils/visa-status.ts
  *
  * SINGLE SOURCE OF TRUTH for visa status normalization, comparison, display,
@@ -19,17 +19,17 @@
  *   UNKNOWN            - unrecognized (treated like PENDING for comparison)
  */
 
-export type CanonicalStatus =
-  | 'PENDING'
-  | 'APPROVED'
-  | 'VISA_USED'
-  | 'CANCELLED'
-  | 'RECEIVED'
-  | 'UNDER_REVIEW'
-  | 'SUPPLEMENT_NEEDED'
-  | 'SUPPLEMENT_SUBMITTED'
-  | 'EXPIRED'
-  | 'UNKNOWN'
+export type CanonicalStatus
+  = 'PENDING'
+    | 'APPROVED'
+    | 'VISA_USED'
+    | 'CANCELLED'
+    | 'RECEIVED'
+    | 'UNDER_REVIEW'
+    | 'SUPPLEMENT_NEEDED'
+    | 'SUPPLEMENT_SUBMITTED'
+    | 'EXPIRED'
+    | 'UNKNOWN'
 
 /**
  * Map any status string to a CanonicalStatus.
@@ -39,50 +39,97 @@ export type CanonicalStatus =
  *   - Unknown statuses → 'UNKNOWN' (not silently PENDING)
  */
 export function normalizeStatus(status: unknown): CanonicalStatus {
-  const raw = String(status ?? '').replace(/\s+/g, ' ').trim()
+  const raw = String(status ?? '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
   const s = raw.toLowerCase()
 
-  if (!s || s === 'pending' || s === 'unknown' || s.includes('error')) return 'PENDING'
+  if (!s || s === 'pending' || s === 'unknown' || s.includes('error') || s.includes('not found') || s.includes('topilmadi')) {
+    return 'PENDING'
+  }
 
   // VISA_USED (before APPROVED — more specific)
-  if (s.includes('visa used') || s.includes('사용완료') || s.includes('ishlatilgan') ||
-      s === 'visa_used') return 'VISA_USED'
+  if (s.includes('visa used') || s.includes('사용완료') || s.includes('ishlatilgan')) {
+    return 'VISA_USED'
+  }
 
   // APPROVED
-  if (s.includes('approved') || s.includes('issued') || s.includes('허가') ||
-      s.includes('발급') || s.includes('tasdiqlangan') || s === 'approved') return 'APPROVED'
+  if (
+    s.includes('approved')
+    || s.includes('issued')
+    || s.includes('허가')
+    || s.includes('발급')
+    || s.includes('tasdiqlangan')
+  ) {
+    return 'APPROVED'
+  }
 
   // CANCELLED / REJECTED / RETURNED
-  if (s.includes('cancel') || s.includes('reject') || s.includes('불허') ||
-      s.includes('취소') || s.includes('반려') || s.includes('returned') ||
-      s.includes('bekor') || s.includes('rad etil') || s === 'cancelled') return 'CANCELLED'
+  if (
+    s.includes('cancel')
+    || s.includes('reject')
+    || s.includes('불허')
+    || s.includes('취소')
+    || s.includes('반려')
+    || s.includes('returned')
+    || s.includes('bekor')
+    || s.includes('rad etil')
+  ) {
+    return 'CANCELLED'
+  }
 
   // SUPPLEMENT_SUBMITTED (must come before SUPPLEMENT_NEEDED)
-  if (s.includes('supplement submitted') || s.includes('supplement completed') ||
-      s.includes('보완완료') || s.includes('보완제출') || s.includes('보완접수') ||
-      s === 'supplement_submitted') return 'SUPPLEMENT_SUBMITTED'
+  if (
+    s.includes('supplement submitted')
+    || s.includes('supplement completed')
+    || s.includes('보완완료')
+    || s.includes('보완제출')
+    || s.includes('보완접수')
+  ) {
+    return 'SUPPLEMENT_SUBMITTED'
+  }
 
   // SUPPLEMENT_NEEDED — all variants map here
-  if (s === 'supplement_needed' ||
-      s.includes('pending supplement') ||
-      s.includes('supplement needed') ||
-      s.includes('supplement') ||
-      s.includes('보완대기') || s.includes('보완요청') || s.includes('보완요구') ||
-      s.includes('보완') ||
-      s.includes("qo'shimcha") || s.includes('asking')) return 'SUPPLEMENT_NEEDED'
+  if (
+    s.includes('pending supplement')
+    || s.includes('supplement needed')
+    || s.includes('supplement')
+    || s.includes('보완대기')
+    || s.includes('보완요청')
+    || s.includes('보완요구')
+    || s.includes('보완')
+    || s.includes('qo\'shimcha')
+    || s.includes('asking')
+  ) {
+    return 'SUPPLEMENT_NEEDED'
+  }
 
   // RECEIVED
-  if (s.includes('received') || s.includes('접수') || s.includes('신청') ||
-      s.includes('qabul') || s.includes('app/') || s === 'received') return 'RECEIVED'
+  if (
+    s.includes('received')
+    || s.includes('접수')
+    || s.includes('신청')
+    || s.includes('qabul')
+    || s.includes('app/')
+  ) {
+    return 'RECEIVED'
+  }
 
   // UNDER_REVIEW
-  if (s.includes('under_review') || s.includes('under review') ||
-      s.includes('심사중') || s.includes('심사 중') ||
-      s.includes('처리중') || s.includes('처리 중') ||
-      s.includes("ko'rib") || s.includes('tayyorlanish')) return 'UNDER_REVIEW'
+  if (
+    s.includes('under review')
+    || s.includes('심사중')
+    || s.includes('심사 중')
+    || s.includes('처리중')
+    || s.includes('처리 중')
+    || s.includes('ko\'rib')
+    || s.includes('tayyorlanish')
+  ) {
+    return 'UNDER_REVIEW'
+  }
 
   // EXPIRED
-  if (s.includes('expired') || s.includes('기한만료')) return 'EXPIRED'
+  if (s.includes('expired') || s.includes('기한만료')) {
+    return 'EXPIRED'
+  }
 
   return 'UNKNOWN'
 }
@@ -105,10 +152,23 @@ export function isSameStatus(a: unknown, b: unknown): boolean {
 
 /**
  * Returns the canonical status string to store in the database.
- * Call this before every DB write — keeps the DB clean.
+ * Call this before every DB write — keeps the DB clean and human-readable.
+ * Always returns 'UNDER REVIEW' (never 'under_review' or 'UNDER_REVIEW').
  */
 export function toDbStatus(status: unknown): string {
-  return normalizeStatus(status) as string
+  const norm = normalizeStatus(status)
+  switch (norm) {
+    case 'UNDER_REVIEW': return 'UNDER REVIEW'
+    case 'APPROVED': return 'APPROVED'
+    case 'VISA_USED': return 'VISA USED'
+    case 'CANCELLED': return 'CANCELLED'
+    case 'RECEIVED': return 'RECEIVED'
+    case 'SUPPLEMENT_NEEDED': return 'SUPPLEMENT NEEDED'
+    case 'SUPPLEMENT_SUBMITTED': return 'SUPPLEMENT SUBMITTED'
+    case 'EXPIRED': return 'EXPIRED'
+    case 'PENDING': return 'PENDING'
+    default: return 'PENDING'
+  }
 }
 
 /**

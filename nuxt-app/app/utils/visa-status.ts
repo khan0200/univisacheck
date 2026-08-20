@@ -16,7 +16,7 @@ export const TECHNICAL_STATUSES = ['COMPLETED', 'SUCCESS', 'QUEUED', 'DONE', 'IN
 export type StatusBucket = 'pending' | 'application' | 'cancelled' | 'approved'
 
 export function bucketForStatus(statusValue: string | undefined | null): StatusBucket {
-  const status = (statusValue || '').toLowerCase()
+  const status = (statusValue || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
   const isApproved = status.includes('approved') || status.includes('visa used')
   const isCancelled = status.includes('cancel') || status.includes('reject')
   const isPending = status === 'pending' || status === 'unknown' || status === '' || status.includes('error') || status.includes('not found') || status.includes('no application') || status.includes('topilmadi') || status.includes('mavjud emas')
@@ -32,22 +32,22 @@ export function isApplicationStatus(statusValue: string | undefined | null): boo
 }
 
 export function displayStatusText(statusValue: string | undefined | null): string {
-  const status = (statusValue || '').toLowerCase()
-  if (status.includes('visa used')) return 'Visa Used'
-  if (status.includes('approved')) return 'Approved'
-  if (status.includes('cancel') || status.includes('reject')) return 'Cancelled'
+  const status = (statusValue || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
+  if (status.includes('visa used') || status.includes('사용완료')) return 'Visa Used'
+  if (status.includes('approved') || status.includes('issued') || status.includes('허가') || status.includes('tasdiqlangan')) return 'Approved'
+  if (status.includes('cancel') || status.includes('reject') || status.includes('불허') || status.includes('rad etil') || status.includes('bekor')) return 'Cancelled'
   if (isSupplementSubmittedStatus(status)) return 'Supplement Submitted'
   if (isSupplementNeededStatus(status) || isSupplementStatus(status)) return 'Supplement Needed'
-  if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error')) return 'Pending'
-  if (status.includes('received') || status.includes('app/')) return 'Received'
-  if (status.includes('under review') || status.includes('심사중') || status.includes('심사 중') || status.includes('처리중') || status.includes('처리 중')) return 'Under Review'
+  if (status === 'pending' || status === 'unknown' || status === '' || status.includes('error') || status.includes('not found') || status.includes('topilmadi')) return 'Pending'
+  if (status.includes('received') || status.includes('app/') || status.includes('접수') || status.includes('qabul')) return 'Received'
+  if (isUnderReviewStatus(status)) return 'Under Review'
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
 /** Status badge color, for use with UBadge's `color` prop. */
 export function statusBadgeColor(statusValue: string | undefined | null): 'success' | 'error' | 'neutral' | 'warning' | 'primary' {
-  const status = (statusValue || '').toLowerCase()
-  if (status.includes('approved') || status.includes('visa used')) return 'success'
+  const status = (statusValue || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
+  if (status.includes('approved') || status.includes('visa used') || status.includes('issued')) return 'success'
   if (status.includes('cancel') || status.includes('reject')) return 'error'
   if (isSupplementSubmittedStatus(status)) return 'primary'
   if (isSupplementNeededStatus(status) || isSupplementStatus(status)) return 'warning'
@@ -243,14 +243,16 @@ export function extractVisaStatus(data: Record<string, unknown>): { status: stri
 }
 
 export function normalizeStatusForComparison(status: string | undefined | null): string {
-  const str = String(status || '').trim().toLowerCase()
-  if (!str || str === 'pending' || str === 'unknown' || str.includes('error')) return 'pending'
-  if (str.includes('approved') || str.includes('visa used') || str.includes('issued')) return 'approved'
-  if (str.includes('cancel') || str.includes('reject')) return 'cancelled'
+  const str = String(status || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
+  if (!str || str === 'pending' || str === 'unknown' || str.includes('error') || str.includes('not found') || str.includes('topilmadi')) return 'pending'
+  if (str.includes('visa used') || str.includes('사용완료') || str.includes('ishlatilgan')) return 'visa used'
+  if (str.includes('approved') || str.includes('issued') || str.includes('허가') || str.includes('tasdiqlangan')) return 'approved'
+  if (str.includes('cancel') || str.includes('reject') || str.includes('불허') || str.includes('rad etil') || str.includes('bekor')) return 'cancelled'
   if (isSupplementSubmittedStatus(str)) return 'supplement submitted'
   if (isSupplementNeededStatus(str) || isSupplementStatus(str)) return 'supplement needed'
-  if (str.includes('received') || str.includes('app/')) return 'received'
+  if (str.includes('received') || str.includes('app/') || str.includes('접수') || str.includes('qabul')) return 'received'
   if (isUnderReviewStatus(str)) return 'under review'
+  if (str.includes('expired') || str.includes('기한만료')) return 'expired'
   return str
 }
 
@@ -318,18 +320,20 @@ export function getDaysSinceApplication(appDateStr: string | undefined | null): 
 }
 
 export function isUnderReviewStatus(statusValue: string | undefined | null): boolean {
-  const s = (statusValue || '').toLowerCase()
+  const s = (statusValue || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
   return s.includes('under review')
     || s.includes('심사중')
     || s.includes('심사 중')
     || s.includes('처리중')
     || s.includes('처리 중')
     || s.includes('ko\'rib chiqilmoqda')
+    || s.includes('ko\'rib')
     || s.includes('viza tayyorlanish bosqichida')
+    || s.includes('tayyorlanish')
 }
 
 export function isSupplementSubmittedStatus(statusValue: string | undefined | null): boolean {
-  const s = (statusValue || '').toLowerCase()
+  const s = (statusValue || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
   return s.includes('supplement submitted')
     || s.includes('supplement completed')
     || s.includes('보완완료')
@@ -338,7 +342,7 @@ export function isSupplementSubmittedStatus(statusValue: string | undefined | nu
 }
 
 export function isSupplementNeededStatus(statusValue: string | undefined | null): boolean {
-  const s = (statusValue || '').toLowerCase()
+  const s = (statusValue || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
   return s.includes('supplement needed')
     || s.includes('supplement requested')
     || s.includes('pending supplement')
@@ -348,7 +352,7 @@ export function isSupplementNeededStatus(statusValue: string | undefined | null)
 }
 
 export function isSupplementStatus(statusValue: string | undefined | null): boolean {
-  const s = (statusValue || '').toLowerCase()
+  const s = (statusValue || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
   return s.includes('supplement')
     || s.includes('asking')
     || s.includes('보완')

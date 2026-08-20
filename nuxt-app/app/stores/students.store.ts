@@ -290,8 +290,8 @@ export const useStudentsStore = defineStore('students', () => {
           sessionChanges.value.push({
             fullName: target.fullName,
             passport: target.passport,
-            oldStatus,
-            newStatus
+            oldStatus: displayStatusText(oldStatus),
+            newStatus: displayStatusText(newStatus)
           })
         }
       }
