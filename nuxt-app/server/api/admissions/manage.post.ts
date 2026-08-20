@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto'
 import { getTursoClient } from '../../utils/turso'
+import { invalidateAdmissionsCache } from '../admissions.get'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -18,10 +19,16 @@ export default defineEventHandler(async (event) => {
       const is_expected = payload.is_expected ? 1 : 0
       const expected_date_range = typeof payload.expected_date_range === 'object' && payload.expected_date_range !== null
         ? JSON.stringify(payload.expected_date_range)
-        : '{}'
-      const rounds = Array.isArray(payload.rounds) ? JSON.stringify(payload.rounds) : '[]'
-      const visa_types = Array.isArray(payload.visa_types) ? JSON.stringify(payload.visa_types) : '[]'
-      const university_types = Array.isArray(payload.university_types) ? JSON.stringify(payload.university_types) : '[]'
+        : (typeof payload.expected_date_range === 'string' ? payload.expected_date_range : '{}')
+      const rounds = Array.isArray(payload.rounds)
+        ? JSON.stringify(payload.rounds)
+        : (typeof payload.rounds === 'string' ? payload.rounds : '[]')
+      const visa_types = Array.isArray(payload.visa_types)
+        ? JSON.stringify(payload.visa_types)
+        : (typeof payload.visa_types === 'string' ? payload.visa_types : '[]')
+      const university_types = Array.isArray(payload.university_types)
+        ? JSON.stringify(payload.university_types)
+        : (typeof payload.university_types === 'string' ? payload.university_types : '[]')
       const is_hidden = payload.is_hidden ? 1 : 0
 
       await db.execute({
@@ -48,6 +55,8 @@ export default defineEventHandler(async (event) => {
           now
         ]
       })
+
+      invalidateAdmissionsCache()
 
       return {
         success: true,
@@ -77,10 +86,16 @@ export default defineEventHandler(async (event) => {
       const is_expected = payload.is_expected ? 1 : 0
       const expected_date_range = typeof payload.expected_date_range === 'object' && payload.expected_date_range !== null
         ? JSON.stringify(payload.expected_date_range)
-        : '{}'
-      const rounds = Array.isArray(payload.rounds) ? JSON.stringify(payload.rounds) : '[]'
-      const visa_types = Array.isArray(payload.visa_types) ? JSON.stringify(payload.visa_types) : '[]'
-      const university_types = Array.isArray(payload.university_types) ? JSON.stringify(payload.university_types) : '[]'
+        : (typeof payload.expected_date_range === 'string' ? payload.expected_date_range : '{}')
+      const rounds = Array.isArray(payload.rounds)
+        ? JSON.stringify(payload.rounds)
+        : (typeof payload.rounds === 'string' ? payload.rounds : '[]')
+      const visa_types = Array.isArray(payload.visa_types)
+        ? JSON.stringify(payload.visa_types)
+        : (typeof payload.visa_types === 'string' ? payload.visa_types : '[]')
+      const university_types = Array.isArray(payload.university_types)
+        ? JSON.stringify(payload.university_types)
+        : (typeof payload.university_types === 'string' ? payload.university_types : '[]')
 
       await db.execute({
         sql: `
@@ -112,6 +127,8 @@ export default defineEventHandler(async (event) => {
         ]
       })
 
+      invalidateAdmissionsCache()
+
       return {
         success: true,
         data: {
@@ -137,6 +154,8 @@ export default defineEventHandler(async (event) => {
         args: [is_hidden, now, id]
       })
 
+      invalidateAdmissionsCache()
+
       return {
         success: true,
         data: {
@@ -152,6 +171,8 @@ export default defineEventHandler(async (event) => {
         sql: 'DELETE FROM admissions WHERE id = ?',
         args: [id]
       })
+
+      invalidateAdmissionsCache()
 
       return { success: true }
     }

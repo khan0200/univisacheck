@@ -255,8 +255,9 @@ const SEMESTER_SUGGESTIONS = [
   '2028 WINTER'
 ]
 
-// Fetch admissions
+// Fetch admissions with cache-busting
 const { data: response, pending, refresh } = await useFetch<{ success: boolean, data: Admission[] }>('/api/admissions', {
+  query: { t: () => Date.now() },
   default: () => ({ success: true, data: [] })
 })
 
@@ -401,16 +402,30 @@ function openEditModal(item: Admission) {
     form.expected_to = item.expected_date_range?.to || ''
     form.rounds = []
   } else {
-    const count = item.rounds?.length ? String(item.rounds.length) : (item.rounds_count || '1')
+    const rawRounds = item.rounds && Array.isArray(item.rounds) ? item.rounds : []
+    const count = rawRounds.length > 0 ? String(rawRounds.length) : (item.rounds_count || '1')
     form.rounds_count = count
-    form.rounds = (item.rounds || []).map((r, i) => ({
-      roundNumber: r.roundNumber || (i + 1),
-      onlineApplicationFrom: r.onlineApplicationFrom || '',
-      onlineApplicationTo: r.onlineApplicationTo || '',
-      documentSubmission: r.documentSubmission || '',
-      interview: r.interview || '',
-      announcement: r.announcement || ''
-    }))
+    const countNum = parseInt(count, 10) || 1
+
+    if (rawRounds.length > 0) {
+      form.rounds = rawRounds.map((r, i) => ({
+        roundNumber: r.roundNumber || (i + 1),
+        onlineApplicationFrom: r.onlineApplicationFrom || '',
+        onlineApplicationTo: r.onlineApplicationTo || '',
+        documentSubmission: r.documentSubmission || '',
+        interview: r.interview || '',
+        announcement: r.announcement || ''
+      }))
+    } else {
+      form.rounds = Array.from({ length: countNum }, (_, i) => ({
+        roundNumber: i + 1,
+        onlineApplicationFrom: '',
+        onlineApplicationTo: '',
+        documentSubmission: '',
+        interview: '',
+        announcement: ''
+      }))
+    }
   }
 
   formModalOpen.value = true
@@ -453,7 +468,7 @@ async function handleSave() {
 
   const isExpected = form.rounds_count === 'EXPECTED'
 
-  // Validate that dates follow chronological order
+  // Validate that online application dates follow chronological order
   if (!isExpected && form.rounds) {
     for (let i = 0; i < form.rounds.length; i++) {
       const r = form.rounds[i]
@@ -467,46 +482,7 @@ async function handleSave() {
             title: `${roundLabel}: Ariza tugash sanasi (${r.onlineApplicationTo}) boshlanish sanasidan (${r.onlineApplicationFrom}) oldin bo'lishi mumkin emas.`,
             color: 'error'
           })
-          return
-        }
-      }
-
-      // 2. HUJJAT TOPSHIRISH vs GACHA
-      if (r.onlineApplicationTo && r.documentSubmission) {
-        if (r.documentSubmission < r.onlineApplicationTo) {
-          toast.add({
-            title: `${roundLabel}: Hujjat topshirish sanasi (${r.documentSubmission}) ariza tugash sanasidan (${r.onlineApplicationTo}) oldin bo'lishi mumkin emas.`,
-            color: 'error'
-          })
-          return
-        }
-      }
-
-      // 3. SUHBAT vs HUJJAT TOPSHIRISH (or GACHA)
-      const prevDocDate = r.documentSubmission || r.onlineApplicationTo
-      if (r.interview && prevDocDate) {
-        if (r.interview < prevDocDate) {
-          const fieldName = r.documentSubmission ? 'Hujjat topshirish' : 'Ariza tugash (Gacha)'
-          toast.add({
-            title: `${roundLabel}: Suhbat sanasi (${r.interview}) ${fieldName} sanasidan (${prevDocDate}) oldin bo'lishi mumkin emas.`,
-            color: 'error'
-          })
-          return
-        }
-      }
-
-      // 4. NATIJA (E'LON) vs SUHBAT / HUJJAT TOPSHIRISH / GACHA
-      const prevInterviewDate = r.interview || r.documentSubmission || r.onlineApplicationTo
-      if (r.announcement && prevInterviewDate) {
-        if (r.announcement < prevInterviewDate) {
-          let fieldName = 'Ariza tugash (Gacha)'
-          if (r.interview) fieldName = 'Suhbat'
-          else if (r.documentSubmission) fieldName = 'Hujjat topshirish'
-
-          toast.add({
-            title: `${roundLabel}: Natija (E'lon) sanasi (${r.announcement}) ${fieldName} sanasidan (${prevInterviewDate}) oldin bo'lishi mumkin emas.`,
-            color: 'error'
-          })
+          activeTab.value = 'admission'
           return
         }
       }
@@ -536,7 +512,7 @@ async function handleSave() {
       payload.rounds = form.rounds
     }
 
-    const res = await $fetch<{ success: boolean, error?: string }>('/api/admissions/manage', {
+    const res = await $fetch<{ success: boolean, data?: Admission, error?: string }>('/api/admissions/manage', {
       method: 'POST',
       body: {
         action: formMode.value === 'add' ? 'create' : 'update',
@@ -546,6 +522,32 @@ async function handleSave() {
     })
 
     if (!res.success) throw new Error(res.error || 'Operation failed')
+
+    // Optimistically update the reactive list immediately
+    if (formMode.value === 'edit' && editingId.value && response.value?.data) {
+      const idx = response.value.data.findIndex((item: Admission) => String(item.id) === String(editingId.value))
+      if (idx !== -1 && response.value.data[idx]) {
+        const existing = response.value.data[idx]
+        response.value.data[idx] = {
+          ...existing,
+          id: existing.id,
+          university_name: payload.university_name,
+          education_level: payload.education_level,
+          admission_period: payload.admission_period,
+          rounds_count: payload.rounds_count,
+          is_expected: payload.is_expected,
+          expected_date_range: payload.expected_date_range || {},
+          rounds: payload.rounds || [],
+          visa_types: payload.visa_types || [],
+          university_types: payload.university_types || [],
+          is_hidden: existing.is_hidden,
+          created_at: existing.created_at,
+          updated_at: new Date().toISOString()
+        }
+      }
+    } else if (formMode.value === 'add' && res.data?.id && response.value?.data) {
+      response.value.data.unshift(res.data as unknown as Admission)
+    }
 
     toast.add({
       title: formMode.value === 'add' ? 'Qabul e\'loni muvaffaqiyatli qo\'shildi' : 'Qabul e\'loni yangilandi',
@@ -624,14 +626,18 @@ async function handleDelete() {
   if (!itemToDelete.value) return
   isDeleting.value = true
   try {
+    const targetId = itemToDelete.value.id
     const res = await $fetch<{ success: boolean }>('/api/admissions/manage', {
       method: 'POST',
       body: {
         action: 'delete',
-        id: itemToDelete.value.id
+        id: targetId
       }
     })
     if (res.success) {
+      if (response.value?.data) {
+        response.value.data = response.value.data.filter(i => String(i.id) !== String(targetId))
+      }
       toast.add({ title: 'Qabul e\'loni o\'chirildi', color: 'success' })
       deleteModalOpen.value = false
       await refresh()
@@ -1258,7 +1264,6 @@ const filteredAdmissions = computed(() => {
                 <div class="relative">
                   <input
                     v-model="form.university_name"
-                    required
                     autocomplete="off"
                     placeholder="Universitet nomini yozing (masalan: Korea, Yonsei, Inha)..."
                     class="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/[0.12] bg-white dark:bg-white/[0.05] text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase placeholder:normal-case placeholder:font-normal"
@@ -1523,9 +1528,10 @@ const filteredAdmissions = computed(() => {
                 Bekor Qilish
               </button>
               <button
-                type="submit"
+                type="button"
                 :disabled="isSaving"
-                class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-600/25 flex items-center gap-1.5 transition-all disabled:opacity-50"
+                class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-600/25 flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
+                @click="handleSave"
               >
                 <UIcon
                   v-if="!isSaving"

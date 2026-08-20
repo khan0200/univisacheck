@@ -26,28 +26,40 @@ export interface AdmissionRow {
 // Backwards-compatibility alias
 export type SupabaseAdmissionRow = AdmissionRow
 
-function safeParseJson<T>(str: unknown, fallback: T): T {
-  if (!str || typeof str !== 'string') return fallback
-  try {
-    return JSON.parse(str) as T
-  } catch {
-    return fallback
+function safeParseJson<T>(val: unknown, fallback: T): T {
+  if (val === null || val === undefined) return fallback
+  if (typeof val === 'object') return val as T
+  if (typeof val === 'string') {
+    try {
+      return JSON.parse(val) as T
+    } catch {
+      return fallback
+    }
   }
+  return fallback
 }
 
 let cachedAdmissions: { success: boolean, data: AdmissionRow[] } | null = null
 let cacheExpiresAt = 0
-const CACHE_TTL_MS = 10 * 60 * 1000 // 10 minutes in-memory
+const CACHE_TTL_MS = 60 * 1000 // 1 minute in-memory fallback
+
+export function invalidateAdmissionsCache() {
+  cachedAdmissions = null
+  cacheExpiresAt = 0
+}
 
 export default defineEventHandler(async (event) => {
   setResponseHeaders(event, {
-    'Cache-Control': 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400',
-    'CDN-Cache-Control': 'public, s-maxage=3600',
-    'Vercel-CDN-Cache-Control': 'public, s-maxage=3600'
+    'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=120',
+    'CDN-Cache-Control': 'public, s-maxage=60',
+    'Vercel-CDN-Cache-Control': 'public, s-maxage=60'
   })
 
+  const query = getQuery(event)
+  const isBypassCache = Boolean(query.t || query.nocache || query.refresh)
+
   const now = Date.now()
-  if (cachedAdmissions && now < cacheExpiresAt) {
+  if (!isBypassCache && cachedAdmissions && now < cacheExpiresAt) {
     return cachedAdmissions
   }
 

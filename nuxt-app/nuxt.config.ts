@@ -63,11 +63,10 @@ export default defineNuxtConfig({
       }
     },
     '/api/admissions': {
-      isr: 3600,
       headers: {
-        'Cache-Control': 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400',
-        'CDN-Cache-Control': 'public, s-maxage=3600',
-        'Vercel-CDN-Cache-Control': 'public, s-maxage=3600'
+        'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=120',
+        'CDN-Cache-Control': 'public, s-maxage=60',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=60'
       }
     },
     '/api/qabul-dates': {

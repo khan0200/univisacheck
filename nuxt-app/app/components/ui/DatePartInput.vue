@@ -32,12 +32,18 @@ function syncFromModel(val?: string | null) {
     lastEmitted = ''
     return
   }
-  const parts = val.split('-')
-  if (parts.length === 3) {
+  const normalized = String(val).trim().replace(/[\.\/]/g, '-')
+  const parts = normalized.split('-')
+  if (parts.length >= 3) {
     yyyy.value = parts[0] || currentYear
-    mm.value = parts[1] || ''
-    dd.value = parts[2] || ''
-    lastEmitted = val
+    mm.value = parts[1] ? parts[1].padStart(2, '0') : ''
+    dd.value = parts[2] ? parts[2].padStart(2, '0') : ''
+    lastEmitted = `${yyyy.value}-${mm.value}-${dd.value}`
+  } else if (parts.length === 2) {
+    yyyy.value = parts[0] || currentYear
+    mm.value = parts[1] ? parts[1].padStart(2, '0') : ''
+    dd.value = ''
+    lastEmitted = `${yyyy.value}-${mm.value}-01`
   }
 }
 
