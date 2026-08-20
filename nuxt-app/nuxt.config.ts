@@ -43,9 +43,9 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    // Static Pages (served directly from Vercel Edge CDN with 0 compute)
-    '/': { prerender: true },
-    '/visa-status': { prerender: true },
+    // Dynamic SSR pages — always fetches live data so hide/show toggles reflect immediately
+    '/': {},
+    '/visa-status': {},
     '/auth': { ssr: false },
     '/add': { ssr: false },
     '/cabinet': { ssr: false },
