@@ -61,7 +61,8 @@ async function fetchStudentPayload(
       coordinator: r.coordinator ? String(r.coordinator) : undefined,
       b2b: r.b2b ? String(r.b2b) : undefined,
       check_source: r.check_source ? String(r.check_source) : 'manual',
-      checkSource: r.checkSource ? String(r.checkSource) : (r.check_source ? String(r.check_source) : 'manual')
+      checkSource: r.checkSource ? String(r.checkSource) : (r.check_source ? String(r.check_source) : 'manual'),
+      flag: r.flag === 1 || r.flag === true
     }
   } catch {
     return null
@@ -161,6 +162,7 @@ export default defineEventHandler(async (event) => {
             ...row,
             batchSelected: row.batchSelected === 1,
             pinned: row.pinned === 1,
+            flag: row.flag === 1 || row.flag === true,
             check_source: row.check_source ? String(row.check_source) : 'manual',
             checkSource: row.checkSource ? String(row.checkSource) : (row.check_source ? String(row.check_source) : 'manual')
           }
@@ -171,7 +173,7 @@ export default defineEventHandler(async (event) => {
                   passport, fullName, birthday, studentId, status,
                   applicationDate, lastChecked, rejectReason, pdfUrl,
                   batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                  tariff, university, coordinator, b2b, check_source, checkSource, apiResponse
+                  tariff, university, coordinator, b2b, check_source, checkSource, apiResponse, flag
                 FROM students 
                 WHERE userId = ? AND deletedAt IS NULL 
                 ORDER BY createdAt DESC`,
@@ -183,6 +185,7 @@ export default defineEventHandler(async (event) => {
             ...row,
             batchSelected: row.batchSelected === 1,
             pinned: row.pinned === 1,
+            flag: row.flag === 1 || row.flag === true,
             check_source: row.check_source ? String(row.check_source) : 'manual',
             checkSource: row.checkSource ? String(row.checkSource) : (row.check_source ? String(row.check_source) : 'manual')
           }
@@ -339,6 +342,11 @@ export default defineEventHandler(async (event) => {
         pinned = body.pinned ? 1 : 0
       }
 
+      let flag: number | null = null
+      if (body.flag !== undefined) {
+        flag = (body.flag === true || body.flag === 1 || body.flag === 'true') ? 1 : 0
+      }
+
       let lastChecked: string | null = null
       if (body.lastChecked !== undefined) {
         lastChecked = new Date().toISOString()
@@ -381,8 +389,8 @@ export default defineEventHandler(async (event) => {
                         passport, fullName, birthday, studentId, status,
                         applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
                         batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                        tariff, university, coordinator, b2b
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?)
+                        tariff, university, coordinator, b2b, flag
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `
         await db.execute({
           sql,
@@ -406,7 +414,8 @@ export default defineEventHandler(async (event) => {
             tariff || '',
             university || '',
             coordinator || '',
-            b2b || ''
+            b2b || '',
+            flag !== null ? flag : 0
           ]
         })
         await syncStudentsCount(db, userId)
@@ -531,6 +540,11 @@ export default defineEventHandler(async (event) => {
           updateFields.push('b2b = ?')
           args.push(b2b)
           changedFields.b2b = b2b
+        }
+        if (flag !== null) {
+          updateFields.push('flag = ?')
+          args.push(flag)
+          changedFields.flag = flag === 1
         }
 
         if (updateFields.length === 0) {

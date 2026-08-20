@@ -30,6 +30,7 @@ export interface StudentPayload {
   b2b?: string
   check_source?: string
   checkSource?: string
+  flag?: boolean
 }
 
 export interface BaseEvent {

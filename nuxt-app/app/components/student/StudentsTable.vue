@@ -165,6 +165,11 @@ watch([() => props.students, () => props.currentFilter], () => {
                 label="Copy name"
                 :copy-id="`m-name-${student.passport}`"
               />
+              <span
+                v-if="student.flag"
+                title="Flagged"
+                class="text-sm select-none shrink-0"
+              >🚩</span>
               <UIcon
                 v-if="student.pinned"
                 name="i-lucide-pin"
@@ -388,6 +393,11 @@ watch([() => props.students, () => props.currentFilter], () => {
                   label="Copy name"
                   :copy-id="`name-${student.passport}`"
                 />
+                <span
+                  v-if="student.flag"
+                  title="Flagged"
+                  class="text-sm select-none shrink-0"
+                >🚩</span>
                 <UIcon
                   v-if="student.pinned"
                   name="i-lucide-pin"

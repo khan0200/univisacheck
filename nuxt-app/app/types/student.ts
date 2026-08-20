@@ -51,6 +51,7 @@ export interface Student {
   applicationNo?: string
   deletedAt?: string | null
   pinned?: boolean
+  flag?: boolean
   tariff?: string
   university?: string
   coordinator?: string
@@ -71,6 +72,7 @@ export interface StudentFormInput {
   visaType: VisaType
   applicationNo: string
   originalPassport?: string
+  flag?: boolean
   tariff?: string
   university?: string
   coordinator?: string

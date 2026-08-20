@@ -53,7 +53,7 @@ const coordinatorsList = ref<{ name: string }[]>([])
 const b2bList = ref<{ name: string }[]>([])
 
 const showEditFieldModal = ref(false)
-const editingFieldName = ref<'tariff' | 'university' | 'coordinator' | 'b2b' | null>(null)
+const editingFieldName = ref<'tariff' | 'university' | 'coordinator' | 'b2b' | 'flag' | null>(null)
 const editingFieldValue = ref('none')
 
 async function loadOptions() {
@@ -80,12 +80,13 @@ watch(() => props.open, (open) => {
   showEditFieldModal.value = false
 })
 
-function openEditField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b2b') {
+function openEditField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b2b' | 'flag') {
   editingFieldName.value = fieldName
   if (fieldName === 'tariff') editingFieldValue.value = props.student?.tariff || 'none'
   else if (fieldName === 'university') editingFieldValue.value = props.student?.university || 'none'
   else if (fieldName === 'coordinator') editingFieldValue.value = props.student?.coordinator || 'none'
   else if (fieldName === 'b2b') editingFieldValue.value = props.student?.b2b || 'none'
+  else if (fieldName === 'flag') editingFieldValue.value = props.student?.flag ? 'true' : 'false'
   showEditFieldModal.value = true
 }
 
@@ -94,6 +95,7 @@ const editingFieldOptions = computed(() => {
   if (editingFieldName.value === 'university') return universityOptions.value
   if (editingFieldName.value === 'coordinator') return coordinatorOptions.value
   if (editingFieldName.value === 'b2b') return b2bOptions.value
+  if (editingFieldName.value === 'flag') return flagOptions.value
   return []
 })
 
@@ -121,9 +123,15 @@ const b2bOptions = computed(() => {
   return [{ value: 'none', label: 'None' }, ...list]
 })
 
-async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b2b', value: string) {
+const flagOptions = computed(() => [
+  { value: 'true', label: 'True' },
+  { value: 'false', label: 'False' }
+])
+
+async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b2b' | 'flag', value: string) {
   if (!props.student) return
-  const apiValue = value === 'none' ? '' : value
+  const isFlag = fieldName === 'flag'
+  const apiValue = isFlag ? (value === 'true') : (value === 'none' ? '' : value)
   try {
     await apiFetch('/api/students', {
       method: 'PATCH',
@@ -164,6 +172,11 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
               <h3 class="font-semibold text-[var(--color-text-primary)] dark:text-white truncate">
                 {{ props.student.fullName }}
               </h3>
+              <span
+                v-if="props.student.flag"
+                title="Flagged"
+                class="text-sm select-none shrink-0"
+              >🚩</span>
               <UIcon
                 :name="isCopied('modal-fullname') ? 'i-lucide-check' : 'i-lucide-copy'"
                 class="size-3.5 shrink-0"
@@ -400,6 +413,38 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
                     size="sm"
                     aria-label="Clear B2B"
                     @click="saveField('b2b', 'none')"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Flag Field -->
+            <div>
+              <label class="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                Flag
+              </label>
+              <div class="rounded-xl border border-[var(--color-border)] dark:border-white/[0.08] p-3 flex items-center justify-between bg-neutral-50/50 dark:bg-white/[0.01]">
+                <span class="text-sm font-semibold flex items-center gap-1.5 text-[var(--color-text-primary)] dark:text-white truncate pr-2">
+                  <span>{{ props.student?.flag ? 'True' : 'False' }}</span>
+                  <span v-if="props.student?.flag">🚩</span>
+                </span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <UButton
+                    icon="i-lucide-pencil"
+                    variant="ghost"
+                    color="neutral"
+                    size="sm"
+                    aria-label="Edit Flag"
+                    @click="openEditField('flag')"
+                  />
+                  <UButton
+                    v-if="props.student?.flag"
+                    icon="i-lucide-trash-2"
+                    variant="ghost"
+                    color="error"
+                    size="sm"
+                    aria-label="Clear Flag"
+                    @click="saveField('flag', 'false')"
                   />
                 </div>
               </div>

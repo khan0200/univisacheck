@@ -79,7 +79,8 @@ export const STUDENT_COLUMNS: DbColumn[] = [
   { name: 'check_source', type: 'TEXT' },
   { name: 'checkSource', type: 'TEXT' },
   { name: 'lastNotifiedStatus', type: 'TEXT DEFAULT NULL' },
-  { name: 'last_notified_status', type: 'TEXT DEFAULT NULL' }
+  { name: 'last_notified_status', type: 'TEXT DEFAULT NULL' },
+  { name: 'flag', type: 'INTEGER DEFAULT 0' }
 ]
 
 export const CREATE_JOBS_TABLE = `

@@ -121,7 +121,19 @@ export function getStatusDate(student: Student): string {
   const data = parseApiResponse(student.apiResponse)
   if (!data) return ''
   const rec = data as Record<string, unknown>
-  return String(data.entryDate || rec.entry_date || rec.givenDate || rec.statusDate || '')
+  const vData = data.response_data?.visa_data as Record<string, unknown> | undefined
+  const vData2 = data.visa_data as Record<string, unknown> | undefined
+  return String(
+    data.entryDate
+    || rec.entry_date
+    || rec.givenDate
+    || rec.statusDate
+    || vData?.entry_date
+    || vData?.entryDate
+    || vData2?.entry_date
+    || vData2?.entryDate
+    || ''
+  )
 }
 
 export function getCancellationReason(student: Student): string {
