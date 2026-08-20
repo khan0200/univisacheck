@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Student, StudentFormInput, VisaType } from '~/types/student'
-import { formatDateInput, formatPassportInput, validateBirthday, validatePassport } from '~/utils/validation'
+import { formatDateInput, formatNameInput, formatPassportInput, validateBirthday, validatePassport } from '~/utils/validation'
 
 interface StudentSubmitPayload extends StudentFormInput {
   status?: string
@@ -89,7 +89,7 @@ function handlePassportInput(e: Event) {
   const input = e.target as HTMLInputElement
   form.passport = formatPassportInput(input.value)
   onPassportInput(form.passport, isEdit.value, (fullName, birthday) => {
-    if (fullName && !form.fullName.trim()) form.fullName = fullName
+    if (fullName && !form.fullName.trim()) form.fullName = formatNameInput(fullName)
     if (birthday && !form.birthday.trim()) form.birthday = birthday
   })
 }
@@ -98,13 +98,23 @@ function handleBirthdayInput(e: Event) {
   form.birthday = formatDateInput((e.target as HTMLInputElement).value)
 }
 
-function handleUppercase(field: 'fullName' | 'studentId' | 'applicationNo', e: Event) {
+function handleFullNameInput(e: Event) {
+  const input = e.target as HTMLInputElement
+  const formatted = formatNameInput(input.value)
+  form.fullName = formatted
+  if (input.value !== formatted) {
+    input.value = formatted
+  }
+}
+
+function handleUppercase(field: 'studentId' | 'applicationNo', e: Event) {
   form[field] = (e.target as HTMLInputElement).value.toUpperCase()
 }
 
 async function handleSubmit() {
   errorMessage.value = ''
-  const fullName = form.fullName.toUpperCase().trim()
+  const fullName = form.fullName.replace(/\s+/g, ' ').trim().toUpperCase()
+  form.fullName = fullName
   const passport = form.passport.toUpperCase().trim()
   const birthday = form.birthday.trim()
 
@@ -305,7 +315,7 @@ async function handleSubmit() {
             placeholder="ABDUVOHIDOV KUVONCHBEK ABDUMUMIN UGLI"
             required
             class="w-full"
-            @input="handleUppercase('fullName', $event)"
+            @input="handleFullNameInput"
           />
         </UFormField>
 

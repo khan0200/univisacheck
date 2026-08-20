@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { VisaCheckApiResult, VisaCheckFormInput, VisaType } from '~/types/visa-check'
-import { DATE_REGEX, PASSPORT_REGEX, formatDateInput, formatPassportInput } from '~/utils/validation'
+import { DATE_REGEX, PASSPORT_REGEX, formatDateInput, formatNameInput, formatPassportInput } from '~/utils/validation'
 
 definePageMeta({ layout: 'public' })
 
@@ -68,13 +68,23 @@ function handleDobInput(e: Event) {
   userEdited.dob = true
 }
 
+function handleNameInput(e: Event) {
+  const input = e.target as HTMLInputElement
+  const formatted = formatNameInput(input.value)
+  form.name = formatted
+  if (input.value !== formatted) {
+    input.value = formatted
+  }
+  userEdited.name = true
+}
+
 function handleUppercase(field: 'name' | 'appNo', e: Event) {
   form[field] = (e.target as HTMLInputElement).value.toUpperCase()
   userEdited[field] = true
 }
 
 const { isLoading: autofillLoading, onPassportInput } = useVisaCheckAutofill((fields) => {
-  if (fields.fullName && !userEdited.name) form.name = fields.fullName
+  if (fields.fullName && !userEdited.name) form.name = formatNameInput(fields.fullName)
   if (fields.birthday && !userEdited.dob) form.dob = fields.birthday
   if (fields.visaType && fields.visaType !== visaType.value) visaType.value = fields.visaType
 })
@@ -82,7 +92,8 @@ const { isLoading: autofillLoading, onPassportInput } = useVisaCheckAutofill((fi
 function validate(): boolean {
   clearFieldErrors()
   const passport = form.passport.trim().toUpperCase()
-  const name = form.name.trim().toUpperCase()
+  const name = form.name.replace(/\s+/g, ' ').trim().toUpperCase()
+  form.name = name
   const dob = form.dob.trim()
   const appNo = form.appNo.trim().toUpperCase()
 
@@ -99,7 +110,8 @@ async function handleSearch() {
   if (!validate()) return
 
   const passport = form.passport.trim().toUpperCase()
-  const name = form.name.trim().toUpperCase()
+  const name = form.name.replace(/\s+/g, ' ').trim().toUpperCase()
+  form.name = name
   const dob = form.dob.trim()
   const appNo = form.appNo.trim().toUpperCase()
   submittedInput.value = { passport, name, dob, appNo }
@@ -242,7 +254,7 @@ async function handleSearch() {
               :color="fieldErrors.name ? 'error' : 'neutral'"
               autocomplete="off"
               autocapitalize="characters"
-              @input="handleUppercase('name', $event)"
+              @input="handleNameInput"
               @keydown.enter="handleSearch"
             />
           </UFormField>

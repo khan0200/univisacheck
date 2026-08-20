@@ -15,6 +15,14 @@ export function formatDateInput(raw: string): string {
   return value
 }
 
+/** Converts to uppercase, prevents leading spaces, and collapses multiple consecutive spaces into a single space in real-time. */
+export function formatNameInput(raw: string): string {
+  return (raw || '')
+    .toUpperCase()
+    .replace(/^\s+/g, '')
+    .replace(/\s{2,}/g, ' ')
+}
+
 export function validatePassport(passport: string): string | null {
   if (!PASSPORT_REGEX.test(passport)) {
     return 'Passport format must be 5 to 20 letters or numbers (e.g., FA1234567 or 550873628)'

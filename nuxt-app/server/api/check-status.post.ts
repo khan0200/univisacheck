@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const passport = (body.passport_number || body.passport || '').toUpperCase().trim()
-    const fullName = (body.english_name || body.full_name || '').toUpperCase().trim()
+    const fullName = (body.english_name || body.full_name || '').toUpperCase().replace(/\s+/g, ' ').trim()
     const birthDate = (body.birth_date || body.date_of_birth || '').trim()
     const visaType = (body.visa_type || body.visaType || 'Embassy').trim()
     const applicationNo = (body.application_no || body.applicationNo || '').trim()

@@ -317,7 +317,7 @@ export default defineEventHandler(async (event) => {
       const exists = check.rows.length > 0
       const isRevive = exists && Boolean((check.rows[0] as unknown as Record<string, unknown>).deletedAt)
 
-      const fullName = body.fullName !== undefined ? body.fullName.toUpperCase().trim() : null
+      const fullName = body.fullName !== undefined ? String(body.fullName || '').toUpperCase().replace(/\s+/g, ' ').trim() : null
       const birthday = body.birthday !== undefined ? body.birthday.trim() : null
       const studentId = body.studentId !== undefined ? body.studentId.trim() : null
       const status = body.status !== undefined ? body.status : null
