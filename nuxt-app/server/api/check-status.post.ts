@@ -98,18 +98,21 @@ export default defineEventHandler(async (event) => {
         checkSource: 'manual'
       }
 
-      // Build per-row lookup: userId → that student's old status
-      // This fixes the multi-account bug where only firstStudent.status was used
-      // for all users, causing false positives when one account already had the new status.
-      const userOldStatus = new Map<number, string>()
+      // Build per-row lookup: userId → that student's old status & lastNotified status
+      // This fixes false positives when one account already had the new status or baseline in-progress status.
+      const userOldStatus = new Map<number, { oldStatus: string, lastNotified: string }>()
       for (const row of studentRes.rows) {
-        const uid = Number((row as Record<string, unknown>).userId)
+        const r = row as Record<string, unknown>
+        const uid = Number(r.userId)
         if (uid && !isNaN(uid)) {
-          userOldStatus.set(uid, String((row as Record<string, unknown>).status || 'PENDING'))
+          userOldStatus.set(uid, {
+            oldStatus: String(r.status || 'PENDING'),
+            lastNotified: String(r.lastNotifiedStatus || r.last_notified_status || '')
+          })
         }
       }
 
-      for (const [targetUserId, oldStatusForUser] of userOldStatus) {
+      for (const [targetUserId, { oldStatus: oldStatusForUser, lastNotified }] of userOldStatus) {
         publishRealtime(targetUserId, {
           type: 'student.updated',
           eventId: crypto.randomUUID(),
@@ -121,8 +124,12 @@ export default defineEventHandler(async (event) => {
           console.error(`[Check Status Realtime] Failed for userId ${targetUserId}:`, err)
         })
 
+        const isBaseline = (isSameStatus(oldStatusForUser, 'PENDING') || !oldStatusForUser) && (isSameStatus(newStatus, 'UNDER_REVIEW') || isSameStatus(newStatus, 'RECEIVED') || isSameStatus(newStatus, 'PENDING'))
+        const alreadyNotified = lastNotified && isSameStatus(lastNotified, newStatus)
+        const statusGenuinelyChanged = !isSameStatus(oldStatusForUser, newStatus) && !alreadyNotified && !isBaseline
+
         // Only notify if THIS user's student status actually changed (per-user comparison)
-        if (!isSameStatus(oldStatusForUser, newStatus)) {
+        if (statusGenuinelyChanged) {
           sendTelegramNotification(targetUserId, {
             fullName: String(firstStudent.fullName || firstStudent.fullname || fullName),
             passport,
@@ -145,7 +152,7 @@ export default defineEventHandler(async (event) => {
       }
 
       if (direct.found && appDate) {
-        const firstUserId = Array.from(targetUserIds)[0] || 1
+        const firstUserId = Array.from(userOldStatus.keys())[0] || 1
         const studentVisaType = String(firstStudent.visaType || firstStudent.visa_type || visaType)
         tryCreateProcessingNotification(db, appDate, studentVisaType, firstUserId, passport).catch((tErr) => {
           console.error('[Check Status ProcessingNotifier] Error:', tErr instanceof Error ? tErr.message : String(tErr))

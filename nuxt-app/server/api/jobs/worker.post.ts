@@ -38,6 +38,8 @@ interface WorkerStudent {
   student_id?: string
   applicationDate?: string
   lastChecked?: string
+  lastNotifiedStatus?: string
+  last_notified_status?: string
 }
 
 // visa.go.kr starts timing out when too many lookups are in flight. Tasks are
@@ -179,7 +181,10 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
         // e.g. 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' → 'SUPPLEMENT_NEEDED'
         const rawNewStatus = liveResult.found ? liveResult.latestStatus : oldStatus
         newStatus = toDbStatus(rawNewStatus)
-        const statusChanged = !isSameStatus(oldStatus, newStatus)
+        const lastNotified = String(student.lastNotifiedStatus || student.last_notified_status || '')
+        const isBaseline = (isSameStatus(oldStatus, 'PENDING') || !oldStatus) && (isSameStatus(newStatus, 'UNDER_REVIEW') || isSameStatus(newStatus, 'RECEIVED') || isSameStatus(newStatus, 'PENDING'))
+        const alreadyNotified = lastNotified && isSameStatus(lastNotified, newStatus)
+        const statusChanged = !isSameStatus(oldStatus, newStatus) && !alreadyNotified && !isBaseline
 
         const checkSource = claimedTask.checkSource
 

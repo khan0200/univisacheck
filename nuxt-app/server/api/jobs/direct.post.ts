@@ -82,7 +82,10 @@ export default defineEventHandler(async (event) => {
   // e.g. 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' all → 'SUPPLEMENT_NEEDED'
   const rawNewStatus = liveResult.found ? liveResult.latestStatus : oldStatus
   const newStatus = toDbStatus(rawNewStatus)
-  const statusChanged = !isSameStatus(oldStatus, newStatus)
+  const lastNotified = String(student.lastNotifiedStatus || student.last_notified_status || '')
+  const isBaseline = (isSameStatus(oldStatus, 'PENDING') || !oldStatus) && (isSameStatus(newStatus, 'UNDER_REVIEW') || isSameStatus(newStatus, 'RECEIVED') || isSameStatus(newStatus, 'PENDING'))
+  const alreadyNotified = lastNotified && isSameStatus(lastNotified, newStatus)
+  const statusChanged = !isSameStatus(oldStatus, newStatus) && !alreadyNotified && !isBaseline
   const appDate = liveResult.latestDate || String(student.applicationDate || '')
 
   // 5. Persist result to DB

@@ -115,15 +115,20 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     return { ok: true, skipped: 'No subscribers connected' }
   }
 
-  // 2. Validate ownership of student
+  // 2. Validate ownership of student and check last_notified_status
+  let currentDbStatus = ''
+  let lastNotifiedStatus = ''
   try {
     const studentResult = await db.execute({
-      sql: 'SELECT passport FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+      sql: 'SELECT passport, status, "lastNotifiedStatus", last_notified_status FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
       args: [payload.passport, userId]
     })
     if (studentResult.rows.length === 0) {
       return { ok: true, skipped: 'Student not in cabinet' }
     }
+    const studentRow = studentResult.rows[0] as Record<string, unknown>
+    currentDbStatus = String(studentRow.status || '')
+    lastNotifiedStatus = String(studentRow.lastNotifiedStatus || studentRow.last_notified_status || '')
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[Telegram Notifier] DB verify error:', msg)
@@ -145,11 +150,43 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
     entryDate: rawEntryDate
   } = payload
 
-  // Hard guard: never send if the normalized status hasn't actually changed.
-  // This catches 'SUPPLEMENT NEEDED' vs 'PENDING SUPPLEMENT' vs '보완대기' etc.
-  if (rawOldStatus && rawNewStatus && isSameStatus(rawOldStatus, rawNewStatus)) {
-    console.log(`[Telegram Notifier] Skipping — normalized status unchanged (${normalizeStatus(rawOldStatus)} == ${normalizeStatus(rawNewStatus)})`)
+  // ── Bulletproof Guards: NEVER send if status hasn't genuinely changed ──
+
+  // Guard 1: Never re-notify if this student was already notified for this exact same normalized status
+  if (lastNotifiedStatus && isSameStatus(lastNotifiedStatus, rawNewStatus)) {
+    console.log(`[Telegram Notifier] Skipping — student ${rawPassport} already notified for status (${lastNotifiedStatus} == ${rawNewStatus})`)
+    return { ok: true, skipped: 'Already notified for this status' }
+  }
+
+  // Guard 2: Never send if the student's existing DB status matches the new status
+  if (currentDbStatus && isSameStatus(currentDbStatus, rawNewStatus)) {
+    console.log(`[Telegram Notifier] Skipping — DB status already matches new status (${currentDbStatus} == ${rawNewStatus})`)
+    return { ok: true, skipped: 'DB status already matches new status' }
+  }
+
+  // Guard 3: Never send if the provided old status matches the new status
+  if (rawOldStatus && isSameStatus(rawOldStatus, rawNewStatus)) {
+    console.log(`[Telegram Notifier] Skipping — old status matches new status (${rawOldStatus} == ${rawNewStatus})`)
     return { ok: true, skipped: 'Normalized status unchanged — no change' }
+  }
+
+  // Guard 4: Initial check discovery of baseline in-progress status (PENDING -> UNDER_REVIEW / RECEIVED)
+  // When a student is first added to the system, discovering they are already Under Review / Received is
+  // baseline data discovery, NOT a new status decision/change event.
+  const isOldPending = !rawOldStatus || isSameStatus(rawOldStatus, 'PENDING') || isSameStatus(currentDbStatus, 'PENDING')
+  const isNewInProgress = isSameStatus(rawNewStatus, 'UNDER_REVIEW') || isSameStatus(rawNewStatus, 'RECEIVED') || isSameStatus(rawNewStatus, 'PENDING')
+  if (isOldPending && isNewInProgress) {
+    console.log(`[Telegram Notifier] Skipping — initial baseline discovery for ${rawPassport} (${rawNewStatus}), not a status change transition`)
+    // Record baseline status as last notified so future checks know the baseline
+    try {
+      await db.execute({
+        sql: 'UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+        args: [rawNewStatus, rawNewStatus, rawPassport, userId]
+      })
+    } catch {
+      // Non-critical
+    }
+    return { ok: true, skipped: 'Initial baseline status discovery — not a status transition' }
   }
 
   const fullName = escapeTelegramText(rawFullName)
@@ -248,6 +285,18 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
       }).then(r => r.json())
     })
   )
+
+  const successfulSends = results.filter(r => r.status === 'fulfilled' && (r.value as { ok?: boolean })?.ok)
+  if (successfulSends.length > 0) {
+    try {
+      await db.execute({
+        sql: 'UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+        args: [newStatus, newStatus, passport, userId]
+      })
+    } catch (err: unknown) {
+      console.error('[Telegram Notifier] Failed to update lastNotifiedStatus in DB:', err instanceof Error ? err.message : String(err))
+    }
+  }
 
   const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !(r.value as { ok?: boolean })?.ok))
   if (failed.length > 0) {

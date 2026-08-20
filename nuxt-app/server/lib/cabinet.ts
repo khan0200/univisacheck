@@ -48,6 +48,8 @@ export interface DatabaseStudentRow {
   telegram_user_id?: number | null
   apiResponse?: string
   api_response?: string
+  lastNotifiedStatus?: string
+  last_notified_status?: string
   uId?: number
 }
 
@@ -314,7 +316,10 @@ export async function refreshStudent(telegramId: number, passport: string): Prom
     // Normalize to canonical form before writing to DB
     // Ensures 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' all stored identically
     const newStatus = toDbStatus(liveStatus.latestStatus)
-    const changed = !isSameStatus(oldStatus, newStatus)
+    const lastNotified = String(row.lastNotifiedStatus || row.last_notified_status || '')
+    const isBaseline = (isSameStatus(oldStatus, 'PENDING') || !oldStatus) && (isSameStatus(newStatus, 'UNDER_REVIEW') || isSameStatus(newStatus, 'RECEIVED') || isSameStatus(newStatus, 'PENDING'))
+    const alreadyNotified = lastNotified && isSameStatus(lastNotified, newStatus)
+    const changed = !isSameStatus(oldStatus, newStatus) && !alreadyNotified && !isBaseline
     const now = new Date().toISOString()
 
     // 3. Update student in database (keeping both camelCase and snake_case in sync)

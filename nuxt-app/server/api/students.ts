@@ -389,8 +389,8 @@ export default defineEventHandler(async (event) => {
                         passport, fullName, birthday, studentId, status,
                         applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
                         batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                        tariff, university, coordinator, b2b, flag
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        tariff, university, coordinator, b2b, flag, "lastNotifiedStatus", last_notified_status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `
         await db.execute({
           sql,
@@ -415,7 +415,9 @@ export default defineEventHandler(async (event) => {
             university || '',
             coordinator || '',
             b2b || '',
-            flag !== null ? flag : 0
+            flag !== null ? flag : 0,
+            inheritedStatus,
+            inheritedStatus
           ]
         })
         await syncStudentsCount(db, userId)
