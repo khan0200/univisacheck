@@ -107,7 +107,7 @@ function getAdmissionStatus(item: Admission) {
       type: 'expected',
       priority: 4,
       label: 'Upcoming',
-      badgeClass: 'bg-amber-500 text-white font-bold shadow-xs',
+      badgeClass: 'bg-orange-500 text-white font-bold shadow-xs',
       dotClass: 'bg-white',
       sortTimestamp: expTime
     }
@@ -119,7 +119,7 @@ function getAdmissionStatus(item: Admission) {
       type: 'outdated',
       priority: 5,
       label: 'Closed',
-      badgeClass: 'bg-slate-500 text-white font-bold shadow-xs',
+      badgeClass: 'bg-slate-400 text-white font-bold shadow-xs',
       dotClass: 'bg-white',
       sortTimestamp: 0
     }
@@ -166,7 +166,7 @@ function getAdmissionStatus(item: Admission) {
       type: 'ongoing',
       priority: 1,
       label: 'Active',
-      badgeClass: 'bg-emerald-600 text-white font-bold shadow-xs',
+      badgeClass: 'bg-emerald-700 text-white font-bold shadow-xs',
       dotClass: 'bg-white animate-pulse',
       sortTimestamp: activeEndMs
     }
@@ -177,8 +177,8 @@ function getAdmissionStatus(item: Admission) {
     return {
       type: 'soon',
       priority: 2,
-      label: daysSoon <= 10 ? (daysSoon === 1 ? 'After 1 day' : `After ${daysSoon} days`) : 'Soon',
-      badgeClass: 'bg-blue-600 text-white font-bold shadow-xs',
+      label: daysSoon === 1 ? '1 day left' : `${daysSoon} days left`,
+      badgeClass: 'bg-amber-500 text-white font-bold shadow-xs',
       dotClass: 'bg-white',
       sortTimestamp: soonStartMs
     }
@@ -189,7 +189,7 @@ function getAdmissionStatus(item: Admission) {
     type: 'outdated',
     priority: 5,
     label: 'Closed',
-    badgeClass: 'bg-slate-500 text-white font-bold shadow-xs',
+    badgeClass: 'bg-slate-400 text-white font-bold shadow-xs',
     dotClass: 'bg-white',
     sortTimestamp: latestPastEndMs !== -Infinity ? latestPastEndMs : 0
   }
@@ -574,13 +574,9 @@ const filteredAdmissions = computed(() => {
               <!-- Status Badge -->
               <td class="px-4 py-4 text-right">
                 <span
-                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
                   :class="item.statusInfo.badgeClass"
                 >
-                  <span
-                    class="size-1.5 rounded-full"
-                    :class="item.statusInfo.dotClass"
-                  />
                   {{ item.statusInfo.label }}
                 </span>
               </td>
