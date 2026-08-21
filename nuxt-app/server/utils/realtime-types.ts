@@ -31,6 +31,7 @@ export interface StudentPayload {
   check_source?: string
   checkSource?: string
   flag?: boolean
+  refundApplication?: boolean
 }
 
 export interface BaseEvent {

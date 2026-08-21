@@ -26,7 +26,7 @@ const CAMEL_IDENTIFIERS = [
   'rejectReason', 'pdfUrl', 'apiResponse', 'batchSelected',
   'batchSelectedUpdatedAt', 'createdAt', 'visaType', 'applicationNo',
   'deletedAt', 'checkSource', 'updatedAt', 'jobId', 'lockedAt',
-  'lockedBy', 'startedAt', 'completedAt', 'fetchedAt'
+  'lockedBy', 'startedAt', 'completedAt', 'fetchedAt', 'refundApplication'
 ]
 const CAMEL_REGEX = new RegExp(`(?<!["'a-zA-Z0-9_])(${CAMEL_IDENTIFIERS.join('|')})(?!["'a-zA-Z0-9_])`, 'g')
 

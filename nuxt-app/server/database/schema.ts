@@ -80,7 +80,9 @@ export const STUDENT_COLUMNS: DbColumn[] = [
   { name: 'checkSource', type: 'TEXT' },
   { name: 'lastNotifiedStatus', type: 'TEXT DEFAULT NULL' },
   { name: 'last_notified_status', type: 'TEXT DEFAULT NULL' },
-  { name: 'flag', type: 'INTEGER DEFAULT 0' }
+  { name: 'flag', type: 'INTEGER DEFAULT 0' },
+  { name: 'refundApplication', type: 'INTEGER DEFAULT 0' },
+  { name: 'refund_application', type: 'INTEGER DEFAULT 0' }
 ]
 
 export const CREATE_JOBS_TABLE = `

@@ -106,6 +106,10 @@ export async function initDb() {
     await ensureColumn('students', '"lastNotifiedStatus"', 'TEXT DEFAULT NULL')
     await ensureColumn('students', 'last_notified_status', 'TEXT DEFAULT NULL')
 
+    // Add refundApplication columns if missing
+    await ensureColumn('students', '"refundApplication"', 'INTEGER DEFAULT 0')
+    await ensureColumn('students', 'refund_application', 'INTEGER DEFAULT 0')
+
     // 6. Create unique index for telegram_id
     try {
       await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id)')

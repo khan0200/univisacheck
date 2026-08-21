@@ -52,6 +52,7 @@ export interface Student {
   deletedAt?: string | null
   pinned?: boolean
   flag?: boolean
+  refundApplication?: boolean
   tariff?: string
   university?: string
   coordinator?: string
@@ -73,6 +74,7 @@ export interface StudentFormInput {
   applicationNo: string
   originalPassport?: string
   flag?: boolean
+  refundApplication?: boolean
   tariff?: string
   university?: string
   coordinator?: string

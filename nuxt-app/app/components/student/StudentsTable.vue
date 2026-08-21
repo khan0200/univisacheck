@@ -170,6 +170,11 @@ watch([() => props.students, () => props.currentFilter], () => {
                 title="Flagged"
                 class="text-sm select-none shrink-0"
               >🚩</span>
+              <span
+                v-if="student.refundApplication"
+                title="Refund Application"
+                class="text-sm select-none shrink-0"
+              >💸</span>
               <UIcon
                 v-if="student.pinned"
                 name="i-lucide-pin"
@@ -398,6 +403,11 @@ watch([() => props.students, () => props.currentFilter], () => {
                   title="Flagged"
                   class="text-sm select-none shrink-0"
                 >🚩</span>
+                <span
+                  v-if="student.refundApplication"
+                  title="Refund Application"
+                  class="text-sm select-none shrink-0"
+                >💸</span>
                 <UIcon
                   v-if="student.pinned"
                   name="i-lucide-pin"

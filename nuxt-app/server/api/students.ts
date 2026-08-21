@@ -62,7 +62,8 @@ async function fetchStudentPayload(
       b2b: r.b2b ? String(r.b2b) : undefined,
       check_source: r.check_source ? String(r.check_source) : 'manual',
       checkSource: r.checkSource ? String(r.checkSource) : (r.check_source ? String(r.check_source) : 'manual'),
-      flag: r.flag === 1 || r.flag === true
+      flag: r.flag === 1 || r.flag === true,
+      refundApplication: r.refundApplication === 1 || r.refundApplication === true || r.refund_application === 1 || r.refund_application === true
     }
   } catch {
     return null
@@ -163,6 +164,7 @@ export default defineEventHandler(async (event) => {
             batchSelected: row.batchSelected === 1,
             pinned: row.pinned === 1,
             flag: row.flag === 1 || row.flag === true,
+            refundApplication: row.refundApplication === 1 || row.refundApplication === true || row.refund_application === 1 || row.refund_application === true,
             check_source: row.check_source ? String(row.check_source) : 'manual',
             checkSource: row.checkSource ? String(row.checkSource) : (row.check_source ? String(row.check_source) : 'manual')
           }
@@ -173,7 +175,7 @@ export default defineEventHandler(async (event) => {
                   passport, fullName, birthday, studentId, status,
                   applicationDate, lastChecked, rejectReason, pdfUrl,
                   batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                  tariff, university, coordinator, b2b, check_source, checkSource, apiResponse, flag
+                  tariff, university, coordinator, b2b, check_source, checkSource, apiResponse, flag, refundApplication, refund_application
                 FROM students 
                 WHERE userId = ? AND deletedAt IS NULL 
                 ORDER BY createdAt DESC`,
@@ -186,6 +188,7 @@ export default defineEventHandler(async (event) => {
             batchSelected: row.batchSelected === 1,
             pinned: row.pinned === 1,
             flag: row.flag === 1 || row.flag === true,
+            refundApplication: row.refundApplication === 1 || row.refundApplication === true || row.refund_application === 1 || row.refund_application === true,
             check_source: row.check_source ? String(row.check_source) : 'manual',
             checkSource: row.checkSource ? String(row.checkSource) : (row.check_source ? String(row.check_source) : 'manual')
           }
@@ -347,6 +350,13 @@ export default defineEventHandler(async (event) => {
         flag = (body.flag === true || body.flag === 1 || body.flag === 'true') ? 1 : 0
       }
 
+      let refundApplication: number | null = null
+      if (body.refundApplication !== undefined) {
+        refundApplication = (body.refundApplication === true || body.refundApplication === 1 || body.refundApplication === 'true') ? 1 : 0
+      } else if (body.refund_application !== undefined) {
+        refundApplication = (body.refund_application === true || body.refund_application === 1 || body.refund_application === 'true') ? 1 : 0
+      }
+
       let lastChecked: string | null = null
       if (body.lastChecked !== undefined) {
         lastChecked = new Date().toISOString()
@@ -389,8 +399,8 @@ export default defineEventHandler(async (event) => {
                         passport, fullName, birthday, studentId, status,
                         applicationDate, lastChecked, rejectReason, pdfUrl, apiResponse,
                         batchSelected, batchSelectedUpdatedAt, createdAt, userId, visaType, applicationNo, pinned,
-                        tariff, university, coordinator, b2b, flag, "lastNotifiedStatus", last_notified_status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        tariff, university, coordinator, b2b, flag, refundApplication, refund_application, "lastNotifiedStatus", last_notified_status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `
         await db.execute({
           sql,
@@ -416,6 +426,8 @@ export default defineEventHandler(async (event) => {
             coordinator || '',
             b2b || '',
             flag !== null ? flag : 0,
+            refundApplication !== null ? refundApplication : 0,
+            refundApplication !== null ? refundApplication : 0,
             inheritedStatus,
             inheritedStatus
           ]
@@ -547,6 +559,11 @@ export default defineEventHandler(async (event) => {
           updateFields.push('flag = ?')
           args.push(flag)
           changedFields.flag = flag === 1
+        }
+        if (refundApplication !== null) {
+          updateFields.push('refundApplication = ?', 'refund_application = ?')
+          args.push(refundApplication, refundApplication)
+          changedFields.refundApplication = refundApplication === 1
         }
 
         if (updateFields.length === 0) {
