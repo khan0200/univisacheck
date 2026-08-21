@@ -1,50 +1,60 @@
 /**
  * server/utils/telegram-notifier.ts
  *
- * Consolidated helper to send Telegram status update alerts to connected cabinet subscribers.
- * Exposes sendTelegramNotification which is called both by the /api/notify-telegram route
- * and by the queue worker.
+ * Sends Telegram visa-status alerts to a cabinet's connected subscribers.
+ * Called by /api/notify-telegram, /api/check-status, /api/jobs/direct and the
+ * queue worker.
+ *
+ * ── Why the send decision looks the way it does ─────────────────────────────
+ * Every caller writes the new status to `students` BEFORE calling this helper.
+ * The previous implementation then re-read that row and refused to send when
+ * the row's status equalled the new status — which, after the caller's own
+ * write, is *always* true. That guard could only ever produce false negatives
+ * and silently dropped real transitions (e.g. UNDER REVIEW → APPROVED).
+ *
+ * `lastNotifiedStatus` is therefore the ONLY gate: it records what was last
+ * actually announced to Telegram, so it is unaffected by the caller's write and
+ * is the correct de-duplication key. `students.status` is never consulted for
+ * the change decision.
+ *
+ * The row is still read — but only to confirm the student belongs to this
+ * cabinet and to read `lastNotifiedStatus`.
  */
 
 import { getTursoClient } from './turso'
-import { isSameStatus, getDisplayStatus, getStatusEmoji as getStatusEmojiFromUtils, getStatusDescription, toDbStatus } from './visa-status'
+import {
+  isSameStatus,
+  normalizeStatus,
+  getDisplayStatus,
+  getStatusEmoji,
+  toDbStatus,
+  type CanonicalStatus
+} from './visa-status'
 
 function escapeTelegramText(value: unknown): string {
   return String(value || '').replace(/[<>&]/g, '')
 }
 
-function getStatusEmojiFormatted(status: unknown): string {
-  return getStatusEmojiFromUtils(status)
-}
-
-function formatStatusDisplay(status: unknown): string {
-  return getDisplayStatus(status)
-}
-
-function formatLastChecked(dateString: string, lang: 'uz' | 'en' = 'uz'): string {
+function formatLastChecked(dateString: string, lang: Lang = 'uz'): string {
   const today = lang === 'en' ? 'Today' : 'Bugun'
   if (!dateString) return lang === 'en' ? 'Never' : 'Hech qachon'
   const date = new Date(dateString)
   try {
     const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' })
     const dateStr = date.toLocaleDateString('en-US', { timeZone: 'Asia/Tashkent' })
-
     const timePart = date.toLocaleTimeString('en-US', {
       timeZone: 'Asia/Tashkent',
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
     })
-    if (todayStr === dateStr) {
-      return `${today}, ${timePart}`
-    } else {
-      const datePart = date.toLocaleDateString('en-US', {
-        timeZone: 'Asia/Tashkent',
-        month: 'short',
-        day: 'numeric'
-      })
-      return `${datePart}, ${timePart}`
-    }
+    if (todayStr === dateStr) return `${today}, ${timePart}`
+    const datePart = date.toLocaleDateString('en-US', {
+      timeZone: 'Asia/Tashkent',
+      month: 'short',
+      day: 'numeric'
+    })
+    return `${datePart}, ${timePart}`
   } catch {
     return today
   }
@@ -54,11 +64,169 @@ function cleanVisaTypeCode(raw: string): string {
   if (!raw) return ''
   const str = String(raw).trim()
   const match = str.match(/([A-Z]-\d+(?:-\d+)?)/i)
-  if (match && match[1]) {
-    return match[1].toUpperCase()
-  }
-  return str
+  return match && match[1] ? match[1].toUpperCase() : str
 }
+
+type Lang = 'uz' | 'en'
+
+// ── Per-status message copy ────────────────────────────────────────────────
+// Each status gets its own headline, body and (optionally) a next-step line,
+// instead of every transition reusing one generic template.
+
+interface StatusCopy {
+  /** Headline shown at the top of the message. */
+  title: string
+  /** One-line explanation of what this status means. */
+  body: string
+  /** What the student/consultant should do next. Omitted when there is nothing to do. */
+  action?: string
+}
+
+const STATUS_COPY: Record<CanonicalStatus, Record<Lang, StatusCopy>> = {
+  APPROVED: {
+    uz: {
+      title: '🎉 VIZA TASDIQLANDI',
+      body: 'Tabriklaymiz! Viza arizasi ma\'qullandi.',
+      action: 'Vizani PDF ko\'rinishida yuklab oling va pasportdagi ma\'lumotlar bilan solishtiring.'
+    },
+    en: {
+      title: '🎉 VISA APPROVED',
+      body: 'Congratulations! The visa application has been approved.',
+      action: 'Download the visa PDF and verify the details against the passport.'
+    }
+  },
+  VISA_USED: {
+    uz: {
+      title: '✅ VIZA ISHLATILDI',
+      body: 'Viza kirish uchun ishlatilgan deb belgilandi.',
+      action: undefined
+    },
+    en: {
+      title: '✅ VISA USED',
+      body: 'The visa has been marked as used for entry.',
+      action: undefined
+    }
+  },
+  CANCELLED: {
+    uz: {
+      title: '❌ ARIZA RAD ETILDI',
+      body: 'Afsuski, viza arizasi rad etildi.',
+      action: 'Rad etish sababini o\'qing va qayta topshirish imkoniyatini ko\'rib chiqing.'
+    },
+    en: {
+      title: '❌ APPLICATION REJECTED',
+      body: 'Unfortunately, the visa application was rejected.',
+      action: 'Review the rejection reason and consider re-applying.'
+    }
+  },
+  SUPPLEMENT_NEEDED: {
+    uz: {
+      title: '⚠️ QO\'SHIMCHA HUJJAT TALAB QILINMOQDA',
+      body: 'Elchixona qo\'shimcha hujjatlar so\'radi.',
+      action: 'Hujjatlarni imkon qadar tezroq topshiring — kechikish arizani bekor qilishi mumkin.'
+    },
+    en: {
+      title: '⚠️ ADDITIONAL DOCUMENTS REQUIRED',
+      body: 'The embassy has requested supplementary documents.',
+      action: 'Submit the documents as soon as possible — delays can void the application.'
+    }
+  },
+  SUPPLEMENT_SUBMITTED: {
+    uz: {
+      title: '📝 QO\'SHIMCHA HUJJAT TOPSHIRILDI',
+      body: 'Qo\'shimcha hujjatlar qabul qilindi va ko\'rib chiqilmoqda.',
+      action: undefined
+    },
+    en: {
+      title: '📝 SUPPLEMENTARY DOCUMENTS SUBMITTED',
+      body: 'The additional documents were received and are under review.',
+      action: undefined
+    }
+  },
+  UNDER_REVIEW: {
+    uz: {
+      title: '🔎 KO\'RIB CHIQILMOQDA',
+      body: 'Ariza faol ko\'rib chiqish bosqichiga o\'tdi.',
+      action: undefined
+    },
+    en: {
+      title: '🔎 UNDER REVIEW',
+      body: 'The application has moved into active review.',
+      action: undefined
+    }
+  },
+  RECEIVED: {
+    uz: {
+      title: '📥 ARIZA QABUL QILINDI',
+      body: 'Ariza elchixona tomonidan qabul qilindi.',
+      action: undefined
+    },
+    en: {
+      title: '📥 APPLICATION RECEIVED',
+      body: 'The application has been received by the embassy.',
+      action: undefined
+    }
+  },
+  EXPIRED: {
+    uz: {
+      title: '⛔ ARIZA MUDDATI TUGADI',
+      body: 'Ariza muddati o\'tib ketdi.',
+      action: 'Qayta topshirish uchun konsultant bilan bog\'laning.'
+    },
+    en: {
+      title: '⛔ APPLICATION EXPIRED',
+      body: 'The application has expired.',
+      action: 'Contact the consultant about re-applying.'
+    }
+  },
+  PENDING: {
+    uz: {
+      title: '🔷 HOLAT YANGILANDI',
+      body: 'Ariza holati yangilandi.',
+      action: undefined
+    },
+    en: {
+      title: '🔷 STATUS UPDATED',
+      body: 'The application status was updated.',
+      action: undefined
+    }
+  },
+  UNKNOWN: {
+    uz: {
+      title: '🔷 HOLAT YANGILANDI',
+      body: 'Ariza holati yangilandi.',
+      action: undefined
+    },
+    en: {
+      title: '🔷 STATUS UPDATED',
+      body: 'The application status was updated.',
+      action: undefined
+    }
+  }
+}
+
+/**
+ * Statuses that are meaningful enough to announce on their own when they are
+ * the FIRST thing we ever learn about a student (no prior notification).
+ *
+ * Discovering a freshly-added student is already RECEIVED/UNDER REVIEW is
+ * baseline data, not news — announcing it spams the consultant every time a
+ * batch is imported. A decision (approved / rejected / supplement) always is.
+ */
+const ANNOUNCE_ON_FIRST_SIGHT: ReadonlySet<CanonicalStatus> = new Set<CanonicalStatus>([
+  'APPROVED',
+  'VISA_USED',
+  'CANCELLED',
+  'SUPPLEMENT_NEEDED',
+  'SUPPLEMENT_SUBMITTED',
+  'EXPIRED'
+])
+
+/** Statuses that carry no information — never worth a message. */
+const NEVER_ANNOUNCE: ReadonlySet<CanonicalStatus> = new Set<CanonicalStatus>([
+  'PENDING',
+  'UNKNOWN'
+])
 
 export interface TelegramNotificationPayload {
   fullName: string
@@ -78,7 +246,50 @@ export interface TelegramNotificationPayload {
   pdfUrl?: string
 }
 
-export async function sendTelegramNotification(userId: number, payload: TelegramNotificationPayload) {
+export interface NotificationResult {
+  ok: boolean
+  notified?: number
+  failed?: number
+  skipped?: string
+  error?: string
+}
+
+/**
+ * Decides whether a transition should produce a Telegram message.
+ *
+ * `lastNotified` is what we last actually sent — NOT the current DB status,
+ * which the caller has already overwritten with `next` by this point.
+ */
+export function shouldNotify(
+  lastNotified: unknown,
+  next: unknown
+): { send: boolean, reason: string } {
+  const nextNorm = normalizeStatus(next)
+
+  if (NEVER_ANNOUNCE.has(nextNorm)) {
+    return { send: false, reason: `status "${nextNorm}" carries no information` }
+  }
+
+  // Already announced this exact state — the single de-duplication gate.
+  if (lastNotified && isSameStatus(lastNotified, next)) {
+    return { send: false, reason: `already notified for ${nextNorm}` }
+  }
+
+  // Nothing announced yet for this student.
+  if (!lastNotified) {
+    if (ANNOUNCE_ON_FIRST_SIGHT.has(nextNorm)) {
+      return { send: true, reason: `first sighting of decisive status ${nextNorm}` }
+    }
+    return { send: false, reason: `baseline discovery of ${nextNorm} — not a transition` }
+  }
+
+  return { send: true, reason: `${normalizeStatus(lastNotified)} → ${nextNorm}` }
+}
+
+export async function sendTelegramNotification(
+  userId: number,
+  payload: TelegramNotificationPayload
+): Promise<NotificationResult> {
   const token = process.env.TELEGRAM_BOT_TOKEN
   if (!token) {
     console.warn('[Telegram Notifier] Missing TELEGRAM_BOT_TOKEN. Skipping notification.')
@@ -86,13 +297,44 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   }
 
   const db = await getTursoClient()
+  const passportKey = String(payload.passport || '').toUpperCase().trim()
+  const nextNorm = normalizeStatus(payload.newStatus)
 
-  interface SubscriberRow {
-    telegram_id: number
-    lang: string
+  // ── 1. Verify the student belongs to this cabinet, read lastNotifiedStatus ──
+  // NOTE: students.status is deliberately NOT read for the send decision.
+  let lastNotifiedStatus: string
+  try {
+    const studentResult = await db.execute({
+      sql: 'SELECT "lastNotifiedStatus", last_notified_status FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+      args: [passportKey, userId]
+    })
+    if (studentResult.rows.length === 0) {
+      return { ok: true, skipped: 'Student not in cabinet' }
+    }
+    const row = studentResult.rows[0] as Record<string, unknown>
+    lastNotifiedStatus = String(row.lastNotifiedStatus || row.last_notified_status || '')
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[Telegram Notifier] DB verify error:', msg)
+    return { ok: false, error: msg }
   }
 
-  // 1. Look up Telegram subscribers
+  // ── 2. Decide ────────────────────────────────────────────────────────────
+  const decision = shouldNotify(lastNotifiedStatus, payload.newStatus)
+  if (!decision.send) {
+    console.log(`[Telegram Notifier] ${passportKey}: no send — ${decision.reason}`)
+    // Record non-decisive baseline states so the NEXT real transition is
+    // recognised as a change rather than another "first sighting".
+    if (!NEVER_ANNOUNCE.has(nextNorm) && !lastNotifiedStatus) {
+      await recordNotifiedStatus(db, passportKey, userId, payload.newStatus)
+    }
+    return { ok: true, skipped: decision.reason }
+  }
+
+  console.log(`[Telegram Notifier] ${passportKey}: sending — ${decision.reason}`)
+
+  // ── 3. Look up subscribers ───────────────────────────────────────────────
+  interface SubscriberRow { telegram_id: number, lang: string }
   let subscribers: SubscriberRow[]
   try {
     const subsResult = await db.execute({
@@ -100,10 +342,9 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
             FROM cabinet_subscribers cs WHERE cs.cabinet_id = ?`,
       args: [userId]
     })
-    subscribers = (subsResult.rows as Record<string, unknown>[]).filter(r => r.telegram_id).map(r => ({
-      telegram_id: Number(r.telegram_id),
-      lang: String(r.lang || 'uz')
-    }))
+    subscribers = (subsResult.rows as Record<string, unknown>[])
+      .filter(r => r.telegram_id)
+      .map(r => ({ telegram_id: Number(r.telegram_id), lang: String(r.lang || 'uz') }))
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[Telegram Notifier] DB lookup error:', msg)
@@ -111,205 +352,160 @@ export async function sendTelegramNotification(userId: number, payload: Telegram
   }
 
   if (subscribers.length === 0) {
+    // No one to tell, but the transition still happened — record it so we do
+    // not later replay it as "new" the moment someone connects a Telegram account.
+    await recordNotifiedStatus(db, passportKey, userId, payload.newStatus)
     return { ok: true, skipped: 'No subscribers connected' }
   }
 
-  // 2. Validate ownership of student and check last_notified_status
-  let currentDbStatus: string
-  let lastNotifiedStatus: string
-  try {
-    const studentResult = await db.execute({
-      sql: 'SELECT passport, status, "lastNotifiedStatus", last_notified_status FROM students WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
-      args: [payload.passport, userId]
-    })
-    if (studentResult.rows.length === 0) {
-      return { ok: true, skipped: 'Student not in cabinet' }
-    }
-    const studentRow = studentResult.rows[0] as Record<string, unknown>
-    currentDbStatus = String(studentRow.status || '')
-    lastNotifiedStatus = String(studentRow.lastNotifiedStatus || studentRow.last_notified_status || '')
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[Telegram Notifier] DB verify error:', msg)
-    return { ok: false, error: msg }
-  }
+  // ── 4. Build message ─────────────────────────────────────────────────────
+  const fullName = escapeTelegramText(payload.fullName)
+  const passport = escapeTelegramText(passportKey)
+  const rawVisaType = payload.visaType || 'Embassy'
+  const applicationNo = escapeTelegramText(payload.applicationNo)
+  const birthday = escapeTelegramText(payload.birthday)
+  const applicationDate = escapeTelegramText(payload.applicationDate)
+  const rejectionReason = escapeTelegramText(payload.rejectionReason)
+  const previousRejectionReason = escapeTelegramText(payload.previousRejectionReason)
+  const invitingCompany = escapeTelegramText(payload.invitingCompany)
+  const entryDate = escapeTelegramText(payload.entryDate)
 
-  const {
-    fullName: rawFullName,
-    passport: rawPassport,
-    visaType: rawVisaType,
-    applicationNo: rawAppNo,
-    birthday: rawBirthday,
-    oldStatus: rawOldStatus,
-    newStatus: rawNewStatus,
-    applicationDate: rawAppDate,
-    rejectionReason: rawRejReason,
-    previousRejectionReason: rawPrevRej,
-    invitingCompany: rawCompany,
-    entryDate: rawEntryDate
-  } = payload
-
-  // ── Bulletproof Guards: NEVER send if status hasn't genuinely changed ──
-
-  // Guard 1: Never re-notify if this student was already notified for this exact same normalized status
-  if (lastNotifiedStatus && isSameStatus(lastNotifiedStatus, rawNewStatus)) {
-    console.log(`[Telegram Notifier] Skipping — student ${rawPassport} already notified for status (${lastNotifiedStatus} == ${rawNewStatus})`)
-    return { ok: true, skipped: 'Already notified for this status' }
-  }
-
-  // Guard 2: Never send if the student's existing DB status matches the new status
-  if (currentDbStatus && isSameStatus(currentDbStatus, rawNewStatus)) {
-    console.log(`[Telegram Notifier] Skipping — DB status already matches new status (${currentDbStatus} == ${rawNewStatus})`)
-    return { ok: true, skipped: 'DB status already matches new status' }
-  }
-
-  // Guard 3: Never send if the provided old status matches the new status
-  if (rawOldStatus && isSameStatus(rawOldStatus, rawNewStatus)) {
-    console.log(`[Telegram Notifier] Skipping — old status matches new status (${rawOldStatus} == ${rawNewStatus})`)
-    return { ok: true, skipped: 'Normalized status unchanged — no change' }
-  }
-
-  // Guard 4: Initial check discovery of baseline in-progress status (PENDING -> UNDER_REVIEW / RECEIVED)
-  // When a student is first added to the system, discovering they are already Under Review / Received is
-  // baseline data discovery, NOT a new status decision/change event.
-  const isOldPending = !rawOldStatus || isSameStatus(rawOldStatus, 'PENDING') || isSameStatus(currentDbStatus, 'PENDING')
-  const isNewInProgress = isSameStatus(rawNewStatus, 'UNDER_REVIEW') || isSameStatus(rawNewStatus, 'RECEIVED') || isSameStatus(rawNewStatus, 'PENDING')
-  if (isOldPending && isNewInProgress) {
-    console.log(`[Telegram Notifier] Skipping — initial baseline discovery for ${rawPassport} (${rawNewStatus}), not a status change transition`)
-    // Record baseline status as last notified so future checks know the baseline
-    try {
-      const canonicalStatus = toDbStatus(rawNewStatus)
-      await db.execute({
-        sql: 'UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
-        args: [canonicalStatus, canonicalStatus, rawPassport, userId]
-      })
-    } catch {
-      // Non-critical
-    }
-    return { ok: true, skipped: 'Initial baseline status discovery — not a status transition' }
-  }
-
-  const fullName = escapeTelegramText(rawFullName)
-  const passport = escapeTelegramText(rawPassport)
-  const visaType = escapeTelegramText(rawVisaType || 'Embassy')
-  const applicationNo = escapeTelegramText(rawAppNo)
-  const birthday = escapeTelegramText(rawBirthday)
-  const newStatus = escapeTelegramText(rawNewStatus)
-  const applicationDate = escapeTelegramText(rawAppDate)
-  const rejectionReason = escapeTelegramText(rawRejReason)
-  const previousRejectionReason = escapeTelegramText(rawPrevRej)
-  const invitingCompany = escapeTelegramText(rawCompany)
-
-  const rawResidence = cleanVisaTypeCode(payload.statusOfResidence || '')
-  const rawTypeClean = cleanVisaTypeCode(rawVisaType || '')
-
+  const residence = cleanVisaTypeCode(payload.statusOfResidence || '')
+  const typeClean = cleanVisaTypeCode(rawVisaType)
   let displayVisaType = 'Embassy'
-  if (rawResidence) {
-    displayVisaType = rawResidence
-  } else if (rawTypeClean && !['EMBASSY', 'E-VISA', 'REGIONAL'].includes(rawTypeClean.toUpperCase())) {
-    displayVisaType = rawTypeClean
+  if (residence) {
+    displayVisaType = residence
+  } else if (typeClean && !['EMBASSY', 'E-VISA', 'REGIONAL'].includes(typeClean.toUpperCase())) {
+    displayVisaType = typeClean
   } else if (rawVisaType) {
     displayVisaType = rawVisaType
   }
 
-  const emoji = getStatusEmojiFormatted(newStatus)
-  const isApproved = ['approved', 'visa used', 'issued'].some(s => newStatus.toLowerCase().includes(s))
-  const canDownloadPdf = isApproved && (visaType || '').toLowerCase() !== 'e-visa'
+  const isEvisaLike = rawVisaType === 'E-Visa' || rawVisaType === 'Regional'
+  const isApprovedLike = nextNorm === 'APPROVED' || nextNorm === 'VISA_USED'
+  const canDownloadPdf = isApprovedLike && rawVisaType.toLowerCase() !== 'e-visa'
   const nowIso = new Date().toISOString()
 
-  function buildMessage(lang: 'uz' | 'en' = 'uz'): string {
-    const desc = getStatusDescription(newStatus, lang)
-    const checkedStr = formatLastChecked(nowIso, lang)
-    const isApprovedNotif = ['APPROVED', 'USED', 'ISSUED'].some(s => newStatus.toUpperCase().includes(s))
-    const labels = {
-      title: lang === 'en' ? '🔍 Visa Status Check' : '🔍 Visa statusini tekshirish',
+  // Show the transition arrow only when we genuinely know the previous state.
+  const prevNorm = lastNotifiedStatus ? normalizeStatus(lastNotifiedStatus) : null
+  const showTransition = Boolean(prevNorm) && prevNorm !== nextNorm
+
+  function buildMessage(lang: Lang): string {
+    const copy = STATUS_COPY[nextNorm][lang]
+    const L = {
       visaLbl: lang === 'en' ? '✈️ Visa type:' : '✈️ Visa turi:',
       partner: lang === 'en' ? '🏢 Partner:' : '🏢 Taklif:',
       appNo: lang === 'en' ? '📄 Application No:' : '📄 Ariza raqami:',
-      submitted: lang === 'en' ? '📅 Submitted date:' : '📅 Topshirilgan sana:',
+      submitted: lang === 'en' ? '📅 Submitted:' : '📅 Topshirilgan:',
       status: lang === 'en' ? '🔄 Status:' : '🔄 Holati:',
-      givenDate: lang === 'en' ? '🗓️ Visa given date:' : '🗓️ Viza berilgan sana:',
+      givenDate: lang === 'en' ? '🗓️ Visa issued:' : '🗓️ Viza berilgan:',
       checked: lang === 'en' ? '🕒 Checked:' : '🕒 Tekshirildi:',
-      result: lang === 'en' ? 'Result:' : 'Natija:',
       reason: lang === 'en' ? '⚠️ Reason:' : '⚠️ Sababi:',
-      prevResult: lang === 'en' ? 'Previous application result:\n🚫 Reason:' : 'Bundan oldingi ariza natijasi:\n🚫 Sababi:'
+      prevResult: lang === 'en' ? '🚫 Previous application:' : '🚫 Oldingi ariza:',
+      next: lang === 'en' ? '➡️ Next step:' : '➡️ Keyingi qadam:'
     }
+
+    const statusLine = showTransition
+      ? `${L.status} ${getStatusEmoji(prevNorm)} ${getDisplayStatus(prevNorm)} → ${getStatusEmoji(nextNorm)} ${getDisplayStatus(nextNorm)}`
+      : `${L.status} ${getStatusEmoji(nextNorm)} ${getDisplayStatus(nextNorm)}`
+
     return [
-      labels.title, '',
+      copy.title,
+      '',
       `👤 ${fullName.toUpperCase()}`,
       `🛂 ${passport.toUpperCase()}`,
-      `🎂 ${birthday}`, '',
-      `${labels.visaLbl} ${displayVisaType}`,
-      ...((visaType === 'E-Visa' || visaType === 'Regional') && invitingCompany ? [`${labels.partner} ${invitingCompany}`] : []),
-      ...((visaType === 'E-Visa' || visaType === 'Regional') && applicationNo ? [`${labels.appNo} ${applicationNo}`] : []),
-      `${labels.submitted} ${applicationDate || 'N/A'}`,
-      `${labels.status} ${emoji} ${formatStatusDisplay(newStatus)}`,
-      ...(isApprovedNotif && rawEntryDate && rawEntryDate !== applicationDate ? [`${labels.givenDate} ${escapeTelegramText(rawEntryDate)}`] : []),
+      `🎂 ${birthday}`,
       '',
-      `${labels.checked} ${checkedStr}`, '',
-      `${labels.result} ${desc}`,
-      ...(rejectionReason ? [`${labels.reason} ${rejectionReason}`] : []),
-      ...(previousRejectionReason ? [`${labels.prevResult} ${previousRejectionReason}`] : [])
+      `${L.visaLbl} ${displayVisaType}`,
+      ...(isEvisaLike && invitingCompany ? [`${L.partner} ${invitingCompany}`] : []),
+      ...(isEvisaLike && applicationNo ? [`${L.appNo} ${applicationNo}`] : []),
+      `${L.submitted} ${applicationDate || 'N/A'}`,
+      statusLine,
+      ...(isApprovedLike && entryDate && entryDate !== applicationDate ? [`${L.givenDate} ${entryDate}`] : []),
+      '',
+      copy.body,
+      ...(rejectionReason ? ['', `${L.reason} ${rejectionReason}`] : []),
+      ...(previousRejectionReason ? [`${L.prevResult} ${previousRejectionReason}`] : []),
+      ...(copy.action ? ['', `${L.next} ${copy.action}`] : []),
+      '',
+      `${L.checked} ${formatLastChecked(nowIso, lang)}`
     ].join('\n')
   }
 
-  function buildMarkup(lang: 'uz' | 'en' = 'uz') {
+  function buildMarkup(lang: Lang) {
     const refreshBtn = lang === 'en' ? '🔄 Refresh' : '🔄 Yangilash'
     const pdfBtn = lang === 'en' ? '📥 Visa (pdf)' : '📥 Viza (pdf)'
-    return {
-      inline_keyboard: canDownloadPdf
-        ? [
-            [
-              { text: refreshBtn, callback_data: `check:${passport}` },
-              { text: pdfBtn, callback_data: `download:${passport}` }
-            ]
-          ]
-        : [
-            [{ text: refreshBtn, callback_data: `check:${passport}` }]
-          ]
-    }
+    const row = [{ text: refreshBtn, callback_data: `check:${passport}` }]
+    if (canDownloadPdf) row.push({ text: pdfBtn, callback_data: `download:${passport}` })
+    return { inline_keyboard: [row] }
   }
 
+  // ── 5. Send ──────────────────────────────────────────────────────────────
+  // parse_mode is intentionally omitted: names and rejection reasons come from
+  // an external portal and regularly contain characters (_ * [ ] `) that make
+  // Telegram reject a Markdown payload with 400 — which previously dropped the
+  // message entirely. Plain text always delivers.
   const results = await Promise.allSettled(
     subscribers.map(({ telegram_id: chatId, lang: subLang }) => {
-      const lang: 'uz' | 'en' = subLang === 'en' ? 'en' : 'uz'
-      const msgText = buildMessage(lang)
-      const reply_markup = buildMarkup(lang)
+      const lang: Lang = subLang === 'en' ? 'en' : 'uz'
       return fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: chatId,
-          text: msgText,
-          parse_mode: 'Markdown',
-          reply_markup,
+          text: buildMessage(lang),
+          reply_markup: buildMarkup(lang),
           disable_web_page_preview: true
         })
-      }).then(r => r.json())
+      })
+        .then(r => r.json())
+        .then((res: { ok?: boolean, description?: string }) => {
+          if (!res?.ok) {
+            console.error(`[Telegram Notifier] Send to ${chatId} rejected by Telegram: ${res?.description || 'unknown error'}`)
+          }
+          return res
+        })
     })
   )
 
-  const successfulSends = results.filter(r => r.status === 'fulfilled' && (r.value as { ok?: boolean })?.ok)
-  if (successfulSends.length > 0) {
-    try {
-      const canonicalStatus = toDbStatus(rawNewStatus)
-      await db.execute({
-        sql: 'UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
-        args: [canonicalStatus, canonicalStatus, passport, userId]
-      })
-    } catch (err: unknown) {
-      console.error('[Telegram Notifier] Failed to update lastNotifiedStatus in DB:', err instanceof Error ? err.message : String(err))
-    }
+  const succeeded = results.filter(
+    r => r.status === 'fulfilled' && (r.value as { ok?: boolean })?.ok
+  ).length
+  const failed = results.length - succeeded
+
+  // Only record the status as "announced" if at least one subscriber actually
+  // received it — otherwise a transient Telegram/network failure would suppress
+  // the retry on the next check.
+  if (succeeded > 0) {
+    await recordNotifiedStatus(db, passportKey, userId, payload.newStatus)
+  } else {
+    console.error(`[Telegram Notifier] ${passportKey}: all ${results.length} send(s) failed — will retry on next status check`)
   }
 
-  const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !(r.value as { ok?: boolean })?.ok))
-  if (failed.length > 0) {
-    console.error('[Telegram Notifier] Some sends failed:', failed.length)
+  if (failed > 0) {
+    console.error(`[Telegram Notifier] ${passportKey}: ${failed}/${results.length} send(s) failed`)
   }
 
-  return {
-    ok: true,
-    notified: subscribers.length,
-    failed: failed.length
+  return { ok: succeeded > 0, notified: succeeded, failed }
+}
+
+/** Persists the status we have announced, so it is not announced again. */
+async function recordNotifiedStatus(
+  db: Awaited<ReturnType<typeof getTursoClient>>,
+  passport: string,
+  userId: number,
+  status: unknown
+): Promise<void> {
+  try {
+    const canonical = toDbStatus(status)
+    await db.execute({
+      sql: 'UPDATE students SET "lastNotifiedStatus" = ?, last_notified_status = ? WHERE passport = ? AND userId = ? AND deletedAt IS NULL',
+      args: [canonical, canonical, passport, userId]
+    })
+  } catch (err: unknown) {
+    console.error(
+      '[Telegram Notifier] Failed to update lastNotifiedStatus:',
+      err instanceof Error ? err.message : String(err)
+    )
   }
 }

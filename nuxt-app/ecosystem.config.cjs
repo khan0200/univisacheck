@@ -1,11 +1,117 @@
-const path = require('path')
+/**
+ * PM2 process definition for the SalomKorea Nuxt server.
+ *
+ * Secrets are read from .env ONLY — never hardcoded here. This file is tracked
+ * in git, so any literal credential in it is a published credential.
+ *
+ * Load order (later wins): nuxt-app/.env, then repo-root .env.
+ * Anything already in the real process environment always takes precedence.
+ */
 
+const path = require('path')
+const fs = require('fs')
+
+// dotenv lives in nuxt-app/node_modules; resolve it explicitly so this works
+// regardless of which directory pm2 is invoked from.
+let dotenv
 try {
-  const dotenv = require('dotenv')
-  dotenv.config({ path: path.join(__dirname, '.env') })
-  dotenv.config({ path: path.join(__dirname, '..', '.env') })
+  dotenv = require(require.resolve('dotenv', { paths: [__dirname] }))
 } catch {
-  // Ignore missing dotenv
+  console.error(
+    '[ecosystem] FATAL: dotenv is not installed. Run `npm install` in nuxt-app/ before starting pm2.'
+  )
+  process.exit(1)
+}
+
+const envFiles = [
+  path.join(__dirname, '.env'),
+  path.join(__dirname, '..', '.env')
+]
+
+let loadedAny = false
+for (const file of envFiles) {
+  if (!fs.existsSync(file)) continue
+  const result = dotenv.config({ path: file, override: false })
+  if (result.error) {
+    console.error(`[ecosystem] FATAL: failed to parse ${file}: ${result.error.message}`)
+    process.exit(1)
+  }
+  console.log(`[ecosystem] Loaded env from ${file}`)
+  loadedAny = true
+}
+
+if (!loadedAny) {
+  console.error(
+    `[ecosystem] FATAL: no .env file found. Looked in:\n  ${envFiles.join('\n  ')}`
+  )
+  process.exit(1)
+}
+
+// Secrets with no safe default. Starting without these previously fell back to
+// values committed in this repo (public), so we fail fast instead.
+const REQUIRED = [
+  'DATABASE_URL',
+  'JWT_SECRET',
+  'TELEGRAM_BOT_TOKEN',
+  'ADMIN_SECRET',
+  'BOT_ENCRYPTION_KEY'
+]
+
+// Optional, but the app silently degrades without them, which is hard to spot:
+// missing PUSHER_* makes /api/realtime/config fall back to in-process SSE.
+const OPTIONAL_GROUPS = {
+  'Pusher realtime (falls back to SSE)': [
+    'PUSHER_APP_ID',
+    'PUSHER_KEY',
+    'PUSHER_SECRET',
+    'PUSHER_CLUSTER'
+  ],
+  'AI assistant (endpoint returns a warning without one)': [
+    'OPENAI_API_KEY',
+    'GEMINI_API_KEY'
+  ]
+}
+
+const missing = REQUIRED.filter(key => !process.env[key])
+if (missing.length > 0) {
+  console.error(
+    `[ecosystem] FATAL: missing required environment variable(s): ${missing.join(', ')}\n`
+    + `Set them in ${envFiles[0]} (or the repo-root .env) before starting pm2.`
+  )
+  process.exit(1)
+}
+
+for (const [label, keys] of Object.entries(OPTIONAL_GROUPS)) {
+  const absent = keys.filter(key => !process.env[key])
+  // The AI group needs only one of the two; the Pusher group needs all four.
+  const isAiGroup = label.startsWith('AI assistant')
+  const degraded = isAiGroup ? absent.length === keys.length : absent.length > 0
+  if (degraded) {
+    console.warn(`[ecosystem] WARNING: ${label} — not configured (missing: ${absent.join(', ')})`)
+  }
+}
+
+// Forward every variable the server actually reads. Values come from the
+// environment loaded above; there are no literals here by design.
+const PASSTHROUGH = [
+  ...REQUIRED,
+  ...Object.values(OPTIONAL_GROUPS).flat(),
+  'TURSO_DATABASE_URL',
+  'TURSO_AUTH_TOKEN',
+  'CRON_SECRET',
+  'NUXT_PUBLIC_API_BASE'
+]
+
+const env = {
+  NODE_ENV: 'production',
+  HOST: '0.0.0.0',
+  PORT: process.env.PORT || 3000,
+  NITRO_HOST: '0.0.0.0',
+  NITRO_PORT: process.env.NITRO_PORT || process.env.PORT || 3000
+}
+
+for (const key of PASSTHROUGH) {
+  if (process.env[key] !== undefined) env[key] = process.env[key]
 }
 
 module.exports = {
@@ -15,20 +121,16 @@ module.exports = {
       script: './.output/server/index.mjs',
       cwd: '/www/wwwroot/salomkorea/nuxt-app',
       instances: 1,
+      // Must stay 'fork' with instances: 1 — the SSE fallback in
+      // server/utils/event-bus.ts is per-process in-memory state, so clustering
+      // would send events to whichever worker happens to serve the request
+      // rather than the one holding the client's SSE connection.
       exec_mode: 'fork',
-      env: {
-        NODE_ENV: 'production',
-        HOST: '0.0.0.0',
-        PORT: 3000,
-        NITRO_HOST: '0.0.0.0',
-        NITRO_PORT: 3000,
-        DATABASE_URL: process.env.DATABASE_URL || 'postgresql://salomkorea_user:SalomKoreaPg2026SecurePass!@127.0.0.1:5432/salomkorea_db',
-        JWT_SECRET: process.env.JWT_SECRET || 'visacheck-secret-key-2026-change-in-production',
-        TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '8628603817:AAEDMIsRb0JRichfx_NmwhMszHpiNiUEI-4',
-        ADMIN_SECRET: process.env.ADMIN_SECRET || 'visacheck-admin-secret-2026',
-        BOT_ENCRYPTION_KEY: process.env.BOT_ENCRYPTION_KEY || 'default-bot-encryption-key-for-korea-visa-check',
-        OPENAI_API_KEY: process.env.OPENAI_API_KEY || ''
-      }
+      max_memory_restart: '512M',
+      // The worker loop runs for minutes; give in-flight checks time to drain
+      // on reload instead of severing them mid-write.
+      kill_timeout: 15000,
+      env
     }
   ]
 }

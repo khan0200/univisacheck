@@ -82,10 +82,9 @@ export default defineEventHandler(async (event) => {
   // e.g. 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' all → 'SUPPLEMENT_NEEDED'
   const rawNewStatus = liveResult.found ? liveResult.latestStatus : oldStatus
   const newStatus = toDbStatus(rawNewStatus)
-  const lastNotified = String(student.lastNotifiedStatus || student.last_notified_status || '')
-  const isBaseline = (isSameStatus(oldStatus, 'PENDING') || !oldStatus) && (isSameStatus(newStatus, 'UNDER_REVIEW') || isSameStatus(newStatus, 'RECEIVED') || isSameStatus(newStatus, 'PENDING'))
-  const alreadyNotified = lastNotified && isSameStatus(lastNotified, newStatus)
-  const statusChanged = !isSameStatus(oldStatus, newStatus) && !alreadyNotified && !isBaseline
+  // Reported back to the caller / UI. The Telegram send decision is NOT made
+  // here — sendTelegramNotification owns it and gates on lastNotifiedStatus.
+  const statusChanged = !isSameStatus(oldStatus, newStatus)
   const appDate = liveResult.latestDate || String(student.applicationDate || '')
 
   // 5. Persist result to DB
@@ -145,8 +144,10 @@ export default defineEventHandler(async (event) => {
   })
   const realtimeMs = performance.now() - realtimeStartedAt
 
-  // 7. Telegram notification if status changed
-  if (statusChanged) {
+  // 7. Hand the transition to the notifier. Called unconditionally — it gates
+  // on lastNotifiedStatus, so it still fires when `status` was already advanced
+  // by another cabinet's check but this consultant was never told.
+  {
     sendTelegramNotification(userId, {
       fullName: String(student.fullName || student.fullname || ''),
       passport,

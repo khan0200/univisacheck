@@ -1,4 +1,5 @@
 import { Client } from 'ssh2';
+import { readFileSync } from 'fs';
 
 const nginxConf = `server {
     listen 80;
@@ -39,6 +40,27 @@ server {
         chunked_transfer_encoding off;
     }
 
+    # Visa-check endpoints. These proxy synchronously to visa.go.kr (15-20s per
+    # lookup) and the batch worker dispatches for minutes, so the default
+    # location / read timeout was cutting the connection with a 504 while the
+    # backend was still working — the browser hung with no result.
+    location ~ ^/api/(jobs|check-status|download-visa-pdf) {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Connection '';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        # Stream results back as they are produced rather than buffering the
+        # whole response; also keeps progress logging responsive.
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_connect_timeout 75s;
+        proxy_read_timeout 900s;
+        proxy_send_timeout 900s;
+    }
+
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -49,9 +71,9 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
-        proxy_connect_timeout 60s;
-        proxy_read_timeout 120s;
-        proxy_send_timeout 120s;
+        proxy_connect_timeout 75s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
     }
 
     client_max_body_size 50M;
@@ -81,9 +103,30 @@ conn.on('ready', () => {
       });
     });
   });
-}).connect({
-  host: '178.238.231.210',
-  port: 22,
-  username: 'root',
-  password: 'SalomKorea2026!'
+});
+
+// Credentials come from the environment — never hardcode them in a tracked file.
+//   VPS_HOST=... VPS_USER=root VPS_PASSWORD=... node scripts/update_nginx.js
+// Prefer key-based auth: set VPS_PRIVATE_KEY to the path of your private key.
+const host = process.env.VPS_HOST;
+const username = process.env.VPS_USER || 'root';
+const password = process.env.VPS_PASSWORD;
+const privateKeyPath = process.env.VPS_PRIVATE_KEY;
+
+if (!host) {
+  console.error('FATAL: set VPS_HOST (and VPS_PASSWORD or VPS_PRIVATE_KEY).');
+  process.exit(1);
+}
+if (!password && !privateKeyPath) {
+  console.error('FATAL: set either VPS_PASSWORD or VPS_PRIVATE_KEY.');
+  process.exit(1);
+}
+
+conn.connect({
+  host,
+  port: Number(process.env.VPS_PORT || 22),
+  username,
+  ...(privateKeyPath
+    ? { privateKey: readFileSync(privateKeyPath) }
+    : { password })
 });

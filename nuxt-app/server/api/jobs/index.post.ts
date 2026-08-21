@@ -88,21 +88,25 @@ export default defineEventHandler(async (event) => {
     apiError(500, 'Failed to create job queue.')
   }
 
-  // 6. Trigger worker asynchronously (using H3 event.waitUntil to ensure execution)
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-  const host = event.node.req.headers.host || 'localhost:3100'
-  const workerUrl = `${protocol}://${host}/api/jobs/worker`
+  // 6. Trigger the worker over loopback.
+  // Previously this went out through the public host header and back in via the
+  // reverse proxy — any proxy timeout, rate limit, or DNS quirk silently killed
+  // the trigger (the failure is only logged), leaving the job stuck at 'queued'.
+  // Loopback matches how the worker chains itself and skips the proxy entirely.
+  const port = process.env.PORT || process.env.NITRO_PORT || '3000'
+  const workerUrl = `http://127.0.0.1:${port}/api/jobs/worker`
 
   console.log(`[Jobs API] Triggering worker at: ${workerUrl}`)
-  const triggerPromise = $fetch(workerUrl, {
-    method: 'POST'
-  }).then(() => {
-    console.log('[Jobs API] Worker trigger request completed.')
-  }).catch((err: unknown) => {
-    console.error('[Jobs API] Worker trigger request failed:', err instanceof Error ? err.message : String(err))
+  // Detached: the worker runs for minutes, so we only need the request to be
+  // sent, not answered. A timeout here means it started — not that it failed.
+  // `event.waitUntil` is deliberately not used: it is a no-op outside the
+  // serverless presets, which is what made this trigger unreliable on a VPS.
+  $fetch(workerUrl, { method: 'POST', timeout: 5000 }).catch((err: unknown) => {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (!/timeout|aborted/i.test(msg)) {
+      console.error('[Jobs API] Worker trigger request failed:', msg)
+    }
   })
-
-  event.waitUntil(triggerPromise)
 
   // 7. Return job info
   return {

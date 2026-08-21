@@ -7,7 +7,6 @@
  * and handles database writes, Telegram, and realtime updates per student.
  */
 
-import type { H3Event } from 'h3'
 import { getTursoClient, type TursoDbClient, type QueryResult } from '../../utils/turso'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
@@ -46,6 +45,10 @@ interface WorkerStudent {
 // still launched on a 200ms cadence, but this ceiling protects the portal and
 // keeps a slow response from turning the entire batch into timeouts.
 const MAX_CONCURRENT_PORTAL_CHECKS = 8
+
+// How long a single worker invocation may keep dispatching before it hands off
+// to a chained worker. Must stay below the reverse proxy's read timeout.
+const WORKER_MAX_RUNTIME_MS = 10 * 60 * 1000
 
 // Helper: Try to acquire scheduler lock
 async function acquireSchedulerLock(db: TursoDbClient, workerId: string): Promise<boolean> {
@@ -129,8 +132,12 @@ async function executeWithRetry(
   throw new Error('Retries failed')
 }
 
-// Async runner to perform scraping, DB writes, Telegram notification, and progress updates
-async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, event: H3Event) {
+// Async runner to perform scraping, DB writes, Telegram notification, and progress updates.
+// Returns the in-flight promise so the dispatch loop can await it before the
+// handler returns. `event.waitUntil()` is only implemented by the serverless
+// presets (Vercel/Cloudflare) — on the node-server preset it is a no-op, so
+// relying on it here orphaned every task's DB write mid-flight.
+function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask): Promise<void> {
   const runnerId = `runner-${claimedTask.id}`
   const taskStartedAt = performance.now()
   console.log(`[Task Runner] Starting task ${claimedTask.id} for passport ${claimedTask.passport}`)
@@ -181,10 +188,10 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
         // e.g. 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' → 'SUPPLEMENT_NEEDED'
         const rawNewStatus = liveResult.found ? liveResult.latestStatus : oldStatus
         newStatus = toDbStatus(rawNewStatus)
-        const lastNotified = String(student.lastNotifiedStatus || student.last_notified_status || '')
-        const isBaseline = (isSameStatus(oldStatus, 'PENDING') || !oldStatus) && (isSameStatus(newStatus, 'UNDER_REVIEW') || isSameStatus(newStatus, 'RECEIVED') || isSameStatus(newStatus, 'PENDING'))
-        const alreadyNotified = lastNotified && isSameStatus(lastNotified, newStatus)
-        const statusChanged = !isSameStatus(oldStatus, newStatus) && !alreadyNotified && !isBaseline
+        // Used only for the `notifications` audit row below. The Telegram send
+        // decision is NOT made here — sendTelegramNotification owns it and gates
+        // on lastNotifiedStatus, which the UPDATE below does not clobber.
+        const statusChanged = !isSameStatus(oldStatus, newStatus)
 
         const checkSource = claimedTask.checkSource
 
@@ -241,8 +248,13 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
                   VALUES (?, ?, ?, ?, datetime('now'))`,
             args: [student.telegram_user_id || null, claimedTask.passport, oldStatus, newStatus]
           })
+        }
 
-          // Trigger Telegram notification asynchronously (non-blocking)
+        // Always hand the transition to the notifier — it decides whether this
+        // is worth announcing. Called unconditionally so a status the consultant
+        // was never told about still goes out even if `status` was already
+        // updated by another cabinet's check.
+        {
           sendTelegramNotification(claimedTask.userId, {
             fullName: student.fullName || student.fullname || '',
             passport: claimedTask.passport,
@@ -390,10 +402,10 @@ async function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask, even
     }
   })()
 
-  event.waitUntil(taskPromise)
+  return taskPromise
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   const db = await getTursoClient()
   const workerId = `worker-${crypto.randomUUID()}`
   const workerStartTime = Date.now()
@@ -475,10 +487,19 @@ export default defineEventHandler(async (event) => {
 
   console.log(`[Queue Worker] Dispatcher lock acquired. Starting dispatch loop. Owner: ${workerId}`)
 
-  // 3. Process loop (runs up to 45 seconds to stay safe from Vercel function timeout)
+  // 3. Process loop.
+  // The old 45s ceiling existed only to stay under Vercel's function timeout.
+  // On a long-lived Node server there is no such limit, and stopping early just
+  // forced a chain-restart (re-running stale recovery + lock acquisition) in the
+  // middle of a large batch. Kept generous but bounded so a wedged loop can
+  // still be recovered by the next invocation.
   let tasksDispatched = 0
 
-  while (Date.now() - workerStartTime < 45000) {
+  // Promises for tasks dispatched by this worker. Awaited before the handler
+  // returns so their DB writes/notifications always complete (see runVisaCheckTask).
+  const inFlight: Promise<void>[] = []
+
+  while (Date.now() - workerStartTime < WORKER_MAX_RUNTIME_MS) {
     // A. Renew lock
     const hasLock = await renewSchedulerLock(db, workerId)
     if (!hasLock) {
@@ -586,13 +607,46 @@ export default defineEventHandler(async (event) => {
       console.error('[Queue Worker] Failed to publish visa_check.started event:', err)
     })
 
-    runVisaCheckTask(db, claimedTask, event)
+    inFlight.push(runVisaCheckTask(db, claimedTask))
 
     // D. Sleep 200ms before starting the next loop iteration (enforcing global 200ms rate limit)
     await new Promise(resolve => setTimeout(resolve, 200))
   }
 
-  // 4. Chain the next worker. Delayed retries also schedule their own wake-up,
+  // 4. Drain every task this worker dispatched. Until these settle, their rows
+  // are still 'processing' and their result writes have not landed — returning
+  // here (as the old waitUntil-based version effectively did on Node) is what
+  // left checks hanging until the 5-minute stale sweep re-queued them.
+  if (inFlight.length > 0) {
+    console.log(`[Queue Worker] Draining ${inFlight.length} in-flight task(s) before exit. Owner: ${workerId}`)
+    const drainStartedAt = Date.now()
+
+    // The scheduler lock expires after 5s and is otherwise only renewed inside
+    // the dispatch loop. A drain can outlast that (a single portal check takes
+    // up to 20s), so keep renewing while we wait — otherwise the lock lapses
+    // and a second worker starts dispatching the same queue concurrently.
+    const drainHeartbeat = setInterval(() => {
+      renewSchedulerLock(db, workerId).catch((err: unknown) => {
+        console.error('[Queue Worker] Lock renewal during drain failed:', err instanceof Error ? err.message : String(err))
+      })
+    }, 2000)
+
+    try {
+      await Promise.allSettled(inFlight)
+    } finally {
+      clearInterval(drainHeartbeat)
+    }
+    console.log(`[Queue Worker] Drain complete in ${Date.now() - drainStartedAt}ms. Owner: ${workerId}`)
+  }
+
+  // Always hand the lock back. The chaining block below re-releases it on the
+  // path where it spawns a successor; releasing twice is harmless (the UPDATE
+  // is scoped to `locked_by = workerId` and simply matches nothing the second
+  // time), whereas not releasing here leaks the lock whenever the loop exits
+  // via `break` and forces every later worker to wait out the 5s expiry.
+  await releaseSchedulerLock(db, workerId)
+
+  // 5. Chain the next worker. Delayed retries also schedule their own wake-up,
   // otherwise a failed task could remain queued forever with no new request.
   try {
     const queuedCountRes = await db.execute({
@@ -618,13 +672,29 @@ export default defineEventHandler(async (event) => {
       const workerUrl = `http://127.0.0.1:${port}/api/jobs/worker`
 
       console.log(`[Queue Worker] Chaining next worker execution. Queued count: ${queuedCount}, delay: ${delayMs}ms`)
-      const triggerPromise = (async () => {
-        if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs))
-        await $fetch(workerUrl, { method: 'POST' })
-      })().catch((err: unknown) => {
-        console.error('[Queue Worker] Chained trigger failed:', err instanceof Error ? err.message : String(err))
-      })
-      event.waitUntil(triggerPromise)
+      // Detached on purpose: the chained worker runs for minutes, so awaiting its
+      // response would keep this request open just as long. We only need the
+      // request to be *sent*. `event.waitUntil` is not used — it is a no-op on
+      // the node-server preset. `setTimeout` is unref'd so a pending delay never
+      // holds the process open during shutdown.
+      const fireChainedWorker = () => {
+        $fetch(workerUrl, { method: 'POST', timeout: 5000 }).catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err)
+          // A timeout here is expected and harmless — the chained worker has
+          // accepted the request and is dispatching; it simply won't respond
+          // until its own loop finishes.
+          if (!/timeout|aborted/i.test(msg)) {
+            console.error('[Queue Worker] Chained trigger failed:', msg)
+          }
+        })
+      }
+
+      if (delayMs > 0) {
+        const timer = setTimeout(fireChainedWorker, delayMs)
+        if (typeof timer.unref === 'function') timer.unref()
+      } else {
+        fireChainedWorker()
+      }
     }
   } catch (err) {
     console.error('[Queue Worker] Chaining check failed:', err)

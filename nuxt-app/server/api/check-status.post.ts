@@ -4,7 +4,7 @@ import { apiError } from '../utils/api-error'
 import { publishRealtime } from '../utils/realtime-publisher'
 import { sendTelegramNotification } from '../utils/telegram-notifier'
 import { tryCreateProcessingNotification } from '../utils/processing-notifier'
-import { isSameStatus, toDbStatus } from '../utils/visa-status'
+import { toDbStatus } from '../utils/visa-status'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -112,7 +112,7 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      for (const [targetUserId, { oldStatus: oldStatusForUser, lastNotified }] of userOldStatus) {
+      for (const [targetUserId, { oldStatus: oldStatusForUser }] of userOldStatus) {
         publishRealtime(targetUserId, {
           type: 'student.updated',
           eventId: crypto.randomUUID(),
@@ -124,12 +124,12 @@ export default defineEventHandler(async (event) => {
           console.error(`[Check Status Realtime] Failed for userId ${targetUserId}:`, err)
         })
 
-        const isBaseline = (isSameStatus(oldStatusForUser, 'PENDING') || !oldStatusForUser) && (isSameStatus(newStatus, 'UNDER_REVIEW') || isSameStatus(newStatus, 'RECEIVED') || isSameStatus(newStatus, 'PENDING'))
-        const alreadyNotified = lastNotified && isSameStatus(lastNotified, newStatus)
-        const statusGenuinelyChanged = !isSameStatus(oldStatusForUser, newStatus) && !alreadyNotified && !isBaseline
-
-        // Only notify if THIS user's student status actually changed (per-user comparison)
-        if (statusGenuinelyChanged) {
+        // The send decision lives entirely in sendTelegramNotification, which
+        // gates on lastNotifiedStatus. Duplicating it here used to drop real
+        // transitions: this row's `status` was already overwritten with
+        // `newStatus` by the UPDATE above, so comparing against it always
+        // reported "unchanged".
+        {
           sendTelegramNotification(targetUserId, {
             fullName: String(firstStudent.fullName || firstStudent.fullname || fullName),
             passport,
