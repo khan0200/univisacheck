@@ -122,6 +122,7 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       { name: 'Plus Jakarta Sans', provider: 'google', weights: [400, 500, 600, 700] },
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700] },
       { name: 'Pretendard', provider: 'fontsource', weights: [400, 500, 600, 700] }
     ]
   },

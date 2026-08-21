@@ -194,7 +194,7 @@ function isNewAdmission(item?: SupabaseAdmission | null): boolean {
               Expected period:
               <span
                 v-if="props.admission.expected_date_range?.from || props.admission.expected_date_range?.to"
-                class="font-mono"
+                style="font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;"
               >
                 {{ formatDate(props.admission.expected_date_range?.from) }} — {{ formatDate(props.admission.expected_date_range?.to) }}
               </span>
@@ -241,7 +241,7 @@ function isNewAdmission(item?: SupabaseAdmission | null): boolean {
                     />
                     Online Application
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs" style="font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;">
                     <span v-if="round.onlineApplicationFrom && round.onlineApplicationTo">
                       {{ formatDate(round.onlineApplicationFrom) }} — {{ formatDate(round.onlineApplicationTo) }}
                     </span>
@@ -263,7 +263,7 @@ function isNewAdmission(item?: SupabaseAdmission | null): boolean {
                     />
                     Document Submission
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs" style="font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;">
                     <span v-if="round.documentSubmission">
                       {{ formatDate(round.documentSubmission) }}
                     </span>
@@ -285,7 +285,7 @@ function isNewAdmission(item?: SupabaseAdmission | null): boolean {
                     />
                     Interview Date
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs" style="font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;">
                     <span v-if="round.interview">
                       {{ formatDate(round.interview) }}
                     </span>
@@ -307,7 +307,7 @@ function isNewAdmission(item?: SupabaseAdmission | null): boolean {
                     />
                     Announcement (Result)
                   </div>
-                  <div class="font-bold text-slate-900 dark:text-white text-xs font-mono">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs" style="font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;">
                     <span v-if="round.announcement">
                       {{ formatDate(round.announcement) }}
                     </span>

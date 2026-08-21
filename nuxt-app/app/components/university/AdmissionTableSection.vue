@@ -45,17 +45,17 @@ const { data: response, pending } = await useFetch<AdmissionsApiResponse>('/api/
 const rawAdmissions = computed(() => response.value?.data || [])
 
 const levelLabels: Record<string, { text: string, class: string }> = {
-  'BACHELOR': { text: 'Bachelor', class: 'bg-primary-900 text-white font-bold border-primary-800' },
-  'MASTERS': { text: 'Master', class: 'bg-purple-700 text-white font-bold border-purple-800' },
-  'MASTER NO CERTIFICATE': { text: 'Master (No Cert)', class: 'bg-indigo-700 text-white font-bold border-indigo-800' },
-  'COLLEGE': { text: 'College', class: 'bg-teal-700 text-white font-bold border-teal-800' },
-  'LANGUAGE COURSE': { text: 'Language Course', class: 'bg-amber-600 text-white font-bold border-amber-700' }
+  'BACHELOR': { text: 'Bachelor', class: 'bg-blue-600 text-white font-bold border-blue-700' },
+  'MASTERS': { text: 'Master', class: 'bg-purple-600 text-white font-bold border-purple-700' },
+  'MASTER NO CERTIFICATE': { text: 'Master (No Cert)', class: 'bg-indigo-600 text-white font-bold border-indigo-700' },
+  'COLLEGE': { text: 'College', class: 'bg-teal-600 text-white font-bold border-teal-700' },
+  'LANGUAGE COURSE': { text: 'Language Course', class: 'bg-amber-500 text-white font-bold border-amber-600' }
 }
 
 function getLevelBadge(level?: string | null) {
-  if (!level) return { text: 'Program', class: 'bg-primary-900 text-white font-bold border-primary-800' }
+  if (!level) return { text: 'Program', class: 'bg-blue-600 text-white font-bold border-blue-700' }
   const upper = level.toUpperCase()
-  return levelLabels[upper] || { text: level, class: 'bg-primary-900 text-white font-bold border-primary-800' }
+  return levelLabels[upper] || { text: level, class: 'bg-blue-600 text-white font-bold border-blue-700' }
 }
 
 function formatUniType(type: string): string {
@@ -422,7 +422,7 @@ const filteredAdmissions = computed(() => {
               <th class="px-4 py-3.5 min-w-[250px]">
                 Admission Period
               </th>
-              <th class="px-4 py-3.5 min-w-[140px] text-center">
+              <th class="px-4 py-3.5 min-w-[140px] text-right">
                 Status
               </th>
               <th class="px-4 py-3.5 w-24 text-center">
@@ -526,7 +526,7 @@ const filteredAdmissions = computed(() => {
                     </span>
                     <span
                       v-if="round.onlineApplicationFrom && round.onlineApplicationTo"
-                      class="font-semibold text-slate-900 dark:text-white font-mono text-[11.5px]"
+                      class="font-semibold text-slate-900 dark:text-white text-[13px]" style="font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;"
                     >
                       {{ formatDate(round.onlineApplicationFrom) }} — {{ formatDate(round.onlineApplicationTo) }}
                     </span>
@@ -546,7 +546,7 @@ const filteredAdmissions = computed(() => {
                 >
                   <div
                     v-if="item.expected_date_range?.from || item.expected_date_range?.to"
-                    class="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5 font-mono text-[11.5px]"
+                    class="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5 text-[13px]" style="font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;"
                   >
                     <UIcon
                       name="i-lucide-clock"
@@ -572,7 +572,7 @@ const filteredAdmissions = computed(() => {
               </td>
 
               <!-- Status Badge -->
-              <td class="px-4 py-4 text-center">
+              <td class="px-4 py-4 text-right">
                 <span
                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
                   :class="item.statusInfo.badgeClass"
