@@ -33,6 +33,11 @@ const groupIcon = computed(() => {
   if (name === 'standard' || name === 'vip' || name === 'premium') return 'i-lucide-tag'
   return 'i-lucide-landmark'
 })
+
+const allApproved = computed(() => props.students.every(s => {
+  const st = (s.status || '').toLowerCase()
+  return st.includes('approved') || st.includes('visa used')
+}))
 </script>
 
 <template>
@@ -61,8 +66,9 @@ const groupIcon = computed(() => {
       <!-- Actions area -->
       <div class="flex items-center gap-1 pr-3">
         <button
+          v-if="!allApproved && currentFilter !== 'approved'"
           type="button"
-          class="flex items-center justify-center text-white/90 hover:text-white transition-colors p-1.5 rounded hover:bg-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          class="flex items-center justify-center text-white/90 hover:text-white transition-colors p-1.5 rounded hover:bg-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-40 disabled:cursor-not-allowed"
           title="Check all in group"
           :disabled="groupIsChecking"
           @click="emit('refresh-group', students)"

@@ -282,8 +282,10 @@ watch([() => props.students, () => props.currentFilter], () => {
               block
               color="primary"
               class="text-white justify-center"
+              :disabled="isPdfEligible(student)"
+              :class="{ 'opacity-40 cursor-not-allowed pointer-events-none': isPdfEligible(student) }"
               :loading="checkingPassports.has(student.passport)"
-              @click.stop="emit('refresh', student)"
+              @click.stop="!isPdfEligible(student) && emit('refresh', student)"
             >
               Check
             </UiLoadingButton>
@@ -541,8 +543,10 @@ watch([() => props.students, () => props.currentFilter], () => {
                 <UiLoadingButton
                   color="primary"
                   class="text-white justify-center rounded-none px-5 h-full py-2"
+                  :disabled="isPdfEligible(student)"
+                  :class="{ 'opacity-40 cursor-not-allowed pointer-events-none': isPdfEligible(student) }"
                   :loading="checkingPassports.has(student.passport)"
-                  @click.stop="emit('refresh', student)"
+                  @click.stop="!isPdfEligible(student) && emit('refresh', student)"
                 >
                   Check
                 </UiLoadingButton>

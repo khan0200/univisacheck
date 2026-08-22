@@ -86,6 +86,11 @@ async function confirmDeleteStudent() {
 }
 
 async function handleRefresh(student: Student) {
+  const status = (student.status || '').toLowerCase()
+  if (status.includes('approved') || status.includes('visa used')) {
+    toast.add({ title: 'Student is already approved.', color: 'neutral', icon: 'i-lucide-check-circle', duration: 2500 })
+    return
+  }
   try {
     await checkOne(student)
   } catch {
@@ -94,9 +99,16 @@ async function handleRefresh(student: Student) {
 }
 
 async function handleGroupRefresh(students: Student[]) {
-  if (!students.length) return
+  const unapproved = students.filter(s => {
+    const status = (s.status || '').toLowerCase()
+    return !status.includes('approved') && !status.includes('visa used')
+  })
+  if (!unapproved.length) {
+    toast.add({ title: 'All students in this group are already approved.', color: 'neutral', icon: 'i-lucide-check-circle', duration: 2500 })
+    return
+  }
   try {
-    await checkMany(students)
+    await checkMany(unapproved)
   } catch {
     toast.add({ title: 'Failed to queue group visa check.', color: 'error', icon: 'i-lucide-alert-triangle', duration: 2500 })
   }
