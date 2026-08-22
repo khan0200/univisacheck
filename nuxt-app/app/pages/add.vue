@@ -256,10 +256,16 @@ const SEMESTER_SUGGESTIONS = [
 ]
 
 // Fetch admissions with cache-busting
+const cacheBust = ref(Date.now())
 const { data: response, pending, refresh } = await useFetch<{ success: boolean, data: Admission[] }>('/api/admissions', {
-  query: { t: () => Date.now() },
+  query: { t: cacheBust },
   default: () => ({ success: true, data: [] })
 })
+
+async function refreshAdmissions() {
+  cacheBust.value = Date.now()
+  await refresh()
+}
 
 const admissions = computed(() => response.value?.data || [])
 
@@ -277,6 +283,7 @@ const formMode = ref<'add' | 'edit'>('add')
 const editingId = ref<string | null>(null)
 const activeTab = ref<'uni' | 'admission'>('admission')
 const isSaving = ref(false)
+const isPopulatingForm = ref(false)
 
 // University Autocomplete Suggestion Dropdown
 const isUniDropdownOpen = ref(false)
@@ -383,6 +390,7 @@ function openAddModal() {
 }
 
 function openEditModal(item: Admission) {
+  isPopulatingForm.value = true
   formMode.value = 'edit'
   editingId.value = item.id
   resetForm()
@@ -429,6 +437,9 @@ function openEditModal(item: Admission) {
   }
 
   formModalOpen.value = true
+  nextTick(() => {
+    isPopulatingForm.value = false
+  })
 }
 
 // Auto-sync HUJJAT TOPSHIRISH date to match GACHA date if empty or previously synced
@@ -458,6 +469,44 @@ interface AdmissionPayload {
   expected_date_range?: { from?: string | null, to?: string | null } | null
   rounds?: typeof form.rounds
 }
+
+// Auto-save Viza turi / Universitet turi checkboxes immediately when toggled
+// while editing an existing admission (no need to press Saqlash for these).
+async function autoSaveTypes() {
+  if (isPopulatingForm.value || formMode.value !== 'edit' || !editingId.value) return
+
+  try {
+    const res = await $fetch<{ success: boolean, error?: string }>('/api/admissions/manage', {
+      method: 'POST',
+      body: {
+        action: 'update_types',
+        id: editingId.value,
+        payload: {
+          visa_types: form.visa_types,
+          university_types: form.university_types
+        }
+      }
+    })
+    if (!res.success) throw new Error(res.error || 'Operation failed')
+
+    if (response.value?.data) {
+      const idx = response.value.data.findIndex((item: Admission) => String(item.id) === String(editingId.value))
+      if (idx !== -1 && response.value.data[idx]) {
+        response.value.data[idx] = {
+          ...response.value.data[idx],
+          visa_types: [...form.visa_types],
+          university_types: [...form.university_types]
+        }
+      }
+    }
+  } catch (err: unknown) {
+    const errorObj = err as { message?: string }
+    toast.add({ title: 'Turlarni saqlashda xatolik: ' + (errorObj?.message || 'Saqlab bo\'lmadi'), color: 'error' })
+  }
+}
+
+watch(() => [...form.visa_types], autoSaveTypes)
+watch(() => [...form.university_types], autoSaveTypes)
 
 async function handleSave() {
   if (!form.university_name.trim()) {
@@ -555,7 +604,7 @@ async function handleSave() {
     })
 
     formModalOpen.value = false
-    await refresh()
+    await refreshAdmissions()
   } catch (err: unknown) {
     const errorObj = err as { message?: string }
     toast.add({
@@ -640,7 +689,7 @@ async function handleDelete() {
       }
       toast.add({ title: 'Qabul e\'loni o\'chirildi', color: 'success' })
       deleteModalOpen.value = false
-      await refresh()
+      await refreshAdmissions()
     }
   } catch (err: unknown) {
     const errorObj = err as { message?: string }

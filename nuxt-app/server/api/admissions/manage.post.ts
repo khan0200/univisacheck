@@ -147,6 +147,32 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    if (action === 'update_types' && id) {
+      const visa_types = Array.isArray(payload.visa_types)
+        ? JSON.stringify(payload.visa_types)
+        : (typeof payload.visa_types === 'string' ? payload.visa_types : '[]')
+      const university_types = Array.isArray(payload.university_types)
+        ? JSON.stringify(payload.university_types)
+        : (typeof payload.university_types === 'string' ? payload.university_types : '[]')
+
+      await db.execute({
+        sql: 'UPDATE admissions SET visa_types = ?, university_types = ?, updated_at = ? WHERE id = ?',
+        args: [visa_types, university_types, now, id]
+      })
+
+      invalidateAdmissionsCache()
+
+      return {
+        success: true,
+        data: {
+          id,
+          visa_types: payload.visa_types || [],
+          university_types: payload.university_types || [],
+          updated_at: now
+        }
+      }
+    }
+
     if (action === 'toggle_hide' && id) {
       const is_hidden = payload.is_hidden ? 1 : 0
       await db.execute({

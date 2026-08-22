@@ -266,65 +266,58 @@ export async function getTursoClient(): Promise<TursoDbClient> {
     return makeLibSqlWrapper(client)
   }
 
-  try {
-    const p = await getDatabasePool()
-    return {
-      execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
-        return await executePgStatement(p, stmt, args)
-      },
-      batch: async (stmts: (string | SqlStatement | InStatement)[], _mode?: 'write' | 'read' | 'deferred'): Promise<QueryResult[]> => {
-        const client = await p.connect()
-        try {
-          await client.query('BEGIN')
-          const results: QueryResult[] = []
-          for (const s of stmts) {
-            const res = await executePgStatement(client, s)
-            results.push(res)
-          }
-          await client.query('COMMIT')
-          return results
-        } catch (err) {
-          await client.query('ROLLBACK')
-          throw err
-        } finally {
-          client.release()
-        }
-      },
-      transaction: async () => {
-        const client = await p.connect()
+  const p = await getDatabasePool()
+  return {
+    execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
+      return await executePgStatement(p, stmt, args)
+    },
+    batch: async (stmts: (string | SqlStatement | InStatement)[], _mode?: 'write' | 'read' | 'deferred'): Promise<QueryResult[]> => {
+      const client = await p.connect()
+      try {
         await client.query('BEGIN')
-        let closed = false
-        return {
-          execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
-            return await executePgStatement(client, stmt, args)
-          },
-          commit: async () => {
-            if (!closed) {
-              await client.query('COMMIT')
-              client.release()
-              closed = true
-            }
-          },
-          rollback: async () => {
-            if (!closed) {
-              await client.query('ROLLBACK')
-              client.release()
-              closed = true
-            }
-          },
-          close: async () => {
-            if (!closed) {
-              await client.release()
-              closed = true
-            }
+        const results: QueryResult[] = []
+        for (const s of stmts) {
+          const res = await executePgStatement(client, s)
+          results.push(res)
+        }
+        await client.query('COMMIT')
+        return results
+      } catch (err) {
+        await client.query('ROLLBACK')
+        throw err
+      } finally {
+        client.release()
+      }
+    },
+    transaction: async () => {
+      const client = await p.connect()
+      await client.query('BEGIN')
+      let closed = false
+      return {
+        execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
+          return await executePgStatement(client, stmt, args)
+        },
+        commit: async () => {
+          if (!closed) {
+            await client.query('COMMIT')
+            client.release()
+            closed = true
+          }
+        },
+        rollback: async () => {
+          if (!closed) {
+            await client.query('ROLLBACK')
+            client.release()
+            closed = true
+          }
+        },
+        close: async () => {
+          if (!closed) {
+            await client.release()
+            closed = true
           }
         }
       }
     }
-  } catch (err: unknown) {
-    const errorObj = err as { message?: string }
-    console.error('[DB] Could not initialize PostgreSQL pool:', errorObj.message)
-    const fallback = await getLibSqlClient()
-    return makeLibSqlWrapper(fallback)
   }
 }
