@@ -35,12 +35,25 @@ const visaAgent = new https.Agent({
   keepAlive: true,
   maxSockets: 50,
   maxFreeSockets: 20,
-  timeout: 10_000,
+  timeout: 30_000,
   keepAliveMsecs: 15_000,
   scheduling: 'lifo'
 })
 
-function httpReq(method, path, headers, body = null, timeoutMs = 8000) {
+// visa.go.kr response time is highly variable — measured from the VPS it ranges
+// from ~0.8s to well over 8s for the same endpoint, minute to minute. The old
+// 8s ceiling sat right in the middle of that spread, so a large share of
+// requests aborted at the deadline and were retried against a fresh session.
+// Each retry pays the full round trip again, which is what turned a sub-second
+// lookup into a 20-30s one. A longer ceiling costs nothing when the portal is
+// fast (the request simply finishes) and avoids the doubled work when it is
+// slow, so it is strictly better than retrying early.
+const PORTAL_TIMEOUT_MS = 25_000
+// The session cookie fetch is a cheap GET; keep it tighter so a stuck handshake
+// does not delay the actual lookup, which can proceed without cookies.
+const SESSION_TIMEOUT_MS = 12_000
+
+function httpReq(method, path, headers, body = null, timeoutMs = PORTAL_TIMEOUT_MS) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: HOST,
@@ -93,7 +106,7 @@ async function getSession(force = false) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9'
-      }, null, 8000)
+      }, null, SESSION_TIMEOUT_MS)
 
       const setCookies = r.headers['set-cookie'] || []
       if (Array.isArray(setCookies) && setCookies.length > 0) {
@@ -417,14 +430,14 @@ async function checkVisaDirect(passport, fullName, birthDate, visaType = 'Embass
 
   let r
   try {
-    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 8000)
+    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, PORTAL_TIMEOUT_MS)
   } catch (err) {
     console.warn(`[Direct] ${passport} initial query failed (${err.message}). Retrying with fresh session...`)
     cookies = await getSession(true)
     if (cookies) {
       reqHeaders['Cookie'] = cookies
     }
-    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, 8000)
+    r = await httpReq('POST', '/openPage.do?MENU_ID=10301', reqHeaders, body, PORTAL_TIMEOUT_MS)
   }
   // visa.go.kr embeds JS like: if ("3" == 0) { /* no results block */ }
   // When countMatch is null the regex didn't match — DON'T assume 0.
