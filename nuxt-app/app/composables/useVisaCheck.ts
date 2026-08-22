@@ -38,6 +38,7 @@ interface DirectCheckResponse {
 export function useVisaCheck() {
   const { apiFetch } = useApiFetch()
   const studentsStore = useStudentsStore()
+  const toast = useToast()
   const checkingPassports = computed(() => studentsStore.checkingPassports)
 
   /**
@@ -264,8 +265,23 @@ export function useVisaCheck() {
     setTimeout(() => {
       studentsStore.batchCheckProgress.active = false
       studentsStore.isCheckingSession = false
-      // Automatically open report summary modal at the end of the batch check
-      studentsStore.showReportModal = true
+
+      // The report modal only earns a full-screen interruption when there is
+      // something to act on — a status change, or a student the portal never
+      // answered for (which offers a retry). A clean run where every student
+      // came back unchanged is the common case; it gets a toast instead.
+      const hasSomethingToReport = changedCount > 0 || noAnswerCount > 0
+
+      if (hasSomethingToReport) {
+        studentsStore.showReportModal = true
+      } else {
+        toast.add({
+          title: 'O\'zgarishlar kuzatilmadi',
+          description: `${list.length} ta talaba tekshirildi`,
+          icon: 'i-lucide-check',
+          color: 'success'
+        })
+      }
     }, 600)
 
     return { completed: completedCount, failed: noAnswerCount }
