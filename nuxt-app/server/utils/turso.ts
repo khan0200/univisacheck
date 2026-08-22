@@ -8,7 +8,6 @@ const { Pool } = pg
 
 let pool: pg.Pool | null = null
 let libSqlClient: LibSqlClient | null = null
-let useLibSqlFallback = false
 
 async function loadLocalConfig(): Promise<{ DATABASE_URL?: string, TURSO_DATABASE_URL?: string, TURSO_AUTH_TOKEN?: string }> {
   try {
@@ -137,11 +136,12 @@ export async function getDatabasePool(): Promise<pg.Pool> {
     connectionString,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 3000
+    connectionTimeoutMillis: 10000
   })
 
   pool.on('error', (err) => {
     console.error('[PostgreSQL Pool Error]', err)
+    pool = null
   })
 
   return pool
@@ -214,7 +214,7 @@ export async function getTursoClient(): Promise<TursoDbClient> {
   const dbUrl = process.env.DATABASE_URL || localConfig.DATABASE_URL
 
   const isPostgresConfigured = Boolean(
-    !useLibSqlFallback && dbUrl && (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://'))
+    dbUrl && (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://'))
   )
 
   const makeLibSqlWrapper = (client: LibSqlClient): TursoDbClient => ({
@@ -270,46 +270,24 @@ export async function getTursoClient(): Promise<TursoDbClient> {
     const p = await getDatabasePool()
     return {
       execute: async (stmt: string | SqlStatement | InStatement, args?: unknown): Promise<QueryResult> => {
-        try {
-          return await executePgStatement(p, stmt, args)
-        } catch (err: unknown) {
-          const errorObj = err as { code?: string, message?: string }
-          if (errorObj.code === 'ECONNREFUSED' || errorObj.message?.includes('ECONNREFUSED') || errorObj.message?.includes('timeout')) {
-            console.warn('[DB] PostgreSQL connection failed. Falling back to Turso LibSQL...', errorObj.message)
-            useLibSqlFallback = true
-            const fallback = await getLibSqlClient()
-            return makeLibSqlWrapper(fallback).execute(stmt, args)
-          }
-          throw err
-        }
+        return await executePgStatement(p, stmt, args)
       },
       batch: async (stmts: (string | SqlStatement | InStatement)[], _mode?: 'write' | 'read' | 'deferred'): Promise<QueryResult[]> => {
+        const client = await p.connect()
         try {
-          const client = await p.connect()
-          try {
-            await client.query('BEGIN')
-            const results: QueryResult[] = []
-            for (const s of stmts) {
-              const res = await executePgStatement(client, s)
-              results.push(res)
-            }
-            await client.query('COMMIT')
-            return results
-          } catch (err) {
-            await client.query('ROLLBACK')
-            throw err
-          } finally {
-            client.release()
+          await client.query('BEGIN')
+          const results: QueryResult[] = []
+          for (const s of stmts) {
+            const res = await executePgStatement(client, s)
+            results.push(res)
           }
-        } catch (err: unknown) {
-          const errorObj = err as { code?: string, message?: string }
-          if (errorObj.code === 'ECONNREFUSED' || errorObj.message?.includes('ECONNREFUSED') || errorObj.message?.includes('timeout')) {
-            console.warn('[DB] PostgreSQL batch failed. Falling back to Turso LibSQL...', errorObj.message)
-            useLibSqlFallback = true
-            const fallback = await getLibSqlClient()
-            return makeLibSqlWrapper(fallback).batch(stmts)
-          }
+          await client.query('COMMIT')
+          return results
+        } catch (err) {
+          await client.query('ROLLBACK')
           throw err
+        } finally {
+          client.release()
         }
       },
       transaction: async () => {
@@ -345,8 +323,7 @@ export async function getTursoClient(): Promise<TursoDbClient> {
     }
   } catch (err: unknown) {
     const errorObj = err as { message?: string }
-    console.warn('[DB] Could not initialize PostgreSQL pool. Falling back to Turso LibSQL...', errorObj.message)
-    useLibSqlFallback = true
+    console.error('[DB] Could not initialize PostgreSQL pool:', errorObj.message)
     const fallback = await getLibSqlClient()
     return makeLibSqlWrapper(fallback)
   }
