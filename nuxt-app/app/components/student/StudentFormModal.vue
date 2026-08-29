@@ -19,13 +19,11 @@ const emit = defineEmits<{
 const toast = useToast()
 const studentsStore = useStudentsStore()
 const { save } = useStudentsService()
-const { checkOne } = useVisaCheck()
 const { status: lookupStatus, onPassportInput, reset: resetLookup } = usePassportLookup()
 
 const isEdit = computed(() => Boolean(props.editingStudent))
 const originalPassport = ref('')
 const submitting = ref(false)
-const checkingVisa = ref(false)
 const errorMessage = ref('')
 
 const form = reactive<StudentFormInput>({
@@ -227,29 +225,13 @@ async function handleSubmit() {
       })
     }
 
-    // Auto-check visa status after both add and edit
-    submitting.value = false
-    checkingVisa.value = true
-    try {
-      const targetPassport = isEdit.value ? passport : passport
-      const student = studentsStore.students.find(s => s.passport.toUpperCase().trim() === targetPassport)
-      if (student) {
-        await checkOne(student)
-      }
-    } catch {
-      // Visa check failure is non-critical - student is already saved
-    } finally {
-      checkingVisa.value = false
-    }
-
-    toast.add({ title: isEdit.value ? 'Student updated & checked' : 'Student added & checked', color: 'primary', duration: 2500 })
+    toast.add({ title: isEdit.value ? 'Student updated successfully' : 'Student added successfully', color: 'primary', duration: 2500 })
     emit('saved')
     emit('update:open', false)
   } catch (e: unknown) {
     errorMessage.value = apiErrorMessage(e, 'Failed to save student. Please try again.')
   } finally {
     submitting.value = false
-    checkingVisa.value = false
   }
 }
 </script>
@@ -404,17 +386,10 @@ async function handleSubmit() {
           type="submit"
           block
           size="lg"
-          :loading="submitting || checkingVisa"
+          :loading="submitting"
           color="primary"
         >
-          <template v-if="checkingVisa">
-            <UIcon
-              name="i-lucide-refresh-cw"
-              class="size-4 animate-spin mr-1.5"
-            />
-            Checking visa status…
-          </template>
-          <template v-else-if="submitting">
+          <template v-if="submitting">
             Saving…
           </template>
           <template v-else>

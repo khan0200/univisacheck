@@ -2,9 +2,9 @@ import { checkStudentVisaStatus } from '../lib/visa'
 import { getTursoClient } from '../utils/turso'
 import { apiError } from '../utils/api-error'
 import { publishRealtime } from '../utils/realtime-publisher'
-import { sendTelegramNotification } from '../utils/telegram-notifier'
 import { tryCreateProcessingNotification } from '../utils/processing-notifier'
-import { toDbStatus } from '../utils/visa-status'
+import { toDbStatus, isSameStatus } from '../utils/visa-status'
+import { sendTelegramStatusNotification } from '../bot/services/notifier'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -124,29 +124,21 @@ export default defineEventHandler(async (event) => {
           console.error(`[Check Status Realtime] Failed for userId ${targetUserId}:`, err)
         })
 
-        // The send decision lives entirely in sendTelegramNotification, which
-        // gates on lastNotifiedStatus. Duplicating it here used to drop real
-        // transitions: this row's `status` was already overwritten with
-        // `newStatus` by the UPDATE above, so comparing against it always
-        // reported "unchanged".
-        {
-          sendTelegramNotification(targetUserId, {
-            fullName: String(firstStudent.fullName || firstStudent.fullname || fullName),
-            passport,
-            studentId: String(firstStudent.studentId || firstStudent.student_id || ''),
-            visaType: String(firstStudent.visaType || firstStudent.visa_type || visaType),
-            applicationNo: String(firstStudent.applicationNo || firstStudent.application_no || applicationNo),
-            birthday: String(firstStudent.birthday || birthDate),
-            oldStatus: oldStatusForUser,
-            newStatus,
+        // Telegram notification for status changes
+        if (!isSameStatus(oldStatusForUser, newStatus)) {
+          const isApprovedStatus = newStatus.toUpperCase().includes('APPROV') || newStatus.toUpperCase().includes('ISSUED') || newStatus.toUpperCase().includes('VISA USED')
+          sendTelegramStatusNotification(passport, targetUserId, oldStatusForUser, newStatus, {
+            fullName,
+            birthday: birthDate,
+            visaType,
+            applicationNo,
             applicationDate: appDate,
+            partner: direct.invitingCompany || String(firstStudent.university || ''),
+            decisionDate: isApprovedStatus ? (direct.latestDate || '') : undefined,
             rejectionReason: direct.rejectionReason || '',
-            previousRejectionReason: direct.previousRejectionReason || '',
-            invitingCompany: direct.invitingCompany || '',
-            entryDate: direct.entryDate || '',
             pdfUrl: direct.pdfUrl || ''
-          }).catch((err) => {
-            console.error('[Check Status] Telegram notification error:', err instanceof Error ? err.message : String(err))
+          }).catch((tgErr) => {
+            console.error(`[Check Status Telegram] Failed for userId ${targetUserId}:`, tgErr instanceof Error ? tgErr.message : String(tgErr))
           })
         }
       }

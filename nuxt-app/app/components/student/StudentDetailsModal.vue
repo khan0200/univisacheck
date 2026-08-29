@@ -519,14 +519,14 @@ async function saveField(fieldName: 'tariff' | 'university' | 'coordinator' | 'b
         <UButton
           v-if="isPdfEligible"
           :icon="props.student.visaType === 'E-Visa' ? 'i-lucide-info' : 'i-lucide-file-down'"
-          color="primary"
+          color="neutral"
+          variant="outline"
           block
           @click="handleDownloadPdf"
         >
           PDF
         </UButton>
         <UiLoadingButton
-          v-else
           icon="i-lucide-refresh-cw"
           color="primary"
           :loading="props.checking"

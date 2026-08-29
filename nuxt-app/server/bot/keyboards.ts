@@ -1,101 +1,183 @@
-/**
- * bot/keyboards.ts
- *
- * Defines all standard reply and inline keyboards used by the Telegram bot.
- * All keyboards accept an optional `lang` parameter for UZ/EN localisation.
- */
-
 import { Keyboard, InlineKeyboard } from 'grammy'
-import { t, type Lang } from '../lib/i18n'
+import { t, type Lang } from './i18n'
 
 /**
- * Builds the personalised main menu keyboard.
- * Layout:
- *   [ 📂 Kabinet ]  [ 🔍 Tekshirish ]
- *   [ ⚙️ Sozlamalar ]
- *   [ ⚙ {username} / ⚙ Consultingni ulash ]
+ * Main menu reply keyboard
  */
-export function getMainMenuKeyboard(username?: string | null, lang: Lang = 'uz'): Keyboard {
-  const profileLabel = username ? `⚙ ${username}` : (lang === 'en' ? '⚙ Connect Consulting' : '⚙ Consultingni ulash')
-  return new Keyboard()
-    .text(t('menu_cabinet', lang)).text(t('menu_check', lang)).row()
-    .text(t('menu_settings', lang)).row()
-    .text(profileLabel)
-    .resized()
-    .selected(true)
-}
-
-/** Fallback static main menu (not connected, default UZ). */
-export const mainMenuKeyboard = getMainMenuKeyboard(null, 'uz')
-
-/**
- * Creates an inline keyboard with a refresh (and optionally PDF) button.
- */
-export function getStudentCardKeyboard(passport: string, canDownloadPdf = false, lang: Lang = 'uz'): InlineKeyboard {
-  const kb = new InlineKeyboard()
-    .text(t('btn_refresh', lang), `refresh:${passport.toUpperCase().trim()}`)
-  if (canDownloadPdf) {
-    kb.row().text(t('btn_pdf', lang), `download_pdf:${passport.toUpperCase().trim()}`)
+export function mainMenuKeyboard(lang: Lang, consultingName?: string): Keyboard {
+  const keyboard = new Keyboard()
+    .text(t(lang, 'visa_check')).row()
+    .text(t(lang, 'settings')).row()
+  
+  if (consultingName) {
+    keyboard.text(`${consultingName} ${t(lang, 'cabinet_suffix')}`)
+  } else {
+    keyboard.text(t(lang, 'connect_consulting'))
   }
-  return kb
+  
+  return keyboard.resized().oneTime(false)
 }
 
 /**
- * Inline keyboard to choose Visa Type during /check conversation.
+ * Visa type inline keyboard
  */
-export function getVisaTypeKeyboard(lang: Lang = 'uz'): InlineKeyboard {
+export function visaTypeKeyboard(lang: Lang): InlineKeyboard {
   return new InlineKeyboard()
-    .text(t('visa_type_embassy', lang), 'check_type:Embassy').row()
-    .text(t('visa_type_evisa', lang), 'check_type:E-Visa').row()
-    .text(t('visa_type_regional', lang), 'check_type:Regional')
+    .text(t(lang, 'embassy'), 'visa_type:Embassy').row()
+    .text(t(lang, 'evisa'), 'visa_type:E-Visa').row()
+    .text(t(lang, 'regional'), 'visa_type:Regional')
 }
 
-/** Static fallback (UZ). */
-export const visaTypeKeyboard = getVisaTypeKeyboard('uz')
+/**
+ * Settings inline keyboard
+ */
+export function settingsKeyboard(lang: Lang, isConnected: boolean, consultingName?: string): InlineKeyboard {
+  const keyboard = new InlineKeyboard()
+    .text(t(lang, 'language'), 'settings:language').row()
+  
+  if (isConnected && consultingName) {
+    keyboard.text(t(lang, 'connected_to', { name: consultingName }), 'noop')
+    keyboard.text(t(lang, 'disconnect'), 'settings:disconnect').row()
+  } else {
+    keyboard.text(t(lang, 'connect_consulting'), 'settings:connect').row()
+  }
+  
+  keyboard.text(t(lang, 'back'), 'settings:back')
+  
+  return keyboard
+}
 
 /**
- * Inline keyboard to choose Cabinet Category.
+ * Language selection inline keyboard
  */
-export function getCabinetMenuKeyboard(lang: Lang = 'uz'): InlineKeyboard {
+export function languageKeyboard(): InlineKeyboard {
   return new InlineKeyboard()
-    .text(t('tab_pending', lang), 'cabinet_tab:pending')
-    .text(t('tab_application', lang), 'cabinet_tab:application').row()
-    .text(t('tab_cancelled', lang), 'cabinet_tab:cancelled')
-    .text(t('tab_approved', lang), 'cabinet_tab:approved')
+    .text("🇺🇿 O'zbekcha", 'lang:uz')
+    .text("🇬🇧 English", 'lang:en')
 }
 
-/** Static fallback (UZ). */
-export const cabinetMenuKeyboard = getCabinetMenuKeyboard('uz')
-
 /**
- * Inline keyboard for the Settings menu — language selection.
+ * Cabinet tabs inline keyboard
  */
-export function getSettingsKeyboard(lang: Lang = 'uz'): InlineKeyboard {
+export function cabinetTabsKeyboard(lang: Lang, counts: { pending: number; application: number; cancelled: number; approved: number }): InlineKeyboard {
   return new InlineKeyboard()
-    .text((lang === 'uz' ? '✅ ' : '') + t('settings_lang_uz', lang), 'settings:lang:uz').row()
-    .text((lang === 'en' ? '✅ ' : '') + t('settings_lang_en', lang), 'settings:lang:en')
+    .text(t(lang, 'pending_tab', { count: String(counts.pending) }), 'cab:pending:0')
+    .text(t(lang, 'application_tab', { count: String(counts.application) }), 'cab:application:0').row()
+    .text(t(lang, 'cancelled_tab', { count: String(counts.cancelled) }), 'cab:cancelled:0')
+    .text(t(lang, 'approved_tab', { count: String(counts.approved) }), 'cab:approved:0').row()
+    .text(t(lang, 'refresh'), 'cab:refresh')
+}
+
+export interface CabinetStudentItem {
+  passport: string
+  fullName?: string
+  index: number
+  hasPdf?: boolean
 }
 
 /**
- * Inline keyboard for Account menu actions.
+ * Pagination inline keyboard with individual student refresh buttons
  */
-export function getAccountMenuKeyboard(lang: Lang = 'uz'): InlineKeyboard {
+export function paginationKeyboard(
+  lang: Lang,
+  tab: string,
+  page: number,
+  totalPages: number,
+  students: CabinetStudentItem[] = []
+): InlineKeyboard {
+  const keyboard = new InlineKeyboard()
+  
+  // Per-student refresh buttons (2 per row)
+  for (let i = 0; i < students.length; i += 2) {
+    const s1 = students[i]
+    const s2 = students[i + 1]
+
+    if (s1) {
+      const shortName = s1.fullName ? s1.fullName.split(' ')[0] : s1.passport
+      keyboard.text(`🔄 ${s1.index}. ${shortName}`, `cab_chk:${s1.passport}:${tab}:${page}`)
+    }
+    if (s2) {
+      const shortName = s2.fullName ? s2.fullName.split(' ')[0] : s2.passport
+      keyboard.text(`🔄 ${s2.index}. ${shortName}`, `cab_chk:${s2.passport}:${tab}:${page}`)
+    }
+    keyboard.row()
+  }
+
+  // If any student on this page has PDF available, add download buttons
+  const approvedWithPdf = students.filter(s => s.hasPdf)
+  if (approvedWithPdf.length > 0) {
+    for (let i = 0; i < approvedWithPdf.length; i += 2) {
+      const s1 = approvedWithPdf[i]
+      const s2 = approvedWithPdf[i + 1]
+      if (s1) {
+        keyboard.text(`📥 ${s1.index}. PDF`, `visa_download:${s1.passport}`)
+      }
+      if (s2) {
+        keyboard.text(`📥 ${s2.index}. PDF`, `visa_download:${s2.passport}`)
+      }
+      keyboard.row()
+    }
+  }
+  
+  // Navigation row: [◀ Previous] [Page 1/3] [Next ▶]
+  if (page > 0) {
+    keyboard.text(t(lang, 'previous'), `cab:${tab}:${page - 1}`)
+  }
+  
+  keyboard.text(t(lang, 'page_info', { page: String(page + 1), total: String(totalPages) }), 'noop')
+  
+  if (page < totalPages - 1) {
+    keyboard.text(t(lang, 'next'), `cab:${tab}:${page + 1}`)
+  }
+  
+  keyboard.row()
+
+  // Actions row: [🔄 Refresh List] [⬅ Back]
+  const refreshLabel = lang === 'uz' ? '🔄 Hammasini yangilash' : '🔄 Refresh List'
+  keyboard.text(refreshLabel, `cab:${tab}:${page}:refresh`)
+  keyboard.text(t(lang, 'back'), 'cab:back')
+  
+  return keyboard
+}
+
+/**
+ * Refresh result inline keyboard
+ */
+export function refreshResultKeyboard(lang: Lang, passport: string, isApproved: boolean): InlineKeyboard {
+  const keyboard = new InlineKeyboard()
+    .text(t(lang, 'refresh'), `visa_refresh:${passport}`)
+  
+  if (isApproved) {
+    keyboard.row().text(t(lang, 'download_visa'), `visa_download:${passport}`)
+  }
+  
+  keyboard.row().text(t(lang, 'main_menu'), 'visa:back')
+  
+  return keyboard
+}
+
+/**
+ * Disconnect confirmation inline keyboard
+ */
+export function disconnectConfirmKeyboard(lang: Lang): InlineKeyboard {
   return new InlineKeyboard()
-    .text(t('cabinet_disconnect_btn', lang), 'account:disconnect')
+    .text(t(lang, 'yes'), 'disconnect:yes')
+    .text(t(lang, 'no'), 'disconnect:no')
 }
-
-/** Static fallback. */
-export const accountMenuKeyboard = getAccountMenuKeyboard('uz')
 
 /**
- * Simple cancellation button for input dialogues.
+ * Passport details confirmation inline keyboard
  */
-export function getCancelKeyboard(lang: Lang = 'uz'): Keyboard {
-  return new Keyboard()
-    .text(t('back_button', lang))
-    .resized()
-    .oneTime()
+export function passportConfirmKeyboard(lang: Lang): InlineKeyboard {
+  return new InlineKeyboard()
+    .text(t(lang, 'confirm_and_check'), 'visa_confirm:check').row()
+    .text(t(lang, 'edit_manually'), 'visa_edit:manual')
 }
 
-/** Static fallback (UZ). */
-export const cancelKeyboard = getCancelKeyboard('uz')
+/**
+ * Back to menu inline keyboard
+ */
+export function backToMenuKeyboard(lang: Lang): InlineKeyboard {
+  return new InlineKeyboard()
+    .text(t(lang, 'back'), 'menu:back')
+}

@@ -106,9 +106,12 @@ export async function checkStudentVisaStatus(
 
     let previousRejectionReason = ''
     if (result.records && result.records.length > 1) {
-      const prev = result.records[1]
-      if (prev && prev.rejectionReason) {
-        previousRejectionReason = prev.rejectionReason
+      for (let i = 1; i < result.records.length; i++) {
+        const prev = result.records[i]
+        if (prev && prev.rejectionReason) {
+          previousRejectionReason = prev.rejectionReason
+          break
+        }
       }
     }
 

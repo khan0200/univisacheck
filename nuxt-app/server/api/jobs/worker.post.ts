@@ -4,15 +4,15 @@
  * Optimized Serverless-compatible queue worker.
  * Establishes a global scheduler lock, claims tasks atomically,
  * dispatches check status requests every 200ms asynchronously (non-blocking),
- * and handles database writes, Telegram, and realtime updates per student.
+ * and handles database writes and realtime updates per student.
  */
 
 import { getTursoClient, type TursoDbClient, type QueryResult } from '../../utils/turso'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
-import { sendTelegramNotification } from '../../utils/telegram-notifier'
 import { tryCreateProcessingNotification } from '../../utils/processing-notifier'
 import { isSameStatus, toDbStatus } from '../../utils/visa-status'
+import { sendTelegramStatusNotification } from '../../bot/services/notifier'
 
 interface WorkerTask {
   id: string
@@ -241,38 +241,27 @@ function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask): Promise<v
           checkSource: checkSource
         }
 
-        // Log notification row if status changed
+        // Log notification row if status changed and notify Telegram subscribers
         if (statusChanged) {
           await executeWithRetry(db, {
             sql: `INSERT INTO notifications (telegram_user_id, student_id, old_status, new_status, created_at)
                   VALUES (?, ?, ?, ?, datetime('now'))`,
             args: [student.telegram_user_id || null, claimedTask.passport, oldStatus, newStatus]
           })
-        }
 
-        // Always hand the transition to the notifier — it decides whether this
-        // is worth announcing. Called unconditionally so a status the consultant
-        // was never told about still goes out even if `status` was already
-        // updated by another cabinet's check.
-        {
-          sendTelegramNotification(claimedTask.userId, {
-            fullName: student.fullName || student.fullname || '',
-            passport: claimedTask.passport,
-            studentId: student.studentId || student.student_id || '',
-            visaType: student.visaType || student.visa_type || 'Embassy',
-            applicationNo: student.applicationNo || student.application_no || '',
-            birthday: student.birthday || '',
-            oldStatus,
-            newStatus,
+          const isApprovedStatus = newStatus.toUpperCase().includes('APPROV') || newStatus.toUpperCase().includes('ISSUED') || newStatus.toUpperCase().includes('VISA USED')
+          sendTelegramStatusNotification(claimedTask.passport, claimedTask.userId, oldStatus, newStatus, {
+            fullName: String(student.fullName || student.fullname || ''),
+            birthday: String(student.birthday || ''),
+            visaType: String(student.visaType || student.visa_type || 'Embassy'),
+            applicationNo: String(student.applicationNo || student.application_no || ''),
             applicationDate: appDate,
+            decisionDate: isApprovedStatus ? (liveResult.entryDate || liveResult.latestDate || '') : undefined,
             rejectionReason: liveResult.rejectionReason || '',
             previousRejectionReason: liveResult.previousRejectionReason || '',
-            invitingCompany: liveResult.invitingCompany || '',
-            entryDate: liveResult.entryDate || '',
             pdfUrl: liveResult.pdfUrl || ''
-          }).catch((tErr) => {
-            const errorText = tErr instanceof Error ? tErr.message : String(tErr)
-            console.error('[Task Runner Telegram Notifier] Error:', errorText)
+          }).catch((tgErr) => {
+            console.error(`[Worker Telegram] Failed for userId ${claimedTask.userId}:`, tgErr instanceof Error ? tgErr.message : String(tgErr))
           })
         }
 

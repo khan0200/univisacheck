@@ -358,10 +358,6 @@ async function handleSearch() {
         </form>
       </UCard>
 
-      <div class="w-full max-w-md mt-4">
-        <VisaTelegramBanner />
-      </div>
-
       <div
         ref="resultContainerRef"
         v-if="resultState !== 'idle'"

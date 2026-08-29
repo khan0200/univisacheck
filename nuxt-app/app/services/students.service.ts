@@ -2,7 +2,6 @@ import type { Student, StudentFormInput, VisaCheckResult } from '~/types/student
 
 const STUDENTS_URL = '/api/students'
 const CHECK_STATUS_URL = '/api/check-status'
-const TELEGRAM_NOTIFY_URL = '/api/notify-telegram'
 
 export function useStudentsService() {
   const { apiFetch } = useApiFetch()
@@ -72,31 +71,6 @@ export function useStudentsService() {
     })
   }
 
-  interface TelegramNotifyPayload {
-    fullName: string
-    passport: string
-    studentId?: string
-    visaType: string
-    applicationNo?: string
-    birthday: string
-    oldStatus: string
-    newStatus: string
-    applicationDate?: string
-    rejectionReason?: string
-    pdfUrl?: string
-    previousRejectionReason?: string
-    invitingCompany?: string
-    entryDate?: string
-    changedAt: string
-  }
-
-  function notifyTelegram(payload: TelegramNotifyPayload) {
-    return apiFetch<{ success: boolean }>(TELEGRAM_NOTIFY_URL, {
-      method: 'POST',
-      body: payload
-    })
-  }
-
   function downloadPdfUrl(student: Pick<Student, 'passport' | 'fullName' | 'birthday' | 'pdfUrl' | 'visaType' | 'applicationNo'>) {
     const params = new URLSearchParams({
       url: student.pdfUrl || '',
@@ -119,7 +93,6 @@ export function useStudentsService() {
     remove,
     removeMany,
     checkStatus,
-    notifyTelegram,
     downloadPdfUrl
   }
 }

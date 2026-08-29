@@ -36,8 +36,8 @@ const NODE_BIN = '/www/server/nvm/versions/node/v24.19.0/bin';
 const REQUIRED_ENV = [
   'DATABASE_URL',
   'JWT_SECRET',
-  'TELEGRAM_BOT_TOKEN',
   'ADMIN_SECRET',
+  'TELEGRAM_BOT_TOKEN',
   'BOT_ENCRYPTION_KEY'
 ];
 
@@ -243,11 +243,8 @@ conn.on('ready', async () => {
 
     console.log('\n' + '='.repeat(60));
     console.log('DEPLOYMENT COMPLETE.');
-    console.log('='.repeat(60));
-    console.log('\nVerify the visa-check fix:');
+    console.log('\nVerify the visa-check status:');
     console.log('  pm2 logs salomkorea | grep -E "Task Runner|Queue Task Timing|Drain complete"');
-    console.log('Verify notifications:');
-    console.log('  pm2 logs salomkorea | grep "Telegram Notifier"');
     conn.end();
   } catch (err) {
     console.error('Deployment error:', err.message);

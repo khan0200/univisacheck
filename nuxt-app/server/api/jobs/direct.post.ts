@@ -12,8 +12,8 @@ import { verifyToken } from '../../utils/auth'
 import { apiError } from '../../utils/api-error'
 import { checkStudentVisaStatus } from '../../lib/visa'
 import { publishRealtime } from '../../utils/realtime-publisher'
-import { sendTelegramNotification } from '../../utils/telegram-notifier'
 import { isSameStatus, toDbStatus } from '../../utils/visa-status'
+import { sendTelegramStatusNotification } from '../../bot/services/notifier'
 
 export default defineEventHandler(async (event) => {
   const requestStartedAt = performance.now()
@@ -82,8 +82,7 @@ export default defineEventHandler(async (event) => {
   // e.g. 'Pending Supplement', 'SUPPLEMENT NEEDED', '보완요청' all → 'SUPPLEMENT_NEEDED'
   const rawNewStatus = liveResult.found ? liveResult.latestStatus : oldStatus
   const newStatus = toDbStatus(rawNewStatus)
-  // Reported back to the caller / UI. The Telegram send decision is NOT made
-  // here — sendTelegramNotification owns it and gates on lastNotifiedStatus.
+  // Reported back to the caller / UI.
   const statusChanged = !isSameStatus(oldStatus, newStatus)
   const appDate = liveResult.latestDate || String(student.applicationDate || '')
 
@@ -144,31 +143,25 @@ export default defineEventHandler(async (event) => {
   })
   const realtimeMs = performance.now() - realtimeStartedAt
 
-  // 7. Hand the transition to the notifier. Called unconditionally — it gates
-  // on lastNotifiedStatus, so it still fires when `status` was already advanced
-  // by another cabinet's check but this consultant was never told.
-  {
-    sendTelegramNotification(userId, {
+  // 6b. Telegram notification for status changes
+  if (statusChanged) {
+    const isApprovedStatus = newStatus.toUpperCase().includes('APPROV') || newStatus.toUpperCase().includes('ISSUED') || newStatus.toUpperCase().includes('VISA USED')
+    sendTelegramStatusNotification(passport, userId, oldStatus, newStatus, {
       fullName: String(student.fullName || student.fullname || ''),
-      passport,
-      studentId: String(student.studentId || student.student_id || ''),
+      birthday: String(student.birthday || ''),
       visaType: String(student.visaType || student.visa_type || 'Embassy'),
       applicationNo: String(student.applicationNo || student.application_no || ''),
-      birthday: String(student.birthday || ''),
-      oldStatus,
-      newStatus,
       applicationDate: appDate,
+      decisionDate: isApprovedStatus ? (liveResult.entryDate || liveResult.latestDate || '') : undefined,
       rejectionReason: liveResult.rejectionReason || '',
       previousRejectionReason: liveResult.previousRejectionReason || '',
-      invitingCompany: liveResult.invitingCompany || '',
-      entryDate: liveResult.entryDate || '',
       pdfUrl: liveResult.pdfUrl || ''
-    }).catch((err) => {
-      console.error('[Direct Check] Telegram notification error:', err instanceof Error ? err.message : String(err))
+    }).catch((tgErr) => {
+      console.error(`[Direct Telegram] Failed for userId ${userId}:`, tgErr instanceof Error ? tgErr.message : String(tgErr))
     })
   }
 
-  // 8. Return result immediately
+  // 7. Return result immediately
   console.log(`[Direct Check Timing] passport=${passport} portal=${Math.round(portalMs)}ms dbWrite=${Math.round(dbWriteMs)}ms realtime=${Math.round(realtimeMs)}ms total=${Math.round(performance.now() - requestStartedAt)}ms status=${newStatus}`)
   return {
     passport,
