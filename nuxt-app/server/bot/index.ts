@@ -32,6 +32,7 @@ export async function createBot(): Promise<Bot> {
 
   const token = getBotToken()
   const bot = new Bot(token)
+  await bot.init()
 
   // Register error handler
   bot.catch(async (err) => {
