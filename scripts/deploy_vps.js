@@ -44,7 +44,7 @@ const REQUIRED_ENV = [
 const checkOnly = process.argv.includes('--check');
 
 // ── Connection config ───────────────────────────────────────────────────────
-const host = process.env.VPS_HOST;
+const host = process.env.VPS_HOST || '178.238.231.210';
 const username = process.env.VPS_USER || 'root';
 const password = process.env.VPS_PASSWORD;
 const privateKeyPath = process.env.VPS_PRIVATE_KEY;
@@ -65,7 +65,7 @@ if (!password && !privateKeyPath) {
 // already has loaded in memory, so building is safe while the app is live.
 const preflightScript = `
 set -e
-export PATH=${NODE_BIN}:$PATH
+export PATH=${NODE_BIN}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 
 echo "=== [1/5] Recording current commit (for rollback) ==="
 cd ${APP_DIR}
