@@ -16,7 +16,6 @@ const emit = defineEmits<{
   'refresh-group': [students: Student[]]
   'download-pdf': [student: Student]
   'toggle-select': [student: Student, checked: boolean]
-  'toggle-select-all': [students: Student[], checked: boolean]
   'toggle-pin': [student: Student]
   'deselect-group': [students: Student[]]
 }>()
@@ -67,7 +66,7 @@ const allApproved = computed(() => props.students.every(s => {
       <!-- Actions area -->
       <div class="flex items-center gap-1 pr-3">
         <button
-          v-if="currentFilter !== 'cancelled'"
+          v-if="!allApproved && currentFilter !== 'approved' && currentFilter !== 'cancelled'"
           type="button"
           class="flex items-center justify-center text-white/90 hover:text-white transition-colors p-1.5 rounded hover:bg-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-40 disabled:cursor-not-allowed"
           title="Check all in group"
@@ -112,7 +111,6 @@ const allApproved = computed(() => props.students.every(s => {
         @refresh="emit('refresh', $event)"
         @download-pdf="emit('download-pdf', $event)"
         @toggle-select="(s, c) => emit('toggle-select', s, c)"
-        @toggle-select-all="(s, c) => emit('toggle-select-all', s, c)"
         @toggle-pin="emit('toggle-pin', $event)"
         @deselect-all="emit('deselect-group', students)"
       />

@@ -21,16 +21,13 @@ const emit = defineEmits<{
   'refresh': [student: Student]
   'download-pdf': [student: Student]
   'toggle-select': [student: Student, checked: boolean]
-  'toggle-select-all': [students: Student[], checked: boolean]
   'toggle-pin': [student: Student]
   'deselect-all': []
 }>()
 
 const hasAnySelected = computed(() => props.students.some(s => s.batchSelected))
-const isAllSelected = computed(() => props.students.length > 0 && props.students.every(s => s.batchSelected))
-const isIndeterminate = computed(() => props.students.some(s => s.batchSelected) && !isAllSelected.value)
 
-const showSelectColumn = computed(() => props.currentFilter === 'application' || props.currentFilter === 'pending' || props.currentFilter === 'approved')
+const showSelectColumn = computed(() => props.currentFilter === 'application' || props.currentFilter === 'pending')
 
 const showAppliedColumn = computed(() => props.currentFilter !== 'pending')
 
@@ -205,7 +202,7 @@ watch([() => props.students, () => props.currentFilter], () => {
             type="checkbox"
             class="mt-1 size-4 shrink-0 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
             :checked="Boolean(student.batchSelected)"
-            :disabled="currentFilter !== 'application' && currentFilter !== 'pending' && currentFilter !== 'approved'"
+            :disabled="currentFilter !== 'application' && currentFilter !== 'pending'"
             @click.stop
             @change="emit('toggle-select', student, ($event.target as HTMLInputElement).checked)"
           >
@@ -285,8 +282,10 @@ watch([() => props.students, () => props.currentFilter], () => {
               block
               color="primary"
               class="text-white justify-center"
+              :disabled="isPdfEligible(student)"
+              :class="{ 'opacity-40 cursor-not-allowed pointer-events-none': isPdfEligible(student) }"
               :loading="checkingPassports.has(student.passport)"
-              @click.stop="emit('refresh', student)"
+              @click.stop="!isPdfEligible(student) && emit('refresh', student)"
             >
               Check
             </UiLoadingButton>
@@ -348,18 +347,9 @@ watch([() => props.students, () => props.currentFilter], () => {
             </th>
             <th
               v-if="showSelectColumn"
-              class="px-3 py-1.5 w-24 text-center"
+              class="px-3 py-1.5 w-20 text-center"
             >
-              <div class="flex items-center justify-center gap-1.5">
-                <input
-                  type="checkbox"
-                  class="size-4 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 cursor-pointer"
-                  :checked="isAllSelected"
-                  :indeterminate="isIndeterminate"
-                  title="Select / Deselect all"
-                  @click.stop
-                  @change="emit('toggle-select-all', props.students, ($event.target as HTMLInputElement).checked)"
-                >
+              <div class="flex items-center justify-center gap-1">
                 <span>Select</span>
                 <button
                   v-if="hasAnySelected"
@@ -526,7 +516,7 @@ watch([() => props.students, () => props.currentFilter], () => {
                 type="checkbox"
                 class="size-6 rounded border-neutral-300 text-primary-700 focus:ring-primary-600 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 :checked="Boolean(student.batchSelected)"
-                :disabled="currentFilter !== 'application' && currentFilter !== 'pending' && currentFilter !== 'approved'"
+                :disabled="currentFilter !== 'application' && currentFilter !== 'pending'"
                 @change="emit('toggle-select', student, ($event.target as HTMLInputElement).checked)"
               >
             </td>
@@ -553,8 +543,10 @@ watch([() => props.students, () => props.currentFilter], () => {
                 <UiLoadingButton
                   color="primary"
                   class="text-white justify-center rounded-none px-5 h-full py-2"
+                  :disabled="isPdfEligible(student)"
+                  :class="{ 'opacity-40 cursor-not-allowed pointer-events-none': isPdfEligible(student) }"
                   :loading="checkingPassports.has(student.passport)"
-                  @click.stop="emit('refresh', student)"
+                  @click.stop="!isPdfEligible(student) && emit('refresh', student)"
                 >
                   Check
                 </UiLoadingButton>

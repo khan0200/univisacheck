@@ -86,6 +86,11 @@ async function confirmDeleteStudent() {
 }
 
 async function handleRefresh(student: Student) {
+  const status = (student.status || '').toLowerCase()
+  if (status.includes('approved') || status.includes('visa used')) {
+    toast.add({ title: 'Student is already approved.', color: 'neutral', icon: 'i-lucide-check-circle', duration: 2500 })
+    return
+  }
   try {
     await checkOne(student)
   } catch {
@@ -94,9 +99,16 @@ async function handleRefresh(student: Student) {
 }
 
 async function handleGroupRefresh(students: Student[]) {
-  if (!students.length) return
+  const unapproved = students.filter(s => {
+    const status = (s.status || '').toLowerCase()
+    return !status.includes('approved') && !status.includes('visa used')
+  })
+  if (!unapproved.length) {
+    toast.add({ title: 'All students in this group are already approved.', color: 'neutral', icon: 'i-lucide-check-circle', duration: 2500 })
+    return
+  }
   try {
-    await checkMany(students)
+    await checkMany(unapproved)
   } catch {
     toast.add({ title: 'Failed to queue group visa check.', color: 'error', icon: 'i-lucide-alert-triangle', duration: 2500 })
   }
@@ -119,7 +131,7 @@ function handleDownloadPdf(student: Student) {
 async function handleToggleSelect(student: Student, checked: boolean) {
   student.batchSelected = checked
   const bucket = studentsStore.currentFilter
-  if (bucket === 'cancelled') return
+  if (bucket === 'cancelled' || bucket === 'approved') return
 
   try {
     await setBatchSelected(student.passport, checked)
@@ -145,7 +157,7 @@ async function handleTogglePin(student: Student) {
 
 const selectedStudentsInTab = computed(() => {
   const filter = studentsStore.currentFilter
-  if (filter === 'application' || filter === 'pending' || filter === 'approved') {
+  if (filter === 'application' || filter === 'pending') {
     return studentsStore.filteredStudents.filter(s => s.batchSelected)
   }
   return []
@@ -156,7 +168,7 @@ const selectedStudentsToCheck = computed(() => {
   if (filter === 'application') {
     return studentsStore.filteredStudents.filter(s => s.batchSelected && isEligibleForApplicationCheck(s))
   }
-  if (filter === 'pending' || filter === 'approved') {
+  if (filter === 'pending') {
     return studentsStore.filteredStudents.filter(s => s.batchSelected)
   }
   return []
@@ -168,10 +180,10 @@ const batchChecking = ref(false)
 async function handleBatchCheck() {
   const list = [...selectedStudentsToCheck.value]
   if (list.length === 0) {
-    if (studentsStore.currentFilter === 'pending' || studentsStore.currentFilter === 'approved') {
+    if (studentsStore.currentFilter === 'pending') {
       toast.add({
-        title: `No ${studentsStore.currentFilter} students selected`,
-        description: `Please select one or more students in the ${studentsStore.currentFilter.charAt(0).toUpperCase() + studentsStore.currentFilter.slice(1)} tab to check.`,
+        title: 'No pending students selected',
+        description: 'Please select one or more students in the Pending tab to check.',
         color: 'warning',
         duration: 3500
       })
@@ -238,22 +250,6 @@ async function handleDeselectGroup(studentsList: Student[]) {
     toast.add({ title: 'Failed to deselect students.', color: 'error', duration: 2500 })
   } finally {
     isDeselecting.value = false
-  }
-}
-
-async function handleToggleSelectAll(studentsList: Student[], checked: boolean) {
-  if (!studentsList.length) return
-  const passports = studentsList.map(s => s.passport)
-  for (const s of studentsList) {
-    s.batchSelected = checked
-  }
-  try {
-    await setBatchSelected(passports, checked)
-  } catch {
-    for (const s of studentsList) {
-      s.batchSelected = !checked
-    }
-    toast.add({ title: 'Failed to update selection.', color: 'error', duration: 2500 })
   }
 }
 
@@ -346,7 +342,6 @@ function setFilter(filter: StatusFilter) {
         @refresh-group="handleGroupRefresh"
         @download-pdf="handleDownloadPdf"
         @toggle-select="handleToggleSelect"
-        @toggle-select-all="handleToggleSelectAll"
         @toggle-pin="handleTogglePin"
         @deselect-group="handleDeselectGroup"
       />
@@ -375,7 +370,6 @@ function setFilter(filter: StatusFilter) {
         @refresh="handleRefresh"
         @download-pdf="handleDownloadPdf"
         @toggle-select="handleToggleSelect"
-        @toggle-select-all="handleToggleSelectAll"
         @toggle-pin="handleTogglePin"
         @deselect-all="handleDeselectAll"
       />

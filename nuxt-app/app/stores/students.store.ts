@@ -229,6 +229,9 @@ export const useStudentsStore = defineStore('students', () => {
       activeLoadPromise = listStudents()
       const list = await activeLoadPromise
       for (const s of list) {
+        if (s.batchSelected && bucketForStatus(s.status) !== 'application' && bucketForStatus(s.status) !== 'pending') {
+          s.batchSelected = false
+        }
         addSearchNormalized(s)
       }
       students.value = list
