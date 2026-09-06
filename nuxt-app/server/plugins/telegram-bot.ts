@@ -16,7 +16,7 @@ export default defineNitroPlugin(async (nitroApp) => {
     return
   }
 
-  const isDev = process.dev || process.env.NODE_ENV !== 'production'
+  const isDev = import.meta.dev || process.env.NODE_ENV !== 'production'
 
   try {
     if (isDev) {
@@ -27,9 +27,29 @@ export default defineNitroPlugin(async (nitroApp) => {
         console.error('[Bot Plugin] Failed to start polling:', msg)
       })
     } else {
-      // Production: just create the bot (webhook endpoint handles updates)
+      // Production: initialize bot and ensure webhook is registered
       console.log('[Bot Plugin] Initializing Telegram bot for webhook mode (production)...')
-      await createBot()
+      const bot = await createBot()
+
+      const webhookDomain = process.env.BASE_URL || process.env.APP_URL || 'https://salomkorea.uz'
+      const targetWebhookUrl = `${webhookDomain.replace(/\/+$/, '')}/api/telegram`
+
+      try {
+        const info = await bot.api.getWebhookInfo()
+        if (info.url !== targetWebhookUrl) {
+          console.log(`[Bot Plugin] Registering webhook URL: ${targetWebhookUrl} (was: "${info.url}")`)
+          await bot.api.setWebhook(targetWebhookUrl, {
+            drop_pending_updates: false,
+            allowed_updates: ['message', 'callback_query']
+          })
+          console.log('[Bot Plugin] Telegram webhook registered successfully')
+        } else {
+          console.log('[Bot Plugin] Telegram webhook already properly set to:', info.url)
+        }
+      } catch (webhookErr) {
+        const msg = webhookErr instanceof Error ? webhookErr.message : String(webhookErr)
+        console.error('[Bot Plugin] Failed to verify/set webhook:', msg)
+      }
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
