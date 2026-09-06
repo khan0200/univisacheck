@@ -105,13 +105,13 @@ function getStatusExplanation(lang: Lang, status: string, isEVisa: boolean = fal
     return lang === 'uz' ? 'Afsuski, viza arizasi rad etildi.' : 'Unfortunately, the visa application was rejected.'
   }
   if (s.includes('SUPPLEMENT NEEDED') || s.includes('보완요청') || s.includes('보완대기')) {
-    return lang === 'uz' 
-      ? 'Qo\'shimcha hujjatlar talab qilinmoqda. Iltimos, so\'ralgan hujjatlarni taqdim eting.' 
+    return lang === 'uz'
+      ? 'Qo\'shimcha hujjatlar talab qilinmoqda. Iltimos, so\'ralgan hujjatlarni taqdim eting.'
       : 'Additional documents are required. Please submit the requested documents.'
   }
   if (s.includes('SUPPLEMENT SUBMITTED') || s.includes('보완완료') || s.includes('보완제출')) {
-    return lang === 'uz' 
-      ? 'Qo\'shimcha hujjatlar topshirildi va ko\'rib chiqilmoqda.' 
+    return lang === 'uz'
+      ? 'Qo\'shimcha hujjatlar topshirildi va ko\'rib chiqilmoqda.'
       : 'Supplement documents have been submitted and are under review.'
   }
   if (s.includes('RECEIVED') || s.includes('APP/') || s.includes('접수')) {
@@ -233,7 +233,7 @@ async function sendDirectTelegramMessage(
   if (!token) throw new Error('TELEGRAM_BOT_TOKEN not set')
   const url = `https://api.telegram.org/bot${token}/sendMessage`
   const body = { chat_id: telegramId, text, parse_mode: 'HTML', ...options }
-  const res = await $fetch<{ ok: boolean; description?: string }>(url, {
+  const res = await $fetch<{ ok: boolean, description?: string }>(url, {
     method: 'POST',
     body,
     timeout: 10000
@@ -304,9 +304,9 @@ export async function sendTelegramStatusNotification(
     const visaType = enrichedData.visaType || 'Embassy'
     const isEVisa = visaType.toLowerCase().includes('e-visa') || visaType.toLowerCase().includes('evisa')
 
-    const isApproved = newStatus.toUpperCase().includes('APPROV') ||
-                       newStatus.toUpperCase().includes('ISSUED') ||
-                       newStatus.toUpperCase().includes('VISA USED')
+    const isApproved = newStatus.toUpperCase().includes('APPROV')
+      || newStatus.toUpperCase().includes('ISSUED')
+      || newStatus.toUpperCase().includes('VISA USED')
 
     for (const row of subscribers.rows) {
       const telegramId = Number((row as Record<string, unknown>).telegram_id)
