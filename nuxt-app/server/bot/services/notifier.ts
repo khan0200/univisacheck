@@ -223,6 +223,24 @@ export function formatStatusChangeNotification(
   return lines.join('\n')
 }
 
+/** Direct HTTP fallback: sends a Telegram message without the grammy Bot instance. */
+async function sendDirectTelegramMessage(
+  telegramId: number,
+  text: string,
+  options?: Record<string, unknown>
+): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  if (!token) throw new Error('TELEGRAM_BOT_TOKEN not set')
+  const url = `https://api.telegram.org/bot${token}/sendMessage`
+  const body = { chat_id: telegramId, text, parse_mode: 'HTML', ...options }
+  const res = await $fetch<{ ok: boolean; description?: string }>(url, {
+    method: 'POST',
+    body,
+    timeout: 10000
+  })
+  if (!res.ok) throw new Error(`Telegram API error: ${res.description || 'unknown'}`)
+}
+
 /**
  * Sends Telegram notifications to all subscribers of a consulting
  * when a student's visa status changes.
@@ -234,9 +252,14 @@ export async function sendTelegramStatusNotification(
   newStatus: string,
   studentData: NotificationStudentData = {}
 ): Promise<void> {
-  if (!botApi) {
-    console.warn('[Bot Notifier] Bot API not initialized, skipping notification')
-    return
+  const hasBot = !!botApi
+  if (!hasBot) {
+    const token = process.env.TELEGRAM_BOT_TOKEN
+    if (!token) {
+      console.warn('[Bot Notifier] Bot API not initialized and TELEGRAM_BOT_TOKEN not set — notification dropped')
+      return
+    }
+    console.warn(`[Bot Notifier] Bot API not initialized — will use direct HTTP fallback for passport ${passport}`)
   }
 
   try {
@@ -300,7 +323,7 @@ export async function sendTelegramStatusNotification(
           enrichedData
         )
 
-        const inlineKeyboard: Array<Array<{ text: string, callback_data: string }>> = [
+        const inlineKeyboard = [
           [{ text: lang === 'uz' ? '🔄 Yangilash' : '🔄 Refresh', callback_data: `visa_refresh:${passport}` }]
         ]
 
@@ -311,9 +334,14 @@ export async function sendTelegramStatusNotification(
           ])
         }
 
-        await botApi.sendMessage(telegramId, text, {
-          reply_markup: { inline_keyboard: inlineKeyboard }
-        })
+        const replyMarkup = { inline_keyboard: inlineKeyboard }
+
+        if (botApi) {
+          await botApi.sendMessage(telegramId, text, { reply_markup: replyMarkup })
+        } else {
+          // Direct HTTP fallback when bot instance isn't available
+          await sendDirectTelegramMessage(telegramId, text, { reply_markup: replyMarkup })
+        }
         console.log(`[Bot Notifier] Sent status notification to ${telegramId} for ${passport}: ${oldStatus} → ${newStatus}`)
       } catch (sendErr) {
         const msg = sendErr instanceof Error ? sendErr.message : String(sendErr)

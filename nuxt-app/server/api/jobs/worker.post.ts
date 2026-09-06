@@ -163,8 +163,14 @@ function runVisaCheckTask(db: TursoDbClient, claimedTask: WorkerTask): Promise<v
       const oldStatus = student.status || 'Pending'
 
       // DUPLICATE/RECENT CHECK OPTIMIZATION
-      if (student.lastChecked && student.lastChecked >= claimedTask.createdAt) {
-        console.log(`[Task Runner] Skip external check: passport ${claimedTask.passport} already updated on ${student.lastChecked}`)
+      // Only skip if last checked within the past 10 minutes (fast re-runs / double-click dedup).
+      // A wider window (e.g. "any check after task creation") would silently miss status changes
+      // that occurred between a manual check and when this worker task actually runs.
+      const TEN_MINUTES_MS = 10 * 60 * 1000
+      const lastCheckedMs = student.lastChecked ? Date.parse(student.lastChecked) : 0
+      const isVeryRecentlyChecked = lastCheckedMs > 0 && (Date.now() - lastCheckedMs) < TEN_MINUTES_MS
+      if (isVeryRecentlyChecked) {
+        console.log(`[Task Runner] Skip external check: passport ${claimedTask.passport} was checked very recently (${student.lastChecked}), skipping to avoid portal spam`)
         success = true
         newStatus = oldStatus
         updatedChanges = {
