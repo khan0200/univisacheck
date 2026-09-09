@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Student, StatusFilter, VisaTypeFilter } from '~/types/student'
-import { bucketForStatus, displayStatusText, isUnderReviewStatus, isSupplementStatus, isSupplementSubmittedStatus, normalizeStatusForComparison, getStatusDate } from '~/utils/visa-status'
+import { bucketForStatus, displayStatusText, isUnderReviewStatus, isSupplementStatus, isSupplementSubmittedStatus, normalizeStatusForComparison, getStatusDate, compareStatusDates, formatDateYmd } from '~/utils/visa-status'
+
+export type SortOption = 'university' | 'tariff' | 'applicationDate' | 'statusDate' | 'statusDateDesc' | 'statusDateAsc' | 'underReview' | 'selected'
 
 export const useStudentsStore = defineStore('students', () => {
   const students = ref<Student[]>([])
@@ -8,7 +10,7 @@ export const useStudentsStore = defineStore('students', () => {
   const currentFilter = ref<StatusFilter>('pending')
   const visaTypeFilter = ref<VisaTypeFilter>('all')
   const searchQuery = ref('')
-  const sortBy = ref<'university' | 'tariff' | 'applicationDate' | 'statusDate' | 'underReview' | 'selected'>('university')
+  const sortBy = ref<SortOption>('university')
 
   interface JobProgress {
     jobId: string
@@ -126,10 +128,25 @@ export const useStudentsStore = defineStore('students', () => {
       if (a.pinned && !b.pinned) return -1
       if (!a.pinned && b.pinned) return 1
 
+      if (sortBy.value === 'statusDateDesc') {
+        const dateA = getStatusDate(a)
+        const dateB = getStatusDate(b)
+        const cmp = compareStatusDates(dateA, dateB, 'desc')
+        if (cmp !== 0) return cmp
+      }
+
+      if (sortBy.value === 'statusDateAsc') {
+        const dateA = getStatusDate(a)
+        const dateB = getStatusDate(b)
+        const cmp = compareStatusDates(dateA, dateB, 'asc')
+        if (cmp !== 0) return cmp
+      }
+
       if (sortBy.value === 'statusDate') {
-        const dateA = getStatusDate(a) || '9999-99-99'
-        const dateB = getStatusDate(b) || '9999-99-99'
-        if (dateA !== dateB) return dateA > dateB ? 1 : -1
+        const dateA = getStatusDate(a)
+        const dateB = getStatusDate(b)
+        const cmp = compareStatusDates(dateA, dateB, 'desc')
+        if (cmp !== 0) return cmp
       }
 
       const dateA = a.applicationDate || '9999-99-99'
@@ -144,7 +161,7 @@ export const useStudentsStore = defineStore('students', () => {
     if (sort === 'university') return filteredStudents.value.some(s => !!s.university)
     if (sort === 'tariff') return filteredStudents.value.some(s => !!s.tariff)
     if (sort === 'applicationDate') return filteredStudents.value.some(s => !!s.applicationDate)
-    if (sort === 'statusDate') return filteredStudents.value.some(s => !!getStatusDate(s))
+    if (sort === 'statusDate' || sort === 'statusDateDesc' || sort === 'statusDateAsc') return filteredStudents.value.some(s => !!getStatusDate(s))
     if (sort === 'underReview') return filteredStudents.value.some(s => isUnderReviewStatus(s.status) || isSupplementStatus(s.status))
     return false
   })
@@ -162,7 +179,7 @@ export const useStudentsStore = defineStore('students', () => {
       if (sort === 'university') key = student.university?.trim() || ''
       else if (sort === 'tariff') key = student.tariff?.trim() || ''
       else if (sort === 'applicationDate') key = student.applicationDate?.trim() || ''
-      else if (sort === 'statusDate') key = getStatusDate(student)?.trim() || ''
+      else if (sort === 'statusDate' || sort === 'statusDateDesc' || sort === 'statusDateAsc') key = formatDateYmd(getStatusDate(student)) || getStatusDate(student)?.trim() || ''
       else if (sort === 'underReview') {
         if (isSupplementSubmittedStatus(student.status)) {
           key = 'Supplement Submitted'
@@ -189,6 +206,12 @@ export const useStudentsStore = defineStore('students', () => {
         }
         if (a === '') return 1
         if (b === '') return -1
+        if (sort === 'statusDateDesc' || sort === 'statusDate') {
+          return compareStatusDates(a, b, 'desc')
+        }
+        if (sort === 'statusDateAsc') {
+          return compareStatusDates(a, b, 'asc')
+        }
         return a.localeCompare(b)
       })
       .map(([groupName, students]) => ({ groupName, students }))
@@ -244,6 +267,23 @@ export const useStudentsStore = defineStore('students', () => {
 
   function setFilter(filter: StatusFilter) {
     currentFilter.value = filter
+    if (filter === 'approved') {
+      if (sortBy.value !== 'statusDateDesc' && sortBy.value !== 'statusDateAsc') {
+        sortBy.value = 'statusDateDesc'
+      }
+    } else if (filter === 'cancelled') {
+      if (sortBy.value === 'selected' || sortBy.value === 'underReview' || sortBy.value === 'statusDateDesc' || sortBy.value === 'statusDateAsc') {
+        sortBy.value = 'university'
+      }
+    } else if (filter === 'pending') {
+      if (sortBy.value === 'underReview' || sortBy.value === 'statusDateDesc' || sortBy.value === 'statusDateAsc') {
+        sortBy.value = 'university'
+      }
+    } else if (filter === 'application') {
+      if (sortBy.value === 'statusDateDesc' || sortBy.value === 'statusDateAsc') {
+        sortBy.value = 'university'
+      }
+    }
     for (const s of students.value) {
       if (s.batchSelected && bucketForStatus(s.status) !== 'application' && bucketForStatus(s.status) !== 'pending') {
         s.batchSelected = false
@@ -255,8 +295,16 @@ export const useStudentsStore = defineStore('students', () => {
     visaTypeFilter.value = filter
   }
 
-  function setSortBy(field: 'university' | 'tariff' | 'applicationDate' | 'statusDate' | 'underReview' | 'selected') {
+  function setSortBy(field: SortOption) {
     sortBy.value = field
+  }
+
+  function toggleStatusDateSort() {
+    if (sortBy.value === 'statusDateDesc') {
+      sortBy.value = 'statusDateAsc'
+    } else {
+      sortBy.value = 'statusDateDesc'
+    }
   }
 
   function upsertLocal(student: Student) {
@@ -335,6 +383,7 @@ export const useStudentsStore = defineStore('students', () => {
     setFilter,
     setVisaTypeFilter,
     setSortBy,
+    toggleStatusDateSort,
     upsertLocal,
     removeLocal,
     patchStudent,

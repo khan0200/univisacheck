@@ -30,16 +30,92 @@ const editingStudent = useState<Student | null>('editingStudent', () => null)
 const detailsModalOpen = ref(false)
 const detailsStudent = ref<Student | null>(null)
 
-const sortMenuItems = computed(() => [
-  [
-    { label: 'University', icon: studentsStore.sortBy === 'university' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('university') },
-    { label: 'Tariff', icon: studentsStore.sortBy === 'tariff' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('tariff') },
-    { label: 'Date', icon: studentsStore.sortBy === 'applicationDate' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('applicationDate') },
-    { label: 'Status Date', icon: studentsStore.sortBy === 'statusDate' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('statusDate') },
-    { label: 'Under review', icon: studentsStore.sortBy === 'underReview' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('underReview') },
-    { label: 'Selected', icon: studentsStore.sortBy === 'selected' ? 'i-lucide-check' : '', onSelect: () => studentsStore.setSortBy('selected') }
+const sortMenuItems = computed(() => {
+  if (studentsStore.currentFilter === 'approved') {
+    return [
+      [
+        {
+          label: 'Status tepaga',
+          icon: studentsStore.sortBy === 'statusDateDesc' ? 'i-lucide-check' : '',
+          onSelect: () => studentsStore.setSortBy('statusDateDesc')
+        },
+        {
+          label: 'Status pastga',
+          icon: studentsStore.sortBy === 'statusDateAsc' ? 'i-lucide-check' : '',
+          onSelect: () => studentsStore.setSortBy('statusDateAsc')
+        },
+        {
+          label: 'University',
+          icon: studentsStore.sortBy === 'university' ? 'i-lucide-check' : '',
+          onSelect: () => studentsStore.setSortBy('university')
+        },
+        {
+          label: 'Tariff',
+          icon: studentsStore.sortBy === 'tariff' ? 'i-lucide-check' : '',
+          onSelect: () => studentsStore.setSortBy('tariff')
+        },
+        {
+          label: 'Date',
+          icon: studentsStore.sortBy === 'applicationDate' ? 'i-lucide-check' : '',
+          onSelect: () => studentsStore.setSortBy('applicationDate')
+        }
+      ]
+    ]
+  }
+
+  const items = [
+    {
+      label: 'University',
+      icon: studentsStore.sortBy === 'university' ? 'i-lucide-check' : '',
+      onSelect: () => studentsStore.setSortBy('university')
+    },
+    {
+      label: 'Tariff',
+      icon: studentsStore.sortBy === 'tariff' ? 'i-lucide-check' : '',
+      onSelect: () => studentsStore.setSortBy('tariff')
+    },
+    {
+      label: 'Date',
+      icon: studentsStore.sortBy === 'applicationDate' ? 'i-lucide-check' : '',
+      onSelect: () => studentsStore.setSortBy('applicationDate')
+    },
+    {
+      label: 'Status Date',
+      icon: (studentsStore.sortBy === 'statusDate' || studentsStore.sortBy === 'statusDateDesc') ? 'i-lucide-check' : '',
+      onSelect: () => studentsStore.setSortBy('statusDate')
+    }
   ]
-])
+
+  if (studentsStore.currentFilter === 'application') {
+    items.push({
+      label: 'Under review',
+      icon: studentsStore.sortBy === 'underReview' ? 'i-lucide-check' : '',
+      onSelect: () => studentsStore.setSortBy('underReview')
+    })
+  }
+
+  if (studentsStore.currentFilter === 'application' || studentsStore.currentFilter === 'pending') {
+    items.push({
+      label: 'Selected',
+      icon: studentsStore.sortBy === 'selected' ? 'i-lucide-check' : '',
+      onSelect: () => studentsStore.setSortBy('selected')
+    })
+  }
+
+  return [items]
+})
+
+const currentSortLabel = computed(() => {
+  if (studentsStore.sortBy === 'statusDateDesc') return 'Status tepaga'
+  if (studentsStore.sortBy === 'statusDateAsc') return 'Status pastga'
+  if (studentsStore.sortBy === 'statusDate') return 'Status Date'
+  if (studentsStore.sortBy === 'university') return 'University'
+  if (studentsStore.sortBy === 'tariff') return 'Tariff'
+  if (studentsStore.sortBy === 'applicationDate') return 'Date'
+  if (studentsStore.sortBy === 'underReview') return 'Under review'
+  if (studentsStore.sortBy === 'selected') return 'Selected'
+  return String(studentsStore.sortBy)
+})
 function openEditModal(student: Student) {
   editingStudent.value = student
   formModalOpen.value = true
@@ -275,7 +351,7 @@ function setFilter(filter: StatusFilter) {
             size="lg"
             class="h-11 justify-center flex-1 sm:flex-none bg-white dark:bg-white/[0.05]"
           >
-            Sort
+            Sort: {{ currentSortLabel }}
           </UButton>
         </UDropdownMenu>
         <UButton

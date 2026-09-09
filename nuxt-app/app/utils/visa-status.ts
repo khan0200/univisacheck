@@ -113,11 +113,118 @@ function parseApiResponse(apiResponse: Student['apiResponse']): StudentApiRespon
 }
 
 /**
+ * Formats any date string (ISO, dot-separated, slash-separated) to standard YYYY-MM-DD format.
+ */
+export function formatDateYmd(raw?: string | null): string {
+  if (!raw) return ''
+  const str = raw.trim()
+  if (!str || str === '--' || str.toLowerCase() === 'null' || str.toLowerCase() === 'undefined') {
+    return ''
+  }
+
+  // Format 1: YYYY.MM.DD or YYYY-MM-DD or YYYY/MM/DD (handles optional trailing dot)
+  const m = str.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})/)
+  if (m && m[1] && m[2] && m[3]) {
+    const year = m[1]
+    const month = m[2].padStart(2, '0')
+    const day = m[3].padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  // Format 2: ISO timestamp e.g. 2026-03-09T14:20:00Z
+  const ts = Date.parse(str)
+  if (!isNaN(ts)) {
+    const d = new Date(ts)
+    const y = d.getFullYear()
+    const mo = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${mo}-${day}`
+  }
+
+  return str.slice(0, 10)
+}
+
+export function normalizeDateStr(d: string | null | undefined): string {
+  if (!d) return ''
+  return d.trim().replace(/[./]/g, '-')
+}
+
+/**
+ * Compares two status dates for sorting.
+ * Items without a date are always placed at the bottom, regardless of sort direction.
+ * 'desc' = latest date on top
+ * 'asc'  = oldest date on top (e.g. approved many days ago)
+ */
+export function compareStatusDates(dateA?: string, dateB?: string, direction: 'desc' | 'asc' = 'desc'): number {
+  const normA = normalizeDateStr(dateA)
+  const normB = normalizeDateStr(dateB)
+
+  if (!normA && !normB) return 0
+  if (!normA) return 1 // items without date always go to bottom
+  if (!normB) return -1 // items without date always go to bottom
+
+  const scoreA = Date.parse(normA)
+  const scoreB = Date.parse(normB)
+
+  let cmp = 0
+  if (!isNaN(scoreA) && !isNaN(scoreB)) {
+    cmp = scoreA - scoreB
+  } else {
+    cmp = normA.localeCompare(normB)
+  }
+
+  return direction === 'desc' ? -cmp : cmp
+}
+
+/**
+ * Returns the date when the current visa status was applied/entered (in YYYY-MM-DD format).
+ * Returns empty string for 'PENDING', 'UNKNOWN', or when no date is available.
+ */
+export function getStatusAppliedDate(student: Student, normalizedStatus?: string): string {
+  const s = (normalizedStatus || student.status || '').toUpperCase()
+
+  // Exclude pending, unknown, or empty statuses
+  if (
+    !s
+    || s === 'PENDING'
+    || s === 'UNKNOWN'
+    || s.includes('NOT FOUND')
+    || s.includes('TOPILMADI')
+    || s.includes('NO APPLICATION')
+    || s.includes('MAVJUD EMAS')
+  ) {
+    return ''
+  }
+
+  const sDate = getStatusDate(student)
+  const appDate = student.applicationDate
+  const createdAt = student.createdAt
+
+  // For Approved: status_date is when the visa was approved/issued (entry/judgment date)
+  if (s.includes('APPROV') || s.includes('PASSED') || s.includes('ISSUED') || s.includes('허가') || s.includes('VISA USED') || s.includes('ISHLATILGAN')) {
+    return formatDateYmd(sDate || appDate || createdAt)
+  }
+
+  // For Cancelled / Rejected: status_date is when the decision was recorded
+  if (s.includes('REJECT') || s.includes('CANCEL') || s.includes('RETURN') || s.includes('EXPIRED') || s.includes('불허') || s.includes('RAD ETIL') || s.includes('BEKOR')) {
+    return formatDateYmd(sDate || appDate || createdAt)
+  }
+
+  // For Under Review / Received / Supplement / Application:
+  // status_date if available (e.g. review/supplement update), otherwise application_date (when applied/received)
+  return formatDateYmd(sDate || appDate || createdAt)
+}
+
+/**
  * Visa decision date (심사일자/진행상태 date, e.g. "허가 (2026.07.29.)") as scraped
  * from visa.go.kr — distinct from applicationDate (신청일자). Stored under
  * apiResponse.entryDate by applyVisaCheckResult.
  */
 export function getStatusDate(student: Student): string {
+  const sAny = student as unknown as Record<string, unknown>
+  if (sAny.statusDate && typeof sAny.statusDate === 'string') return sAny.statusDate
+  if (sAny.status_date && typeof sAny.status_date === 'string') return sAny.status_date
+
   const data = parseApiResponse(student.apiResponse)
   if (!data) return ''
   const rec = data as Record<string, unknown>

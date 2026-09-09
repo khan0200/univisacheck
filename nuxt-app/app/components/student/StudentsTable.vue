@@ -3,9 +3,14 @@ import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useWindowScroll, useWindowSize, useNow } from '@vueuse/core'
 import type { Student } from '~/types/student'
 import { formatTimestampCompact } from '~/utils/format'
-import { getCancellationReason, getStatusDate } from '~/utils/visa-status'
+import { getCancellationReason, getStatusDate, getStatusAppliedDate, formatDateYmd } from '~/utils/visa-status'
 
 const now = useNow({ interval: 10_000 })
+const studentsStore = useStudentsStore()
+
+function toggleStatusDateSort() {
+  studentsStore.toggleStatusDateSort()
+}
 
 const props = defineProps<{
   students: Student[]
@@ -225,7 +230,15 @@ watch([() => props.students, () => props.currentFilter], () => {
               />
             </div>
           </div>
-          <StudentStatusBadge :status="student.status" />
+          <div class="flex flex-col items-end gap-0.5">
+            <StudentStatusBadge :status="student.status" />
+            <span
+              v-if="getStatusAppliedDate(student)"
+              class="text-[10px] font-mono text-neutral-400 dark:text-neutral-500 font-medium tracking-tight pr-0.5"
+            >
+              {{ getStatusAppliedDate(student) }}
+            </span>
+          </div>
         </div>
 
         <StudentRejectionReason
@@ -236,7 +249,7 @@ watch([() => props.students, () => props.currentFilter], () => {
 
         <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
           <span v-if="showAppliedColumn">Applied: {{ student.applicationDate || '--' }}</span>
-          <span v-if="showStatusDateColumn">Status date: {{ getStatusDate(student) || '--' }}</span>
+          <span v-if="showStatusDateColumn">Status date: {{ formatDateYmd(getStatusDate(student)) || getStatusDate(student) || '--' }}</span>
           <span
             v-else-if="checkingPassports.has(student.passport)"
             class="inline-flex items-center gap-1.5 text-xs"
@@ -335,9 +348,28 @@ watch([() => props.students, () => props.currentFilter], () => {
             </th>
             <th
               v-if="showStatusDateColumn"
-              class="px-3 py-1.5 w-32"
+              class="px-3 py-1.5 w-32 cursor-pointer hover:bg-neutral-200/70 dark:hover:bg-white/10 transition-colors select-none"
+              :title="studentsStore.sortBy === 'statusDateDesc' ? 'Status tepaga (bosilsa: Status pastga)' : 'Status pastga (bosilsa: Status tepaga)'"
+              @click="toggleStatusDateSort"
             >
-              Status Date
+              <div class="inline-flex items-center gap-1">
+                <span>Status Date</span>
+                <span
+                  v-if="studentsStore.sortBy === 'statusDateDesc'"
+                  class="text-primary-600 dark:text-primary-400 font-bold text-xs"
+                  title="Status tepaga"
+                >↑</span>
+                <span
+                  v-else-if="studentsStore.sortBy === 'statusDateAsc'"
+                  class="text-primary-600 dark:text-primary-400 font-bold text-xs"
+                  title="Status pastga"
+                >↓</span>
+                <UIcon
+                  v-else
+                  name="i-lucide-arrow-up-down"
+                  class="size-3 text-neutral-400 opacity-60"
+                />
+              </div>
             </th>
             <th
               v-else
@@ -463,8 +495,16 @@ watch([() => props.students, () => props.currentFilter], () => {
                 />
               </div>
             </td>
-            <td class="px-4 py-3 align-middle">
-              <StudentStatusBadge :status="student.status" />
+            <td class="px-4 py-3 align-middle whitespace-nowrap">
+              <div class="inline-flex flex-col items-start gap-0.5">
+                <StudentStatusBadge :status="student.status" />
+                <span
+                  v-if="getStatusAppliedDate(student)"
+                  class="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 font-medium tracking-tight pl-0.5"
+                >
+                  {{ getStatusAppliedDate(student) }}
+                </span>
+              </div>
             </td>
             <td
               v-if="showAppliedColumn"
@@ -476,7 +516,7 @@ watch([() => props.students, () => props.currentFilter], () => {
               v-if="showStatusDateColumn"
               class="px-4 py-3 align-middle whitespace-nowrap text-[var(--color-text-secondary)]"
             >
-              {{ getStatusDate(student) || '--' }}
+              {{ formatDateYmd(getStatusDate(student)) || getStatusDate(student) || '--' }}
             </td>
             <td
               v-else

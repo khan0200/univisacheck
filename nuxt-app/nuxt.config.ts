@@ -49,6 +49,7 @@ export default defineNuxtConfig({
     '/auth': { ssr: false },
     '/add': { ssr: false },
     '/cabinet': { ssr: false },
+    '/visacheck': { redirect: '/cabinet' },
     '/leads': { ssr: false },
     '/dashboard': { ssr: false },
     '/settings': { ssr: false },
