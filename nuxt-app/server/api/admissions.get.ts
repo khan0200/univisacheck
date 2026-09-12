@@ -12,8 +12,14 @@ export interface AdmissionRow {
     roundNumber?: number
     onlineApplicationFrom?: string
     onlineApplicationTo?: string
+    documentSubmissionFrom?: string
+    documentSubmissionTo?: string
     documentSubmission?: string
     interview?: string
+    interviewFrom?: string
+    interviewTo?: string
+    announcementFrom?: string
+    announcementTo?: string
     announcement?: string
   }> | null
   visa_types: string[] | null

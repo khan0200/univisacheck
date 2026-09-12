@@ -162,11 +162,18 @@ function getAdmissionStatus(item: Admission) {
 
   // 1. Active admission (nearest closing deadline first)
   if (activeEndMs !== Infinity) {
+    const daysLeft = Math.ceil((activeEndMs - nowMs) / (1000 * 60 * 60 * 24))
+    const isClosingSoon = daysLeft <= 3
+
     return {
       type: 'ongoing',
       priority: 1,
-      label: 'Active',
-      badgeClass: 'bg-emerald-700 text-white font-bold shadow-xs',
+      label: isClosingSoon
+        ? (daysLeft === 0 ? 'Last day!' : daysLeft === 1 ? '1 day left!' : `${daysLeft} days left!`)
+        : 'Active',
+      badgeClass: isClosingSoon
+        ? 'bg-rose-600 text-white font-bold shadow-xs'
+        : 'bg-emerald-700 text-white font-bold shadow-xs',
       dotClass: 'bg-white animate-pulse',
       sortTimestamp: activeEndMs
     }

@@ -282,6 +282,8 @@ const formModalOpen = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 const editingId = ref<string | null>(null)
 const activeTab = ref<'uni' | 'admission'>('admission')
+const activeRoundIdx = ref(0)
+const roundTransition = ref('slide-left')
 const isSaving = ref(false)
 const isPopulatingForm = ref(false)
 
@@ -315,8 +317,8 @@ function handleUniBlur() {
 
 const form = reactive({
   university_name: '',
-  education_level: 'BACHELOR',
-  admission_period: '2027 SPRING',
+  education_level: '',
+  admission_period: '',
   rounds_count: '1',
   is_expected: false,
   expected_from: '',
@@ -328,8 +330,14 @@ const form = reactive({
       roundNumber: 1,
       onlineApplicationFrom: '',
       onlineApplicationTo: '',
+      documentSubmissionFrom: '',
+      documentSubmissionTo: '',
       documentSubmission: '',
+      interviewFrom: '',
+      interviewTo: '',
       interview: '',
+      announcementFrom: '',
+      announcementTo: '',
       announcement: ''
     }
   ]
@@ -337,25 +345,32 @@ const form = reactive({
 
 function resetForm() {
   form.university_name = ''
-  form.education_level = 'BACHELOR'
-  form.admission_period = '2027 SPRING'
+  form.education_level = ''
+  form.admission_period = ''
   form.rounds_count = '1'
   form.is_expected = false
   form.expected_from = ''
   form.expected_to = ''
-  form.visa_types = ['Elchixona orqali']
-  form.university_types = ['1% Lik universitet', 'Xususiy universitet']
+  form.visa_types = []
+  form.university_types = []
   form.rounds = [
     {
       roundNumber: 1,
       onlineApplicationFrom: '',
       onlineApplicationTo: '',
+      documentSubmissionFrom: '',
+      documentSubmissionTo: '',
       documentSubmission: '',
+      interviewFrom: '',
+      interviewTo: '',
       interview: '',
+      announcementFrom: '',
+      announcementTo: '',
       announcement: ''
     }
   ]
   activeTab.value = 'uni'
+  activeRoundIdx.value = 0
 }
 
 function handleRoundsCountChange(val: string) {
@@ -373,14 +388,25 @@ function handleRoundsCountChange(val: string) {
         roundNumber: i,
         onlineApplicationFrom: existing?.onlineApplicationFrom || '',
         onlineApplicationTo: existing?.onlineApplicationTo || '',
+        documentSubmissionFrom: existing?.documentSubmissionFrom || '',
+        documentSubmissionTo: existing?.documentSubmissionTo || '',
         documentSubmission: existing?.documentSubmission || '',
+        interviewFrom: existing?.interviewFrom || '',
+        interviewTo: existing?.interviewTo || '',
         interview: existing?.interview || '',
+        announcementFrom: existing?.announcementFrom || '',
+        announcementTo: existing?.announcementTo || '',
         announcement: existing?.announcement || ''
       })
     }
     form.rounds = newRounds
   }
+  activeRoundIdx.value = 0
 }
+
+watch(activeRoundIdx, (newVal, oldVal) => {
+  roundTransition.value = newVal > oldVal ? 'slide-left' : 'slide-right'
+})
 
 function openAddModal() {
   formMode.value = 'add'
@@ -396,7 +422,7 @@ function openEditModal(item: Admission) {
   resetForm()
 
   form.university_name = item.university_name || ''
-  form.education_level = item.education_level || 'BACHELOR'
+  form.education_level = item.education_level || ''
   form.admission_period = item.admission_period || ''
   form.visa_types = [...(item.visa_types || [])]
   form.university_types = [...(item.university_types || [])]
@@ -416,21 +442,70 @@ function openEditModal(item: Admission) {
     const countNum = parseInt(count, 10) || 1
 
     if (rawRounds.length > 0) {
-      form.rounds = rawRounds.map((r, i) => ({
-        roundNumber: r.roundNumber || (i + 1),
-        onlineApplicationFrom: r.onlineApplicationFrom || '',
-        onlineApplicationTo: r.onlineApplicationTo || '',
-        documentSubmission: r.documentSubmission || '',
-        interview: r.interview || '',
-        announcement: r.announcement || ''
-      }))
+      form.rounds = rawRounds.map((r, i) => {
+        let from = r.interviewFrom || ''
+        let to = r.interviewTo || ''
+        if (!from && !to && r.interview) {
+          if (r.interview.includes('~')) {
+            const parts = r.interview.split('~').map(s => s.trim())
+            from = parts[0] || ''
+            to = parts[1] || ''
+          } else {
+            from = r.interview.trim()
+          }
+        }
+        // Parse documentSubmission range
+        let docFrom = r.documentSubmissionFrom || ''
+        let docTo = r.documentSubmissionTo || ''
+        if (!docFrom && !docTo && r.documentSubmission) {
+          if (r.documentSubmission.includes('~')) {
+            const parts = r.documentSubmission.split('~').map((s: string) => s.trim())
+            docFrom = parts[0] || ''
+            docTo = parts[1] || ''
+          } else {
+            docFrom = r.documentSubmission.trim()
+          }
+        }
+        // Parse announcement range
+        let annFrom = r.announcementFrom || ''
+        let annTo = r.announcementTo || ''
+        if (!annFrom && !annTo && r.announcement) {
+          if (r.announcement.includes('~')) {
+            const parts = r.announcement.split('~').map((s: string) => s.trim())
+            annFrom = parts[0] || ''
+            annTo = parts[1] || ''
+          } else {
+            annFrom = r.announcement.trim()
+          }
+        }
+        return {
+          roundNumber: r.roundNumber || (i + 1),
+          onlineApplicationFrom: r.onlineApplicationFrom || '',
+          onlineApplicationTo: r.onlineApplicationTo || '',
+          documentSubmissionFrom: docFrom,
+          documentSubmissionTo: docTo,
+          documentSubmission: r.documentSubmission || '',
+          interviewFrom: from,
+          interviewTo: to,
+          interview: r.interview || '',
+          announcementFrom: annFrom,
+          announcementTo: annTo,
+          announcement: r.announcement || ''
+        }
+      })
     } else {
       form.rounds = Array.from({ length: countNum }, (_, i) => ({
         roundNumber: i + 1,
         onlineApplicationFrom: '',
         onlineApplicationTo: '',
+        documentSubmissionFrom: '',
+        documentSubmissionTo: '',
         documentSubmission: '',
+        interviewFrom: '',
+        interviewTo: '',
         interview: '',
+        announcementFrom: '',
+        announcementTo: '',
         announcement: ''
       }))
     }
@@ -515,6 +590,12 @@ async function handleSave() {
     return
   }
 
+  if (!form.education_level) {
+    toast.add({ title: 'Iltimos, ta\'lim darajasini tanlang', color: 'error' })
+    activeTab.value = 'uni'
+    return
+  }
+
   const isExpected = form.rounds_count === 'EXPECTED'
 
   // Validate that online application dates follow chronological order
@@ -524,11 +605,23 @@ async function handleSave() {
       if (!r) continue
       const roundLabel = `${i + 1}-Bosqich`
 
-      // 1. DAN vs GACHA
+      // 1. DAN vs GACHA (Online Application)
       if (r.onlineApplicationFrom && r.onlineApplicationTo) {
         if (r.onlineApplicationTo < r.onlineApplicationFrom) {
           toast.add({
             title: `${roundLabel}: Ariza tugash sanasi (${r.onlineApplicationTo}) boshlanish sanasidan (${r.onlineApplicationFrom}) oldin bo'lishi mumkin emas.`,
+            color: 'error'
+          })
+          activeTab.value = 'admission'
+          return
+        }
+      }
+
+      // 2. DAN vs GACHA (Suhbat)
+      if (r.interviewFrom && r.interviewTo) {
+        if (r.interviewTo < r.interviewFrom) {
+          toast.add({
+            title: `${roundLabel}: Suhbat tugash sanasi (${r.interviewTo}) boshlanish sanasidan (${r.interviewFrom}) oldin bo'lishi mumkin emas.`,
             color: 'error'
           })
           activeTab.value = 'admission'
@@ -558,7 +651,26 @@ async function handleSave() {
       payload.rounds = []
     } else {
       payload.expected_date_range = null
-      payload.rounds = form.rounds
+      payload.rounds = form.rounds.map(r => ({
+        roundNumber: r.roundNumber,
+        onlineApplicationFrom: r.onlineApplicationFrom || '',
+        onlineApplicationTo: r.onlineApplicationTo || '',
+        documentSubmissionFrom: r.documentSubmissionFrom || '',
+        documentSubmissionTo: r.documentSubmissionTo || '',
+        documentSubmission: r.documentSubmissionFrom && r.documentSubmissionTo && r.documentSubmissionFrom !== r.documentSubmissionTo
+          ? `${r.documentSubmissionFrom} ~ ${r.documentSubmissionTo}`
+          : (r.documentSubmissionFrom || r.documentSubmissionTo || ''),
+        interviewFrom: r.interviewFrom || '',
+        interviewTo: r.interviewTo || '',
+        interview: r.interviewFrom && r.interviewTo && r.interviewFrom !== r.interviewTo
+          ? `${r.interviewFrom} ~ ${r.interviewTo}`
+          : (r.interviewFrom || r.interviewTo || ''),
+        announcementFrom: r.announcementFrom || '',
+        announcementTo: r.announcementTo || '',
+        announcement: r.announcementFrom && r.announcementTo && r.announcementFrom !== r.announcementTo
+          ? `${r.announcementFrom} ~ ${r.announcementTo}`
+          : (r.announcementFrom || r.announcementTo || '')
+      }))
     }
 
     const res = await $fetch<{ success: boolean, data?: Admission, error?: string }>('/api/admissions/manage', {
@@ -1233,342 +1345,340 @@ const filteredAdmissions = computed(() => {
       :admission="selectedAdmission"
     />
 
-    <!-- Add / Edit Modal (Matching User Screenshot 2) -->
+    <!-- Add / Edit Modal -->
     <UModal
       :open="formModalOpen"
-      :ui="{ content: 'sm:max-w-3xl rounded-3xl max-h-[92vh] flex flex-col overflow-hidden' }"
+      :ui="{ content: 'sm:max-w-2xl rounded-3xl max-h-[92vh] flex flex-col overflow-hidden' }"
       @update:open="formModalOpen = $event"
     >
       <template #content>
-        <div class="p-4 sm:p-5 flex flex-col max-h-[92vh] bg-white dark:bg-[var(--color-card-dark)] rounded-3xl">
-          <!-- Modal Header (Fixed) -->
-          <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-white/[0.08] shrink-0">
-            <div class="flex items-center gap-2.5">
-              <div class="size-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20 shrink-0">
-                <UIcon
-                  name="i-lucide-graduation-cap"
-                  class="size-5"
-                />
+        <div class="flex flex-col max-h-[92vh] bg-[#F7F7F8] dark:bg-[#111214] rounded-3xl overflow-hidden">
+          <!-- Modal Header -->
+          <div class="px-5 pt-5 pb-4 bg-[#F7F7F8] dark:bg-[#111214] shrink-0">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5">
+                  {{ formMode === 'add' ? 'Yangi qo\'shish' : 'Tahrirlash' }}
+                </p>
+                <h2 class="font-bold text-xl text-slate-900 dark:text-white tracking-tight">
+                  {{ formMode === 'add' ? 'Qabul E\'loni' : form.university_name || 'Qabul E\'loni' }}
+                </h2>
               </div>
-              <h2 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                {{ formMode === 'add' ? 'Qabul E\'lonini Qo\'shish' : 'Qabul E\'lonini Tahrirlash' }}
-              </h2>
+              <button
+                type="button"
+                class="size-8 rounded-full bg-black/[0.06] dark:bg-white/10 text-slate-500 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center transition-colors shrink-0 mt-0.5"
+                @click="formModalOpen = false"
+              >
+                <UIcon name="i-lucide-x" class="size-4" />
+              </button>
             </div>
 
-            <button
-              type="button"
-              class="size-7.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center transition-colors"
-              @click="formModalOpen = false"
-            >
-              <UIcon
-                name="i-lucide-x"
-                class="size-4.5"
-              />
-            </button>
-          </div>
-
-          <!-- Tab Navigation (Fixed) -->
-          <div class="flex items-center gap-5 border-b border-slate-100 dark:border-white/[0.08] text-xs font-semibold pt-1 shrink-0">
-            <button
-              type="button"
-              class="pb-2 flex items-center gap-1.5 transition-colors border-b-2"
-              :class="activeTab === 'uni' ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-              @click="activeTab = 'uni'"
-            >
-              <UIcon
-                name="i-lucide-building-2"
-                class="size-3.5"
-              />
-              Universitet
-            </button>
-            <button
-              type="button"
-              class="pb-2 flex items-center gap-1.5 transition-colors border-b-2"
-              :class="activeTab === 'admission' ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-              @click="activeTab = 'admission'"
-            >
-              <UIcon
-                name="i-lucide-calendar-days"
-                class="size-3.5"
-              />
-              Qabul
-            </button>
+            <!-- iOS Segmented Pill Tabs -->
+            <div class="mt-4 p-1 bg-black/[0.05] dark:bg-white/[0.06] rounded-xl flex gap-1">
+              <button
+                type="button"
+                class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-[9px] text-xs font-semibold transition-all"
+                :class="activeTab === 'uni'
+                  ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+                @click="activeTab = 'uni'"
+              >
+                <UIcon name="i-lucide-building-2" class="size-3.5" />
+                Universitet
+              </button>
+              <button
+                type="button"
+                class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-[9px] text-xs font-semibold transition-all"
+                :class="activeTab === 'admission'
+                  ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+                @click="activeTab = 'admission'"
+              >
+                <UIcon name="i-lucide-calendar-days" class="size-3.5" />
+                Qabul Jadvali
+              </button>
+            </div>
           </div>
 
           <!-- Form Body (Scrollable) -->
           <form
-            class="flex-1 overflow-y-auto max-h-[calc(92vh-130px)] pr-1 pt-3 pb-2 space-y-3"
+            class="flex-1 overflow-y-auto px-4 pb-4 space-y-3"
             @submit.prevent="handleSave"
           >
             <!-- TAB 1: Universitet -->
-            <div
-              v-show="activeTab === 'uni'"
-              class="space-y-3"
-            >
-              <!-- University Card with Auto-Suggest Dropdown -->
-              <div class="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3.5 bg-white dark:bg-white/[0.02]">
-                <label class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                  UNIVERSITET <span class="text-rose-500">*</span>
-                </label>
-                <div class="relative">
-                  <input
-                    v-model="form.university_name"
-                    autocomplete="off"
-                    placeholder="Universitet nomini yozing (masalan: Korea, Yonsei, Inha)..."
-                    class="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-white/[0.12] bg-white dark:bg-white/[0.05] text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase placeholder:normal-case placeholder:font-normal"
-                    @input="handleUniInput"
-                    @focus="handleUniInput"
-                    @blur="handleUniBlur"
-                  >
+            <div v-show="activeTab === 'uni'" class="space-y-3">
 
-                  <!-- Custom Suggestions Dropdown Below Input -->
-                  <div
-                    v-if="isUniDropdownOpen && matchingUniversities.length > 0"
-                    class="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/[0.12] shadow-2xl max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.06] p-1.5"
-                  >
-                    <button
-                      v-for="u in matchingUniversities"
-                      :key="u"
-                      type="button"
-                      class="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-600 transition-all flex items-center gap-2.5 cursor-pointer"
-                      @mousedown.prevent="selectUniversity(u)"
+              <!-- University Name -->
+              <div class="rounded-2xl bg-white dark:bg-white/[0.04] overflow-hidden">
+                <div class="px-4 pt-3 pb-1">
+                  <label class="block text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                    Universitet Nomi <span class="text-rose-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input
+                      v-model="form.university_name"
+                      autocomplete="off"
+                      placeholder="Korea, Yonsei, Inha..."
+                      class="w-full h-10 px-3.5 rounded-xl border border-slate-200/80 dark:border-white/[0.10] bg-slate-50 dark:bg-white/[0.03] text-sm font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 focus:outline-none uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400"
+                      @input="handleUniInput"
+                      @focus="handleUniInput"
+                      @blur="handleUniBlur"
                     >
-                      <UIcon
-                        name="i-lucide-building-2"
-                        class="size-3.5 text-blue-500 shrink-0"
-                      />
-                      <span class="truncate">{{ u }}</span>
-                    </button>
+                    <div
+                      v-if="isUniDropdownOpen && matchingUniversities.length > 0"
+                      class="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#1C1E22] rounded-2xl border border-slate-200 dark:border-white/[0.10] shadow-2xl max-h-52 overflow-y-auto p-1.5 space-y-0.5"
+                    >
+                      <button
+                        v-for="u in matchingUniversities"
+                        :key="u"
+                        type="button"
+                        class="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-600 transition-all flex items-center gap-2.5 cursor-pointer"
+                        @mousedown.prevent="selectUniversity(u)"
+                      >
+                        <UIcon name="i-lucide-building-2" class="size-3.5 text-blue-500 shrink-0" />
+                        <span class="truncate">{{ u }}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
+
+                <!-- Divider -->
+                <div class="mx-4 h-px bg-slate-100 dark:bg-white/[0.05] my-3" />
+
+                <!-- Education Level -->
+                <div class="px-4 pb-3">
+                  <label class="block text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                    Ta'lim Darajasi <span class="text-rose-500">*</span>
+                  </label>
+                  <USelect
+                    v-model="form.education_level"
+                    :items="[
+                      { value: 'BACHELOR', label: 'Bakalavr' },
+                      { value: 'MASTERS', label: 'Magistratura' },
+                      { value: 'MASTER NO CERTIFICATE', label: 'Magistr (Sertifikatsiz)' },
+                      { value: 'COLLEGE', label: 'Kollej' },
+                      { value: 'LANGUAGE COURSE', label: 'Til Kursi' }
+                    ]"
+                    placeholder="Tanlang..."
+                    value-key="value"
+                    label-key="label"
+                    size="md"
+                    class="w-full"
+                  />
+                </div>
               </div>
 
-              <!-- Education Level Card -->
-              <div class="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3.5 bg-white dark:bg-white/[0.02]">
-                <label class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                  TA'LIM DARAJASI <span class="text-rose-500">*</span>
-                </label>
-                <USelect
-                  v-model="form.education_level"
-                  :items="[
-                    { value: 'BACHELOR', label: 'BAKALAVR' },
-                    { value: 'MASTERS', label: 'MAGISTRATURA' },
-                    { value: 'MASTER NO CERTIFICATE', label: 'MAGISTR (SERTIFIKATSIZ)' },
-                    { value: 'COLLEGE', label: 'KOLLEJ' },
-                    { value: 'LANGUAGE COURSE', label: 'TIL KURSI' }
-                  ]"
-                  value-key="value"
-                  label-key="label"
-                  size="md"
-                  class="w-full font-medium"
-                />
-              </div>
-
-              <!-- Visa Types Card -->
-              <div class="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3.5 bg-white dark:bg-white/[0.02]">
-                <label class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                  VIZA TURI
-                </label>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label
+              <!-- Visa Types (Pill Chips) -->
+              <div class="rounded-2xl bg-white dark:bg-white/[0.04] px-4 py-3.5">
+                <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2.5">Viza Turi</p>
+                <div class="flex flex-wrap gap-2">
+                  <button
                     v-for="v in ['Elchixona orqali', 'E-Viza', 'Regional viza', 'Telex viza']"
                     :key="v"
-                    class="flex items-center gap-2 cursor-pointer font-medium text-slate-800 dark:text-slate-200"
-                  >
-                    <input
-                      v-model="form.visa_types"
-                      type="checkbox"
-                      :value="v"
-                      class="rounded text-blue-600 focus:ring-blue-500 size-3.5"
-                    >
-                    <span>{{ v }}</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- University Types Card -->
-              <div class="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3.5 bg-white dark:bg-white/[0.02]">
-                <label class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                  UNIVERSITET TURI
-                </label>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label
-                    v-for="u in ['1% Lik universitet', 'Xususiy universitet', 'Davlat universiteti']"
-                    :key="u"
-                    class="flex items-center gap-2 cursor-pointer font-medium text-slate-800 dark:text-slate-200"
-                  >
-                    <input
-                      v-model="form.university_types"
-                      type="checkbox"
-                      :value="u"
-                      class="rounded text-blue-600 focus:ring-blue-500 size-3.5"
-                    >
-                    <span>{{ u }}</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- TAB 2: Qabul (Screenshot 2 Exact Design) -->
-            <div
-              v-show="activeTab === 'admission'"
-              class="space-y-3"
-            >
-              <!-- Card 1: QABUL SEMESTRI -->
-              <div class="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3 bg-white dark:bg-white/[0.02] space-y-2">
-                <label class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  QABUL SEMESTRI (SEMISTER)
-                </label>
-                <input
-                  v-model="form.admission_period"
-                  placeholder="2027 SPRING"
-                  class="w-full h-9.5 px-3 rounded-xl border border-slate-200 dark:border-white/[0.12] bg-white dark:bg-white/[0.05] text-xs font-semibold text-slate-900 dark:text-white uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
-
-                <!-- Quick Pickup Suggestions -->
-                <div class="flex flex-wrap items-center gap-1 pt-0.5">
-                  <button
-                    v-for="sem in SEMESTER_SUGGESTIONS"
-                    :key="sem"
                     type="button"
-                    class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase transition-all cursor-pointer border"
-                    :class="form.admission_period === sem
-                      ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-white/10 border-slate-200/70 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/15 hover:text-blue-600 dark:hover:text-blue-300 hover:border-blue-200'"
-                    @click="form.admission_period = sem"
+                    class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer"
+                    :class="form.visa_types.includes(v)
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-600/20'
+                      : 'bg-slate-100 dark:bg-white/[0.06] border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-500/40'"
+                    @click="form.visa_types.includes(v) ? form.visa_types.splice(form.visa_types.indexOf(v), 1) : form.visa_types.push(v)"
                   >
-                    {{ sem }}
+                    {{ v }}
                   </button>
                 </div>
               </div>
 
-              <!-- Card 2: BOSQICHLAR SONI -->
-              <div class="rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3 bg-white dark:bg-white/[0.02]">
-                <label class="block text-[10.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  BOSQICHLAR SONI <span class="text-rose-500">*</span>
-                </label>
-                <USelect
-                  :model-value="form.rounds_count"
-                  :items="[
-                    { value: '1', label: '1 Bosqich' },
-                    { value: '2', label: '2 Bosqich' },
-                    { value: '3', label: '3 Bosqich' },
-                    { value: '4', label: '4 Bosqich' },
-                    { value: '5', label: '5 Bosqich' },
-                    { value: 'EXPECTED', label: 'Kutilmoqda (Sanalar hali noaniq)' }
-                  ]"
-                  value-key="value"
-                  label-key="label"
-                  size="md"
-                  class="w-full font-medium"
-                  @update:model-value="handleRoundsCountChange"
-                />
+              <!-- University Types (Pill Chips) -->
+              <div class="rounded-2xl bg-white dark:bg-white/[0.04] px-4 py-3.5">
+                <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2.5">Universitet Turi</p>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="u in ['1% Lik universitet', 'Xususiy universitet', 'Davlat universiteti']"
+                    :key="u"
+                    type="button"
+                    class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer"
+                    :class="form.university_types.includes(u)
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-600/20'
+                      : 'bg-slate-100 dark:bg-white/[0.06] border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-500/40'"
+                    @click="form.university_types.includes(u) ? form.university_types.splice(form.university_types.indexOf(u), 1) : form.university_types.push(u)"
+                  >
+                    {{ u }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: Qabul Jadvali -->
+            <div v-show="activeTab === 'admission'" class="space-y-3">
+
+              <!-- Semester + Rounds Count in one card -->
+              <div class="rounded-2xl bg-white dark:bg-white/[0.04] overflow-hidden">
+                <!-- Semester -->
+                <div class="px-4 pt-3.5 pb-3">
+                  <label class="block text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                    Qabul Semestri
+                  </label>
+                  <input
+                    v-model="form.admission_period"
+                    placeholder="2027 SPRING"
+                    class="w-full h-10 px-3.5 rounded-xl border border-slate-200/80 dark:border-white/[0.10] bg-slate-50 dark:bg-white/[0.03] text-sm font-semibold text-slate-900 dark:text-white uppercase focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 focus:outline-none placeholder:normal-case placeholder:font-normal placeholder:text-slate-400"
+                  >
+                  <div class="flex flex-wrap gap-1.5 mt-2">
+                    <button
+                      v-for="sem in SEMESTER_SUGGESTIONS"
+                      :key="sem"
+                      type="button"
+                      class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold uppercase transition-all cursor-pointer border"
+                      :class="form.admission_period === sem
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-white/[0.06] border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-slate-400 hover:border-blue-300 hover:text-blue-600'"
+                      @click="form.admission_period = sem"
+                    >
+                      {{ sem }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="mx-4 h-px bg-slate-100 dark:bg-white/[0.05]" />
+
+                <!-- Rounds Count -->
+                <div class="px-4 py-3.5">
+                  <label class="block text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                    Bosqichlar Soni <span class="text-rose-500">*</span>
+                  </label>
+                  <USelect
+                    :model-value="form.rounds_count"
+                    :items="[
+                      { value: '1', label: '1 Bosqich' },
+                      { value: '2', label: '2 Bosqich' },
+                      { value: '3', label: '3 Bosqich' },
+                      { value: '4', label: '4 Bosqich' },
+                      { value: '5', label: '5 Bosqich' },
+                      { value: 'EXPECTED', label: 'Kutilmoqda (Sanalar hali noaniq)' }
+                    ]"
+                    value-key="value"
+                    label-key="label"
+                    size="md"
+                    class="w-full"
+                    @update:model-value="handleRoundsCountChange"
+                  />
+                </div>
               </div>
 
-              <!-- Expected Date Range Box -->
+              <!-- Expected Date Range -->
               <div
                 v-if="form.rounds_count === 'EXPECTED'"
-                class="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 space-y-2.5"
+                class="rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 px-4 py-3.5 space-y-3"
               >
-                <div class="flex items-center gap-2 text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider">
-                  <UIcon
-                    name="i-lucide-clock"
-                    class="size-3.5"
-                  />
-                  Kutilayotgan Sana Oralig'i (Ixtiyoriy)
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-clock" class="size-3.5 text-amber-600 dark:text-amber-400" />
+                  <span class="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-widest">Kutilayotgan Sana Oralig'i</span>
                 </div>
-                <div class="grid grid-cols-2 gap-2.5">
+                <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-[10.5px] font-semibold text-amber-800 dark:text-amber-300 mb-1">DAN</label>
+                    <label class="block text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase mb-1.5">DAN</label>
                     <UiDatePartInput v-model="form.expected_from" />
                   </div>
                   <div>
-                    <label class="block text-[10.5px] font-semibold text-amber-800 dark:text-amber-300 mb-1">GACHA</label>
+                    <label class="block text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase mb-1.5">GACHA</label>
                     <UiDatePartInput v-model="form.expected_to" />
                   </div>
                 </div>
               </div>
 
-              <!-- Regular Rounds List (Left Blue Border Cards Matching Screenshot 2) -->
-              <div
-                v-else
-                class="space-y-3"
-              >
-                <div
+              <!-- Round Tabs (shown when >1 round) -->
+              <div v-if="form.rounds.length > 1" class="flex gap-1.5">
+                <button
                   v-for="(r, idx) in form.rounds"
                   :key="idx"
-                  class="rounded-2xl border border-slate-200 dark:border-white/[0.08] border-l-4 border-l-blue-600 p-3.5 sm:p-4 bg-white dark:bg-white/[0.02] space-y-3 shadow-xs"
+                  type="button"
+                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border"
+                  :class="activeRoundIdx === idx
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                    : 'bg-white dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-slate-400 hover:border-blue-300 hover:text-blue-600'"
+                  @click="activeRoundIdx = idx"
                 >
-                  <!-- Round Title Header with blue badge -->
-                  <div class="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-white/[0.06]">
-                    <span class="size-5 rounded-full bg-blue-600 text-white font-bold text-[11px] flex items-center justify-center">
-                      {{ idx + 1 }}
-                    </span>
-                    <span class="font-bold text-[11px] text-slate-900 dark:text-white uppercase tracking-wider">
-                      {{ idx + 1 }}-BOSQICH
-                    </span>
-                  </div>
+                  Round {{ idx + 1 }}
+                </button>
+              </div>
 
-                  <!-- Online Application Date Range (DAN - GACHA) -->
-                  <div>
-                    <span class="block text-[10.5px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                      ONLAYN ARIZA TOPSHIRISH MUDDATI
-                    </span>
-                    <div class="grid grid-cols-2 gap-2.5">
-                      <div>
-                        <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">
-                          DAN
-                        </label>
-                        <UiDatePartInput v-model="r.onlineApplicationFrom" />
-                      </div>
-                      <div>
-                        <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">
-                          GACHA
-                        </label>
-                        <UiDatePartInput v-model="r.onlineApplicationTo" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Document Submission & Interview (Grid 2 Columns) -->
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div>
-                      <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">
-                        HUJJAT TOPSHIRISH
-                      </label>
-                      <UiDatePartInput
-                        v-model="r.documentSubmission"
-                        clearable
-                      />
-                    </div>
-
-                    <div>
-                      <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">
-                        SUHBAT
-                      </label>
-                      <UiDatePartInput
-                        v-model="r.interview"
-                        clearable
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Result Announcement (Full width) -->
-                  <div>
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">
-                      NATIJA (E'LON)
-                    </label>
-                    <UiDatePartInput
-                      v-model="r.announcement"
-                      clearable
-                    />
-                  </div>
+              <!-- Single Round Card with slide transition -->
+              <div v-if="form.rounds.length > 0" class="rounded-2xl bg-white dark:bg-white/[0.04] overflow-hidden">
+                <!-- Round Header (only for single round) -->
+                <div v-if="form.rounds.length === 1" class="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 dark:bg-white/[0.02] border-b border-slate-100 dark:border-white/[0.05]">
+                  <div class="size-6 rounded-full bg-blue-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0">1</div>
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300 tracking-wider uppercase">1-Bosqich</span>
                 </div>
+
+                <Transition :name="roundTransition" mode="out-in">
+                  <div :key="activeRoundIdx" class="divide-y divide-slate-100 dark:divide-white/[0.05]">
+
+                    <!-- Onlayn Ariza -->
+                    <div class="px-3.5 py-2">
+                      <p class="text-[9.5px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Onlayn Ariza</p>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <label class="block text-[9px] font-bold text-blue-500 uppercase mb-1 tracking-wider">DAN</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].onlineApplicationFrom" />
+                        </div>
+                        <div>
+                          <label class="block text-[9px] font-bold text-blue-500 uppercase mb-1 tracking-wider">GACHA</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].onlineApplicationTo" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Hujjat Topshirish -->
+                    <div class="px-3.5 py-2">
+                      <p class="text-[9.5px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Hujjat Topshirish</p>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">DAN</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].documentSubmissionFrom" clearable />
+                        </div>
+                        <div>
+                          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">GACHA</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].documentSubmissionTo" clearable />
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Suhbat -->
+                    <div class="px-3.5 py-2">
+                      <p class="text-[9.5px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Suhbat (Interview)</p>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">DAN</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].interviewFrom" clearable />
+                        </div>
+                        <div>
+                          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">GACHA</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].interviewTo" clearable />
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Natija E'lon -->
+                    <div class="px-3.5 py-2">
+                      <p class="text-[9.5px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Natija E'lon</p>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">DAN</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].announcementFrom" clearable />
+                        </div>
+                        <div>
+                          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">GACHA</label>
+                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].announcementTo" clearable />
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </Transition>
               </div>
             </div>
 
-            <!-- Modal Footer Actions (Sticky Bottom) -->
-            <div class="sticky bottom-0 bg-white dark:bg-[var(--color-card-dark)] flex items-center justify-end gap-2.5 pt-2.5 pb-0.5 border-t border-slate-100 dark:border-white/[0.08]">
+            <!-- Modal Footer -->
+            <div class="sticky bottom-0 bg-[#F7F7F8] dark:bg-[#111214] flex items-center justify-between gap-2.5 pt-3 pb-1">
               <button
                 type="button"
                 class="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/[0.12] bg-white dark:bg-white/5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors"
@@ -1650,3 +1760,33 @@ const filteredAdmissions = computed(() => {
     </UModal>
   </div>
 </template>
+
+<style scoped>
+/* Round slide-left: going to higher round index */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(18px);
+}
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-18px);
+}
+
+/* Round slide-right: going to lower round index */
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-18px);
+}
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(18px);
+}
+</style>
