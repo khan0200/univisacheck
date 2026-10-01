@@ -219,6 +219,19 @@ const levelFilter = ref('all')
 const uniTypeFilter = ref('all')
 const visaTypeFilter = ref('all')
 
+const levelLabels: Record<string, string> = {
+  'BACHELOR': 'BAKALAVR',
+  'MASTERS': 'MAGISTRATURA',
+  'MASTER NO CERTIFICATE': 'MAGISTR (SERTIFIKATSIZ)',
+  'COLLEGE': 'KOLLEJ',
+  'LANGUAGE COURSE': 'TIL KURSI'
+}
+
+function getEducationLevelName(lvl?: string | null) {
+  if (!lvl) return 'BAKALAVR'
+  return levelLabels[lvl.toUpperCase()] || lvl.toUpperCase()
+}
+
 const levelOptions = [
   { value: 'all', label: 'Ta\'lim darajasi (Barchasi)' },
   { value: 'LANGUAGE COURSE', label: 'TIL KURSI' },
@@ -291,6 +304,34 @@ const isPopulatingForm = ref(false)
 // University Autocomplete Suggestion Dropdown
 const isUniDropdownOpen = ref(false)
 
+const form = reactive({
+  university_name: '',
+  education_level: '',
+  admission_period: '',
+  rounds_count: '1',
+  is_expected: false,
+  expected_from: '',
+  expected_to: '',
+  visa_types: [] as string[],
+  university_types: [] as string[],
+  rounds: [
+    {
+      roundNumber: 1,
+      onlineApplicationFrom: '',
+      onlineApplicationTo: '',
+      documentSubmissionFrom: '',
+      documentSubmissionTo: '',
+      documentSubmission: '',
+      interviewFrom: '',
+      interviewTo: '',
+      interview: '',
+      announcementFrom: '',
+      announcementTo: '',
+      announcement: ''
+    }
+  ]
+})
+
 const matchingUniversities = computed(() => {
   const q = form.university_name.trim().toLowerCase()
   if (!q) return []
@@ -334,34 +375,6 @@ watch(() => form.university_name, (newName) => {
   if (detected.length > 0) {
     form.university_types = detected
   }
-})
-
-const form = reactive({
-  university_name: '',
-  education_level: '',
-  admission_period: '',
-  rounds_count: '1',
-  is_expected: false,
-  expected_from: '',
-  expected_to: '',
-  visa_types: [] as string[],
-  university_types: [] as string[],
-  rounds: [
-    {
-      roundNumber: 1,
-      onlineApplicationFrom: '',
-      onlineApplicationTo: '',
-      documentSubmissionFrom: '',
-      documentSubmissionTo: '',
-      documentSubmission: '',
-      interviewFrom: '',
-      interviewTo: '',
-      interview: '',
-      announcementFrom: '',
-      announcementTo: '',
-      announcement: ''
-    }
-  ]
 })
 
 function resetForm() {
@@ -923,19 +936,6 @@ async function handleDelete() {
   } finally {
     isDeleting.value = false
   }
-}
-
-const levelLabels: Record<string, string> = {
-  'BACHELOR': 'BAKALAVR',
-  'MASTERS': 'MAGISTRATURA',
-  'MASTER NO CERTIFICATE': 'MAGISTR (SERTIFIKATSIZ)',
-  'COLLEGE': 'KOLLEJ',
-  'LANGUAGE COURSE': 'TIL KURSI'
-}
-
-function getEducationLevelName(lvl?: string | null) {
-  if (!lvl) return 'BAKALAVR'
-  return levelLabels[lvl.toUpperCase()] || lvl.toUpperCase()
 }
 
 function getRoundBadgeClass(roundNum: number | string) {
@@ -1762,7 +1762,7 @@ const filteredAdmissions = computed(() => {
                 </div>
 
                 <Transition :name="roundTransition" mode="out-in">
-                  <div :key="activeRoundIdx" class="divide-y divide-slate-100 dark:divide-white/[0.05]">
+                  <div v-if="form.rounds[activeRoundIdx]" :key="activeRoundIdx" class="divide-y divide-slate-100 dark:divide-white/[0.05]">
 
                     <!-- Onlayn Ariza -->
                     <div class="px-3.5 py-2">
