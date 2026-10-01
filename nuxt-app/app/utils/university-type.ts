@@ -46,15 +46,17 @@ export function isOnePercentUniversity(name: string): boolean {
   if (rawUpper.includes('1%') || rawUpper.includes('(1%)')) return true
 
   const clean = cleanUniName(name)
+  if (!clean || clean.length < 4) return false
+
   for (const op of cleanOnePercentList) {
-    if (clean === op || clean.startsWith(op) || op.startsWith(clean)) {
+    if (clean === op || clean.startsWith(op)) {
       return true
     }
   }
 
   const found = universitiesData.find((u: { name: string; is1Percent?: boolean }) => {
     const uClean = cleanUniName(u.name)
-    return clean === uClean || clean.startsWith(uClean) || uClean.startsWith(clean)
+    return clean === uClean || clean.startsWith(uClean)
   })
 
   return !!found?.is1Percent
@@ -66,16 +68,18 @@ export function isOnePercentUniversity(name: string): boolean {
 export function isNationalUniversity(name: string): boolean {
   if (!name || !name.trim()) return false
   const clean = cleanUniName(name)
+  if (!clean || clean.length < 4) return false
 
   for (const pat of NATIONAL_PATTERNS) {
-    if (clean.includes(cleanUniName(pat))) {
+    const patClean = cleanUniName(pat)
+    if (clean === patClean || clean.includes(patClean)) {
       return true
     }
   }
 
   const found = universitiesData.find((u: { name: string; type?: string }) => {
     const uClean = cleanUniName(u.name)
-    return clean === uClean || clean.startsWith(uClean) || uClean.startsWith(clean)
+    return clean === uClean || clean.startsWith(uClean)
   })
 
   return !!(found?.type && found.type.toLowerCase().includes('davlat'))

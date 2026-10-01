@@ -327,7 +327,10 @@ const form = reactive({
       interview: '',
       announcementFrom: '',
       announcementTo: '',
-      announcement: ''
+      announcement: '',
+      _fromYear: '',
+      _toYear: '',
+      _bottomYear: ''
     }
   ]
 })
@@ -350,9 +353,14 @@ function selectUniversity(u: string) {
 function handleUniInput() {
   if (form.university_name.trim()) {
     isUniDropdownOpen.value = true
-    const detected = detectUniversityTypes(form.university_name)
-    if (detected.length > 0) {
-      form.university_types = detected
+    const exactMatch = ALL_UNIVERSITIES.find(u => u.toLowerCase() === form.university_name.trim().toLowerCase())
+    if (exactMatch) {
+      const detected = detectUniversityTypes(exactMatch)
+      if (detected.length > 0) {
+        form.university_types = detected
+      }
+    } else if (formMode.value === 'add') {
+      form.university_types = []
     }
   } else {
     isUniDropdownOpen.value = false
@@ -365,17 +373,17 @@ function handleUniInput() {
 function handleUniBlur() {
   setTimeout(() => {
     isUniDropdownOpen.value = false
+    if (form.university_name.trim()) {
+      const exactMatch = ALL_UNIVERSITIES.find(u => u.toLowerCase() === form.university_name.trim().toLowerCase())
+      if (exactMatch) {
+        const detected = detectUniversityTypes(exactMatch)
+        if (detected.length > 0) {
+          form.university_types = detected
+        }
+      }
+    }
   }, 250)
 }
-
-watch(() => form.university_name, (newName) => {
-  if (isPopulatingForm.value) return
-  if (!newName || !newName.trim()) return
-  const detected = detectUniversityTypes(newName)
-  if (detected.length > 0) {
-    form.university_types = detected
-  }
-})
 
 function resetForm() {
   form.university_name = ''
@@ -400,9 +408,14 @@ function resetForm() {
       interview: '',
       announcementFrom: '',
       announcementTo: '',
-      announcement: ''
+      announcement: '',
+      _fromYear: '',
+      _toYear: '',
+      _bottomYear: ''
     }
   ]
+  expectedFromYear.value = ''
+  expectedToYear.value = ''
   activeTab.value = 'uni'
   activeRoundIdx.value = 0
   selectedCopyAdmissionId.value = ''
@@ -477,7 +490,10 @@ function handleCopyDatesFromAdmission(id: string) {
         interview: r.interview || '',
         announcementFrom: r.announcementFrom || '',
         announcementTo: r.announcementTo || '',
-        announcement: r.announcement || ''
+        announcement: r.announcement || '',
+        _fromYear: extractYear(r.onlineApplicationFrom) || '',
+        _toYear: extractYear(r.onlineApplicationTo) || '',
+        _bottomYear: extractYear(r.onlineApplicationTo) || extractYear(r.onlineApplicationFrom) || ''
       }))
     } else {
       handleRoundsCountChange(count)
@@ -519,7 +535,10 @@ function handleRoundsCountChange(val: string) {
         interview: existing?.interview || '',
         announcementFrom: existing?.announcementFrom || '',
         announcementTo: existing?.announcementTo || '',
-        announcement: existing?.announcement || ''
+        announcement: existing?.announcement || '',
+        _fromYear: (existing as any)?._fromYear || '',
+        _toYear: (existing as any)?._toYear || '',
+        _bottomYear: (existing as any)?._bottomYear || ''
       })
     }
     form.rounds = newRounds
@@ -617,7 +636,10 @@ function openEditModal(item: Admission) {
           interview: r.interview || '',
           announcementFrom: annFrom,
           announcementTo: annTo,
-          announcement: r.announcement || ''
+          announcement: r.announcement || '',
+          _fromYear: extractYear(r.onlineApplicationFrom) || '',
+          _toYear: extractYear(r.onlineApplicationTo) || '',
+          _bottomYear: extractYear(r.onlineApplicationTo) || extractYear(r.onlineApplicationFrom) || ''
         }
       })
     } else {
@@ -633,7 +655,10 @@ function openEditModal(item: Admission) {
         interview: '',
         announcementFrom: '',
         announcementTo: '',
-        announcement: ''
+        announcement: '',
+        _fromYear: '',
+        _toYear: '',
+        _bottomYear: ''
       }))
     }
   }
@@ -643,6 +668,197 @@ function openEditModal(item: Admission) {
     isPopulatingForm.value = false
   })
 }
+
+// Date synchronization and year propagation helpers
+const currentYear = new Date().getFullYear().toString()
+
+function extractYear(dateStr?: string | null): string | null {
+  if (!dateStr) return null
+  const parts = String(dateStr).trim().replace(/[\.\/]/g, '-').split('-')
+  if (parts.length >= 1 && parts[0] && parts[0].length === 4 && !isNaN(Number(parts[0]))) {
+    return parts[0]
+  }
+  return null
+}
+
+function replaceYear(dateStr?: string | null, newYear?: string): string {
+  if (!dateStr || !newYear) return dateStr || ''
+  const normalized = String(dateStr).trim().replace(/[\.\/]/g, '-')
+  const parts = normalized.split('-')
+  if (parts.length >= 2) {
+    const mm = parts[1] || '01'
+    const dd = parts[2] || '01'
+    return `${newYear}-${mm}-${dd}`
+  }
+  return dateStr
+}
+
+function getRoundFromYear(round?: any): string {
+  if (!round) return currentYear
+  return extractYear(round.onlineApplicationFrom) || round._fromYear || currentYear
+}
+
+function getRoundToYear(round?: any): string {
+  if (!round) return currentYear
+  return extractYear(round.onlineApplicationTo) || round._toYear || getRoundFromYear(round)
+}
+
+function getRoundBottomYear(round?: any): string {
+  if (!round) return currentYear
+  return round._bottomYear || extractYear(round.onlineApplicationTo) || round._toYear || extractYear(round.onlineApplicationFrom) || round._fromYear || currentYear
+}
+
+function handleRoundFromYearChange(roundIdx: number, newYear: string) {
+  const r = form.rounds[roundIdx] as any
+  if (!r) return
+  const oldFromYear = getRoundFromYear(r)
+  const oldBottomYear = getRoundBottomYear(r)
+
+  r._fromYear = newYear
+
+  if (r.onlineApplicationFrom) {
+    r.onlineApplicationFrom = replaceYear(r.onlineApplicationFrom, newYear)
+  }
+
+  // If GACHA is empty or was using the old from year, sync GACHA year too
+  const toYear = extractYear(r.onlineApplicationTo)
+  if (!r.onlineApplicationTo || (toYear && toYear === oldFromYear)) {
+    r._toYear = newYear
+    if (r.onlineApplicationTo) {
+      r.onlineApplicationTo = replaceYear(r.onlineApplicationTo, newYear)
+    }
+  }
+
+  // Update bottom year
+  r._bottomYear = r._toYear || newYear
+
+  const bottomFields = [
+    'documentSubmissionFrom',
+    'documentSubmissionTo',
+    'interviewFrom',
+    'interviewTo',
+    'announcementFrom',
+    'announcementTo'
+  ] as const
+
+  bottomFields.forEach(field => {
+    if (r[field]) {
+      const fieldYear = extractYear(r[field])
+      if (!fieldYear || fieldYear === oldBottomYear || fieldYear === oldFromYear) {
+        r[field] = replaceYear(r[field], r._bottomYear)
+      }
+    }
+  })
+}
+
+function handleRoundToYearChange(roundIdx: number, newYear: string) {
+  const r = form.rounds[roundIdx] as any
+  if (!r) return
+  const oldToYear = getRoundToYear(r)
+  const oldBottomYear = getRoundBottomYear(r)
+
+  r._toYear = newYear
+  r._bottomYear = newYear
+
+  if (r.onlineApplicationTo) {
+    r.onlineApplicationTo = replaceYear(r.onlineApplicationTo, newYear)
+  }
+
+  const bottomFields = [
+    'documentSubmissionFrom',
+    'documentSubmissionTo',
+    'interviewFrom',
+    'interviewTo',
+    'announcementFrom',
+    'announcementTo'
+  ] as const
+
+  bottomFields.forEach(field => {
+    if (r[field]) {
+      const fieldYear = extractYear(r[field])
+      if (!fieldYear || fieldYear === oldBottomYear || fieldYear === oldToYear) {
+        r[field] = replaceYear(r[field], newYear)
+      }
+    }
+  })
+}
+
+// Watchers for typed / modified dates in form.rounds
+watch(
+  () => form.rounds.map(r => ({ from: r.onlineApplicationFrom, to: r.onlineApplicationTo })),
+  (newRounds, oldRounds) => {
+    if (isPopulatingForm.value) return
+    newRounds.forEach((curr, idx) => {
+      const prev = oldRounds?.[idx]
+      const r = form.rounds[idx] as any
+      if (!r) return
+
+      const currFromYr = extractYear(curr.from)
+      const prevFromYr = extractYear(prev?.from)
+      if (currFromYr && currFromYr !== prevFromYr && currFromYr !== r._fromYear) {
+        handleRoundFromYearChange(idx, currFromYr)
+      }
+
+      const currToYr = extractYear(curr.to)
+      const prevToYr = extractYear(prev?.to)
+      if (currToYr && currToYr !== prevToYr && currToYr !== r._toYear) {
+        handleRoundToYearChange(idx, currToYr)
+      }
+    })
+  },
+  { deep: true }
+)
+
+const expectedFromYear = ref('')
+const expectedToYear = ref('')
+
+function getExpectedFromYear(): string {
+  return extractYear(form.expected_from) || expectedFromYear.value || currentYear
+}
+
+function getExpectedToYear(): string {
+  return extractYear(form.expected_to) || expectedToYear.value || getExpectedFromYear()
+}
+
+function handleExpectedFromYearChange(newYear: string) {
+  const oldYear = getExpectedFromYear()
+  expectedFromYear.value = newYear
+  if (form.expected_from) {
+    form.expected_from = replaceYear(form.expected_from, newYear)
+  }
+  const toYr = extractYear(form.expected_to)
+  if (!form.expected_to || (toYr && toYr === oldYear)) {
+    expectedToYear.value = newYear
+    if (form.expected_to) {
+      form.expected_to = replaceYear(form.expected_to, newYear)
+    }
+  }
+}
+
+function handleExpectedToYearChange(newYear: string) {
+  expectedToYear.value = newYear
+  if (form.expected_to) {
+    form.expected_to = replaceYear(form.expected_to, newYear)
+  }
+}
+
+watch(
+  () => [form.expected_from, form.expected_to],
+  ([newFrom, newTo], [oldFrom, oldTo]) => {
+    if (isPopulatingForm.value) return
+    const currFromYr = extractYear(newFrom)
+    const prevFromYr = extractYear(oldFrom)
+    if (currFromYr && currFromYr !== prevFromYr && currFromYr !== expectedFromYear.value) {
+      handleExpectedFromYearChange(currFromYr)
+    }
+
+    const currToYr = extractYear(newTo)
+    const prevToYr = extractYear(oldTo)
+    if (currToYr && currToYr !== prevToYr && currToYr !== expectedToYear.value) {
+      handleExpectedToYearChange(currToYr)
+    }
+  }
+)
 
 // Auto-sync HUJJAT TOPSHIRISH date to match GACHA date if empty or previously synced
 watch(
@@ -1728,11 +1944,19 @@ const filteredAdmissions = computed(() => {
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase mb-1.5">DAN</label>
-                    <UiDatePartInput v-model="form.expected_from" />
+                    <UiDatePartInput
+                      v-model="form.expected_from"
+                      :placeholder-year="getExpectedFromYear()"
+                      @year-change="handleExpectedFromYearChange"
+                    />
                   </div>
                   <div>
                     <label class="block text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase mb-1.5">GACHA</label>
-                    <UiDatePartInput v-model="form.expected_to" />
+                    <UiDatePartInput
+                      v-model="form.expected_to"
+                      :placeholder-year="getExpectedToYear()"
+                      @year-change="handleExpectedToYearChange"
+                    />
                   </div>
                 </div>
               </div>
@@ -1770,11 +1994,19 @@ const filteredAdmissions = computed(() => {
                       <div class="grid grid-cols-2 gap-2">
                         <div>
                           <label class="block text-[9px] font-bold text-blue-500 uppercase mb-1 tracking-wider">DAN</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].onlineApplicationFrom" />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].onlineApplicationFrom"
+                            :placeholder-year="getRoundFromYear(form.rounds[activeRoundIdx])"
+                            @year-change="(yr) => handleRoundFromYearChange(activeRoundIdx, yr)"
+                          />
                         </div>
                         <div>
                           <label class="block text-[9px] font-bold text-blue-500 uppercase mb-1 tracking-wider">GACHA</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].onlineApplicationTo" />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].onlineApplicationTo"
+                            :placeholder-year="getRoundToYear(form.rounds[activeRoundIdx])"
+                            @year-change="(yr) => handleRoundToYearChange(activeRoundIdx, yr)"
+                          />
                         </div>
                       </div>
                     </div>
@@ -1785,11 +2017,19 @@ const filteredAdmissions = computed(() => {
                       <div class="grid grid-cols-2 gap-2">
                         <div>
                           <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">DAN</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].documentSubmissionFrom" clearable />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].documentSubmissionFrom"
+                            :placeholder-year="getRoundBottomYear(form.rounds[activeRoundIdx])"
+                            clearable
+                          />
                         </div>
                         <div>
                           <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">GACHA</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].documentSubmissionTo" clearable />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].documentSubmissionTo"
+                            :placeholder-year="getRoundBottomYear(form.rounds[activeRoundIdx])"
+                            clearable
+                          />
                         </div>
                       </div>
                     </div>
@@ -1800,11 +2040,19 @@ const filteredAdmissions = computed(() => {
                       <div class="grid grid-cols-2 gap-2">
                         <div>
                           <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">DAN</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].interviewFrom" clearable />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].interviewFrom"
+                            :placeholder-year="getRoundBottomYear(form.rounds[activeRoundIdx])"
+                            clearable
+                          />
                         </div>
                         <div>
                           <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">GACHA</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].interviewTo" clearable />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].interviewTo"
+                            :placeholder-year="getRoundBottomYear(form.rounds[activeRoundIdx])"
+                            clearable
+                          />
                         </div>
                       </div>
                     </div>
@@ -1815,11 +2063,19 @@ const filteredAdmissions = computed(() => {
                       <div class="grid grid-cols-2 gap-2">
                         <div>
                           <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">DAN</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].announcementFrom" clearable />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].announcementFrom"
+                            :placeholder-year="getRoundBottomYear(form.rounds[activeRoundIdx])"
+                            clearable
+                          />
                         </div>
                         <div>
                           <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-wider">GACHA</label>
-                          <UiDatePartInput v-model="form.rounds[activeRoundIdx].announcementTo" clearable />
+                          <UiDatePartInput
+                            v-model="form.rounds[activeRoundIdx].announcementTo"
+                            :placeholder-year="getRoundBottomYear(form.rounds[activeRoundIdx])"
+                            clearable
+                          />
                         </div>
                       </div>
                     </div>

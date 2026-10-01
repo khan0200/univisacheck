@@ -1,12 +1,13 @@
 <script setup lang="ts">
 const props = defineProps<{
   modelValue?: string | null
-  placeholderYear?: string
+  placeholderYear?: string | number
   clearable?: boolean
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  'yearChange': [year: string]
   'complete': []
   'clear': []
 }>()
@@ -17,7 +18,12 @@ const currentYear = new Date().getFullYear().toString()
 const baseYear = new Date().getFullYear()
 const baseYearList = Array.from({ length: 9 }, (_, i) => (baseYear - 2 + i).toString())
 
-const yyyy = ref(currentYear)
+const initialYear = computed(() => {
+  if (props.placeholderYear) return String(props.placeholderYear)
+  return currentYear
+})
+
+const yyyy = ref(initialYear.value)
 const mm = ref('')
 const dd = ref('')
 
@@ -25,6 +31,9 @@ const yearOptions = computed(() => {
   const set = new Set(baseYearList)
   if (yyyy.value && !set.has(yyyy.value)) {
     set.add(yyyy.value)
+  }
+  if (props.placeholderYear && !set.has(String(props.placeholderYear))) {
+    set.add(String(props.placeholderYear))
   }
   return Array.from(set).sort()
 })
@@ -38,7 +47,7 @@ let lastEmitted = ''
 function syncFromModel(val?: string | null) {
   if (val === lastEmitted) return
   if (!val) {
-    yyyy.value = currentYear
+    yyyy.value = props.placeholderYear ? String(props.placeholderYear) : currentYear
     mm.value = ''
     dd.value = ''
     lastEmitted = ''
@@ -47,12 +56,12 @@ function syncFromModel(val?: string | null) {
   const normalized = String(val).trim().replace(/[\.\/]/g, '-')
   const parts = normalized.split('-')
   if (parts.length >= 3) {
-    yyyy.value = parts[0] || currentYear
+    yyyy.value = parts[0] || (props.placeholderYear ? String(props.placeholderYear) : currentYear)
     mm.value = parts[1] ? parts[1].padStart(2, '0') : ''
     dd.value = parts[2] ? parts[2].padStart(2, '0') : ''
     lastEmitted = `${yyyy.value}-${mm.value}-${dd.value}`
   } else if (parts.length === 2) {
-    yyyy.value = parts[0] || currentYear
+    yyyy.value = parts[0] || (props.placeholderYear ? String(props.placeholderYear) : currentYear)
     mm.value = parts[1] ? parts[1].padStart(2, '0') : ''
     dd.value = ''
     lastEmitted = `${yyyy.value}-${mm.value}-01`
@@ -61,8 +70,17 @@ function syncFromModel(val?: string | null) {
 
 watch(() => props.modelValue, syncFromModel, { immediate: true })
 
+watch(() => props.placeholderYear, (newYear) => {
+  if (newYear) {
+    const yr = String(newYear)
+    if (!props.modelValue || !props.modelValue.trim()) {
+      yyyy.value = yr
+    }
+  }
+})
+
 function emitCombined() {
-  const y = yyyy.value.trim() || currentYear
+  const y = yyyy.value.trim() || (props.placeholderYear ? String(props.placeholderYear) : currentYear)
   const m = mm.value.trim()
   const d = dd.value.trim()
 
@@ -89,6 +107,7 @@ function emitCombined() {
 }
 
 function handleYearChange() {
+  emit('yearChange', yyyy.value)
   emitCombined()
   nextTick(() => {
     mmRef.value?.focus()
@@ -99,6 +118,9 @@ function handleYearChange() {
 function clearDate() {
   mm.value = ''
   dd.value = ''
+  if (props.placeholderYear) {
+    yyyy.value = String(props.placeholderYear)
+  }
   lastEmitted = ''
   emit('update:modelValue', '')
   emit('clear')
