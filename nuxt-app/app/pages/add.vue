@@ -8,6 +8,7 @@ import {
   RESTRICTED_BACHELOR_UNIVERSITIES,
   RESTRICTED_LANGUAGE_COURSE_UNIVERSITIES
 } from '~/data/accredited-universities'
+import { detectUniversityTypes } from '~/utils/university-type'
 
 definePageMeta({ layout: 'public' })
 
@@ -299,13 +300,24 @@ const matchingUniversities = computed(() => {
 function selectUniversity(u: string) {
   form.university_name = u
   isUniDropdownOpen.value = false
+  const detected = detectUniversityTypes(u)
+  if (detected.length > 0) {
+    form.university_types = detected
+  }
 }
 
 function handleUniInput() {
   if (form.university_name.trim()) {
     isUniDropdownOpen.value = true
+    const detected = detectUniversityTypes(form.university_name)
+    if (detected.length > 0) {
+      form.university_types = detected
+    }
   } else {
     isUniDropdownOpen.value = false
+    if (formMode.value === 'add') {
+      form.university_types = []
+    }
   }
 }
 
@@ -314,6 +326,15 @@ function handleUniBlur() {
     isUniDropdownOpen.value = false
   }, 250)
 }
+
+watch(() => form.university_name, (newName) => {
+  if (isPopulatingForm.value) return
+  if (!newName || !newName.trim()) return
+  const detected = detectUniversityTypes(newName)
+  if (detected.length > 0) {
+    form.university_types = detected
+  }
+})
 
 const form = reactive({
   university_name: '',
@@ -371,6 +392,95 @@ function resetForm() {
   ]
   activeTab.value = 'uni'
   activeRoundIdx.value = 0
+  selectedCopyAdmissionId.value = ''
+  copiedFromUni.value = ''
+}
+
+// Copy dates from another existing admission
+const selectedCopyAdmissionId = ref('')
+const copiedFromUni = ref('')
+
+const copyAdmissionOptions = computed(() => {
+  const items = admissions.value || []
+  const available = items.filter((item: Admission) => {
+    if (editingId.value && String(item.id) === String(editingId.value)) return false
+    const hasRounds = item.rounds && item.rounds.length > 0 && item.rounds.some(r => r.onlineApplicationFrom || r.onlineApplicationTo)
+    const hasExpected = item.is_expected && (item.expected_date_range?.from || item.expected_date_range?.to)
+    return hasRounds || hasExpected
+  })
+
+  return available.map((item: Admission) => {
+    const level = getEducationLevelName(item.education_level)
+    const period = item.admission_period ? ` • ${item.admission_period}` : ''
+    const roundsDesc = (item.is_expected || item.rounds_count === 'EXPECTED')
+      ? 'Kutilmoqda'
+      : `${item.rounds?.length || 1} bosqich`
+
+    let datePreview = ''
+    if (item.rounds && item.rounds[0]?.onlineApplicationFrom) {
+      datePreview = ` (${item.rounds[0].onlineApplicationFrom} ~ ${item.rounds[0].onlineApplicationTo || ''})`
+    } else if (item.expected_date_range?.from) {
+      datePreview = ` (${item.expected_date_range.from} ~ ${item.expected_date_range.to || ''})`
+    }
+
+    return {
+      value: String(item.id),
+      label: `${item.university_name} [${level}${period}] — ${roundsDesc}${datePreview}`
+    }
+  })
+})
+
+function handleCopyDatesFromAdmission(id: string) {
+  if (!id) return
+  const target = admissions.value.find((item: Admission) => String(item.id) === String(id))
+  if (!target) return
+
+  selectedCopyAdmissionId.value = id
+  copiedFromUni.value = target.university_name || ''
+
+  const isExp = target.is_expected || target.rounds_count === 'EXPECTED'
+  form.is_expected = !!isExp
+
+  if (isExp) {
+    form.rounds_count = 'EXPECTED'
+    form.expected_from = target.expected_date_range?.from || ''
+    form.expected_to = target.expected_date_range?.to || ''
+    form.rounds = []
+  } else {
+    const rawRounds = target.rounds && Array.isArray(target.rounds) ? target.rounds : []
+    const count = rawRounds.length > 0 ? String(rawRounds.length) : (target.rounds_count || '1')
+    form.rounds_count = count
+
+    if (rawRounds.length > 0) {
+      form.rounds = rawRounds.map((r, i) => ({
+        roundNumber: r.roundNumber || i + 1,
+        onlineApplicationFrom: r.onlineApplicationFrom || '',
+        onlineApplicationTo: r.onlineApplicationTo || '',
+        documentSubmissionFrom: r.documentSubmissionFrom || '',
+        documentSubmissionTo: r.documentSubmissionTo || '',
+        documentSubmission: r.documentSubmission || '',
+        interviewFrom: r.interviewFrom || '',
+        interviewTo: r.interviewTo || '',
+        interview: r.interview || '',
+        announcementFrom: r.announcementFrom || '',
+        announcementTo: r.announcementTo || '',
+        announcement: r.announcement || ''
+      }))
+    } else {
+      handleRoundsCountChange(count)
+    }
+  }
+
+  if (!form.admission_period && target.admission_period) {
+    form.admission_period = target.admission_period
+  }
+
+  activeRoundIdx.value = 0
+
+  toast.add({
+    title: `${target.university_name} qabul sanalari nusxalandi`,
+    color: 'success'
+  })
 }
 
 function handleRoundsCountChange(val: string) {
@@ -425,7 +535,11 @@ function openEditModal(item: Admission) {
   form.education_level = item.education_level || ''
   form.admission_period = item.admission_period || ''
   form.visa_types = [...(item.visa_types || [])]
-  form.university_types = [...(item.university_types || [])]
+  if ((!item.university_types || item.university_types.length === 0) && item.university_name) {
+    form.university_types = detectUniversityTypes(item.university_name)
+  } else {
+    form.university_types = [...(item.university_types || [])]
+  }
 
   const isExp = item.is_expected || item.rounds_count === 'EXPECTED'
   form.is_expected = !!isExp
@@ -1487,9 +1601,20 @@ const filteredAdmissions = computed(() => {
                 </div>
               </div>
 
-              <!-- University Types (Pill Chips) -->
+              <!-- University Types (Auto-detected & Pill Chips) -->
               <div class="rounded-2xl bg-white dark:bg-white/[0.04] px-4 py-3.5">
-                <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2.5">Universitet Turi</p>
+                <div class="flex items-center justify-between gap-2 mb-2.5">
+                  <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    Universitet Turi
+                  </p>
+                  <span
+                    v-if="form.university_types.length > 0"
+                    class="inline-flex items-center gap-1 text-[10.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/50"
+                  >
+                    <UIcon name="i-lucide-sparkles" class="size-3" />
+                    Avtomatik aniqlandi
+                  </span>
+                </div>
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="u in ['1% Lik universitet', 'Xususiy universitet', 'Davlat universiteti']"
@@ -1560,6 +1685,33 @@ const filteredAdmissions = computed(() => {
                     size="md"
                     class="w-full"
                     @update:model-value="handleRoundsCountChange"
+                  />
+                </div>
+
+                <!-- Copy Dates from another admission / university -->
+                <div v-if="copyAdmissionOptions.length > 0" class="border-t border-slate-100 dark:border-white/[0.05] px-4 py-3.5 bg-slate-50/60 dark:bg-white/[0.02]">
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <label class="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                      <UIcon name="i-lucide-copy" class="size-3.5 text-blue-500" />
+                      Sanani boshqa universitetdan nusxalash
+                    </label>
+                    <span
+                      v-if="copiedFromUni"
+                      class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/50"
+                    >
+                      <UIcon name="i-lucide-check-circle" class="size-3" />
+                      {{ copiedFromUni }} dan nusxalandi
+                    </span>
+                  </div>
+                  <USelect
+                    :model-value="selectedCopyAdmissionId"
+                    :items="copyAdmissionOptions"
+                    placeholder="Mavjud universitet sanalaridan tanlang..."
+                    value-key="value"
+                    label-key="label"
+                    size="md"
+                    class="w-full"
+                    @update:model-value="handleCopyDatesFromAdmission"
                   />
                 </div>
               </div>

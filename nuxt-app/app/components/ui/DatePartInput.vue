@@ -13,9 +13,21 @@ const emit = defineEmits<{
 
 const currentYear = new Date().getFullYear().toString()
 
+// Generate year options from currentYear - 2 up to currentYear + 6 (e.g. 2024..2032)
+const baseYear = new Date().getFullYear()
+const baseYearList = Array.from({ length: 9 }, (_, i) => (baseYear - 2 + i).toString())
+
 const yyyy = ref(currentYear)
 const mm = ref('')
 const dd = ref('')
+
+const yearOptions = computed(() => {
+  const set = new Set(baseYearList)
+  if (yyyy.value && !set.has(yyyy.value)) {
+    set.add(yyyy.value)
+  }
+  return Array.from(set).sort()
+})
 
 const rootRef = ref<HTMLElement | null>(null)
 const mmRef = ref<HTMLInputElement | null>(null)
@@ -76,6 +88,14 @@ function emitCombined() {
   }
 }
 
+function handleYearChange() {
+  emitCombined()
+  nextTick(() => {
+    mmRef.value?.focus()
+    mmRef.value?.select()
+  })
+}
+
 function clearDate() {
   mm.value = ''
   dd.value = ''
@@ -119,18 +139,6 @@ function moveToPrevDateGroup() {
       }
     }
   })
-}
-
-function handleYearInput(e: Event) {
-  const input = e.target as HTMLInputElement
-  let val = input.value.replace(/\D/g, '')
-  if (val.length > 4) val = val.slice(0, 4)
-  yyyy.value = val
-  if (val.length === 4) {
-    mmRef.value?.focus()
-    mmRef.value?.select()
-  }
-  emitCombined()
 }
 
 function handleMonthInput(e: Event) {
@@ -207,18 +215,29 @@ function handleMonthKeydown(e: KeyboardEvent) {
 <template>
   <div
     ref="rootRef"
-    class="date-part-container flex items-center justify-start h-9.5 px-3 rounded-xl border border-slate-200 dark:border-white/[0.12] bg-white dark:bg-white/[0.05] text-xs text-slate-800 dark:text-white transition-all focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent"
+    class="date-part-container flex items-center justify-start h-9.5 px-2.5 rounded-xl border border-slate-200 dark:border-white/[0.12] bg-white dark:bg-white/[0.05] text-xs text-slate-800 dark:text-white transition-all focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent group"
   >
-    <!-- Year -->
-    <input
-      :value="yyyy"
-      type="text"
-      inputmode="numeric"
-      maxlength="4"
-      :placeholder="currentYear"
-      class="date-part-yyyy w-12 text-center font-semibold bg-transparent focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
-      @input="handleYearInput"
-    >
+    <!-- Year Select Dropdown -->
+    <div class="relative flex items-center shrink-0 pr-0.5">
+      <select
+        v-model="yyyy"
+        class="date-part-yyyy appearance-none bg-transparent pl-1.5 pr-4 py-1 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/10 transition-colors"
+        @change="handleYearChange"
+      >
+        <option
+          v-for="yr in yearOptions"
+          :key="yr"
+          :value="yr"
+          class="bg-white dark:bg-[#1E2024] text-slate-900 dark:text-white font-semibold py-1"
+        >
+          {{ yr }}
+        </option>
+      </select>
+      <UIcon
+        name="i-lucide-chevron-down"
+        class="size-3 text-slate-400 dark:text-slate-500 absolute right-0.5 pointer-events-none transition-colors group-hover:text-blue-500"
+      />
+    </div>
 
     <span class="text-slate-300 dark:text-slate-600 px-1 font-normal select-none">/</span>
 
@@ -268,3 +287,4 @@ function handleMonthKeydown(e: KeyboardEvent) {
     </button>
   </div>
 </template>
+
