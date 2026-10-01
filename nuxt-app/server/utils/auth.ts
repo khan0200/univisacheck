@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken'
 import { existsSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import path from 'node:path'
-import type { H3Event } from 'h3'
 
 export interface AuthUser {
   userId: number
@@ -47,7 +46,7 @@ export async function signToken(user: { id: number, email: string, username: str
  * Extracts and verifies JWT from `Authorization: Bearer <token>` header.
  * Returns the decoded payload or null if invalid/missing — never throws.
  */
-export async function verifyToken(event: H3Event): Promise<AuthUser | null> {
+export async function verifyToken(event: any): Promise<AuthUser | null> {
   const authHeader = getHeader(event, 'authorization') || ''
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
   if (!token) return null
@@ -60,7 +59,7 @@ export async function verifyToken(event: H3Event): Promise<AuthUser | null> {
 }
 
 /** Same as verifyToken, but throws a Nitro 401 error if no valid token is present. */
-export async function requireAuth(event: H3Event): Promise<AuthUser> {
+export async function requireAuth(event: any): Promise<AuthUser> {
   const user = await verifyToken(event)
   if (!user) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized. Please log in.' })

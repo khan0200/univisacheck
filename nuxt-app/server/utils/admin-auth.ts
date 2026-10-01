@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import path from 'node:path'
-import type { H3Event } from 'h3'
 
 // Fails closed if ADMIN_SECRET is unset — no insecure fallback default.
 // Used by both /api/visa-calc-leads and the admin /login command in
@@ -23,7 +22,7 @@ export async function getAdminSecret(): Promise<string> {
 }
 
 /** Compares an `Authorization: Bearer <token>` header against ADMIN_SECRET. */
-export async function isAdminRequest(event: H3Event): Promise<boolean> {
+export async function isAdminRequest(event: any): Promise<boolean> {
   const adminSecret = await getAdminSecret()
   if (!adminSecret) return false
   const authHeader = getHeader(event, 'authorization') || ''
@@ -32,7 +31,7 @@ export async function isAdminRequest(event: H3Event): Promise<boolean> {
 }
 
 /** Throws a Nitro 401 error if the request isn't authorized as admin. */
-export async function requireAdmin(event: H3Event): Promise<void> {
+export async function requireAdmin(event: any): Promise<void> {
   if (!(await isAdminRequest(event))) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }

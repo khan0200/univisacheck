@@ -1,8 +1,8 @@
 import {
   ONE_PERCENT_UNIVERSITIES,
   ONE_PERCENT_COLLEGES
-} from '~/data/accredited-universities'
-import universitiesData from '~/data/universities.json'
+} from '../data/accredited-universities'
+import universitiesData from '../data/universities.json'
 
 const NATIONAL_PATTERNS = [
   'NATIONAL UNIVERSITY',
